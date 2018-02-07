@@ -1,0 +1,86 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}机动车辆保险{% endblock %}
+
+{% block container_block %}
+{#    首页所在位置，进入页面后的默认页面#}
+<script  type="text/javascript">
+wx.ready(function () {
+	  // 2.1 监听“分享给朋友”，按钮点击、自定义分享内容及分享结果接口
+	  wx.onMenuShareAppMessage({
+	      title: '车险 商业险折后最高再返25%油卡',
+	      desc: '货车、轿车在线投保，人保、太保、平安等国内大型保险公司为您服务，欢迎试算保费。',
+	      link: '{{main_url}}wss/insure/product_detail7?referee_id={{ mine_id }}',
+	      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5UZha8Y5GQHtuDY2SkYLSn4zicy3CH77IAzZqiaxYZCfLuStQDaia0bqGqchjwicnnvvXl6dSUrhHdQdMA/0?wx_fmt=png',
+	    });
+	  
+	 //  2.2 监听“分享到朋友圈”按钮点击、自定义分享内容及分享结果接口
+	 wx.onMenuShareTimeline({
+	      title: '车险 商业险折后最高再返25%油卡',
+	      link:'{{main_url}}wss/insure/product_detail7?referee_id={{ mine_id }}',
+	      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5UZha8Y5GQHtuDY2SkYLSn4zicy3CH77IAzZqiaxYZCfLuStQDaia0bqGqchjwicnnvvXl6dSUrhHdQdMA/0?wx_fmt=png',
+	    });  
+});
+</script>
+
+    <div class="weui_cells_title hd" style="text-align: center;">机动车辆保险详情</div>
+    <div class="weui_cells">
+        <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>产品名称：</p>
+            </div>
+            <div class="weui_cell_ft">机动车辆保险</div>
+        </div>
+        <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>产品特点：</p>
+            </div>
+            <div class="weui_cell_ft">剔除中间成本，0利润促销</div>
+        </div>
+
+        <div class="weui_cells_title">产品简介</div>
+        <div class="weui_cells weui_cells_form">
+            <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <textarea class="weui_textarea" rows="2" disabled="disabled" style="background-color: #ffffff">私家车、单位车辆、营运货车，超低折扣，欢迎试算保费。
+                    </textarea>
+{#                    <div class="weui_textarea_counter"><span>0</span>/200</div>#}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="weui_cells weui_cells_access">
+        <a class="weui_cell" href="tel:15910731868">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>投保请咨询客服：</p>
+            </div>
+            <div class="weui_cell_ft">15910731868</div>
+        </a>
+    </div>
+    <div class="weui_cells">
+        <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>微信：</p>
+            </div>
+            <div class="weui_cell_ft">15910731868</div>
+        </div>
+    </div>
+{#    <a href="{% url 'wss:prompt' %}" class="weui_btn weui_btn_primary" style="margin-top: 300px">投保</a>#}
+
+    <div class="weui_cells">
+{#        <img src="{% static 'pic/default/logo.png' %}" style="max-width: 200px;max-height: 200px;display:block;text-align: center;margin-right: auto;margin-left: auto;">#}
+        <img src="{% static 'pic/default/ewm.jpg' %}" style="max-width: 350px;max-height: 200px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+        <div class="weui_cell_bd weui_cell_primary">
+            <p style="text-align: center;margin-right: auto;margin-left: auto;margin-top: 10px">长按上图选择“识别图中二维码”↑↑↑</p>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+{% endblock %}

@@ -1,0 +1,1035 @@
+{% extends 'bms/user/base_user.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block user_certificate %}class='active'{% endblock %}
+{% block title %} 认证详情 {% endblock %}
+
+{% block page_top %}
+
+<div class="row">
+    <div class="col-sm-2"></div>
+    <div class="col-sm-8">
+        <h2 class="text-center">认证详情</h2>
+        {% if message and message != '' %}
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="alert alert-warning">{{ message }}</div>
+                </div>
+            </div>
+        {% endif %}
+
+    {% if certificate.state == 'init' %}
+        {% if not certificate.product_car or not certificate.product_batch or not certificate.product_ticket %}
+         {# <a class="btn btn-success" data-toggle="modal" data-target="#confirm_product_modal"><i class=""></i>选择默认产品</a>#}
+        {% endif %}
+        {% if not certificate.national_id or not  certificate.national_effective_time or not  certificate.name%}
+            <a class="btn btn-success" data-toggle="modal" data-target="#confirm_national_modal"><i class=""></i>认证身份证</a>
+        {% endif %}
+        {% if certificate.user_type == 'transport' %}
+            {% if not certificate.business_license_id %}
+            <a class="btn btn-success" data-toggle="modal" data-target="#confirm_business_modal"><i class=""></i>认证营业执照正本</a>
+            {% endif %}
+            {% if certificate.organ_image and not certificate.organ %}
+            <a class="btn btn-success" data-toggle="modal" data-target="#confirm_organ_modal"><i class=""></i>认证组织机构代码证</a>
+            {% endif %}
+            {% if not certificate.operating_permit_id %}
+            <a class="btn btn-success" data-toggle="modal" data-target="#confirm_operating_modal"><i class=""></i>认证道路运输经营许可证</a>
+            {% endif %}
+        {% endif %}
+        {% if certificate.user_type == 'driver' %}
+            {% if not certificate.driver_id %}
+            <a class="btn btn-success" data-toggle="modal" data-target="#confirm_driver_modal"><i class=""></i>认证驾驶证</a>
+            {% endif %}
+            {% if not certificate.plate_number %}
+            <a class="btn btn-success" data-toggle="modal" data-target="#confirm_plate_modal"><i class=""></i>认证行驶证</a>
+            {% endif %}
+            {% if not certificate.transportation_license_id %}
+            <a class="btn btn-success" data-toggle="modal" data-target="#confirm_transportation_modal"><i class=""></i>认证营运证</a>
+            {% endif %}
+        {% endif %}
+        {% if certificate.user_type == 'boss' %}
+            {% if certificate.user_classify == 'units' %}
+                {% if not certificate.business_license_id %}
+                    <a class="btn btn-success" data-toggle="modal" data-target="#confirm_business_modal"><i class=""></i>认证营业执照</a>
+                {% endif %}
+                {% if certificate.organ_image and not certificate.organ %}
+                <a class="btn btn-success" data-toggle="modal" data-target="#confirm_organ_modal"><i class=""></i>认证组织机构代码证</a>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+        <a class="btn btn-success" data-toggle="modal" data-target="#fail_certificate_modal"><i class=""></i> 驳回</a>
+    {% endif %}
+<br/><br/>
+        <table class="table table-bordered">
+            <tr>
+              <td class="info text-center">认证目标</td>
+              <td class="text-center">{{ certificate|displayName:'user_type' }}&nbsp;&nbsp;&nbsp;&nbsp;{% if certificate.user_classify %}{{ certificate|displayName:'user_classify' }}{% endif %}</td>
+            </tr>
+            <tr>
+              <td class="info text-center">手机号码</td>
+              <td class="text-center">{{ certificate.client.profile.phone }}</td>
+            </tr>
+            <tr>
+              <td class="info text-center">认证状态</td>
+              <td class="text-center">{{ certificate|displayName:'state' }}</td>
+            </tr>
+            <tr>
+              <td class="info text-center">用户认证编码</td>
+              <td class="text-center">{{ certificate.client.paper_id }}</td>
+            </tr>
+        {% if certificate.product_car and certificate.product_batch and certificate.product_ticket %}
+            <tr>
+              <td class="info text-center">运单默认产品</td>
+              <td class="text-center">{{ certificate.product_car.name }}</td>
+            </tr>
+            <tr>
+              <td class="info text-center">车次默认产品</td>
+              <td class="text-center">{{ certificate.product_batch.name }}</td>
+            </tr>
+            <tr>
+              <td class="info text-center">单票默认产品</td>
+              <td class="text-center">{{ certificate.product_ticket.name }}</td>
+            </tr>
+        {% endif %}
+        {% if certificate.national_id and certificate.national_effective_time and certificate.name %}
+            <tr>
+              <td class="info text-center">姓名</td>
+              <td class="text-center">{{ certificate.name }}</td>
+            </tr>
+            <tr>
+              <td class="info text-center">身份证号</td>
+              <td class="text-center">{{ certificate.national_id }}</td>
+            </tr>
+            <tr>
+              <td class="info text-center">身份证有效期</td>
+              <td class="text-center">{{ certificate.national_effective_time|date:'Y年m月d日 H:i:s' }}</td>
+            </tr>
+            <tr>
+              <td class="info text-center">身份证正面照片</td>
+              <td class="text-center"style="max-width: 400px; word-wrap:break-word;"><a href="{% static '' %}{{ certificate.national_image }}" target="_blank"><img class="img-responsive" src="{% static '' %}{{ certificate.national_image }}"style="max-width: 250px;max-height: 100px;word-break:break-all"></a></td>
+            </tr>
+            <tr>
+              <td class="info text-center">身份证背面照片</td>
+              <td class="text-center"style="max-width: 400px; word-wrap:break-word;"><a href="{% static '' %}{{ certificate.national_image_down }}" target="_blank"><img class="img-responsive" src="{% static '' %}{{ certificate.national_image_down }}"style="max-width: 250px;max-height: 100px;word-break:break-all"></a></td>
+            </tr>
+        {% endif %}
+        {% if certificate.user_type == 'driver' %}
+            {% if certificate.driver_id %}
+                <tr>
+                  <td class="info text-center">驾驶证号</td>
+                  <td class="text-center">{{ certificate.driver_id }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">驾驶证照片</td>
+                  <td class="text-center"style="max-width: 300px; word-wrap:break-word;"><img class="img-responsive" src="{% static '' %}{{ certificate.driver_image }}"></td>
+                </tr>
+            {% endif %}
+            {% if certificate.plate_number %}
+            <tr>
+              <td class="info text-center">车牌号</td>
+              <td class="text-center">{{ certificate.plate_number }}</td>
+            </tr>
+            <tr>
+              <td class="info text-center">行驶证照片</td>
+              <td class="text-center"style="max-width: 400px; word-wrap:break-word;"><img class="img-responsive" src="{% static '' %}{{ certificate.plate_image }}"></td>
+            </tr>
+            {% endif %}
+            {% if certificate.transportation_license_id %}
+            <tr>
+              <td class="info text-center">营运证</td>
+              <td class="text-center">{{ certificate.transportation_license_id }}</td>
+            </tr>
+            <tr>
+              <td class="info text-center">营运证照片</td>
+              <td class="text-center"style="max-width: 400px; word-wrap:break-word;"><img class="img-responsive" src="{% static '' %}{{ certificate.transportation_image }}"></td>
+            </tr>
+            {% endif %}
+        {% endif %}
+        {% if certificate.user_type == 'transport' %}
+            {% if certificate.operating_permit_id %}
+            <tr>
+              <td class="info text-center">道路运输经营许可证</td>
+              <td class="text-center">{{ certificate.operating_permit_id }}</td>
+            </tr>
+            <tr>
+              <td class="info text-center">道路运输经营许可证照片</td>
+              <td class="text-center"><img class="img-responsive" src="{% static '' %}{{ certificate.operating_permit_image }}" style="width: 500px;height: 500px"></td>
+            </tr>
+            {% endif %}
+        {% endif %}
+        {% if certificate.user_type == 'transport' or certificate.user_type == 'boss' %}
+            {% if certificate.user_classify and certificate.user_classify != 'individuals' %}
+                {% if certificate.business_license_id %}
+                <tr>
+                  <td class="info text-center">营业执照</td>
+                  <td class="text-center">{{ certificate.business_license_id }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">公司名称</td>
+                  <td class="text-center">{{ certificate.company_name }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">营业执照照片</td>
+                  <td class="text-center"style="max-width: 400px; word-wrap:break-word;"><img class="img-responsive" src="{% static '' %}{{ certificate.business_license_image }}" style="width: 500px;height: 500px"></td>
+                </tr>
+                {% endif %}
+                {% if certificate.organ %}
+                    <tr>
+                      <td class="info text-center">组织机构代码</td>
+                      <td class="text-center">{{ certificate.organ }}</td>
+                    </tr>
+                    {% if certificate.organ_image %}
+                        <tr>
+                          <td class="info text-center">组织机构代码照片</td>
+                          <td class="text-center"style="max-width: 400px; word-wrap:break-word;"><img class="img-responsive" src="{% static '' %}{{ certificate.organ_image }}" style="width: 500px;height: 500px"></td>
+                        </tr>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+        {% endif %}
+            <tr>
+              <td class="info text-center">创建时间</td>
+              <td class="text-center">{{ certificate.create_time|date:'Y年m月d日 H:i:s' }}</td>
+            </tr>
+        {% if certificate.state != 'init' %}
+            <tr>
+              <td class="info text-center">认证时间</td>
+              <td class="text-center">{{ certificate.certificate_time|date:'Y年m月d日 H:i:s'|default_if_none:"" }}</td>
+            </tr>
+        {% endif %}
+        {% if certificate.state == 'fail' %}
+            <tr>
+              <td class="info text-center">认证失败原因</td>
+              <td class="text-center">
+                  <div>{{ certificate|displayName:'failed_reason'|default_if_none:"" }}</div>
+                  <div>{{ certificate.note|default_if_none:"" }}</div>
+              </td>
+            </tr>
+        {% endif %}
+        </table>
+    </div>
+</div>
+
+
+
+{#认证默认产品模态框#}
+<div class="modal fade" id="confirm_product_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<form id="product_form" class="form" method="post" action="{% url 'bms:certificate_result' certificate.id %}?type=product">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+{#                    <input type="hidden" value="on" id="" name="result">#}
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						设定默认产品
+					</h4>
+				</div>
+				<div class="modal-body">
+                    <div id="id_insurance_product_car" class="form-group">
+                        <label for="id_insurance_product_car_id"><i class="fa fa-film"></i> *运单默认发送产品： </label>
+                        <select class="form-control" id="id_insurance_product_car_id" name="insurance_product_car_id">
+                            <option value="">请选择</option>
+                              {% for insurance_product_car in insurance_product_cars %}
+                                <option value="{{ insurance_product_car.id }}" {% if certificate.product_car == insurance_product_car %} selected {% endif %}>{{ insurance_product_car.name }}</option>
+                              {% endfor %}
+                        </select>
+                    </div>
+                    <div id="id_insurance_product_batch" class="form-group">
+                        <label for="id_insurance_product_batch_id"><i class="fa fa-film"></i> *车次默认发送产品： </label>
+                        <select class="form-control" id="id_insurance_product_batch_id" name="insurance_product_batch_id">
+                            <option value="">请选择</option>
+                              {% for insurance_product_batch in insurance_product_batchs %}
+                                <option value="{{ insurance_product_batch.id }}" {% if certificate.product_batch == insurance_product_batch %} selected {% endif %}>{{ insurance_product_batch.name }}</option>
+                              {% endfor %}
+                        </select>
+                    </div>
+                    <div id="id_hidden_insurance_product_ticket" class="form-group">
+                        <label for="id_insurance_product_ticket_id"><i class="fa fa-film"></i> *单票默认发送产品： </label>
+                        <select class="form-control" id="id_insurance_product_ticket_id" name="insurance_product_ticket_id">
+                            <option value="">请选择</option>
+                              {% for insurance_product_ticket in insurance_product_tickets %}
+                                <option value="{{ insurance_product_ticket.id }}" {% if certificate.product_ticket == insurance_product_ticket %} selected {% endif %}>{{ insurance_product_ticket.name }}</option>
+                              {% endfor %}
+                        </select>
+                    </div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						确认
+					</button>
+{#                    <a class="btn btn-success" data-toggle="modal" data-target="#fail_certificate_modal" data-dismiss="modal"><i class=""></i> 驳回</a>#}
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+{#认证身份证模态框#}
+<div class="modal fade" id="confirm_national_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<form id="national_form" class="form" method="post" action="{% url 'bms:certificate_result' certificate.id %}?type=national">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+{#                    <input type="hidden" value="on" id="" name="result">#}
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						认证身份证
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+		                <a href="{% static '' %}{{ certificate.national_image }}"target="_blank">
+		                	<img class="img-responsive" src="{% static '' %}{{ certificate.national_image }}" style="max-width: 300px;max-height: 200px;word-break:break-all"> </a><br>
+		                <a href="{% static '' %}{{ certificate.national_image_down }}"target="_blank">
+                        	<img class="img-responsive" src="{% static '' %}{{ certificate.national_image_down }}" style="max-width: 300px;max-height: 200px;word-break:break-all"> </a><br>
+                        <br/>
+						<div class="form-group">
+                            <label class="control-label">姓名：</label>
+                            <input  name="modal_national_name">
+                        </div>
+						<div class="form-group">
+                            <label class="control-label">身份证号码：</label>
+                            <input  name="modal_national_id">
+                        </div>
+						<div class="form-group">
+							<label class="control-label" for="">身份证有效期：</label>
+							<input name="modal_national_effective" value="{{ posted_data.liability_date_start|default_if_none:'' }}"placeholder="保险期限起始日期"   
+             					           		onFocus="WdatePicker({isShowClear:false,readOnly:true,dateFmt: 'yyyy-MM-dd'})" > 
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						认证成功
+					</button>
+{#                    <a class="btn btn-success" data-toggle="modal" data-target="#fail_certificate_modal" data-dismiss="modal"><i class=""></i> 驳回</a>#}
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+{#认证营业执照模态框#}
+<div class="modal fade" id="confirm_business_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<form id="business_form" class="form" method="post" action="{% url 'bms:certificate_result' certificate.id %}?type=business">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+{#                    <input type="hidden" value="on" id="" name="result">#}
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						认证营业执照
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+                        <img class="img-responsive" src="{% static '' %}{{ certificate.business_license_image }}" style="">
+                        <br/>
+                        <div class="form-group">
+                            <label class="control-label">营业执照编号：</label>
+                            <input  name="modal_business_id">
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">单位名称：</label>
+                            <input  name="modal_business_name">
+                        </div>
+                        {% if not certificate.organ_image  %}
+{#                            or not certificate.tax_image#}
+                        <div class="form-group">
+                            <label class="control-label">组织机构代码：</label>
+                            <input  name="modal_business_organ">
+                        </div>
+                        {% endif %}
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						认证成功
+					</button>
+                    <a class="btn btn-success" data-toggle="modal" data-target="#fail_certificate_modal"><i class=""></i> 驳回</a>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+    {#认证组织机构代码模态框#}
+<div class="modal fade" id="confirm_organ_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<form id="organ_form" class="form" method="post" action="{% url 'bms:certificate_result' certificate.id %}?type=organ">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+{#                    <input type="hidden" value="on" id="" name="result">#}
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						认证组织机构代码
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+                        <img class="img-responsive" src="{% static '' %}{{ certificate.organ_image }}" style="">
+                        <br/>
+                        <label class="control-label">组织机构代码：</label>
+                        <input  name="modal_organ_id">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						认证成功
+					</button>
+{#                    <a class="btn btn-success" data-toggle="modal" data-target="#fail_certificate_modal"><i class=""></i> 驳回</a>#}
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+    {#认证道路运输经营许可证模态框#}
+<div class="modal fade" id="confirm_operating_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<form id="operating_form" class="form" method="post" action="{% url 'bms:certificate_result' certificate.id %}?type=operating">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+{#                    <input type="hidden" value="on" id="" name="result">#}
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						认证道路运输经营许可证
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+                        <img class="img-responsive" src="{% static '' %}{{ certificate.operating_permit_image }}" style="">
+                        <br/>
+                        <label class="control-label">业户的运输许可证编号：</label>
+                        <input  name="modal_operating_id">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						认证成功
+					</button>
+{#                    <a class="btn btn-success" data-toggle="modal" data-target="#fail_certificate_modal"><i class=""></i> 驳回</a>#}
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+
+{#认证驾驶证模态框#}
+<div class="modal fade" id="confirm_driver_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<form id="driver_form" class="form" method="post" action="{% url 'bms:certificate_result' certificate.id %}?type=driver">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+{#                    <input type="hidden" value="on" id="" name="result">#}
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						认证驾驶证
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+					{% if certificate.driver_image_list%}
+							{% for driver_image in certificate.driver_image_list %}
+								<a href="{% static '' %}{{ driver_image }}"target="_blank">
+		                        	<img class="img-responsive" src="{% static '' %}{{ driver_image }}" style="max-width: 300px;max-height: 200px;word-break:break-all">
+		                        </a><br>
+		                    {% endfor %}
+                    	{% endif %}
+                    	{% if certificate.driver_image%}
+                    		<a href="{% static '' %}{{ certificate.driver_image }}"target="_blank">
+		                        	<img class="img-responsive" src="{% static '' %}{{ certificate.driver_image }}" style="max-width: 300px;max-height: 200px;word-break:break-all">
+		                    </a><br>
+                    	{% endif %}
+                        <br/>
+                        <label class="control-label">驾驶证号：</label>
+                        <input  name="modal_driver_id">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						认证成功
+					</button>
+{#                    <a class="btn btn-success" data-toggle="modal" data-target="#fail_certificate_modal"><i class=""></i> 驳回</a>#}
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+    {#认证行驶证模态框#}
+<div class="modal fade" id="confirm_plate_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<form id="plate_form" class="form" method="post" action="{% url 'bms:certificate_result' certificate.id %}?type=plate">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+{#                    <input type="hidden" value="on" id="" name="result">#}
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						认证行驶证
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						{% if certificate.plate_image%}
+							<a href="{% static '' %}{{ certificate.plate_image }}"target="_blank">
+	                        	<img class="img-responsive" src="{% static '' %}{{ certificate.plate_image }}" style="max-width: 300px;max-height: 200px;word-break:break-all">
+	                        </a><br>
+						{% endif%}
+					
+						{% for plate_image in certificate.plate_image_list %}
+							<a href="{% static '' %}{{ plate_image }}"target="_blank">
+	                        	<img class="img-responsive" src="{% static '' %}{{ plate_image }}" style="max-width: 300px;max-height: 200px;word-break:break-all">
+	                        </a><br>
+	                        <!-- <img class="img-responsive" src="{% static '' %}{{ driver_image }}" style=""> -->
+	                    {% endfor %}
+                        <!-- <img class="img-responsive" src="{% static '' %}{{ certificate.plate_image }}" style=""> -->
+                        <br/>
+						<div class="form-group">
+                            <label class="control-label">车牌号：</label>
+                            <input  name="modal_plate_id">
+                        </div>
+						<div class="form-group">
+                            <label class="control-label">车辆类型：</label>
+                            <input  name="modal_car_type">
+                        </div>
+						<div class="form-group">
+                            <label class="control-label">所有人：</label>
+                            <input  name="modal_holder">
+                        </div>
+						<div class="form-group">
+                            <label class="control-label">使用性质：</label>
+                            <input  name="modal_use_property">
+                        </div>
+						<div class="form-group">
+                            <label class="control-label">品牌型号：</label>
+                            <input  name="modal_brand_digging">
+                        </div>
+						<div class="form-group">
+                            <label class="control-label">发动机号：</label>
+                            <input  name="modal_engine_number">
+                        </div>
+						<div class="form-group">
+                            <label class="control-label">发证日期：</label>
+                            <input  name="modal_issue_date" type="date" style="line-height:inherit">
+                        </div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						认证成功
+					</button>
+{#                    <a class="btn btn-success" data-toggle="modal" data-target="#fail_certificate_modal"><i class=""></i> 驳回</a>#}
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+        {#认证营运证模态框#}
+<div class="modal fade" id="confirm_transportation_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<form id="transportation_form" class="form" method="post" action="{% url 'bms:certificate_result' certificate.id %}?type=transportation">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+{#                    <input type="hidden" value="on" id="" name="result">#}
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						认证营运证
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						{% if   certificate.transportation_image %}
+							<a href="{% static '' %}{{ certificate.transportation_image }}"target="_blank">
+			                        	<img class="img-responsive" src="{% static '' %}{{ certificate.transportation_image }}" style="max-width: 300px;max-height: 200px;word-break:break-all">
+			                 </a><br>
+						{% endif %}
+						{% for transportation_image in certificate.transportation_image_list%}
+			                        <a href="{% static '' %}{{ transportation_image }}"target="_blank">
+			                        	<img class="img-responsive" src="{% static '' %}{{ transportation_image }}" style="max-width: 300px;max-height: 200px;word-break:break-all">
+			                        </a><br>
+		                  {% endfor %}
+                        <!-- <img class="img-responsive" src="{% static '' %}{{ certificate.transportation_image }}" style=""> -->
+                        <br/>
+                        <label class="control-label">营运证号：</label>
+                        <input  name="modal_transportation_id">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						认证成功
+					</button>
+{#                    <a class="btn btn-success" data-toggle="modal" data-target="#fail_certificate_modal"><i class=""></i> 驳回</a>#}
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+{#驳回认证模态框#}
+<div class="modal fade" id="fail_certificate_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<form id="delete_goods_form" class="form" method="post" action="{% url 'bms:certificate_reject' certificate.id %}">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						驳回认证
+					</h4>
+				</div>
+				<div class="modal-body">
+
+                    <div class="form-group" >
+                        <label for="id_language_code"><i class="fa fa-globe"></i> *驳回理由： </label>
+                        <select class="form-control" id="id_fail" name="fail">
+                                <option value="absence">缺少证件信息</option>
+                                <option value="breezing">证件信息不清晰</option>
+                                <option value="truth">证件真实性不足</option>
+                                <option value="equal">证件信息与提交的认证信息不符</option>
+                                <option value="timeout">证件过期</option>
+                                <option value="false">证件真实性不足</option>
+                        </select>
+                    </div>
+                    <div class="form-group" >
+                        <label for="id_product_id"><i class="fa fa-film"></i> 驳回的文件： </label>
+                        <div class="checkbox">
+
+                            {% if not certificate.national_id %}
+                                <label><input type="checkbox" name="reject" value="national">身份证</label>
+                            {% endif %}
+                            {% if certificate.user_type == 'transport' %}
+                                {% if not certificate.business_license_id %}
+                                    <label><input type="checkbox" name="reject" value="business">营业执照</label>
+                                {% endif %}
+                                {% if not certificate.operating_permit_id %}
+                                    <label><input type="checkbox" name="reject" value="operating">道路运输经营许可证</label>
+                                {% endif %}
+                                {% if not certificate.organ %}
+                                    <label><input type="checkbox" name="reject" value="organ">组织机构</label>
+                                {% endif %}
+{#                                {% if not certificate.tax_id %}#}
+{#                                    <label><input type="checkbox" name="reject" value="tax">税务登记证</label>#}
+{#                                {% endif %}#}
+                            {% endif %}
+                            {% if  certificate.user_type == 'driver' %}
+                                {% if not certificate.driver_id %}
+                                    <label><input type="checkbox" name="reject" value="driver">驾驶证</label>
+                                {% endif %}
+                                {% if not certificate.plate_number %}
+                                    <label><input type="checkbox" name="reject" value="plate">行驶证</label>
+                                {% endif %}
+                                {% if not certificate.transportation_license_id %}
+                                    <label><input type="checkbox" name="reject" value="transportation">营运证</label>
+                                {% endif %}
+                            {% endif %}
+                            {% if certificate.user_type == 'boss' %}
+                                {% if not certificate.transportation_license_id %}
+                                    <label><input type="checkbox" name="reject" value="business">营业执照</label>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="form-group" >
+                        <label for="id_language_code"><i class="fa fa-globe"></i> *备注： </label>
+                        <textarea id="note" name="note" rows="5" maxlength="200" class="form-control"></textarea>
+                    </div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id=""><i class="fa fa-save"></i>
+						驳 回
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+       $(function(){
+            $('#transportation_form').formValidation({
+                // I am validating Bootstrap form
+                framework: 'bootstrap',
+                locale : 'zh_CN',
+                // Feedback icons
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+
+                // List of fields and their validation rules
+                fields: {
+                    modal_transportation_id: {
+                        validators: {
+                            notEmpty: {
+                                message: '营运证号不能为空'
+                            }
+                        }
+                    }
+                }
+            });
+            $('#plate_form').formValidation({
+                // I am validating Bootstrap form
+                framework: 'bootstrap',
+                locale : 'zh_CN',
+                // Feedback icons
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+
+                // List of fields and their validation rules
+                fields: {
+                    modal_plate_id: {
+                        validators: {
+                            notEmpty: {
+                                message: '车牌号不能为空'
+                            }
+                        }
+                    },
+                    modal_car_type: {
+                        validators: {
+                            notEmpty: {
+                                message: '车辆类型不能为空'
+                            }
+                        }
+                    },
+                    modal_holder: {
+                        validators: {
+                            notEmpty: {
+                                message: '所有人不能为空'
+                            }
+                        }
+                    },
+                    modal_use_property: {
+                        validators: {
+                            notEmpty: {
+                                message: '使用性质不能为空'
+                            }
+                        }
+                    },
+                    modal_brand_digging: {
+                        validators: {
+                            notEmpty: {
+                                message: '品牌型号不能为空'
+                            }
+                        }
+                    },
+                    modal_engine_number: {
+                        validators: {
+                            notEmpty: {
+                                message: '发动机号不能为空'
+                            }
+                        }
+                    },
+                    modal_issue_date: {
+                        validators: {
+                            notEmpty: {
+                                message: '发证日期不能为空'
+                            }
+                        }
+                    }
+                }
+            });
+            $('#driver_form').formValidation({
+                // I am validating Bootstrap form
+                framework: 'bootstrap',
+                locale : 'zh_CN',
+                // Feedback icons
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+
+                // List of fields and their validation rules
+                fields: {
+                    modal_driver_id: {
+                        validators: {
+                            notEmpty: {
+                                message: '驾驶证号不能为空'
+                            }
+                        }
+                    }
+                }
+            });
+            $('#operating_form').formValidation({
+                // I am validating Bootstrap form
+                framework: 'bootstrap',
+                locale : 'zh_CN',
+                // Feedback icons
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+
+                // List of fields and their validation rules
+                fields: {
+                    modal_operating_id: {
+                        validators: {
+                            notEmpty: {
+                                message: '运输许可证编号不能为空'
+                            }
+                        }
+                    }
+                }
+            });
+{#            $('#tax_form').formValidation({#}
+{#                // I am validating Bootstrap form#}
+{#                framework: 'bootstrap',#}
+{#                locale : 'zh_CN',#}
+{#                // Feedback icons#}
+{#                icon: {#}
+{#                    valid: 'glyphicon glyphicon-ok',#}
+{#                    invalid: 'glyphicon glyphicon-remove',#}
+{#                    validating: 'glyphicon glyphicon-refresh'#}
+{#                },#}
+{##}
+{#                // List of fields and their validation rules#}
+{#                fields: {#}
+{#                    modal_tax_id: {#}
+{#                        validators: {#}
+{#                            notEmpty: {#}
+{#                                message: '税务登记证号不能为空'#}
+{#                            },#}
+{#                            regexp: {#}
+{#                                regexp: /\d{15}/,#}
+{#                                message: '请输入符合规则的税务登记证号'#}
+{#                            }#}
+{#                        }#}
+{#                    }#}
+{#                }#}
+{#            });#}
+            $('#organ_form').formValidation({
+                // I am validating Bootstrap form
+                framework: 'bootstrap',
+                locale : 'zh_CN',
+                // Feedback icons
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+
+                // List of fields and their validation rules
+                fields: {
+                    modal_organ_id: {
+                        validators: {
+                            notEmpty: {
+                                message: '组织机构号不能为空'
+                            }
+{#                            regexp: {#}
+{#                                regexp: /[a-zA-Z0-9]{8}-[a-zA-Z0-9]/,#}
+{#                                message: '请输入符合规则的组织机构'#}
+{#                            }#}
+                        }
+                    }
+                }
+            });
+            $('#national_form').formValidation({
+                // I am validating Bootstrap form
+                framework: 'bootstrap',
+                locale : 'zh_CN',
+                // Feedback icons
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+
+                // List of fields and their validation rules
+                fields: {
+                    modal_national_id: {
+                        validators: {
+                            notEmpty: {
+                                message: '输入的证件号码不能为空'
+                            }
+                        }
+                    },
+                    modal_national_name: {
+                        validators: {
+                            notEmpty: {
+                                message: '姓名不能为空'
+                            }
+                        }
+                    },
+                    modal_national_effective: {
+                        validators: {
+                 /*            notEmpty: {
+                                message: '证件号码的有效期不能为空'
+                            } */
+                        }
+                    }
+                }
+            });
+            $('#business_form').formValidation({
+                // I am validating Bootstrap form
+                framework: 'bootstrap',
+                locale : 'zh_CN',
+                // Feedback icons
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+
+                // List of fields and their validation rules
+                fields: {
+                    modal_business_id: {
+                        validators: {
+                            notEmpty: {
+                                message: '营业执照不能为空'
+                            }
+                        }
+                    },
+                    modal_business_name: {
+                        validators: {
+                            notEmpty: {
+                                message: '公司名称不可为空'
+                            },
+                            stringLength: {
+                                min: 2,
+                                message: '至少输入2个字符'
+                            }
+                        }
+                    },
+                    modal_business_organ: {
+                        validators: {
+                            notEmpty: {
+                                message: '组织机构号不能为空'
+                            }
+                        }
+                    }
+{#                    ,#}
+{#                    modal_business_tax: {#}
+{#                        validators: {#}
+{#                            notEmpty: {#}
+{#                                message: '税务登记证号不能为空'#}
+{#                            },#}
+{#                            regexp: {#}
+{#                                regexp: /\d{15}/,#}
+{#                                message: '请输入符合规则的税务登记证号'#}
+{#                            }#}
+{#                        }#}
+{#                    }#}
+                }
+            });
+        });
+
+    </script>
+{% endblock %}

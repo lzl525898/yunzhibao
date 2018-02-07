@@ -1,0 +1,76 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}我的{% endblock %}
+
+{% block container_block %}
+{#    首页所在位置，进入页面后的默认页面#}
+<!-- <div class="weui_cells_title hd" style="text-align: center;">{{ coupon.name }}</div> -->
+       <div class="top">
+		<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+			<tbody>
+				<tr>
+						<td width="23%" valign="middle">
+							   <a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a> 
+						</td>
+						<td class="wz" width="63%" valign="middle" align="center">
+								<span id="toptitle">
+										<i class="fa    fa-file-text"></i>&nbsp;<strong>{{ coupon.name }}</strong>
+								</span>
+						</td>
+						<td width="13%" valign="middle" align="right">
+						<a id="aso" href="#"></a>
+						</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+    <div class="weui_cells wss_p" style="padding-top:30px;">
+        <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【产品名称】</p>
+            </div>
+            <div class="weui_cell_ft">{{ coupon.product|displayName:'product_type' }}</div>
+        </div>
+        <div  class="wss_dashed_bottom"></div>
+        <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【优惠比例】</p>
+            </div>
+            <div class="weui_cell_ft">{{ coupon.rate }}</div>
+        </div>
+        <div  class="wss_dashed_bottom"></div>
+        <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【优惠后费率】</p>
+            </div>
+            <div class="weui_cell_ft">{{ coupon.product.rate|CouponRateAfter:coupon.rate|RateFormat }}</div>
+        </div>
+        <div  class="wss_dashed_bottom"></div>
+        <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【截止日期】</p>
+            </div>
+            <div class="weui_cell_ft">{{ coupon.end_date|date:'Y年m月d日' }}</div>
+        </div>
+        <div  class="wss_dashed_bottom"></div>
+        <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【优惠券描述】</p>
+            </div>
+        </div>
+        <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <textarea class="weui_textarea wss_p" rows="5" style="margin-left:8px;">{{ coupon.describe }}</textarea>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+{% endblock %}

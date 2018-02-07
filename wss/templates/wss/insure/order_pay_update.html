@@ -1,0 +1,72 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}付款页面{% endblock %}
+
+{% block container_block %}
+{#    首页所在位置，进入页面后的默认页面#}
+
+{% if message %}
+    <div class="weui_dialog_alert">
+        <div class="weui_mask"></div>
+        <div class="weui_dialog">
+            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+            <div class="weui_dialog_bd">{{ message }}</div>
+            <div class="weui_dialog_ft">
+                <a onclick="close_dialog();" class="weui_btn_dialog primary">确定</a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+
+    <form id="wss_register_form" method="post" action="{% url 'wss:order_pay_update' order.id %}" enctype="multipart/form-data">{% csrf_token %}
+        <div class="top">
+			<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+				<tbody>
+					<tr>
+							<td width="23%" valign="middle">
+									<!-- <a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a> -->
+							</td>
+							<td class="wz" width="53%" valign="middle" align="center">
+									<span id="toptitle">
+											<i class="fa    fa-money"></i>&nbsp;<strong>支付订单</strong>
+									</span>
+							</td>
+							<td width="23%" valign="middle" align="right">
+							<a id="aso" href="#"></a>
+							</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+        <div class="weui_cells wss_dashed_bottom" style="padding-top:30px;">
+            <div class="weui_cell wss_p">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p>【应缴纳保费】</p>
+                </div>
+                <div class="weui_cell_ft">{{ order.price|FenToYuan }}元</div>
+            </div>
+        </div>
+        <div class="weui_cells weui_cells_form">
+            <div class="weui_cell wss_p">
+                <div class="weui_cell_hd"><label class="weui_label">【密码】</label></div>
+                <div class="weui_cell_bd weui_cell_primary">
+                    <input class="weui_input" name="password" type="password" placeholder="请输入登录密码"/>
+                </div>
+            </div>
+        </div>
+
+        <div class="" style="text-align: justify;margin-top: 30px">
+            <button type="submit" class="weui_btn  weui_btn_primary">支付订单</button>
+        </div>
+    </form>
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+{% endblock %}

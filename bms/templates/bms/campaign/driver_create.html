@@ -1,0 +1,314 @@
+{% extends 'bms/campaign/base_campaign.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block campaign_driver %}class='active'{% endblock %}
+{% block title %} 创建司机{% endblock %}
+
+{% block page_top %}
+<div class="row">
+        <div class="col-sm-10">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <i class="fa fa-plus fa-3x pull-right"></i>
+                    {% if driver_id %}
+                    <form role="form" id="create_driver_form" method="post" action="{% url 'bms:driver_edit_test' driver_id%}"  enctype="multipart/form-data" >  {% csrf_token %}
+                    <input name="edit_hidden" value="edit" type="hidden">
+                    {% else%}
+                    <form role="form" id="create_driver_form" method="post" action="{% url 'bms:campaign_driver_create' %}"  enctype="multipart/form-data" >  {% csrf_token %}
+                    {% endif%}
+                        <div class="page-tailer">
+                          <h1 class="text-center">添加/编辑司机</h1>
+                        </div>
+                        {% if message and message != '' %}
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="alert alert-warning">{{ message }}</div>
+                                </div>
+                            </div>
+                        {% endif %}
+						<div class="form-group">
+							<label for="id_name"><i class="fa fa-road"></i> *司机信息<small>(如果有更多的联系电话，请用“-”分隔，例如：123-456)</small>： </label>
+						
+							<!-- <input class="form-control"  id="id_name" name="name" type="text"
+								   value="{{ posted_data.name|default_if_none:'' }}"> -->
+							<div class="row">
+										<div class="col-xs-12 col-lg-4">
+												 <input class="form-control"  id="id_name" name="user_name" type="text" placeholder="姓名"
+								   value="{{ posted_data.user_name|default_if_none:'' }}"></input>
+										</div>
+										<div class="col-xs-12 col-lg-4">
+												<input class="form-control"  id="id_phone" name="user_phone" type="text" placeholder="联系电话"
+								   value="{{ posted_data.user_phone|default_if_none:'' }}">
+										</div>
+										<div class="col-xs-12 col-lg-4">
+													<input class="form-control"  id="id_age" name="user_age" type="text" placeholder="年龄"
+								   value="{{ posted_data.user_age|default_if_none:'' }}">
+										</div>
+							</div> 
+					</div>				
+                        <div class="form-group" >
+                            <label class="control-label" for="id_icon"><i class="fa fa-picture-o"></i>上传车辆图片<small>（gif、png、jpeg或icon;）</small>: </label>
+                            <div class="row" >
+										<div class="col-xs-12 col-lg-8">
+														<input class="filestyle" type="file" id="id_icon" name="user_icon" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox" >
+										</div>
+										<div class="col-xs-12 col-lg-4" >
+													<a style="cursor:hand;" onclick="showBigImg('/static/pic/default/sili.jpg')" ><img class="img-responsive center-block" src="{% static '' %}pic/default/sili.jpg" style="max-width: 120px;max-height: 120px;word-break:break-all" /></a>
+													<p>图片要求：前方45度角度，能看见车辆全貌及车牌号！点击图片查看大图</p>
+										</div>
+							</div>
+							<div class="form-group" >
+		                            <label class="control-label" for="plate_image"><i class="fa fa-picture-o"></i>行驶证图片（本项选填，且可多选）：<small>（gif、png、jpeg或icon;）</small>: </label>
+		                            <a href="{% static 'pic/default/example5.png' %}"target="_blank"><i class="fa fa-cloud-upload"></i><small>样例图片</small></a>
+		                            <input class="filestyle" type="file" id="plate_image" name="plate_image" data-icon="true" data-input="true" 
+		                            				data-buttonText="选择图片" data-iconName="glyphicon-inbox" multiple>
+                          	</div>
+                          	<div class="form-group" >
+		                            <label class="control-label" for="insurance_image"><i class="fa fa-picture-o"></i>保单图片（本项选填，可多选）：<small>（gif、png、jpeg或icon;）</small>: </label>
+		                            <a href="{% static 'pic/default/example2.jpg' %}"target="_blank"><i class="fa fa-cloud-upload"></i><small>样例图片</small></a>
+		                            <input class="filestyle" type="file" id="insurance_image" name="insurance_image" data-icon="true" data-input="true" 
+		                            				data-buttonText="选择图片" data-iconName="glyphicon-inbox" multiple>
+                          	</div>
+                          	
+							{#<div class="form-group" >#}
+		                         {#   <label class="control-label" for="user_icon"><i class="fa fa-picture-o"></i>司机头像（本项选填）：<small>（gif、png、jpeg或icon;）</small>: </label>#}
+		                     {#       <input class="filestyle" type="file" id="user_icon" name="user_icon" data-icon="true" data-input="true" #}
+		                     {#       				data-buttonText="选择图片" data-iconName="glyphicon-inbox" >#}
+                          {#	</div>#}
+							
+           					<!--放大图的imgModal-->
+				        <div class="modal fade bs-example-modal-lg text-center" id="imgModal"tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" >
+				          <div class="modal-dialog modal-lg" style="display: inline-block; width: auto;">
+				            <div class="modal-content">
+				             <img  id="imgInModalID" src="" >
+				            </div>
+				          </div>
+				        </div>
+                          
+                        </div>
+						<div class="form-group">
+							<label for="id_qualified"><i class="fa fa-road"></i> *车辆信息<small>(车号(头/挂)如果没有，请填无；车龄由系统时间减去初次登记日期自动计算)</small>：</label>
+							<div class="row" >
+										<div class="col-xs-12 col-lg-6">
+															<select class="from-control chosen-select" id="car_type"  name="car_type" data-placeholder="车辆类型" style="width:100%;">
+																	<option selected="selected" value=""></option>
+	<!-- 																{% for value,text in car_type %}
+																	<option value="{{value}}" {% if posted_data.car_type == value%} selected {% endif %}>{{text}}</option>
+																	{% endfor%} -->
+																  {% for kind in car_type %}
+								                                    <option value="{{ kind.0 }}" {% if posted_data.car_type == kind.0%} selected {% endif %}>{{kind.1}}</option>
+								                                  {% endfor %}
+															</select>
+										</div>
+										<div class="col-xs-12 col-lg-6" >
+															<input class="form-control"  id="car_type_other" name="car_type_other" type="text" placeholder="车辆类型选择其他时填写"
+								   value="{{ posted_data.car_type_other|default_if_none:'' }}">
+										</div>
+							</div>
+							<div style="height:12px;clear: both; font-size:1px; width:1px; visibility: hidden; "></div>
+							<div class="row" >				
+										<div class="col-xs-12 col-lg-6">
+												    <div class="form-group">
+															<select class="from-control chosen-select"  id="car_length"  name="car_length"  data-placeholder="车长" style="width:100%;">
+																	<option selected="selected" value="">  </option>
+																	 {% for kind in car_length %}
+								                                    <option value="{{ kind.0 }}"  {% if posted_data.car_length == kind.0%} selected {% endif %}>{{kind.1}}</option>
+								                                  {% endfor %}
+															</select>
+													</div>
+										</div>
+										<div class="col-xs-12 col-lg-6" >
+															<!-- <select id="car_type" class="selectpicker" data-live-search="true" title="车辆类型"> -->
+															<input class="form-control"  id="car_length_other" name="car_length_other" type="text" placeholder="车长选择其他时填写"
+								   value="{{ posted_data.car_length_other|default_if_none:'' }}">
+										</div>
+							</div>
+							<div class="row">
+									<div class="col-xs-12 col-lg-6">
+																	  <input class="form-control"  id="car_num_head" name="car_num_head" type="text" placeholder="车号(头)"
+								   value="{{ posted_data.car_num_head|default_if_none:'' }}">
+										</div>
+									<div class="col-xs-12 col-lg-6">
+																	  <input class="form-control"  id="car_num_foot" name="car_num_foot" type="text" placeholder="车号(挂)"
+								   value="{{ posted_data.car_num_foot|default_if_none:'' }}">
+										</div>
+							</div>
+							<div style="height:12px;clear: both; font-size:1px; width:1px; visibility: hidden; "></div>
+							<div class="row">
+								   <div class="col-xs-12 col-lg-4">
+													<!-- <input class="form-control"  id="id_car_age" name="car_age" type="text" 
+								   value="{{ posted_data.car_age|default_if_none:'' }}"> -->
+								   <input class="form-control Wdate col-xs-12 col-sm-12" type="text" id="endDate"  value="{{ posted_data.car_init_date|default_if_none:'' }}" placeholder="初始登记时间" name="car_init_date" onFocus="WdatePicker({isShowClear:false,readOnly:true,dateFmt: 'yyyy-MM-dd'})" onchange="countage(this.value)"/>
+										</div>
+									   <div class="col-xs-12 col-lg-4">
+									   		<input class="form-control"  id="id_car_age" name="car_age" type="text" placeholder="车龄 " disabled="disabled" 
+										   value="{{ car_age|default_if_none:'' }}">		
+										</div>
+										<div class="col-xs-12 col-lg-4">
+												<input class="form-control"  id="id_ton" name="car_ton" type="text" placeholder="吨位"
+								   value="{{ posted_data.car_ton|default_if_none:'' }}">
+										</div>
+							</div>
+						</div>
+					   <div class="form-group">
+							<label for="id_special_line_list"><i class="fa fa-road"></i> *常走线路<small>(请用“-”分隔往返地区，多对往返路线用空格间隔，市区范围，例如：沈阳-哈尔滨 北京-上海 北京-市区)</small>： </label>
+							<input class="form-control"  id="id_special_line_list" name="special_line_list" type="text"
+								   value="{{ posted_data.special_line_list|default_if_none:'' }}">
+						</div>
+						<div class="form-group">
+							<label for="id_description"><i class="fa fa-road"></i> 自我介绍： </label>
+                            <textarea id="id_description" name="content" class="form-control" maxlength="2000" style="min-height: 200px">{{ posted_data.description|default_if_none:'' }}</textarea>
+						</div>
+						<div class="form-group" >
+							<label for="id_priority"><i class="fa fa-road"></i> 优先级(建议值为1~100之间的整数，默认值为50)： </label>
+							<input class="form-control"  id="id_priority" name="priority" type="number"
+								   value="{{ posted_data.priority|default_if_none:50}}" >
+						</div>
+                        <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 保 存</button>
+                        <a class="btn btn-default" href="{% url 'bms:driver_list' '1' %}"><i class="fa fa-times"></i> 返 回</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2"></div>
+</div>
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+    //根据初次登记时间与当前时间自动计算车龄
+    function countage(initdate){
+    	        var   initDate   =   initdate.match(/^(\d{1,4})(-|\/)(\d{1,2})\2(\d{1,2})$/);     
+    	        if(initDate == null) return   false;    
+    	        var myDate = new Date();
+    	        var   d  =   new   Date(initDate[1],   initDate[3]-1,   initDate[4]);     
+    	        if(myDate < d){  
+    	        	alert("初始登记日期不能大于当前日期");
+    	    		return false;
+    	        } 
+    	        if (d.getFullYear()==initDate[1] && (d.getMonth()+1)== initDate[3] && d.getDate()==initDate[4]) {   
+    	              var  curyear   =   myDate.getFullYear();   
+    	              var  year = curyear - initDate[1];
+    	              
+    	              var curmonth = myDate.getMonth()+1;
+    	              month = curmonth-initDate[3];
+    	              
+    	              var curdate = myDate.getDate();
+    	              date = curdate-initDate[4];
+    	              if (year == 0){
+    	            	  document.getElementById("id_car_age").value = 0;
+    	              }else if (year >=1){
+    	            	  if (month == 0){
+    	            		  if (date<0){
+   	            			   	  document.getElementById("id_car_age").value = year-1;
+	   	            		   }else{
+	   	            				document.getElementById("id_car_age").value = year;
+	   	            		   }
+    	            	  }else if (month <0) {
+    	            		  document.getElementById("id_car_age").value = year-1;
+    	            	  }else{
+    	            		  document.getElementById("id_car_age").value = year;
+    	            	  }
+    	              }
+    	              return false;
+    }
+}
+function showBigImg(url){
+	document.getElementById("imgInModalID").src = url;
+	$('#imgModal').modal('show');
+	return false;
+	
+}
+/*        $(function(){
+
+            $('#create_driver_form').formValidation({
+                // I am validating Bootstrap form
+                framework: 'bootstrap',
+                locale : 'zh_CN',
+                // Feedback icons
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+
+                // List of fields and their validation rules
+                fields: {
+                	user_name: {
+                		row: '.rowContainer',
+                        validators: {
+                            notEmpty: {
+                                message: '司机姓名不可为空'
+                            }
+                        }
+                    },
+                    user_phone: {
+                        validators: {
+                            notEmpty: {
+                                message: '联系电话不可为空'
+                            }
+                        }
+                    },
+                    user_age: {
+                        validators: {
+                        	 notEmpty: {
+                                 message: '年龄不可为空'
+                             },
+                            regexp: {
+                                regexp: /^\d+$/,
+                                message: '年龄必须为数字'
+                            }
+                        }
+                    },
+                    user_icon: {
+                        validators: {
+                            notEmpty: {
+                                message: '头像不可为空'
+                            }
+                        }
+                    },
+                    user_icon: {
+                        validators: {
+                            notEmpty: {
+                                message: '头像不可为空'
+                            }
+                        }
+                    },
+                    description: {
+                        validators: {
+                        	 notEmpty: {
+                                 message: '自我介绍不可为空'
+                             }
+                        }
+                    },
+                    priority: {
+                        validators: {
+                        	 notEmpty: {
+                                 message: '优先级不可为空'
+                             }
+                        }
+                    },
+                    
+                    price: {
+                        validators: {
+                            regexp: {
+                                regexp: /^\d+$/,
+                                message: '请输入正整数'
+                            }
+                        }
+                    }
+                }
+            });
+        }); */
+
+    </script>
+     <script charset="utf-8" src="{% static 'kindEditor/kindeditor.js' %}"></script>
+	<script charset="utf-8" src="{% static 'kindEditor/lang/zh_CN.js' %}"></script>
+	<script>
+		    KindEditor.ready(function(K) {
+		        window.editor = K.create('#id_description',{
+	                uploadJson: '/bms/settings/uploadImg/'        
+		        });
+	        });
+	</script>
+{% endblock %}

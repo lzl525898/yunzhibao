@@ -1,0 +1,185 @@
+{% extends 'bms/campaign/base_campaign.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block campaign_lawyer %}class='active'{% endblock %}
+{% block title %} 物流公司 {% endblock %}
+
+{% block page_top %}
+    <div class="row">
+        <div class="col-sm-12">
+            <form id="campaign_lawyer_search_form" class="form-inline" role="form" method="post" action="{% url 'bms:campaign_lawyer_list' '1' %}"> {% csrf_token %}
+{#                <div class="input-group" style="margin-top: 15px">#}
+{#                    <label for="id_client_sign" class="input-group-addon">起始地：</label>#}
+{#                    <input value="{% if request.POST %}{{ posted_data.start_time }}{% else %}{{ start_time }}{% endif %}" style="height: 32px;" id="id_start" name="start" placeholder="">#}
+{#                </div>#}
+{#                <div class="input-group" style="margin-top: 15px">#}
+{#                    <label for="id_client_sign" class="input-group-addon">目的地：</label>#}
+{#                    <input value="{% if request.POST %}{{ posted_data.start_time }}{% else %}{{ end_time }}{% endif %}"  style="height: 32px;" id="id_end" name="end" placeholder="">#}
+{#                </div>#}
+                <div class="input-group" style="margin-top: 15px">
+                    <input type="text" class="form-control" id="search_keyword" placeholder="请输入关键字" name="search_keyword" value="{{ search_keyword}}" maxlength="30">
+                     <span class="input-group-btn">
+                        <button type="submit" class="btn btn-default"><i class="fa fa-search"></i> 搜索</button>
+                        <button id="cancel_search" type="button" class="btn btn-default"><i class="fa fa-times"></i> 取消</button>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            {% if search_keyword %}
+            <p></p>
+            <div class="alert alert-warning">
+                <p>关键字： “{{ search_keyword }}”， 搜索结果：{{ paging.item_count }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-8">
+        {% if paging.total_pages_count > 0 %}
+            <ul class="pagination">
+                <li><a href="{% url 'bms:campaign_lawyer_list' paging.prev_page %}">&laquo;</a></li>
+                {% for page in paging.pages %}
+                    <li {% if page == paging.page_index %}class="active"{% endif %}><a href="{% url 'bms:campaign_lawyer_list' page %}">{{ page }}</a></li>
+                {% endfor %}
+                <li><a href="{% url 'bms:campaign_lawyer_list' paging.next_page %}">&raquo;</a></li>
+                <div class="clearfix"></div>
+                <p>
+                    第{{ paging.page_index }}页/共{{ paging.total_pages_count }}页 &nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <a href="{% url 'bms:campaign_lawyer_list' '1' %}">首页</a> / <a href="{% url 'bms:campaign_lawyer_list' paging.total_pages_count %}">尾页</a>
+                </p>
+            </ul>
+        {% endif %}
+        </div>
+        <div class="col-sm-4">
+            <br/><br/>
+            <a class="btn btn-primary pull-right" style="margin-left: 10px" href="{% url 'bms:campaign_lawyer_create' %}"><i class="fa fa-plus"></i> 创建律师</a>
+        </div>
+
+    </div>
+{% endblock %}
+
+
+{% block page_middle %}
+    {% if message and message != '' %}
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="alert alert-warning">{{ message }}</div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row" style="margin-top: 10px">
+        <div class="col-sm-12">
+            <div class="list-group" id="notice_group">
+                <input type="hidden" id="page_index" name="page_index" value="{{ page_index }}"/>
+                    <div class="list-group-item">
+                        <div class="row" >
+{#                            <div class="col-sm-1">#}
+{#                            </div>#}
+{#                            <div class="col-sm-2">#}
+{#                                <p class="list-group-item-text">认证目标</p>#}
+{#                            </div>#}
+                            <div class="col-sm-3">
+                                <p class="list-group-item-text text-center">姓名</p>
+                            </div>
+                            <div class="col-sm-3">
+                                <p class="list-group-item-text text-center">电话</p>
+                            </div>
+                            <div class="col-sm-3">
+                                <p class="list-group-item-text text-center">地址</p>
+                            </div>
+                            <div class="col-sm-3">
+                                <p class="list-group-item-text text-center">创建时间</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% for campaign_lawyer in campaign_lawyers %}
+{#                        <a href="" class="list-group-item">#}
+                        <a href="{% url 'bms:campaign_lawyer_detail' campaign_lawyer.id %}" class="list-group-item">
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <p class="list-group-item-text text-center"><strong>{{ campaign_lawyer.name }}</strong></p>
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="list-group-item-text text-center"><strong>{{ campaign_lawyer.phone }}</strong></p>
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="list-group-item-text text-center"><strong>{{ campaign_lawyer.address }}</strong></p>
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="list-group-item-text text-center">{{ campaign_lawyer.create_time|date:'Y年m月d日' }}</p>
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+       </div>
+    </div>
+
+
+
+
+{% endblock %}
+
+{% block page_bottom %}
+{% endblock %}
+
+
+{% block script_block %}
+    <script type="text/javascript">
+
+        //“全部”按钮的响应事件，清空搜索关键字，然后提交搜索
+        $('#cancel_search').click(function(event) {
+            console.log("click cancel_search");
+            $('#search_keyword').val('');
+            $('#id_start_time').val('');
+            $('#id_end_time').val('');
+            $('#campaign_lawyer_search_form').submit();
+          });
+        function change_state(){
+            $('#campaign_lawyer_search_form').submit();
+        }
+
+
+      $(function(){
+            $('#campaign_lawyer_searcha_form').formValidation({
+                // I am validating Bootstrap form
+                framework: 'bootstrap',
+                locale : 'zh_CN',
+                // Feedback icons
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+
+                // List of fields and their validation rules
+                fields: {
+                    start_time: {
+                        validators: {
+                            regexp: {
+                                regexp:  /^((?:19|20)[0-9][0-9]-(?:(?:0[1-9])|(?:1[0-2]))-(?:(?:[0-2][1-9])|(?:[1-3][0-1])) (?:(?:[0-2][0-3])|(?:[0-1][0-9])):[0-5][0-9]:[0-5][0-9])|\s{0}$/ ,
+                                message: '请填写正确的时间格式'
+                            }
+                        }
+                    },
+                    end_time: {
+                        validators: {
+                            regexp: {
+                                regexp:  /^(?:19|20)[0-9][0-9]-(?:(?:0[1-9])|(?:1[0-2]))-(?:(?:[0-2][1-9])|(?:[1-3][0-1])) (?:(?:[0-2][0-3])|(?:[0-1][0-9])):[0-5][0-9]:[0-5][0-9]$/ ,
+                                message: '请填写正确的时间格式'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+    </script>
+{% endblock %}

@@ -1,0 +1,156 @@
+{% extends 'bms/product/base_product.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block product_head_company %}class='active'{% endblock %}
+{% block title %} 编辑保险总公司 {% endblock %}
+
+{% block page_top %}
+<div class="row">
+        <div class="col-sm-10">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <i class="fa fa-plus fa-3x pull-right"></i>
+                    <form role="form" id="edit_head_company_form" method="post" action="{% url 'bms:head_company_edit' head_company.id %}"  enctype="multipart/form-data">  {% csrf_token %}
+
+                        <div class="page-header">
+                          <h1 class="text-center">编辑保险公司</h1>
+                        </div>
+                        {% if message and message != '' %}
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="alert alert-warning">{{ message }}</div>
+                                </div>
+                            </div>
+                        {% endif %}
+						<div class="form-group" >
+							<label for="id_name"><i class="fa fa-user"></i> *保险公司名称： </label>
+							<input class="form-control"  id="id_name" name="name" type="text"
+								   value="{{ head_company.name }}" maxlength="100" required >
+						</div>
+						<div class="form-group" >
+							<label for="id_description"><i class="fa fa-road"></i> *保险公司介绍： </label>
+							<input class="form-control"  id="id_description" name="description" type="text"
+								   value="{{ head_company.description }}" maxlength="500" required >
+						</div>
+						<div class="form-group" >
+							<label for="id_phone"><i class="fa fa-road"></i> *报案电话： </label>
+							<input class="form-control"  id="id_phone" name="phone" type="text"
+								   value="{{ head_company.phone }}" maxlength="500" required >
+						</div>
+{#						<div class="form-group">#}
+{#							<label for="id_docking_rate"><i class="fa fa-road"></i> *系统对接投保基础费率： </label>#}
+{#							<input class="form-control"  id="id_docking_rate" name="docking_rate" type="text"#}
+{#								   value="{{ head_company.docking_rate|default_if_none:''|stringformat:'f' }}">#}
+{#						</div>#}
+{#						<div class="form-group">#}
+{#							<label for="id_car_rate"><i class="fa fa-road"></i> *单车单次投保基础费率： </label>#}
+{#							<input class="form-control"  id="id_car_rate" name="car_rate" type="text"#}
+{#								   value="{{ head_company.car_rate|default_if_none:''|stringformat:'f' }}">#}
+{#						</div>#}
+{#						<div class="form-group">#}
+{#							<label for="id_batch_rate"><i class="fa fa-road"></i> *单票货物投保基础费率： </label>#}
+{#							<input class="form-control"  id="id_batch_rate" name="batch_rate" type="text"#}
+{#								   value="{{ head_company.batch_rate|default_if_none:''|stringformat:'f' }}">#}
+{#						</div>#}
+
+                        <div class="form-group">
+                            <label for="id_channel"><i class="fa fa-life-bouy"></i> 是否显示： </label>
+                            <div class="">
+                                <label class="radio-inline">
+                                  <input type="radio" name="active" id="id_show" value="show" {% if head_company.active == 'show' or not head_company.is_hidden %}checked{% endif %}> 显示
+                                </label>
+                                <label class="radio-inline">
+                                  <input type="radio" name="active" id="id_hidden" value="hidden" {% if head_company.active == 'hidden' or head_company.is_hidden %}checked{% endif %}> 隐藏
+                                </label>
+                            </div>
+                        </div>
+                        <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 保 存</button>
+                        <a class="btn btn-default" href="{% url 'bms:head_company_list' '1' %}"><i class="fa fa-times"></i> 返 回</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2"></div>
+</div>
+
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+       $(function(){
+
+            $('#edit_head_company_form').formValidation({
+                // I am validating Bootstrap form
+                framework: 'bootstrap',
+                locale : 'zh_CN',
+                // Feedback icons
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+
+                // List of fields and their validation rules
+                fields: {
+                    name: {
+                        validators: {
+                            notEmpty: {
+                                message: '保险公司名称不可为空'
+                            },
+                            stringLength: {
+                                min: 2,
+                                max: 20,
+                                message: '请输入2～20个字符'
+                            }
+                        }
+                    },
+                    description: {
+                        validators: {
+                            stringLength: {
+                                min: 2,
+                                max: 500,
+                                message: '请输入2～500个字符'
+                            }
+                        }
+                    },
+                    phone: {
+                        validators: {
+                            regexp: {
+                                regexp: /^[0-9]+$/,
+                                message: '手机号码只能由数字组成'
+                            }
+                        }
+                    }
+                }
+            });
+
+
+        });
+    </script>
+{% endblock %}
+
+{#,#}
+{#                    docking_rate: {#}
+{#                        validators: {#}
+{#                            regexp: {#}
+{#                                regexp: /^[-+]?[0-9]*\.?[0-9]+$/,#}
+{#                                message: '系统对接投保基础费率为小数'#}
+{#                            }#}
+{#                        }#}
+{#                    },#}
+{#                    car_rate: {#}
+{#                        validators: {#}
+{#                            regexp: {#}
+{#                                regexp: /^[-+]?[0-9]*\.?[0-9]+$/,#}
+{#                                message: '单车单次投保基础费率为小数'#}
+{#                            }#}
+{#                        }#}
+{#                    },#}
+{#                    batch_rate: {#}
+{#                        validators: {#}
+{#                            regexp: {#}
+{#                                regexp: /^[-+]?[0-9]*\.?[0-9]+$/,#}
+{#                                message: '单票货物投保基础费率为小数'#}
+{#                            }#}
+{#                        }#}
+{#                    }#}

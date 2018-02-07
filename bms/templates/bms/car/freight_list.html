@@ -1,0 +1,182 @@
+{% extends 'bms/car/base_car.html' %}
+{% load static %}					{#%static'%识别#}
+{% load legoo_tag %}    		{#认证状态转换#}
+{% block freight_list %}class='active'{% endblock %}
+{% block title %}货运年险{% endblock %}
+		
+{% block page_top %}
+    <div class="row">
+          <div class="col-sm-12"style="display:none">
+              <form id="campaign_lawyer_search_form" class="form-inline" role="form" method="post" action="{% url 'bms:freight_list' '1' %}"> {% csrf_token %}
+                  <div class="input-group" style="margin-top: 15px">
+                  	{#<input type="text" class="form-control" id="search_keyword" placeholder="请输入关键字（车牌号/所有人/认证状态）" name="search_keyword" value="{{ search_keyword}}" maxlength="30">#}
+                      <input type="text" class="form-control" id="search_keyword" placeholder="车牌号/所有人/认证状态" name="search_keyword" value="" maxlength="30">
+                       <span class="input-group-btn">
+                          <button type="submit" class="btn btn-default"><i class="fa fa-search"></i> 搜索</button>
+                          <button id="cancel_search" type="button" class="btn btn-default"><i class="fa fa-times"></i> 取消</button>
+                      </span>
+                  </div>
+              </form>
+          </div>
+      </div>
+
+      <div class="row">
+          <div class="col-sm-12">
+              {% if search_keyword %}
+              <p></p>
+              <div class="alert alert-warning">
+                  <p>关键字： “{{ search_keyword }}”， 搜索结果：{{ paging.item_count }}</p>
+              </div>
+              {% endif %}
+          </div>
+      </div>
+
+    <div class="row">
+        <div class="col-sm-8">
+        {% if paging.total_pages_count > 0 %}
+            <ul class="pagination">
+                <li><a href="{% url 'bms:freight_list' paging.prev_page %}?order_type={{order_type}}">&laquo;</a></li>
+                {% for page in paging.pages %}
+                    <li {% if page == paging.page_index %}class="active"{% endif %}><a href="{% url 'bms:freight_list' page %}?order_type={{order_type}}">{{ page }}</a></li>
+                {% endfor %}
+                <li><a href="{% url 'bms:freight_list' paging.next_page %}?order_type={{order_type}}">&raquo;</a></li>
+                <div class="clearfix"></div>
+                <p>
+                    第{{ paging.page_index }}页/共{{ paging.total_pages_count }}页 &nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <a href="{% url 'bms:freight_list' '1' %}?order_type={{order_type}}">首页</a> / <a href="{% url 'bms:freight_list' paging.total_pages_count %}?order_type={{order_type}}">尾页</a>
+                </p>
+            </ul>
+        {% endif %}
+        </div>
+        <div class="col-sm-4">
+            <br/><br/>
+            <a class="btn btn-primary pull-right" style="margin-left: 10px" href="{% url 'bms:freight_create' %}"><i class="fa fa-plus"></i> 创建货运年险记录</a>
+        </div>
+
+    </div>
+{% endblock %}
+
+
+{% block page_middle %}
+    {% if message and message != '' %}
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="alert alert-warning">{{ message }}</div>
+            </div>
+        </div>
+    {% endif %}
+    {% if freight_message  %}
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="alert alert-warning">{{ freight_message }}</div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row" style="margin-top: 10px">
+        <div class="col-sm-12">
+            <div class="list-group" id="notice_group">
+                <input type="hidden" id="page_index" name="page_index" value="{{ page_index }}"/>
+                    <div class="list-group-item">
+                        <div class="row" >
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">保单号</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">承保公司</p>
+                            </div>
+                            <div class="col-sm-3">
+                                <p class="list-group-item-text text-center">用户</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">到期时间
+                                {% if order_type == "date_stop" %}
+                                <a href="{% url 'bms:freight_list' '1' %}?order_type=-date_stop"title="逆序排列"><i class="fa fa-arrow-down"></i></a>
+                                {% elif order_type == "-date_stop" %}
+                                <a href="{% url 'bms:freight_list' '1' %}?order_type=date_stop"title="正序排列"><i class="fa fa-arrow-up"></i></a>
+                                {% else %}
+                                <a href="{% url 'bms:freight_list' '1' %}?order_type=-date_stop"title="逆序排列"><i class="fa fa-arrow-down"></i></a>
+                                {% endif %}
+                                </p>
+                            </div>
+                            <div class="col-sm-1">
+                                <p class="list-group-item-text text-center">状态</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">操作
+                                <a href="{% url 'bms:freight_list' '1' %}?order_type=-create_time"title="按创建时间排序"><i class="fa fa-repeat"></i></a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+				{% for freight in freight_insurance_list %}
+                         <div class="list-group-item">
+                            <div class="row">
+                                <div class="col-sm-2">
+                                    <p class="list-group-item-text text-center"><strong>{{ freight.paper_id }}</strong></p>
+                                </div>
+                                <div class="col-sm-2">
+                                    <p class="list-group-item-text text-center"><strong>{{ freight.company.simple_name }}</strong></p>
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="list-group-item-text text-center">
+                                    {% if freight.client.company_name %}
+                                    	{{ freight.client.company_name }} &nbsp;&nbsp;&nbsp;
+                                    {% elif freight.client.name %}	
+                                    	{{ freight.client.name }} &nbsp;&nbsp;&nbsp; 
+                                    {% endif %}{{ freight.client.profile.phone }}
+                                    </p>
+                                </div>
+                                <div class="col-sm-2">
+                                	<p class="list-group-item-text text-center">{{ freight.date_stop|date:'Y年m月d日'  }}</p>
+	                            </div>
+	                            <div class="col-sm-1">
+                                    <p class="list-group-item-text text-center">{% if not freight.is_hidden %}显示{% else %}隐藏{% endif %}</p>
+                                </div>
+	                            <div class="col-sm-2">
+										  <div class="row text-center">
+									  			{% if freight.is_hidden  %}
+											  			<a href="{% url 'bms:policy_change_state' freight.id %}?state=show&page_index={{paging.page_index}}&policy_state=freight"><button class="btn btn-xs btn-warning" style="width:30px;background-color: #ffcf6f;border-color: #ffcf6e;" title="隐藏"><i class="fa fa-eye-slash" ></i></button></a>
+											  	 {% else  %}
+											  			<a href="{% url 'bms:policy_change_state' freight.id %}?state=hide&page_index={{paging.page_index}}&policy_state=freight"><button class="btn btn-xs btn-warning" style="width:30px;" title="显示"><i class="fa fa-eye" ></i></button></a>
+											     {%  endif  %} 
+									      
+									      		<a href="{% url 'bms:freight_detail' freight.id %}"><button class="btn btn-xs btn-success" style="width:30px;" title="查看详情"><i class="fa fa-search-plus" ></i></button></a>
+									  			<a href="{% url 'bms:freight_edit' freight.id %}"><button class="btn btn-xs btn-info" style="width:30px;" title="编辑"><i class="fa fa-edit"></i></button></a>
+									  	  
+									  			<a href="{% url 'bms:freight_delete' freight.id %}" onclick="return confirmAct();"><button class="btn btn-xs btn-danger" style="width:30px;" title="删除"><i class="fa fa-trash-o"></i></button></a>
+									 </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+
+       </div>
+    </div>
+    
+    </div>
+    
+ 
+    
+    
+    
+    
+{% endblock %}
+
+{% block page_bottom %}
+{% endblock %}
+
+
+{% block script_block %}
+    <script type="text/javascript">
+    function confirmAct(){
+  	  if(confirm("确定要删除该货运年险保险记录吗？")){
+  		  return true; 
+  	    }else{
+  	    	return false; 
+  	   }
+    }
+    </script>
+{% endblock %}
+

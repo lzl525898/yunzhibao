@@ -1,0 +1,126 @@
+{% extends 'bms/user/base_user.html' %}
+{% load static %}
+{% if admin.is_superuser %}
+{% block user_admin %}class='active'{% endblock %}
+{% endif %}
+
+{% block title %} 创建管理员 {% endblock %}
+
+{% block page_top %}
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <i class="fa fa-plus fa-3x pull-right"></i>
+                        <form role="form" id="create_admin_form" method="post" action="{% url 'bms:admin_create' %}">  {% csrf_token %}
+
+                            <div class="page-header">
+                              <h1 class="text-center">创建管理员</h1>
+                            </div>
+                            {% if alert %}
+                                <div class="alert alert-warning">
+                                <p>{{ alert }}</p>
+                                </div>
+                            {% endif %}
+
+                            <div class="form-group" >
+                                <label for="id_username"><i class="fa fa-user"></i> *用户名： </label>
+                                <input class="form-control"  id="id_username" name="username" type="text"
+                                       value="{{ posted_data.username|default_if_none:"" }}" maxlength="30" required >
+                            </div>
+
+                            <div class="form-group" >
+                                <label for="id_password"><i class="fa fa-lock"></i> *密码： </label>
+                                <input class="form-control" id="id_password" name="password"  type="password" maxlength="20" required >
+                            </div>
+                            <div class="form-group" >
+                                <label for="id_password"><i class="fa fa-lock"></i> *确认密码： </label>
+                                <input class="form-control" id="id_re_password" name="re_password"  type="password" maxlength="20" required >
+                            </div>
+
+                            <div class="form-group" >
+                                <label for="id_email"><i class="fa fa-envelope-o"></i> 电子邮件： </label>
+                                <input class="form-control" id="id_email" name="email" type="email"
+                                       value="{{ posted_data.email|default_if_none:""  }}" maxlength="50">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="id_channel"><i class="fa fa-life-bouy"></i> 是否激活： </label>
+                                <div class="checkbox">
+                                    <label><input type="checkbox" name="active" value="true" checked> 激活</label>
+                                </div>
+                            </div>
+
+                            <button id="admin_register_btn" class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 保 存</button>
+            <button class="btn btn-default" onclick="history.back()" ><i class="fa fa-times"></i> 返 回</button>
+                        </form>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+       $(function(){
+
+            $('#create_admin_form').formValidation({
+                // I am validating Bootstrap form
+                framework: 'bootstrap',
+                locale : 'zh_CN',
+                // Feedback icons
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+
+                // List of fields and their validation rules
+                fields: {
+                    username: {
+                        validators: {
+    /*                         notEmpty: {
+                                message: '用户名不可为空'
+                            }, */
+                            stringLength: {
+                                min: 2,
+                                max: 30,
+                                message: '请输入2～30个字符'
+                            },
+                            regexp: {
+                                regexp: /^[a-zA-Z0-9_]+$/,
+                                message: '用户名只能由字母、数字和下划线组成'
+                            }
+                        }
+                    },
+                    password: {
+                        validators: {
+               /*              notEmpty: {
+                                message: '密码不可以空'
+                            }, */
+                            stringLength: {
+                                min: 5,
+                                max: 20,
+                                message: '请输入5～20个字符'
+                            }
+                        }
+                    },
+                    email: {
+                        validators: {
+                            stringLength: {
+                                max: 50,
+                                message: '最多输入50个字符'
+                            }
+                        }
+                    }
+                }
+            });
+
+
+        });
+    </script>
+{% endblock %}

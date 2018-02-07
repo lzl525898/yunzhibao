@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} 后台管理系统 {% endblock %}
+{% block navigation-right %}
+    {% if user.is_authenticated %}
+        {% if user.is_superuser %}
+        <li class="navbar-text ">欢迎 超级管理员 {{ user.username }}</li>
+        {% elif user.first_name == 'claim' %}
+        <li class="navbar-text ">欢迎 保险公司 {{ user.first_name }}</li>
+        {% elif user.first_name == 'intermediary' %}
+        <li class="navbar-text ">欢迎 中介人员 </li>
+        {% else %}
+        <li class="navbar-text ">欢迎 管理员 {{ user.username }}</li>
+        {% endif %}
+        <li><a href="{% url 'authentic:logout' %}"><strong>注销</strong></a></li>
+    {% endif %}
+{%  endblock %}
+{% block body_block %}
+{% if user.first_name != 'claim'  and user.first_name != 'intermediary' %}
+    <div class="row">
+        <div class="col-md-12">
+            <ul id="myTab" class="nav nav-tabs">
+                <li {% block tab_index %}{% endblock %}><a href="{% url 'bms:index' %}"><i class="fa fa-home"></i> 首页</a></li>
+                 {% if user.is_superuser %}<li {% block tab_product %}{% endblock %}><a href="{% url 'bms:head_company_list' '1'%}"><i class="fa fa-home"></i>产品管理</a></li>{% endif %}
+                <li {% block tab_order %}{% endblock %}><a href="{% url 'bms:order_list' '1'%}"><i class="fa fa-home"></i>订单管理</a></li>
+              {% if user.is_superuser %} <li {% block tab_compensate %}{% endblock %}><a href="{% url 'bms:compensate_list' '1'%}"><i class="fa fa-home"></i>赔案管理</a></li>{% endif %}
+                <li {% block tab_user %}{% endblock %}>
+                    {% if user.is_superuser %}
+                        <a href="{% url 'bms:admin_list' '1' %}">
+                    {% else %}
+                        <a href="{% url 'bms:registered_list' '1' %}">
+                    {% endif %}
+                <i class="fa fa-users"></i> 用户管理</a></li>
+                <li {% block tab_campaign %}{% endblock %}><a href="{% url 'bms:logistics_list' '1' %}"><i class="fa fa-home"></i>宣传推广管理</a></li>
+{#                <li {% block tab_interactive%}{% endblock %}><a href="{% url 'bms:suggestions_list' '1' %}"><i class="fa fa-home"></i>互动信息</a></li>#}
+                {% if user.is_superuser %}
+                <li {% block tab_settings %}{% endblock %}><a href="{% url 'bms:settings' %}"><i class="fa fa-cogs"></i> 系统管理</a></li>
+{#                <li {% block tab_exception %}{% endblock %}><a href="{% url 'bms:exception_list' '1' %}"><i class="fa fa-chain-broken"></i> 异常管理</a></li>#}
+                <li {% block tab_logs %}{% endblock %}><a href="{% url 'bms:log_list' '1' %}"><i class="fa fa-book"></i> 日志</a></li>
+{#                  <li {% block tab_statistics %}{% endblock %}><a href="{% url 'bms:insurance_amount' %}"><i class="fa fa-chain-broken"></i> 数据统计</a></li>#}
+                {% endif %}
+                <li {% block tab_car %}{% endblock %}><a href="{% url 'bms:car_list' '1' %}"><i class="fa fa-chain-broken"></i> 保险管家</a></li>
+                <li {% block tab_mall %}{% endblock %}><a href="{% url 'bms:goods_type_list' '1' %}"><i class="fa fa-chain-broken"></i> 二手货物管理</a></li>
+            </ul>
+
+            <p></p>
+
+            {% block content_block %}
+            {% endblock %}
+        </div>
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-md-12">
+            <ul id="myTab" class="nav nav-tabs">
+            {% if user.first_name == 'claim' %}
+                <li {% block tab_claim_order %}{% endblock %}><a href="{% url 'cos:order_list' '1'%}"><i class="fa fa-home"></i>订单管理</a></li>
+            {% elif user.first_name == 'intermediary' %}
+            <li {% block tab_jdclbx_list %}{% endblock %}><a href="{% url 'cos:cos_jdclbx_list' '1'%}"><i class="fa fa-home"></i>{{intermediary_name}}-订单管理</a></li>
+            {% endif %}
+            </ul>
+            <p></p>
+
+            {% block content_claim_block %}
+            {% endblock %}
+        </div>
+    </div>
+
+    {% endif %}
+{% endblock %}
+
+
+{% block base_script_block %}
+    <script src="{% static 'js/ajax-bms.js' %}"></script>
+    <script src="{% static 'js/jquery.cityselect.js' %}"></script>
+{% endblock %}
+
+

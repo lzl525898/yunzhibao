@@ -1,0 +1,51 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}意外险{% endblock %}
+
+{% block container_block %}
+{#    首页所在位置，进入页面后的默认页面#}
+    <div class="weui_cells_title hd" style="text-align: center;">意外险详情</div>
+    <div class="weui_cells">
+        <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>产品名称：</p>
+            </div>
+            <div class="weui_cell_ft">意外险</div>
+        </div>
+        <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>产品费率：</p>
+            </div>
+            <div class="weui_cell_ft">0.2</div>
+        </div>
+
+        <div class="weui_cells_title">产品简介</div>
+        <div class="weui_cells weui_cells_form">
+            <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <textarea class="weui_textarea" rows="5" disabled="disabled" style="background-color: #ffffff">德邦物流是国家AAAA级物流企业，主营国内公路零担运输业务和空运代理，是行业内的标杆企业。公司始创于1996年9月，截至2010年9月，德邦已在全国30个省、市、自治区开设营业网点1000多家，拥有运输车辆1900余台、员工19000多人，
+                    </textarea>
+{#                    <div class="weui_textarea_counter"><span>0</span>/200</div>#}
+                </div>
+            </div>
+        </div>
+    </div>
+{#    <a href="{% url 'wss:prompt' %}" class="weui_btn weui_btn_primary">投保</a>#}
+
+    <div class="weui_cells">
+{#        <img src="{% static 'pic/default/logo.png' %}" style="max-width: 200px;max-height: 200px;display:block;text-align: center;margin-right: auto;margin-left: auto;">#}
+        <img src="{% static 'pic/default/ewm.jpg' %}" style="max-width: 350px;max-height: 200px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+        <div class="weui_cell_bd weui_cell_primary">
+            <p style="text-align: center;margin-right: auto;margin-left: auto;margin-top: 10px">长按上图选择“识别图中二维码”↑↑↑</p>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+{% endblock %}

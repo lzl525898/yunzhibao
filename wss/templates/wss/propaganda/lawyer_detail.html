@@ -1,0 +1,118 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% block title_block %}各地专业律师为您服务{% endblock %}
+
+{% block container_block %}
+{#    首页所在位置，进入页面后的默认页面#}
+
+    <script  type="text/javascript">
+		  wx.ready(function () {
+			  wx.onMenuShareAppMessage({
+			      title: '{{ campaign_lawyer.name }}',
+			      desc: '{{ campaign_lawyer.description }}',
+			      link: '{{a.url |safe}}',
+			      imgUrl: '{{main_url}}static/{{ campaign_lawyer.icon }}',
+			    });
+			 wx.onMenuShareTimeline({
+			      title: '{{ campaign_lawyer.name }}',
+			      link:'{{ a.url|safe }}',
+			      imgUrl: '{{main_url}}static/{{ campaign_lawyer.icon }}',
+			    });  
+		});
+</script>
+ <div class="top">
+	<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+		<tbody>
+			<tr>
+					<td width="20%" valign="middle">
+							<a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a>
+					</td>
+					<td class="wz" width="60%" valign="middle" align="center">
+							<span id="toptitle">
+									<i class="fa   fa-user"></i>&nbsp;<strong>律师详情</strong>
+							</span>
+					</td>
+					<td width="20%" valign="middle" align="right">
+					<a id="aso" href="#"></a>
+					</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+ <div class="weui_cells" style="padding-top:30px;">
+     <img src="{% static '' %}{{ campaign_lawyer.icon }}" style="border-radius: 10px;max-width: 150px;max-height: 150px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+ </div>
+<div class="weui_cells_title wss_dashed"><i class="fa fa-cog"></i> &nbsp; 姓名</div>
+ <div class="weui_cells wss_p">
+ 	<div class="weui_cell">
+		     <div class="weui_cell_bd weui_cell_primary">
+		         <p>&nbsp;&nbsp;{{ campaign_lawyer.name }}</p>
+		     </div>
+     </div>
+ </div>
+
+<div class="weui_cells_title wss_dashed" ><i class="fa fa-user"></i> &nbsp; 联系电话</div>
+<div class="weui_cells weui_cells_access wss_p">
+	        <a class="weui_cell" href="tel:{{  campaign_lawyer.phone }}">
+	            <div class="weui_cell_bd weui_cell_primary">
+	                <p><i class="fa  fa-phone-square" ></i> </p>
+	            </div>
+	            <div class="weui_cell_ft">{{ campaign_lawyer.phone }}</div>
+	        </a>
+	    
+       {% if  campaign_lawyer.phone1  %}
+       <div class="wss_dashed_bottom"></div>
+	        <a class="weui_cell" href="tel:{{  campaign_lawyer.phone1 }}">
+	            <div class="weui_cell_bd weui_cell_primary">
+	                <p><i class="fa  fa-phone-square" ></i> </p>
+	            </div>
+	            <div class="weui_cell_ft">{{  campaign_lawyer.phone1  }}</div>
+	        </a>
+       {% endif%}
+</div>
+
+<div class="weui_cells_title wss_dashed" ><i class="fa   fa-map-marker"></i> &nbsp; 地址</div>
+ 	<div class="weui_cells wss_p">
+		  	<div class="weui_cell">
+		     <div class="weui_cell_bd weui_cell_primary">
+		         <p>&nbsp;&nbsp;{{ campaign_lawyer.address }}</p>
+		     </div>
+     </div>
+ </div>
+
+<div class="weui_cells_title wss_dashed" ><i class="fa  fa-certificate"></i> &nbsp; 律师资格证号</div>
+<div class="weui_cells wss_p">
+	<div class="weui_cell">
+		    <div class="weui_cell_bd weui_cell_primary">
+		       <p>&nbsp;&nbsp;{{ campaign_lawyer.qualified }}</p>
+		    </div>
+    </div>
+</div>
+
+<div class="weui_cells_title wss_dashed" ><i class="fa fa-info-circle"></i> &nbsp; 个人简介</div>
+ <div class="weui_cells weui_cells_form">
+     <div class="weui_cell wss_p">
+         <div class="weui_cell_bd weui_cell_primary">
+             <div  class="weui_textarea"  style="background-color: #ffffff;margin-right:30px;max-width: 350px; word-wrap:break-word;"">{{ campaign_lawyer.description |safe}}
+             </div>
+         </div>
+     </div>
+ </div>
+
+    <div class="weui_cells">
+{#        <img src="{% static 'pic/default/logo.png' %}" style="max-width: 200px;max-height: 200px;display:block;text-align: center;margin-right: auto;margin-left: auto;">#}
+        <img src="{% static 'pic/default/ewm.jpg' %}" style="max-width: 350px;max-height: 200px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+        <div class="weui_cell_bd weui_cell_primary">
+            <p style="text-align: center;margin-right: auto;margin-left: auto;margin-top: 10px">长按上图选择“识别图中二维码”↑↑↑</p>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+{% endblock %}

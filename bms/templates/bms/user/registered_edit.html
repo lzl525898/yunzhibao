@@ -1,0 +1,164 @@
+{% extends 'bms/user/base_user.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block user_registered %}class='active'{% endblock %}
+{% block title %} 编辑注册用户 {% endblock %}
+
+
+
+{% block page_top %}
+    <div class="row">
+        <div class="col-sm-12">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <i class="fa fa-edit fa-3x pull-right"></i>
+                        <h1>{{ registered.profile.nickname }}</h1>
+                            <p>上次登录：{{ registered.user.last_login|date:'Y年m月d日 H:i:s'  }}</p>
+                            <p>创建时间：{{ registered.user.date_joined|date:'Y年m月d日 H:i:s'  }}</p>
+                        <hr/>
+                            <p>用户账号：{{ registered.profile.phone }}</p>
+{#                            <p>open_id：{{ registered.wx_id }}</p>#}
+{#                            <p>用户ID：{{ registered.profile.user_id  }}</p>#}
+{#                            <p>电子邮箱：{{ client.user.email|default_if_none:''   }}</p>#}
+                            <p>性别：{{ registered.profile|displayName:'sex'  }}</p>
+{#                            <p>常住地：{{ registered.profile.address|default_if_none:''   }}</p>#}
+                        <!--     <p>推荐人：{% if client.profile.phone %}<a href="{% url 'bms:item_detail' client.id %}" target="_blank">{{ client.profile.phone }}</a>{% else %}无{% endif %}</p> -->
+                            <p>推荐码：{{ registered.referee_code }}</p>
+                            <p>头像：<img class="img-responsive " src="{% if registered.profile.icon %}{% static '' %}{{ registered.profile.icon }}{% else %}
+                             {% static 'pic/default/legoo.jpg' %}
+                            {% endif %}" style="height: 50px;word-break:break-all" alt="用户头像"/></p>
+
+                        <hr/>
+
+                        {% if alert %}
+                            <div class="alert alert-warning">
+                                <p class="text-center">{{ message }}</p>
+                            </div>
+                        {% endif %}
+
+                        <form id="registered_edit_form" method="post" action="{% url 'bms:registered_edit' registered.id %}"  enctype="multipart/form-data">{% csrf_token %}
+                        <font color="red"> {{ message|default_if_none:'' }}</font>
+{#                            <input type="text" hidden name="page_index" value="{{ page_index }}"/>#}
+{#                            <div class="form-group" >#}
+{#                                <label for="nickname" ><i class="fa fa-leaf"></i> *昵称： </label>#}
+{#                                <input class="form-control"  id="nickname" name="nickname" type="text" value="{{ registered.profile.nickname }}" maxlength="16">#}
+{#                            </div>#}
+                            <div class="form-group">
+                                <label for="phone_number" ><i class="fa fa-phone"></i> *手机号码：</label>
+                                <input class="form-control" id="phone_number" name="phone" value="{{ registered.profile.phone|default_if_none:'' }}" type="text"  maxlength="16">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="password" ><i class="fa fa-lock"></i> 更改密码：</label>
+                                <input class="form-control" id="password" name="password"  type="password" maxlength="20">
+                            </div>
+                            <div class="form-group" >
+                                <label for="id_password"><i class="fa fa-lock"></i> *确认密码： </label>
+                                <input class="form-control" id="id_re_password" name="re_password"  type="password" maxlength="20" required >
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="referee_phone" ><i class="fa fa-phone"></i> *推荐人：</label>
+                                <input class="form-control" id="referee_phone" name="referee_phone" value="{{ client.profile.phone|default_if_none:'' }}" type="text"  maxlength="16">
+                            </div>
+                            
+
+                            <div class="form-group">
+                                <label for="id_channel"><i class="fa fa-life-bouy"></i> 是否激活： </label>
+                                <div class="">
+                                    <label class="radio-inline">
+                                      <input type="radio" name="active" id="id_show" value="show" {% if registered.user.is_active %}checked{% endif %}> 激活
+                                    </label>
+                                    <label class="radio-inline">
+                                      <input type="radio" name="active" id="id_hidden" value="hidden" {% if not registered.user.is_active %}checked{% endif %}> 不激活
+                                    </label>
+                                </div>
+                            </div>
+
+{#                            <a class="btn btn-danger" data-toggle="modal" data-target="#delete_registered_modal"><i class="fa fa-trash"></i> 删 除</a>#}
+                            <button type="submit" class="btn btn-success"><i class="fa fa-floppy-o"></i> 保 存</button>
+                            {#<button class="btn btn-default" onclick="history.back()" ><i class="fa fa-times"></i> 返 回</button>#}
+                            <a class="btn btn-default" href="{% url 'bms:registered_list' '1'%}"><i class="fa fa-times"></i> 返 回</a>
+                            <!-- <button class="btn btn-default" onclick="history.back()" ><i class="fa fa-times"></i> 修改推荐人</button> -->
+                            {% if not certificate%}
+                                <a class="btn btn-danger" href="{% url 'bms:certificate_create' registered.id %}">申 请 认 证</a>
+                            {% elif certificate.state == 'init' %}
+                                <a class="btn btn-danger" href="{% url 'bms:certificate_detail' certificate.id %}">正 在 认 证</a>
+                            {% elif certificate.state == 'success' %}
+                                <a class="btn btn-danger">已通过认证</a>
+                            {% elif certificate.state == 'fail'%}
+                                <a class="btn btn-danger" href="{% url 'bms:certificate_reject_repeat' certificate.id %}">认证失败请重新认证</a>
+                            {% endif %}
+                        </form>
+
+
+                    </div>
+                </div>
+       </div>
+    </div>
+
+{% endblock %}
+{% block page_middle %}
+    {% if certificate.state == 'fail' %}
+        <label class="pull-left">认证失败的原因:</label>
+        <div>{{ certificate|displayName:'failed_reason' }}</div>
+        <div class="clearfix"></div>
+        <div class="form-group" >
+            <textarea style="width: 500px" rows="5" maxlength="200" disabled>{{ certificate.note }}</textarea>
+        </div>
+    {% endif %}
+{% endblock %}
+{% block script_block %}
+    <script type="text/javascript">
+       $(function(){
+
+            $('#registered_edit_form').formValidation({
+                // I am validating Bootstrap form
+                framework: 'bootstrap',
+                locale : 'zh_CN',
+                // Feedback icons
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+
+                // List of fields and their validation rules
+                fields: {
+                    password: {
+                        validators: {
+                            stringLength: {
+                                min: 5,
+                                max: 20,
+                                message: '请输入5～20个字符'
+                            }
+                        }
+                    },
+                    nickname: {
+                        validators: {
+                            notEmpty: {
+                                message: '昵称不可为空'
+                            },
+                            stringLength: {
+                                min: 1,
+                                max: 16,
+                                message: '请输入1～16个字符'
+                            }
+                        }
+                    },
+                    phone_number: {
+                        validators: {
+                            regexp: {
+                                regexp: /^[0-9]+$/,
+                                message: '手机号码只能由数字组成'
+                            }
+                        }
+                    }
+                }
+            });
+
+
+        });
+    </script>
+{% endblock %}
+

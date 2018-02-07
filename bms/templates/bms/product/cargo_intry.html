@@ -1,0 +1,411 @@
+{# {% extends 'bms/product/base_product.html' %}#}
+{% extends 'bms/settings/base_settings.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block level_4 %} in {% endblock %}
+{% block cargo_list %}class='active'{% endblock %}
+{% block title %} 产品列表 {% endblock %}
+
+{% block page_top %}
+<div class="row" >
+        <div class="col-sm-6"id="id_page"style="display:block">
+        {% if paging.total_pages_count > 0 %}
+            <ul class="pagination">
+                <li><a href="{% url 'bms:cargo_intry' paging.prev_page %}">&laquo;</a></li>
+                {% for page in paging.pages %}
+                    <li {% if page == paging.page_index %}class="active"{% endif %}><a href="{% url 'bms:cargo_intry' page %}">{{ page }}</a></li>
+                {% endfor %}
+                <li><a href="{% url 'bms:cargo_intry' paging.next_page %}">&raquo;</a></li>
+                <div class="clearfix"></div>
+                <p>
+                    第{{ paging.page_index }}页/共{{ paging.total_pages_count }}页 &nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <a href="{% url 'bms:cargo_intry' '1' %}">首页</a> / <a href="{% url 'bms:cargo_intry' paging.total_pages_count %}">尾页</a>
+                </p>
+            </ul>
+        {% endif %}
+        </div>
+    </div>
+
+{% if message and message != '' %}
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="alert alert-warning">{{ message }}</div>
+        </div>
+    </div>
+{% endif %}
+
+   <div class="row">
+     <div class="col-sm-6"></div>
+	 <div class="col-sm-6">
+				<div class="form-group">
+					<div class="col-sm-3"></div>
+				    <div class="col-sm-9">
+		            		<a class="btn btn-primary pull-right"  href=# title="创建货物小类" data-toggle="modal" data-target="#confirm_cargo_example"><i class="fa fa-plus"></i> 创建货物小类</a>
+		        	</div>   
+
+				</div>
+        </div>
+    </div>
+
+<!-- <div class="row">
+     <div class="col-sm-6"></div>
+	 <div class="col-sm-6">
+				<div class="form-group">
+					<div class="col-sm-3"></div>
+				    <div class="col-sm-3"style="display:block">
+		            		<a class="btn btn-primary "  title="创建货物小类" data-toggle="modal" data-target="#confirm_cargo_example"><i class=""></i>创建货物类型</a>
+		        	</div>   
+		        	<div class="col-sm-3"style="display:none">
+		            		<a class="btn btn-primary " data-toggle="modal" data-target="#confirm_cargo_type"><i class=""></i>创建货物大类</a>
+		        	</div> 
+				</div>
+        </div>
+    </div> -->
+    
+{% endblock %}
+
+{% block page_middle %}
+{# 显示货物大类#}
+
+ {# 分页2#}
+ <div class="row" style="margin-top: 10px;display:block ;"  id="choose_cargo_detail">
+<!--         <div class="col-sm-12">
+            <div class="list-group" id="notice_group">
+                <input type="hidden" id="page_index" name="page_index" value="{{ page_index }}"/>
+                	<div class="list-group-item col-sm-3"style="background-color: #d9edf7;">
+                                <p class="list-group-item-text text-center">货物详情维护表
+                                	<small>
+                                		<a href=# title="创建货物小类" data-toggle="modal" data-target="#confirm_cargo_example"><i class="fa fa-edit"></i></a>
+                                	</small>
+                                </p>
+                    </div>
+     
+                    
+             </div>
+       </div> -->
+      <div class="col-sm-12">
+            <div class="list-group" id="notice_group">
+                <input type="hidden" id="page_index" name="page_index" value="{{ page_index }}"/>
+                    <div class="list-group-item">
+                        <div class="row" >
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">优先级</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">货物编号</p>
+                            </div>
+                            <div class="col-sm-4">
+                                <p class="list-group-item-text text-center">货物名称</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">状态</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">操作</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% for cargo  in cargo_set %}
+                    <div class="list-group-item">
+                        <div class="row" >
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">{{cargo.cargo_priority}}</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">{{cargo.cargo_number}}</p>
+                            </div>
+                            <div class="col-sm-4"style="max-width: 400px; word-wrap:break-word;">
+                                <p class="list-group-item-text text-center">{{cargo.cargo_name}}</p>
+                            </div>
+							<div class="col-sm-2">
+                                <p class="list-group-item-text text-center">
+                                {% if cargo.state == True %}可保
+                                {% elif cargo.state == False %}不可保
+                                {%else %}未识别
+                                {% endif %}</p>
+                            </div>
+                            <div class="col-sm-2">
+									  <div class="row text-center">
+									  			<!-- <a data-toggle="modal" data-target="#confirm_cargo_edit" ><button class="btn btn-xs btn-info" style="width:30px;" title="编辑"><i class="fa fa-edit"></i></button></a> -->
+									  			<a href="#" onclick="edit_cargo('{{cargo.id}}','{{cargo.cargo_priority}}','{{cargo.cargo_number}}','{{cargo.cargo_name}}','{{cargo.state}}');"><button class="btn btn-xs btn-info" style="width:30px;" title="编辑"><i class="fa fa-edit"></i></button></a>
+									  			<a href="{% url 'bms:cargo_delete' cargo.id %}" ><button class="btn btn-xs btn-danger" style="width:30px;" title="删除"><i class="fa fa-trash-o"></i></button></a>
+									 </div>
+							</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+       </div>
+    </div>
+    
+ {# 分页2#}
+{#货物大类维护结束#}
+
+{% endblock %}
+
+{% block page_bottom %}
+{#认证货物类型模态框#}
+<div class="modal fade" id="confirm_cargo_example" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<form id="commercial_form" class="form" method="post" action="{% url 'bms:cargo_intry'  '1'%}?">{% csrf_token %}
+		<input class="hidden"  id="cargo_state" type="text" name="cargo_state" value="create">
+		<input class="hidden"  id="cargo_page" type="text" name="cargo_page" value="{{paging.total_pages_count}}">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+                    <input type="hidden" value="on" id="" name="result">
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						创建货物类型
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="panel-body">
+	              		<div class="form-group">
+	                           <div class="col-sm-4">
+	                             	 <div class="form-group">
+					                    	<label class="control-label">优先级</label>
+					                       	<input style="width:6pc"  name="cargo_priority"value="{{ posted_data.cargo_priority|default_if_none:'' }}"type="number">  	
+			                    	</div>
+	                           </div>
+	                           <div class="col-sm-4">
+	                                <div class="form-group">
+					                    	<label class="control-label">状态</label>
+					                       	<select style="width:7pc"class="" id="cargo_insurance_state" name="cargo_insurance_state"required>
+				                                    <option value="1" >货物可承保</option>
+				                                    <option value="0" >货物不可承保</option>
+				                            </select>
+			                    	</div>
+	                           </div>
+	                            <div class="col-sm-4">
+	                                <div class="form-group">
+					                    	<label class="control-label">编号</label>
+					                       	<input style="width:7pc"  name="cargo_number"value="{{ posted_data.cargo_number|default_if_none:'' }}"required>
+			                    	</div>
+	                           </div>
+	                     </div>
+	<!--                      <div class="form-group">
+	                           <div class="col-sm-12">
+	                             	 <div class="form-group">
+					                    	<label class="control-label">编号&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+					                       	<input style="width:395px"  name="cargo_number"value="{{ posted_data.cargo_number|default_if_none:'' }}"required>
+			                    	</div>
+	                           </div>
+	                     </div> -->
+	                     <div class="form-group">
+	                           <div class="col-sm-12">
+	                             	 <div class="form-group">
+					                    	<label class="control-label">货物名称</label>
+					                       	<textarea style="width: 440px; height: 30px;"  name="cargo_describe"value="{{ posted_data.cargo_describe|default_if_none:'' }}"required></textarea>
+			                    	</div>
+	                           </div>
+	                     </div>
+	     		    </div>	
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						认证成功
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+{#认证货物维护框#}
+<div class="modal fade" id="confirm_cargo_example1" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		{#<form id="commercial_form" class="form" method="post" action="{% url 'bms:cargo_intry'  %}?type=commercial">{% csrf_token %}#}
+		<form id="commercial_form" class="form" method="post" action="{% url 'bms:cargo_intry'  '1'%}?">{% csrf_token %}
+		<input class="hidden"  id="cargo_state" type="text" name="cargo_state" value="create">
+		<input class="hidden"  id="cargo_page" type="text" name="cargo_page" value="{{paging.total_pages_count}}">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+                    <input type="hidden" value="on" id="" name="result">
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						创建货物类型
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="panel-body">
+	              		<div class="form-group">
+	                           <div class="col-sm-6">
+	                                <div class="form-group">
+					                    	<label class="control-label">优先级</label>
+					                       	<input style="width:10pc"  name="cargo_priority"value="{{ posted_data.cargo_priority|default_if_none:'' }}">  	
+			                    	</div>
+			                    	<div class="form-group">
+					                    	<label class="control-label">编号</label>
+					                       	<input style="width:9.4pc"  name="cargo_number"value="{{ posted_data.cargo_number|default_if_none:'' }}"required>
+			                    	</div>
+			                    	<div class="form-group">
+					                    	<label class="control-label">货物名称:</label>
+					                       	<input style="width:10pc"  name="cargo_describe"value="{{ posted_data.cargo_describe|default_if_none:'' }}"required>
+			                    	</div>
+			                    	<div class="form-group">
+					                    	<label class="control-label">是否可保</label>
+					                       	<select class="form-control" id="cargo_insurance_state" name="cargo_insurance_state"required>
+				                                    <option value="1" >货物可承保</option>
+				                                    <option value="0" >货物不可承保</option>
+				                            </select>
+			                    	</div>
+	                           </div>
+	                     </div>
+	     		    </div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						创建
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+{#编辑货物信息#}
+<div class="modal fade" id="confirm_cargo_edit" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		{#<form id="commercial_form" class="form" method="post" action="{% url 'bms:cargo_intry'  %}?type=commercial">{% csrf_token %}#}
+		<form id="commercial_form" class="form" method="post" action="{% url 'bms:cargo_edit'  %}?">{% csrf_token %}
+		<input class="hidden"  id="cargo_id_edit" type="text" name="cargo_id_edit" value="">
+		<input class="hidden"  id="cargo_state" type="text" name="cargo_state" value="edit">
+		<input class="hidden"  id="cargo_page" type="text" name="cargo_page" value="{{paging.page_index}}">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+                    <input type="hidden" value="on" id="" name="result">
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						编辑货物类型
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="panel-body">
+                           <div class="form-group">
+	                           <div class="col-sm-6">
+	                             	 <div class="form-group">
+					                    	<label class="control-label">优先级</label>
+					                       	<input style="width:6pc"  id ='id_cargo_priority_edit' name="cargo_priority_edit"value=""type="number">  	
+			                    	</div>
+	                           </div>
+	                           <div class="col-sm-6">
+	                                <div class="form-group">
+					                    	<label class="control-label">状态</label>
+					                       	<select style="width:10pc"id="cargo_insurance_state_edit" name="cargo_insurance_state_edit"required>
+			                                    <option value="1" >货物可承保</option>
+			                                    <option value="0" >货物不可承保</option>
+					                        </select> 
+			                    	</div>
+	                           </div>
+	                     </div>
+	                     <div class="form-group">
+	                           <div class="col-sm-12">
+	                             	 <div class="form-group">
+					                    	<label class="control-label">编号&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+					                       	<input style="width:395px"  id="id_cargo_number_edit"name="cargo_number_edit"value=""required>
+			                    	</div>
+	                           </div>
+	                     </div>
+	                     <div class="form-group">
+	                           <div class="col-sm-12">
+	                             	 <div class="form-group">
+					                    	<label class="control-label">货物名称</label>
+					                       	<textarea style="width: 395px; height: 60px;"  id="id_cargo_describe_edit"name="cargo_describe_edit"value=""required></textarea>
+			                    	</div>
+	                           </div>
+	                     </div>
+	                  </div>
+	     		    </div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						编辑
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+{% endblock %}
+
+
+{% block script_block %}
+    <script type="text/javascript">
+    function edit_cargo(cargo_id,cargo_priority,cargo_number,cargo_name, state){
+    	//alert("cargo_id=="+cargo_id+"\ncargo_type=="+cargo_priority+"\ncargo_number=="+cargo_number+"\n cargo_name=="+cargo_name +state);
+        $('#confirm_cargo_edit').modal('show');
+        var cargo_id_edit = document.getElementById("cargo_id_edit");
+        var cargo_priority_edit = document.getElementById("id_cargo_priority_edit");
+        var cargo_number_edit = document.getElementById("id_cargo_number_edit");
+        var cargo_describe_edit = document.getElementById("id_cargo_describe_edit");
+        cargo_id_edit.value = cargo_id;
+        cargo_priority_edit.value = cargo_priority;
+        cargo_number_edit.value = cargo_number;
+        cargo_describe_edit.value = cargo_name;
+        //document.getElementById("id_cargo_type_edit").value=cargo_type;
+        if (state=="True"){
+        	document.getElementById("cargo_insurance_state_edit").value="1";
+        }
+        else{
+        	document.getElementById("cargo_insurance_state_edit").value="0";
+        }
+    }
+    //修改货物大类信息
+/*     function edit_ct_detail(ct_id ,ct_name, ct_priority ,ct_state ){
+    	alert("cargo_id=="+cargo_id+"\ncargo_type=="+cargo_type+"\ncargo_number=="+cargo_number+"\n cargo_name=="+cargo_name );
+        
+        //alert ("ct_id=="+ct_id+"\n"+"ct_name=="+ct_name+"\n"+"ct_state=="+ct_state+"\n"+"ct_priority=="+ct_priority+"\n"+"");
+        $('#confirm_ct_detail').modal('show');
+        var id_ct_detail_edit = document.getElementById("id_ct_detail_edit");
+        var ct_name_edit = document.getElementById("id_ct_name_edit");
+        var ct_priority_edit = document.getElementById("id_ct_priority_edit");
+        var ct_state_edit = document.getElementById("id_ct_state_edit");
+        id_ct_detail_edit.value = ct_id;
+        ct_name_edit.value = ct_name;
+        ct_priority_edit.value = ct_priority;
+        //alert(typeof ct_state);
+        if (ct_state=="True"){
+        	document.getElementById("id_ct_state_edit").value="1";
+        }
+        else{
+        	document.getElementById("id_ct_state_edit").value="0";
+        }
+    } */
+    </script>
+{% endblock %}

@@ -1,0 +1,1007 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% block title_block %}用户认证{% endblock %}
+
+{% block container_block %}
+
+{% if message %}
+    <div class="weui_dialog_alert">
+        <div class="weui_mask"></div>
+        <div class="weui_dialog">
+            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+            <div class="weui_dialog_bd">{{ message }}</div>
+            <div class="weui_dialog_ft">
+                <a onclick="close_dialog();" class="weui_btn_dialog primary">确定</a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{#    首页所在位置，进入页面后的默认页面#}
+    <div class="hd">
+            <div class="wss_title" ><i class="fa   fa-certificate"></i> &nbsp; <strong>申请认证</strong></div>
+{#        <p class="page_desc">将您的用户帐号绑定到微信</p>#}
+    </div>
+
+    <div class="bd">
+        <form id="wss_register_form" method="post" action="" enctype="multipart/form-data">{% csrf_token %}
+            <input type="hidden" name="open_id" value="{{ open_id }}">
+            <input type="hidden" name="next_view" value="{{ next_view }}">
+            <div class="weui_cells weui_cells_form wss_p">
+
+                <div class="weui_cell weui_cell_select weui_select_after">
+                    <div class="weui_cell_hd">
+                        认证目标
+                    </div>
+                    <div class="weui_cell_bd weui_cell_primary">
+                        <select class="weui_select" id="id_user_type" name="user_type" onchange="chang_user_type()">
+                                    <option value="default_type">请选择</option>
+                                  {% for x,y in user_types %}
+                                      {% if forloop.counter != 1 and forloop.counter != 5 and forloop.counter != 6 %}
+                                        <option value="{{ x }}" {% if posted_data.insurance_type == x %} selected {% endif %}>{{ y }}</option>
+                                      {% endif %}
+                                  {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="weui_cell weui_cell_select weui_select_after">
+                    <div class="weui_cell_hd">
+                        用户类别
+                    </div>
+                    <div class="weui_cell_bd weui_cell_primary">
+                        <select class="weui_select" id="id_user_classify" name="user_classify" onchange="change_user_classify()">
+                                    <option value="default_classify">请选择</option>
+                                  {% for x,y in user_classifys %}
+                                      {% if forloop.counter != 1 %}
+                                        <option value="{{ x }}" {% if posted_data.user_classify == x %} selected {% endif %}>{{ y }}</option>
+                                      {% endif %}
+                                  {% endfor %}
+{#                            <option value="1">中国</option>#}
+{#                            <option value="2">美国</option>#}
+{#                            <option value="3">英国</option>#}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="weui_cells_title">身份证正面图片</div>
+                <div class="weui_cells weui_cells_form">
+                    <div class="weui_cell">
+                        <div class="weui_cell_bd weui_cell_primary">
+                            <div class="weui_uploader">
+                                <div class="weui_uploader_bd">
+                                    <ul class="weui_uploader_files ul_national_image">
+                                    </ul>
+                                    <div class="weui_uploader_input_wrp">
+                                        <input class="weui_uploader_input national_image" name="national_image" type="file" accept="image/jpg,image/jpeg,image/png,image/gif"/>
+{#                                        <input type='hidden' id="id_national_image_hidden" name="national_image_hidden">#}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="weui_cells_title">身份证背面照片</div>
+                <div class="weui_cells weui_cells_form">
+                    <div class="weui_cell">
+                        <div class="weui_cell_bd weui_cell_primary">
+                            <div class="weui_uploader">
+                                <div class="weui_uploader_bd">
+                                    <ul class="weui_uploader_files ul_national_image_down">
+                                    </ul>
+                                    <div class="weui_uploader_input_wrp">
+                                        <input class="weui_uploader_input national_image_down" name="national_image_down" type="file" accept="image/jpg,image/jpeg,image/png,image/gif"/>
+{#                                        <input type='hidden' id="id_national_image_down_hidden" name="national_image_down_hidden">#}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+{#            物流公司#}
+                <div class="control-show" id="id_business_certificate">
+
+                    <div class="weui_cells_title">营业执照正本</div>
+                    <div class="weui_cells weui_cells_form">
+                        <div class="weui_cell">
+                            <div class="weui_cell_bd weui_cell_primary">
+                                <div class="weui_uploader">
+                                    <div class="weui_uploader_bd">
+                                        <ul class="weui_uploader_files ul_business_license_image">
+                                        </ul>
+                                        <div class="weui_uploader_input_wrp">
+                                            <input class="weui_uploader_input business_license_image" id="id_business_license_image" name="business_license_image"  type="file" accept="image/jpg,image/jpeg,image/png,image/gif"/>
+{#                                            <input type='hidden' id="id_business_license_image_hidden" name="business_license_image_hidden">#}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="weui_cells_title">组织机构代码证</div>
+                    <div class="weui_cells weui_cells_form">
+                        <div class="weui_cell">
+                            <div class="weui_cell_bd weui_cell_primary">
+                                <div class="weui_uploader">
+                                    <div class="weui_uploader_bd">
+                                        <ul class="weui_uploader_files ul_organ_image">
+                                        </ul>
+                                        <div class="weui_uploader_input_wrp">
+                                            <input class="weui_uploader_input organ_image" id="id_organ_image" name="organ_image"  type="file" accept="image/jpg,image/jpeg,image/png,image/gif"/>
+{#                                            <input type='hidden' id="id_organ_image_hidden" name="organ_image_hidden">#}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="weui_cells_title">道路运输经营许可证</div>
+                    <div class="weui_cells weui_cells_form">
+                        <div class="weui_cell">
+                            <div class="weui_cell_bd weui_cell_primary">
+                                <div class="weui_uploader">
+                                    <div class="weui_uploader_bd">
+                                        <ul class="weui_uploader_files ul_operating_permit_image">
+                                        </ul>
+                                        <div class="weui_uploader_input_wrp">
+                                            <input class="weui_uploader_input operating_permit_image" id="id_operating_permit_image" name="operating_permit_image"  type="file" accept="image/jpg,image/jpeg,image/png,image/gif"/>
+{#                                            <input type='hidden' id="id_operating_permit_image_hidden" name="operating_permit_image_hidden">#}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                    {# 司机认证 #}
+
+                    <div class="control-show" id="id_driver_certificate">
+
+                        <div class="weui_cells_title">驾驶证</div>
+                        <div class="weui_cells weui_cells_form">
+                            <div class="weui_cell">
+                                <div class="weui_cell_bd weui_cell_primary">
+                                    <div class="weui_uploader">
+                                        <div class="weui_uploader_bd">
+                                            <ul class="weui_uploader_files ul_driver_image">
+                                            </ul>
+                                            <div class="weui_uploader_input_wrp">
+                                                <input class="weui_uploader_input driver_image" id="id_driver_image" name="driver_image"  type="file" accept="image/jpg,image/jpeg,image/png,image/gif"/>
+{#                                                <input type='hidden' id="id_driver_image_hidden" name="driver_image_hidden">#}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="weui_cells_title">行驶证</div>
+                        <div class="weui_cells weui_cells_form">
+                            <div class="weui_cell">
+                                <div class="weui_cell_bd weui_cell_primary">
+                                    <div class="weui_uploader">
+                                        <div class="weui_uploader_bd">
+                                            <ul class="weui_uploader_files ul_plate_image">
+                                            </ul>
+                                            <div class="weui_uploader_input_wrp">
+                                                <input class="weui_uploader_input plate_image" id="id_plate_image" name="plate_image"  type="file" accept="image/jpg,image/jpeg,image/png,image/gif"/>
+{#                                                <input type='hidden' id="id_plate_image_hidden" name="plate_image_hidden">#}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="weui_cells_title">营运证<small>(“道路运输证”)</small></div>
+                        <div class="weui_cells weui_cells_form">
+                            <div class="weui_cell">
+                                <div class="weui_cell_bd weui_cell_primary">
+                                    <div class="weui_uploader">
+                                        <div class="weui_uploader_bd">
+                                            <ul class="weui_uploader_files ul_transportation_image">
+                                            </ul>
+                                            <div class="weui_uploader_input_wrp">
+                                                <input class="weui_uploader_input transportation_image" id="id_transportation_image" name="transportation_image"  type="file" accept="image/jpg,image/jpeg,image/png,image/gif"/>
+{#                                                <input type='hidden' id="id_transportation_image_hidden" name="transportation_image_hidden">#}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+{# 货主认证 #}
+                   <div class="control-show" id="id_boss_certificate">
+
+                        <div class="weui_cells_title">营业执照</div>
+                        <div class="weui_cells weui_cells_form">
+                            <div class="weui_cell">
+                                <div class="weui_cell_bd weui_cell_primary">
+                                    <div class="weui_uploader">
+                                        <div class="weui_uploader_bd">
+                                            <ul class="weui_uploader_files ul_business_license_image_boss">
+                                            </ul>
+                                            <div class="weui_uploader_input_wrp">
+                                                <input class="weui_uploader_input business_license_image_boss" id="id_business_license_image_boss" name="business_license_image_boss"  type="file" accept="image/jpg,image/jpeg,image/png,image/gif"/>
+{#                                                <input type='hidden' id="id_business_license_image_boss_hidden" name="business_license_image_boss_hidden">#}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="weui_cells_title">组织机构代码证</div>
+                        <div class="weui_cells weui_cells_form">
+                            <div class="weui_cell">
+                                <div class="weui_cell_bd weui_cell_primary">
+                                    <div class="weui_uploader">
+                                        <div class="weui_uploader_bd">
+                                            <ul class="weui_uploader_files ul_organ_image_boss">
+                                            </ul>
+                                            <div class="weui_uploader_input_wrp">
+                                                <input class="weui_uploader_input organ_image_boss" id="id_organ_image_boss" name="organ_image_boss"  type="file" accept="image/jpg,image/jpeg,image/png,image/gif"/>
+{#                                                <input type='hidden' id="id_organ_image_boss_hidden" name="organ_image_boss_hidden">#}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                   </div>
+
+
+            </div>
+
+        <button type="submit" class="weui_btn weui_btn_primary">确认申请</button>
+        </form>
+
+    </div>
+
+<div class="weui_dialog_alert" style='display: none;'>
+<div class='weui_mask'></div>
+<div class="weui_dialog">
+    <div class="weui_dialog_hd"><strong class="weui_dialog_title">警告</strong></div>
+    <div class="weui_dialog_bd">弹窗内容，告知当前页面信息等</div>
+    <div class="weui_dialog_ft">
+    <a href='javascript:;' class='weui_btn_dialog primary'>确定</a>
+    </div>
+</div>
+</div>
+
+<div id="toast" style="display: none;">
+    <div class="weui_mask_transparent"></div>
+    <div class="weui_toast">
+        <i class="weui_icon_toast"></i>
+        <p class="weui_toast_content">已完成</p>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+    <script>
+    
+{#var progress = 0;#}
+{#function uploading(temp) {#}
+{#    $preview.find('.'+temp).text(++progress + '%');#}
+{#    if (progress < 100) {#}
+{#    setTimeout(uploading(temp), 30);#}
+{#    }#}
+ 
+        $.weui = {};
+        $.weui.alert = function(options){
+        options = $.extend({title: '警告', text: '警告内容'}, options);
+            var $alert = $('.weui_dialog_alert');
+            $alert.find('.weui_dialog_title').text(options.title);
+            $alert.find('.weui_dialog_bd').text(options.text);
+            $alert.on('touchend click', '.weui_btn_dialog', function(){
+            $alert.hide();
+        });
+        $alert.show();
+        };
+{#身份证正面照#}
+$(function () {
+// 允许上传的图片类型
+var allowTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'];
+// 1024KB，也就是 1MB
+var maxSize = 3072 * 3072;
+// 图片最大宽度
+var maxWidth = 400;
+// 最大上传图片数量
+var maxCount = 1;
+$('.national_image').on('change', function (event) {
+var files = event.target.files;
+
+// 如果没有选中文件，直接返回
+if (files.length === 0) {
+return;
+}
+
+for (var i = 0, len = files.length; i < len; i++) {
+var file = files[i];
+var reader = new FileReader();
+// 如果类型不在允许的类型范围内
+if (allowTypes.indexOf(file.type) === -1) {
+$.weui.alert({text: '该类型不允许上传'});
+continue;
+}
+
+if (file.size > maxSize) {
+$.weui.alert({text: '图片太大，不允许上传'});
+continue;
+}
+
+if ($('.li_national_image').length >= maxCount) {
+$.weui.alert({text: '最多只能上传' + maxCount + '张图片'});
+return;
+}
+reader.onload = function (e) {
+
+var img = new Image();
+img.onload = function () {
+// 不要超出最大宽度
+var w = Math.min(maxWidth, img.width);
+// 高度按比例计算
+var h = img.height * (w / img.width);
+var canvas = document.createElement('canvas');
+var ctx = canvas.getContext('2d');
+// 设置 canvas 的宽度和高度
+canvas.width = w;
+canvas.height = h;
+ctx.drawImage(img, 0, 0, w, h);
+var base64 = canvas.toDataURL('image/png');
+console.log(base64);
+// 插入到预览区
+var $preview = $('<li class="weui_uploader_file weui_uploader_status li_national_image" style="background-image:url(' + base64 + ')" onclick="deletePic(this);"></li>');
+$('.ul_national_image').append($preview);
+$('.national_image').parent('.weui_uploader_input_wrp').hide();
+{#var num = $('.weui_uploader_file').length;#}
+{#$('.js_counter').text(num + '/' + maxCount);#}
+    
+{#setTimeout(uploading('.uploader_national_image'), 30);#}
+};
+img.src = e.target.result;
+    $('#id_national_image_hidden').val(img.src);
+};
+reader.readAsDataURL(file);
+}
+});
+
+});
+
+{#身份证背面照#}
+$(function () {
+// 允许上传的图片类型
+var allowTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'];
+// 1024KB，也就是 1MB
+var maxSize = 3072 * 3072;
+// 图片最大宽度
+var maxWidth = 400;
+// 最大上传图片数量
+var maxCount = 1;
+
+$('.national_image_down').on('change', function (event) {
+var files = event.target.files;
+
+// 如果没有选中文件，直接返回
+if (files.length === 0) {
+return;
+}
+
+for (var i = 0, len = files.length; i < len; i++) {
+var file = files[i];
+var reader = new FileReader();
+// 如果类型不在允许的类型范围内
+if (allowTypes.indexOf(file.type) === -1) {
+$.weui.alert({text: '该类型不允许上传'});
+continue;
+}
+
+if (file.size > maxSize) {
+$.weui.alert({text: '图片太大，不允许上传'});
+continue;
+}
+
+if ($('.li_national_image_down').length >= maxCount) {
+$.weui.alert({text: '最多只能上传' + maxCount + '张图片'});
+return;
+}
+reader.onload = function (e) {
+var img = new Image();
+img.onload = function () {
+// 不要超出最大宽度
+var w = Math.min(maxWidth, img.width);
+// 高度按比例计算
+var h = img.height * (w / img.width);
+var canvas = document.createElement('canvas');
+var ctx = canvas.getContext('2d');
+// 设置 canvas 的宽度和高度
+canvas.width = w;
+canvas.height = h;
+ctx.drawImage(img, 0, 0, w, h);
+var base64 = canvas.toDataURL('image/png');
+console.log(base64);
+// 插入到预览区
+var $preview = $('<li class="weui_uploader_file weui_uploader_status li_national_image_down" style="background-image:url(' + base64 + ')" onclick="deletePic(this);"></li>');
+$('.ul_national_image_down').append($preview);
+$('.national_image_down').parent('.weui_uploader_input_wrp').hide();
+{#var num = $('.weui_uploader_file').length;#}
+{#$('.js_counter').text(num + '/' + maxCount);#}
+};
+img.src = e.target.result;
+    $('#id_national_image_down_hidden').val(img.src);
+};
+reader.readAsDataURL(file);
+}
+});
+});
+
+{#营业执照正本#}
+$(function () {
+// 允许上传的图片类型
+var allowTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'];
+// 1024KB，也就是 1MB
+var maxSize = 3072 * 3072;
+// 图片最大宽度
+var maxWidth = 400;
+// 最大上传图片数量
+var maxCount = 1;
+
+$('.business_license_image').on('change', function (event) {
+var files = event.target.files;
+
+// 如果没有选中文件，直接返回
+if (files.length === 0) {
+return;
+}
+
+for (var i = 0, len = files.length; i < len; i++) {
+var file = files[i];
+var reader = new FileReader();
+// 如果类型不在允许的类型范围内
+if (allowTypes.indexOf(file.type) === -1) {
+$.weui.alert({text: '该类型不允许上传'});
+continue;
+}
+
+if (file.size > maxSize) {
+$.weui.alert({text: '图片太大，不允许上传'});
+continue;
+}
+
+if ($('.li_business_license_image').length >= maxCount) {
+$.weui.alert({text: '最多只能上传' + maxCount + '张图片'});
+return;
+}
+reader.onload = function (e) {
+var img = new Image();
+img.onload = function () {
+// 不要超出最大宽度
+var w = Math.min(maxWidth, img.width);
+// 高度按比例计算
+var h = img.height * (w / img.width);
+var canvas = document.createElement('canvas');
+var ctx = canvas.getContext('2d');
+// 设置 canvas 的宽度和高度
+canvas.width = w;
+canvas.height = h;
+ctx.drawImage(img, 0, 0, w, h);
+var base64 = canvas.toDataURL('image/png');
+console.log(base64);
+// 插入到预览区
+var $preview = $('<li class="weui_uploader_file weui_uploader_status li_business_license_image" style="background-image:url(' + base64 + ')" onclick="deletePic(this);"></li>');
+$('.ul_business_license_image').append($preview);
+$('.business_license_image').parent('.weui_uploader_input_wrp').hide();
+{#var num = $('.weui_uploader_file').length;#}
+{#$('.js_counter').text(num + '/' + maxCount);#}
+};
+img.src = e.target.result;
+    $('#id_business_license_image_hidden').val(img.src);
+};
+reader.readAsDataURL(file);
+}
+});
+});
+
+
+
+{#组织机构代码证#}
+$(function () {
+// 允许上传的图片类型
+var allowTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'];
+// 1024KB，也就是 1MB
+var maxSize = 3072 * 3072;
+// 图片最大宽度
+var maxWidth = 400;
+// 最大上传图片数量
+var maxCount = 1;
+
+$('.organ_image').on('change', function (event) {
+var files = event.target.files;
+
+// 如果没有选中文件，直接返回
+if (files.length === 0) {
+return;
+}
+
+for (var i = 0, len = files.length; i < len; i++) {
+var file = files[i];
+var reader = new FileReader();
+// 如果类型不在允许的类型范围内
+if (allowTypes.indexOf(file.type) === -1) {
+$.weui.alert({text: '该类型不允许上传'});
+continue;
+}
+
+if (file.size > maxSize) {
+$.weui.alert({text: '图片太大，不允许上传'});
+continue;
+}
+
+if ($('.li_organ_image').length >= maxCount) {
+$.weui.alert({text: '最多只能上传' + maxCount + '张图片'});
+return;
+}
+reader.onload = function (e) {
+var img = new Image();
+img.onload = function () {
+// 不要超出最大宽度
+var w = Math.min(maxWidth, img.width);
+// 高度按比例计算
+var h = img.height * (w / img.width);
+var canvas = document.createElement('canvas');
+var ctx = canvas.getContext('2d');
+// 设置 canvas 的宽度和高度
+canvas.width = w;
+canvas.height = h;
+ctx.drawImage(img, 0, 0, w, h);
+var base64 = canvas.toDataURL('image/png');
+console.log(base64);
+// 插入到预览区
+var $preview = $('<li class="weui_uploader_file weui_uploader_status li_organ_image" style="background-image:url(' + base64 + ')" onclick="deletePic(this);"></li>');
+$('.ul_organ_image').append($preview);
+$('.organ_image').parent('.weui_uploader_input_wrp').hide();
+{#var num = $('.weui_uploader_file').length;#}
+{#$('.js_counter').text(num + '/' + maxCount);#}
+};
+img.src = e.target.result;
+    $('#id_organ_image_hidden').val(img.src);
+};
+reader.readAsDataURL(file);
+}
+});
+});
+//@ sourceURL=pen.js
+
+
+
+{#道路运输经营许可证#}
+$(function () {
+// 允许上传的图片类型
+var allowTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'];
+// 1024KB，也就是 1MB
+var maxSize = 3072 * 3072;
+// 图片最大宽度
+var maxWidth = 400;
+// 最大上传图片数量
+var maxCount = 1;
+
+$('.operating_permit_image').on('change', function (event) {
+var files = event.target.files;
+
+// 如果没有选中文件，直接返回
+if (files.length === 0) {
+return;
+}
+
+for (var i = 0, len = files.length; i < len; i++) {
+var file = files[i];
+var reader = new FileReader();
+// 如果类型不在允许的类型范围内
+if (allowTypes.indexOf(file.type) === -1) {
+$.weui.alert({text: '该类型不允许上传'});
+continue;
+}
+
+if (file.size > maxSize) {
+$.weui.alert({text: '图片太大，不允许上传'});
+continue;
+}
+
+if ($('.li_operating_permit_image').length >= maxCount) {
+$.weui.alert({text: '最多只能上传' + maxCount + '张图片'});
+return;
+}
+reader.onload = function (e) {
+var img = new Image();
+img.onload = function () {
+// 不要超出最大宽度
+var w = Math.min(maxWidth, img.width);
+// 高度按比例计算
+var h = img.height * (w / img.width);
+var canvas = document.createElement('canvas');
+var ctx = canvas.getContext('2d');
+// 设置 canvas 的宽度和高度
+canvas.width = w;
+canvas.height = h;
+ctx.drawImage(img, 0, 0, w, h);
+var base64 = canvas.toDataURL('image/png');
+console.log(base64);
+// 插入到预览区
+var $preview = $('<li class="weui_uploader_file weui_uploader_status li_operating_permit_image" style="background-image:url(' + base64 + ')" onclick="deletePic(this);"></li>');
+$('.ul_operating_permit_image').append($preview);
+$('.operating_permit_image').parent('.weui_uploader_input_wrp').hide();
+{#var num = $('.weui_uploader_file').length;#}
+{#$('.js_counter').text(num + '/' + maxCount);#}
+};
+img.src = e.target.result;
+    $('#id_operating_permit_image_hidden').val(img.src);
+};
+reader.readAsDataURL(file);
+}
+});
+});
+
+
+
+{#驾驶证#}
+$(function () {
+// 允许上传的图片类型
+var allowTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'];
+// 1024KB，也就是 1MB
+var maxSize = 3072 * 3072;
+// 图片最大宽度
+var maxWidth = 400;
+// 最大上传图片数量
+var maxCount = 1;
+
+$('.driver_image').on('change', function (event) {
+var files = event.target.files;
+
+// 如果没有选中文件，直接返回
+if (files.length === 0) {
+return;
+}
+
+for (var i = 0, len = files.length; i < len; i++) {
+var file = files[i];
+var reader = new FileReader();
+// 如果类型不在允许的类型范围内
+if (allowTypes.indexOf(file.type) === -1) {
+$.weui.alert({text: '该类型不允许上传'});
+continue;
+}
+
+if (file.size > maxSize) {
+$.weui.alert({text: '图片太大，不允许上传'});
+continue;
+}
+
+if ($('.li_driver_image').length >= maxCount) {
+$.weui.alert({text: '最多只能上传' + maxCount + '张图片'});
+return;
+}
+reader.onload = function (e) {
+var img = new Image();
+img.onload = function () {
+// 不要超出最大宽度
+var w = Math.min(maxWidth, img.width);
+// 高度按比例计算
+var h = img.height * (w / img.width);
+var canvas = document.createElement('canvas');
+var ctx = canvas.getContext('2d');
+// 设置 canvas 的宽度和高度
+canvas.width = w;
+canvas.height = h;
+ctx.drawImage(img, 0, 0, w, h);
+var base64 = canvas.toDataURL('image/png');
+console.log(base64);
+// 插入到预览区
+var $preview = $('<li class="weui_uploader_file weui_uploader_status li_driver_image" style="background-image:url(' + base64 + ')" onclick="deletePic(this);"></li>');
+$('.ul_driver_image').append($preview);
+$('.driver_image').parent('.weui_uploader_input_wrp').hide();
+{#var num = $('.weui_uploader_file').length;#}
+{#$('.js_counter').text(num + '/' + maxCount);#}
+};
+img.src = e.target.result;
+    $('#id_driver_image_hidden').val(img.src);
+};
+reader.readAsDataURL(file);
+}
+});
+});
+
+{#行驶证#}
+$(function () {
+// 允许上传的图片类型
+var allowTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'];
+// 1024KB，也就是 1MB
+var maxSize = 3072 * 3072;
+// 图片最大宽度
+var maxWidth = 400;
+// 最大上传图片数量
+var maxCount = 1;
+
+$('.plate_image').on('change', function (event) {
+var files = event.target.files;
+
+// 如果没有选中文件，直接返回
+if (files.length === 0) {
+return;
+}
+
+for (var i = 0, len = files.length; i < len; i++) {
+var file = files[i];
+var reader = new FileReader();
+// 如果类型不在允许的类型范围内
+if (allowTypes.indexOf(file.type) === -1) {
+$.weui.alert({text: '该类型不允许上传'});
+continue;
+}
+
+if (file.size > maxSize) {
+$.weui.alert({text: '图片太大，不允许上传'});
+continue;
+}
+
+if ($('.li_plate_image').length >= maxCount) {
+$.weui.alert({text: '最多只能上传' + maxCount + '张图片'});
+return;
+}
+reader.onload = function (e) {
+var img = new Image();
+img.onload = function () {
+// 不要超出最大宽度
+var w = Math.min(maxWidth, img.width);
+// 高度按比例计算
+var h = img.height * (w / img.width);
+var canvas = document.createElement('canvas');
+var ctx = canvas.getContext('2d');
+// 设置 canvas 的宽度和高度
+canvas.width = w;
+canvas.height = h;
+ctx.drawImage(img, 0, 0, w, h);
+var base64 = canvas.toDataURL('image/png');
+console.log(base64);
+// 插入到预览区
+var $preview = $('<li class="weui_uploader_file weui_uploader_status li_plate_image" style="background-image:url(' + base64 + ')" onclick="deletePic(this);"></li>');
+$('.ul_plate_image').append($preview);
+$('.plate_image').parent('.weui_uploader_input_wrp').hide();
+{#var num = $('.weui_uploader_file').length;#}
+{#$('.js_counter').text(num + '/' + maxCount);#}
+};
+img.src = e.target.result;
+    $('#id_plate_image_hidden').val(img.src);
+};
+reader.readAsDataURL(file);
+}
+});
+});
+
+{#营运证#}
+$(function () {
+// 允许上传的图片类型
+var allowTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'];
+// 1024KB，也就是 1MB
+var maxSize = 3072 * 3072;
+// 图片最大宽度
+var maxWidth = 400;
+// 最大上传图片数量
+var maxCount = 1;
+
+$('.transportation_image').on('change', function (event) {
+var files = event.target.files;
+
+// 如果没有选中文件，直接返回
+if (files.length === 0) {
+return;
+}
+
+for (var i = 0, len = files.length; i < len; i++) {
+var file = files[i];
+var reader = new FileReader();
+// 如果类型不在允许的类型范围内
+if (allowTypes.indexOf(file.type) === -1) {
+$.weui.alert({text: '该类型不允许上传'});
+continue;
+}
+
+if (file.size > maxSize) {
+$.weui.alert({text: '图片太大，不允许上传'});
+continue;
+}
+
+if ($('.li_transportation_image').length >= maxCount) {
+$.weui.alert({text: '最多只能上传' + maxCount + '张图片'});
+return;
+}
+reader.onload = function (e) {
+var img = new Image();
+img.onload = function () {
+// 不要超出最大宽度
+var w = Math.min(maxWidth, img.width);
+// 高度按比例计算
+var h = img.height * (w / img.width);
+var canvas = document.createElement('canvas');
+var ctx = canvas.getContext('2d');
+// 设置 canvas 的宽度和高度
+canvas.width = w;
+canvas.height = h;
+ctx.drawImage(img, 0, 0, w, h);
+var base64 = canvas.toDataURL('image/png');
+console.log(base64);
+// 插入到预览区
+var $preview = $('<li class="weui_uploader_file weui_uploader_status li_transportation_image" style="background-image:url(' + base64 + ')" onclick="deletePic(this);"></li>');
+$('.ul_transportation_image').append($preview);
+$('.transportation_image').parent('.weui_uploader_input_wrp').hide();
+{#var num = $('.weui_uploader_file').length;#}
+{#$('.js_counter').text(num + '/' + maxCount);#}
+};
+img.src = e.target.result;
+    $('#id_transportation_image_hidden').val(img.src);
+};
+reader.readAsDataURL(file);
+}
+});
+});
+
+
+
+
+{#营业执照#}
+$(function () {
+// 允许上传的图片类型
+var allowTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'];
+// 1024KB，也就是 1MB
+var maxSize = 3072 * 3072;
+// 图片最大宽度
+var maxWidth = 400;
+// 最大上传图片数量
+var maxCount = 1;
+
+$('.business_license_image_boss').on('change', function (event) {
+var files = event.target.files;
+
+// 如果没有选中文件，直接返回
+if (files.length === 0) {
+return;
+}
+
+for (var i = 0, len = files.length; i < len; i++) {
+var file = files[i];
+var reader = new FileReader();
+// 如果类型不在允许的类型范围内
+if (allowTypes.indexOf(file.type) === -1) {
+$.weui.alert({text: '该类型不允许上传'});
+continue;
+}
+
+if (file.size > maxSize) {
+$.weui.alert({text: '图片太大，不允许上传'});
+continue;
+}
+
+if ($('.li_business_license_image_boss').length >= maxCount) {
+$.weui.alert({text: '最多只能上传' + maxCount + '张图片'});
+return;
+}
+reader.onload = function (e) {
+var img = new Image();
+img.onload = function () {
+// 不要超出最大宽度
+var w = Math.min(maxWidth, img.width);
+// 高度按比例计算
+var h = img.height * (w / img.width);
+var canvas = document.createElement('canvas');
+var ctx = canvas.getContext('2d');
+// 设置 canvas 的宽度和高度
+canvas.width = w;
+canvas.height = h;
+ctx.drawImage(img, 0, 0, w, h);
+var base64 = canvas.toDataURL('image/png');
+console.log(base64);
+// 插入到预览区
+var $preview = $('<li class="weui_uploader_file weui_uploader_status li_business_license_image_boss" style="background-image:url(' + base64 + ')" onclick="deletePic(this);"></li>');
+$('.ul_business_license_image_boss').append($preview);
+$('.business_license_image_boss').parent('.weui_uploader_input_wrp').hide();
+{#var num = $('.weui_uploader_file').length;#}
+{#$('.js_counter').text(num + '/' + maxCount);#}
+};
+img.src = e.target.result;
+    $('#id_business_license_image_boss_hidden').val(img.src);
+};
+reader.readAsDataURL(file);
+}
+});
+});
+
+
+
+{#组织机构代码证#}
+$(function () {
+// 允许上传的图片类型
+var allowTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'];
+// 1024KB，也就是 1MB
+var maxSize = 3072 * 3072;
+// 图片最大宽度
+var maxWidth = 400;
+// 最大上传图片数量
+var maxCount = 1;
+
+$('.organ_image_boss').on('change', function (event) {
+var files = event.target.files;
+
+// 如果没有选中文件，直接返回
+if (files.length === 0) {
+return;
+}
+
+for (var i = 0, len = files.length; i < len; i++) {
+var file = files[i];
+var reader = new FileReader();
+// 如果类型不在允许的类型范围内
+if (allowTypes.indexOf(file.type) === -1) {
+$.weui.alert({text: '该类型不允许上传'});
+continue;
+}
+
+if (file.size > maxSize) {
+$.weui.alert({text: '图片太大，不允许上传'});
+continue;
+}
+
+if ($('.li_organ_image_boss').length >= maxCount) {
+$.weui.alert({text: '最多只能上传' + maxCount + '张图片'});
+return;
+}
+reader.onload = function (e) {
+var img = new Image();
+img.onload = function () {
+// 不要超出最大宽度
+var w = Math.min(maxWidth, img.width);
+// 高度按比例计算
+var h = img.height * (w / img.width);
+var canvas = document.createElement('canvas');
+var ctx = canvas.getContext('2d');
+// 设置 canvas 的宽度和高度
+canvas.width = w;
+canvas.height = h;
+ctx.drawImage(img, 0, 0, w, h);
+var base64 = canvas.toDataURL('image/png');
+console.log(base64);
+// 插入到预览区
+var $preview = $('<li class="weui_uploader_file weui_uploader_status li_organ_image_boss" style="background-image:url(' + base64 + ')" onclick="deletePic(this);"></li>');
+$('.ul_organ_image_boss').append($preview);
+$('.organ_image_boss').parent('.weui_uploader_input_wrp').hide();
+{#var num = $('.weui_uploader_file').length;#}
+{#$('.js_counter').text(num + '/' + maxCount);#}
+};
+img.src = e.target.result;
+    $('#id_organ_image_boss_hidden').val(img.src);
+};
+reader.readAsDataURL(file);
+}
+});
+});
+
+function deletePic(obj){
+	if (confirm("确认删除该上传图片吗?")){
+		$(obj).parent('.weui_uploader_files').siblings(".weui_uploader_input_wrp").show();
+		$(obj).remove();
+	}
+}
+    </script>
+{% endblock %}

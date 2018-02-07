@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} 登录 {% endblock %}
+
+{% block body_block %}
+
+     <div class="container">
+         <div class="row">
+
+            <div class="col-sm-3 hidden-xs">
+                <br/><br/>
+                <img class="img-thumbnail" src="{% static 'pic/default/legoo.jpg' %}" alt=""  />
+            </div>
+
+            <div class="col-sm-2 hidden-xs"></div>
+
+            <div class="col-sm-6 col-xs-12">
+                <form class="form-signin span4" id="login_form" method="post" action="{% url 'authentic:login' %}">{% csrf_token %}
+                    <div class="page-header">
+                      <h1>登录</h1>
+                    </div>
+                    {% if message %}
+                        <div class="alert alert-danger">
+                            <p class="text-center">{{ message }}</p>
+                        </div>
+                    {% endif %}
+                    <input type="hidden" value="{{ next }}" name="next">
+
+                    <div class="form-group" > {# 用户名 #}
+                        <label for="id_username">用户名： </label>
+                        <input class="form-control"  id="id_username" name="username" type="text" maxlength="30" value="" required >
+                    </div>
+
+                    <div class="form-group" > {# 密码 #}
+                        <label for="inputPassword">密码： </label>
+                        <input class="form-control" id="inputPassword" name="password"  type="password" maxlength="128"  value="" required >
+                    </div>
+                    <button class="btn btn-primary center-block btn-lg" type="submit">登录</button>
+                </form>
+            </div>
+            <div class="col-sm-1 hidden-xs"></div>
+
+
+        </div>
+
+     </div>
+
+
+{% endblock %}
+
+
+{% block footer_block %}
+
+{% endblock %}
+
+{% block script_block %}
+{% endblock %}

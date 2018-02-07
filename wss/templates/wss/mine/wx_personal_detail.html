@@ -1,0 +1,131 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}我的{% endblock %}
+
+{% block container_block %}
+
+{#    首页所在位置，进入页面后的默认页面#}
+<!-- <div class="wss_title" ><i class="fa   fa-file-text"></i> &nbsp; <strong>订单详情</strong></div> -->
+       <div class="top">
+		<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+			<tbody>
+				<tr>
+						<td width="20%" valign="middle">
+							    <a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a>
+					    </td>
+						<td class="wz" width="60%" valign="middle" align="center">
+								<span id="toptitle">
+										<i class="fa    fa-file-text"></i>&nbsp;<strong>个人保险详情</strong>
+								</span>
+						</td>
+						<td width="20%" valign="middle" align="right">
+						<a id="aso" href="#"></a>
+						</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	
+	
+    <div class="weui_cells wss_p" style="padding-top:30px;">
+        <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【保单号】</p>
+            </div>
+            <div class="weui_cell_ft">{{ personal.paper_id }}</div>
+        </div>
+        
+        <a class="weui_cell weui_cells_access wss_dashed_bottom"  href="{% url 'wss:search_policy_picture'  personal.id   %}?policy_state=personal&referee_id={{ referee_id }}"  target="_blank">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p><font color="#000">【电子保单】</font></p>
+                </div>
+                <div class="weui_cell_ft">
+                </div>
+            </a>
+
+
+
+      <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【险种】</p>
+            </div>
+            <div class="weui_cell_ft">{{ personal|displayName:'insurance_type'  }}</div>
+        </div>
+ 		<div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【投保公司】</p>
+            </div>
+            <div class="weui_cell_ft">{{personal.company.simple_name }}</div>
+        </div>
+        {% if  personal.company.parent.phone %}
+       <!--  <a class="weui_cell weui_cells_access wss_dashed_bottom"  href="tel:{{personal.company.parent.phone}}">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p ><font color="#000">【报案电话】</font></p>
+            </div>
+            <div class="weui_cell_ft">{{personal.company.parent.phone}}</div>
+        </a> -->
+        {% endif %}
+        {% if personal.date_start and personal.date_stop %}
+        <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【保险日期】</p>
+            </div>
+            <div class="weui_cell_ft">{{personal.date_start|date:'Y-m-d '}} 至{{personal.date_stop|date:'Y-m-d '}}</div>
+        </div>
+        {% endif %}
+<!--         <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【创建时间】</p>
+            </div>
+            <div class="weui_cell_ft">{{personal.create_time|date:'Y年m月d日 H:i:s' }}</div>
+        </div> -->
+        {% if  personal.other_list %}
+        {% for other_set in personal.other_list %}
+        		<div class="weui_cell wss_dashed_bottom">
+			            <div class="weui_cell_bd weui_cell_primary">
+			                <p>【{{ other_set.field_name  |String_Interception}}】</p>
+			            </div>
+			            <div class="weui_cell_ft">
+			            <a onclick='alert("{{  other_set.field_content }}")'>{{ other_set.field_content|String_Interception }}</a>
+			            </div>
+			        </div>
+        	{% endfor %}
+        <!-- <div class="weui_cells_title weui_navbar_item" style="text-align: left; background-color: #F3F3F3;color:#5172D5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-paw" ></i>补充信息</div>
+		   <div class="weui_cells wss_p" >
+	    	    <table class="bordered"  style="width:100%;text-align: center;">    
+	    	    	{% for other_set in personal.other_list %}
+	    	    		<tr>
+								<td style="text-align: center;">{{ other_set.field_name }}</td>
+								<td style="text-align: center;">{{ other_set.field_content }}</td>
+						</tr>
+					{% endfor%}
+	    	    </table>
+	    	</div>
+	    </div> -->
+     {% endif %}
+
+    <div style="height:150px;"></div>
+	<div style=" width: 100%; position: fixed;  bottom: 0px;z-index: 1; ">
+	        <div class="weui_cells  wss_btn" style="background-color:#cccc98;color:#FFF; opacity: 0.8;" >
+			        <a class="weui_cells_access weui_cell wss_btn" href="tel:{{personal.company.parent.phone }}"  >
+			            <div class="weui_cell_bd weui_cell_primary">
+			                <p><i class="fa  fa-phone-square"></i>{{ personal.company.simple_name }} 客服电话</p>
+			            </div>
+			            <div class="weui_cell_ft wss_btn" >{{personal.company.parent.phone }}</div>
+			        </a>
+	    </div> 
+	</div>
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+    <script type="text/javascript">
+  
+    </script>
+
+{% endblock %}

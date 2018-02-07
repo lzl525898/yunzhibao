@@ -1,0 +1,150 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}我的{% endblock %}
+
+{% block container_block %}
+{#    首页所在位置，进入页面后的默认页面#}
+<!-- <div class="weui_cells_title hd" style="text-align: center;">保单图片</div> -->
+    <div class="top">
+		<table class="tabel" bpolicy="0" cellspacing="0" cellpadding="0">
+			<tbody>
+				<tr>
+						<td width="23%" valign="middle">
+							   <a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a> 
+						</td>
+						<td class="wz" width="53%" valign="middle" align="center">
+								<span id="toptitle">
+										<i class="fa  fa-picture-o"></i>&nbsp;<strong>{{policy_name}}</strong>
+								</span>
+						</td>
+						<td width="23%" valign="middle" align="right">
+						<a id="aso" href="#"></a>
+						</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	</br>
+	</br>
+	<!-- 添加保险管家车险中图片查看模块 -->
+	{% if state == "car" %}
+	<!-- 查看行驶证图片 -->
+			{% if pic_state == "plate" %}
+				{% for insurance_image in policy.plate_image_left %}
+					<div class="weui_cells">
+						    	<a href="{% static '' %}{{ insurance_image }}" target="_blank">
+						        <img src="{% static '' %}{{ insurance_image }}" style="max-width: 350px;max-height: 300px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+						    	</a>
+						    </div>
+					{% endfor %}
+	<!-- 查看交强险保险信息 -->
+			{% elif pic_state == "liability" %}
+				 {% for insurance_image in policy.liability_image_list %}
+                  		<!--  细化保单信息-->
+			              {% if policy.liability_up_state == 'pdf'%}
+			                <div class="weui_cells"style=" text-align:center;">
+								保单图片过大，请点击 “↓” 查看详情。
+							</div>
+			                <div class="weui_cells"style=" text-align:center;">
+						    	<a href="{% static '' %}{{ insurance_image }}" target="_blank">“点击这里”
+						      {#  <img src="{{ insurance_image }}" style="max-width:300p ;max-height: 900p;display:block;text-align: center;margin-right: auto;margin-left: auto;alt="电子保单 图片"">#}
+						    	</a>
+						    </div>
+						    {% elif  policy.liability_up_state == 'picture' %}
+			               <div class="weui_cells">
+						    	<a href="{% static '' %}{{ insurance_image }}" target="_blank">
+						        <img src="{% static '' %}{{ insurance_image }}" style="max-width: 350px;max-height: 300px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+						    	</a>
+						    </div>
+					    {% else %}
+					        <div class="weui_cells"style=" text-align:center;">
+								保单图片过大，请点击 “↓” 查看详情。
+							</div>
+			                <div class="weui_cells"style=" text-align:center;">
+						    	<a href="{{ insurance_image }}" target="_blank">“点击这里”
+						      {#  <img src="{{ insurance_image }}" style="max-width:300p ;max-height: 900p;display:block;text-align: center;margin-right: auto;margin-left: auto;alt="电子保单 图片"">#}
+						    	</a>
+						    </div>
+					    {% endif %}
+                  {% endfor %}
+			
+	<!-- 查看商业险保单信息 -->
+			{% elif pic_state == "commercial" %}
+					{% for insurance_image in policy.commercial_image_list %}
+                  		<!--  细化保单信息-->
+			              {% if policy.commercial_up_state == 'pdf'%}
+			                <div class="weui_cells"style=" text-align:center;">
+								保单图片过大，请点击 “↓” 查看详情。
+							</div>
+			                <div class="weui_cells"style=" text-align:center;">
+						    	<a href="{% static '' %}{{ insurance_image }}" target="_blank">“点击这里”
+						      {#  <img src="{{ insurance_image }}" style="max-width:300p ;max-height: 900p;display:block;text-align: center;margin-right: auto;margin-left: auto;alt="电子保单 图片"">#}
+						    	</a>
+						    </div>
+						 {% elif  policy.commercial_up_state == 'picture' %}
+			               <div class="weui_cells">
+						    	<a href="{% static '' %}{{ insurance_image }}" target="_blank">
+						        <img src="{% static '' %}{{ insurance_image }}" style="max-width: 350px;max-height: 300px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+						    	</a>
+						    </div>
+					    {% else %}
+					        <div class="weui_cells"style=" text-align:center;">
+								保单图片过大，请点击 “↓” 查看详情。
+							</div>
+			                <div class="weui_cells"style=" text-align:center;">
+						    	<a href="{{ insurance_image }}" target="_blank">“点击这里”
+						      {#  <img src="{{ insurance_image }}" style="max-width:300p ;max-height: 900p;display:block;text-align: center;margin-right: auto;margin-left: auto;alt="电子保单 图片"">#}
+						    	</a>
+						    </div>
+					    {% endif %}
+                  {% endfor %}
+                  
+             {% endif %}
+			
+	
+	
+	
+	
+	
+				
+      {% else %}
+                  {% for insurance_image in policy.insurance_image_list %}
+                  		<!--  细化保单信息-->
+			              {% if policy.up_state == 'pdf'%}
+			                <div class="weui_cells"style=" text-align:center;">
+								保单图片过大，请点击 “↓” 查看详情。
+							</div>
+			                <div class="weui_cells"style=" text-align:center;">
+						    	<a href="{% static '' %}{{ insurance_image }}" target="_blank">“点击这里”
+						      {#  <img src="{{ insurance_image }}" style="max-width:300p ;max-height: 900p;display:block;text-align: center;margin-right: auto;margin-left: auto;alt="电子保单 图片"">#}
+						    	</a>
+						    </div>
+						    {% elif  policy.up_state == 'picture' %}
+			               <div class="weui_cells">
+						    	<a href="{% static '' %}{{ insurance_image }}" target="_blank">
+						        <img src="{% static '' %}{{ insurance_image }}" style="max-width: 350px;max-height: 300px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+						    	</a>
+						    </div>
+					    {% else %}
+					        <div class="weui_cells"style=" text-align:center;">
+								保单图片过大，请点击 “↓” 查看详情。
+							</div>
+			                <div class="weui_cells"style=" text-align:center;">
+						    	<a href="{{ insurance_image }}" target="_blank">“点击这里”
+						      {#  <img src="{{ insurance_image }}" style="max-width:300p ;max-height: 900p;display:block;text-align: center;margin-right: auto;margin-left: auto;alt="电子保单 图片"">#}
+						    	</a>
+						    </div>
+					    {% endif %}
+                  {% endfor %}
+	{% endif %}
+
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+{% endblock %}

@@ -1,0 +1,173 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}{{  recommend_product.name }} {% endblock %}
+
+{% block  container_block %}
+<style>
+.weui_uploader_input_wrp {
+  float: left;
+  position: relative;
+  margin-right: 9px;
+  margin-bottom: 9px;
+  width: 98%;
+  height: 120px;
+  border: 1px solid #D9D9D9;
+  margin:0 auto;
+}
+.weui_uploader_file {
+  float: left;
+  margin-right: 9px;
+  margin-bottom: 9px;
+  width: 98%;
+  height: 120px;
+  background: no-repeat center center;
+  background-size: cover;
+}
+.weui_input {
+  width: 100%;
+  border:0px solid #C8C8CD;  
+  border-radius: 3px !important;
+  outline: 0;
+  -webkit-appearance: none; 
+  background-color: transparent;
+  font-size: 14px;
+  color: inherit;
+  height: 2em;
+  line-height: 2em;
+}
+#item-ifo #ico {
+width: 16px;
+height: 16px;
+position: absolute;
+top: 10px;
+left: 75%;
+z-index: 3;
+color:#fff;
+font-size:16px;
+}  
+</style> 
+<script  type="text/javascript">
+wx.ready(function () {
+	  // 2.1 监听“分享给朋友”，按钮点击、自定义分享内容及分享结果接口
+	  wx.onMenuShareAppMessage({
+	      title: '{{ recommend_product.name }}',
+	      desc: '{{ recommend_product.name }}',
+	      link: '{{main_url}}wss/recommend/wx_recommend_product/{{recommend_product.id}}?referee_id={{ mine_id }}',
+	      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5UZha8Y5GQHtuDY2SkYLSn4z1PNMAmibkibk0Dfrf8OibCHtoTqr6t3cWQEkAAt6vLOzibbvnYb0PHf0Bg/0?wx_fmt=png',
+	    });
+	  
+	 //  2.2 监听“分享到朋友圈”按钮点击、自定义分享内容及分享结果接口
+	 wx.onMenuShareTimeline({
+	      title: '{{ recommend_product.name }}',
+	      link:'{{main_url}}wss/recommend/wx_recommend_product/{{recommend_product.id}}?referee_id={{ mine_id }}',
+	      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5UZha8Y5GQHtuDY2SkYLSn4z1PNMAmibkibk0Dfrf8OibCHtoTqr6t3cWQEkAAt6vLOzibbvnYb0PHf0Bg/0?wx_fmt=png',
+	    });  
+});
+</script>
+
+    
+<div class="top">
+	<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+		<tbody>
+			<tr>
+					<td width="23%" valign="middle">
+					{% if recommend_product.product_type == 'loan' %}
+							<a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a>
+					{% endif %}
+					</td>
+					<td class="wz" width="53%" valign="middle" align="center">
+							<span id="toptitle">
+									&nbsp;<strong>{{  recommend_product.name }} </strong>
+							</span>
+					</td>
+					<td width="23%" valign="middle" align="right">
+					<a id="aso" href="#"></a>
+					</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<div class="weui_cells wss_p" style="padding-top:30px;">
+
+
+
+
+<div class="swiper-container" style=" height:250px;">
+      <div class="swiper-wrapper" style=" height:250px;">
+        <!-- Slides -->
+        {% if  recommend_product.product_image_list %}
+	        {% for product_image in recommend_product.product_image_list %}
+	        <div class="swiper-slide"style=" height:250px;text-align:center;"><img src="{% static '' %}{{ product_image }}" style=" width:auto;max-height:250px;margin:0 auto"/></div>
+	        {% endfor %}
+        {% endif %}
+      </div>
+      <!-- If we need pagination -->
+      <div class="swiper-pagination"></div>
+ </div> 
+
+<!--      <div class="weui_cell wss_dashed_bottom weui_cells_access">
+         <div class="weui_cell_bd weui_cell_primary">
+             <p>【产品名称】</p>
+         </div>
+         <div class="weui_cell_ft">
+         	<a onclick='alert("{{  recommend_product.goods_name }}")'>{{ recommend_product.name }}</a>
+         </div>
+     </div>
+      <div class="weui_cell wss_dashed_bottom">
+         <div class="weui_cell_bd weui_cell_primary">
+             <p>【产品类别】</p>
+         </div>
+         <div class="weui_cell_ft">{{recommend_product|displayName:'product_type' }}</div>
+     </div>
+     {% if recommend_product.phone %}
+    <a class="weui_cell wss_dashed_bottom weui_cells_access"  href="tel:{{recommend_product.phone }}" >
+            <div class="weui_cell_bd weui_cell_primary">
+                <p><font color="#000">【电话】</font></p>
+            </div>
+            <div class="weui_cell_ft">{{  recommend_product.phone }}</div>
+     </a> 
+     {% endif %} -->
+<!--      <div class="weui_cell ">
+         <div class="weui_cell_bd weui_cell_primary">
+             <p>【产品描述】</p>
+         </div>
+     </div> -->
+     <div class="weui_cell wss_dashed_bottom">
+	    	  {{ recommend_product.description|safe}}
+	   </div>
+</div>
+
+<div style="height:85px;"></div>
+<div style=" width: 100%; position: fixed;  bottom: 0px;z-index: 1024; ">
+     <div class="weui_cells  wss_btn"  >
+       <a class="weui_cells_access weui_cell wss_btn" href="tel:{{recommend_product.phone }}" >
+           <div class="weui_cell_bd weui_cell_primary">
+               <p><i class="fa  fa-phone-square"></i>&nbsp;&nbsp;&nbsp;&nbsp;投保请咨询客服</p>
+           </div>
+           <div class="weui_cell_ft wss_btn">{{recommend_product.phone }}</div>
+       </a>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block page_block %}
+{% endblock %}
+{% block script_block %}
+ <script src="{% static 'js/fastclick.js' %}"></script>
+ <script src="{% static 'js/swiper.js' %}"></script>
+<script>
+$(".swiper-container").swiper({
+    loop: true,
+    autoplay: 3000
+  });
+  $(function() {
+    FastClick.attach(document.body);
+  });
+</script>
+<script src="{% static 'js/jquery-weui.js' %}"></script>
+<script src="{% static 'js/city-picker.js' %}"></script>
+
+{% endblock %}

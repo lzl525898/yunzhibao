@@ -1,0 +1,180 @@
+{% extends 'bms/campaign/base_campaign.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block campaign_driver %}class='active'{% endblock %}
+{% block title %} 司机 {% endblock %}
+
+{% block page_top %}
+	<div class="row">
+				<div class="col-sm-12">
+					<div id="accordion" class="accordion-style1 panel-group">
+						<div class="panel panel-default">
+							<div class="panel-heading" style="background-color:#428bca;color: #fff;">
+								<h4 class="panel-title">
+									<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+										<i class="fa fa-angle-down bigger-110" data-icon-hide="icon-angle-down" data-icon-show="icon-angle-right"></i>
+										搜索条件
+									</a>
+								</h4>
+							</div>
+							<div class="panel-collapse collapse in" id="collapseOne">
+								<div class="panel-body">
+									 <div class="col-sm-12">
+								            <form id="driver_search_form" class="form-inline" role="form" method="post" action="{% url 'bms:campaign_driver_list' '1' %}"> {% csrf_token %}
+															<div class="row" >		
+															           <div class="col-xs-12 col-lg-4">
+																							<select class="from-control chosen-select" id="car_type"  name="car_type" data-placeholder="车辆类型" style="width:100%;">
+																									<option selected="selected" value=""></option>
+																									{% for value,text in car_type %}
+																									<option value="{{value}}" {% if posted_data.car_type == value%} selected {% endif %}>{{text}}</option>
+																									{% endfor%}
+																							</select>
+																		</div>		
+																		<div class="col-xs-12 col-lg-4">
+																							<select class="from-control chosen-select"  id="car_length"  name="car_length"  data-placeholder="车长" style="width:100%;">
+																											<option selected="selected" value="">  </option>
+																											{% for value,text in car_length %}
+																											<option value="{{value}}" {% if posted_data.car_length == value%} selected {% endif %}>{{text}}</option>
+																											{% endfor%}
+																							</select>
+																		</div>
+																	   <div class="col-xs-12 col-lg-4">
+																						   <div class="input-group" >
+																			                    <input type="text" class="form-control" id="search_keyword" placeholder="姓名/车牌号/常走路线" name="search_keyword" value="{{ search_keyword}}" maxlength="30">
+																			                     <span class="input-group-btn">
+																			                        <button type="submit" class="btn btn-default"><i class="fa fa-search"></i> 搜索</button>
+																			                        <button id="cancel_search" type="button" class="btn btn-default"><i class="fa fa-times"></i> 取消</button>
+																			                    </span>
+																			                </div>
+																		</div>
+															</div>
+								            </form>
+								        </div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+	</div>
+    <div class="row">
+        <div class="col-sm-12">
+            {% if search_keyword %}
+            <p></p>
+            <div class="alert alert-warning">
+                <p>关键字： “{{ search_keyword }}”， 搜索结果：{{ paging.item_count }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <a class="btn btn-primary pull-right" style="margin-left: 10px" href="{% url 'bms:campaign_driver_create' %}"><i class="fa fa-plus"></i> 创建司机</a>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block page_middle %}
+    {% if message and message != '' %}
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="alert alert-warning">{{ message }}</div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row" style="margin-top: 10px">
+        <div class="col-sm-12">
+            <div class="list-group" id="notice_group">
+                <input type="hidden" id="page_index" name="page_index" value="{{ page_index }}"/>
+                    <div class="list-group-item">
+                        <div class="row" >
+                            <div class="col-sm-4">
+                                <p class="list-group-item-text text-center">司机姓名</p>
+                            </div>
+                              <div class="col-sm-3">
+                                <p class="list-group-item-text text-center">联系电话</p>
+                            </div>
+                            <div class="col-sm-3">
+                                <p class="list-group-item-text text-center">创建时间</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">操作</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% for trucker in campaign_trucker %}
+                     <div class="list-group-item">
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <p class="list-group-item-text text-center"><strong>{{ trucker.user_name }}</strong></p>
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="list-group-item-text text-center"><strong>{{ trucker.user_phone }}</strong></p>
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="list-group-item-text text-center">{{ trucker.create_time|date:'Y年m月d日' }}</p>
+                                </div>
+                                <div class="col-sm-2">
+												  <div class="row text-center">
+												            <a href="{% url 'bms:campaign_driver_detail' trucker.id %}"><button class="btn btn-xs btn-success" style="width:25px;" title="查看详情"><i class="fa fa-search-plus" ></i></button></a>
+												  			<a href="{% url 'bms:driver_edit_test' trucker.id %}"><button class="btn btn-xs btn-info" style="width:25px;" title="编辑"><i class="fa fa-edit"></i></button></a>
+												  			<a href="{% url 'bms:campaign_driver_delete' trucker.id %}" onclick="return confirmAct();"><button class="btn btn-xs btn-danger" style="width:25px;" title="删除"><i class="fa fa-trash-o"></i></button></a>
+												 </div>
+                                </div>
+                            </div>
+                     </div>
+                    {% endfor %}
+                </div>
+       </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-8">
+        {% if paging.total_pages_count > 0 %}
+            <ul class="pagination">
+                <li><a href="{% url 'bms:campaign_driver_list' paging.prev_page %}">&laquo;</a></li>
+                {% for page in paging.pages %}
+                    <li {% if page == paging.page_index %}class="active"{% endif %}><a href="{% url 'bms:campaign_driver_list' page %}">{{ page }}</a></li>
+                {% endfor %}
+                <li><a href="{% url 'bms:campaign_driver_list' paging.next_page %}">&raquo;</a></li>
+                <div class="clearfix"></div>
+                <p>
+                    第{{ paging.page_index }}页/共{{ paging.total_pages_count }}页 &nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <a href="{% url 'bms:campaign_driver_list' '1' %}">首页</a> / <a href="{% url 'bms:campaign_driver_list' paging.total_pages_count %}">尾页</a>
+                </p>
+            </ul>
+        {% endif %}
+        </div>
+    </div>
+{% endblock %}
+{% block page_bottom %}
+{% endblock %}
+
+
+{% block script_block %}
+    <script type="text/javascript">
+
+        //“全部”按钮的响应事件，清空搜索关键字，然后提交搜索
+        $('#cancel_search').click(function(event) {
+            console.log("click cancel_search");
+            $('#search_keyword').val('');
+            $('#id_start_time').val('');
+            $('#id_end_time').val('');
+            $('#driver_search_form').submit();
+          });
+        function change_state(){
+            $('#driver_search_form').submit();
+        }
+      function confirmAct(){
+    	  if(confirm("确定要删除该司机吗？")){
+    		  return true; 
+    	    }else{
+    	    	return false; 
+    	   }
+      }
+
+
+    </script>
+{% endblock %}

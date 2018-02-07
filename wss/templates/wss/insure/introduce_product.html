@@ -1,0 +1,138 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}{{product_kinds_set.name}}{% endblock %}
+
+{% block container_block %}
+{#    首页所在位置，进入页面后的默认页面#}
+
+
+<script  type="text/javascript">
+wx.ready(function () {
+	  // 2.1 监听“分享给朋友”，按钮点击、自定义分享内容及分享结果接口
+	  wx.onMenuShareAppMessage({
+	      title: '{{ product_kinds_set.wx_share_title}}',
+	      desc: '{{ product_kinds_set.wx_share_desc}}' ,
+	      link: '{{main_url}}wss/insure/introduce_product/{{product_kinds_set.product_type }}/?referee_id={{ mine_id }}',
+	      imgUrl:"{{main_url}}/{% static '' %}{{ product_kinds_set.wx_share_pic }}" ,
+	    });
+	  
+	 //  2.2 监听“分享到朋友圈”按钮点击、自定义分享内容及分享结果接口
+	 wx.onMenuShareTimeline({
+	      title: '{{product_kinds_set.wx_share_title}}',
+	      link: '{{main_url}}wss/insure/introduce_product/{{product_kinds_set.product_type }}/?referee_id={{ mine_id }}',
+	      imgUrl:"{{main_url}}/{% static '' %}{{ product_kinds_set.wx_share_pic }}" ,
+	    });  
+});
+</script>
+<div class="top">
+	<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+		<tbody>
+			<tr>
+					<td width="20%" valign="middle">
+							<a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a>
+					</td>
+					<td class="wz" width="60%" valign="middle" align="center">
+							<span id="toptitle">
+									<i class="fa   fa-file-text"></i>&nbsp;<strong>{{ product_kinds_set| displayName:'product_type'}}</strong>
+							</span>
+					</td>
+					<td width="20%" valign="middle" align="right">
+					<a id="aso" href="#"></a>
+					</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+    {% if message %}
+    		<div>
+    		<h1>{{message}}</h1>
+    		</div>
+    {% endif%}
+    {% if not message %}
+    <div class="weui_cells" style="padding-top:30px;">
+        <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p class="wss_p">【产品名称】</p>
+            </div>
+            <div class="weui_cell_ft wss_p">{{product_kinds_set.name}}</div>
+        </div>
+        <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p class="wss_p">【产品特点】</p>
+            </div>
+            <div class="weui_cell_ft wss_p" >{{product_kinds_set.product_characteristic}}</div>
+        </div>
+        	<div class="weui_cell">
+            	<div class="weui_cell_bd weui_cell_primary">
+               		<p class="wss_p">【产品简介】</p>
+            	</div>
+        	</div>
+        	<div class="wss_line"></div>
+            <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                {% if product_kinds_set.product_type == 'ywx' %}
+                    <div class="weui_textarea wss_p"  style="background-color: #ffffff;margin-left:8px;margin-right:8px;">
+						{{product_kinds_set.product_introduce | safe}}
+                    </div>
+                {% else %}
+                    <div class="weui_textarea wss_p" rows="12" disabled="disabled" style="background-color: #ffffff;margin-left:8px;margin-right:8px;">
+						{{product_kinds_set.product_introduce|safe}}
+                    </div>
+                {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="wss_line"></div>
+        <div class="weui_cells">
+{#        <img src="{% static 'pic/default/logo.png' %}" style="max-width: 200px;max-height: 200px;display:block;text-align: center;margin-right: auto;margin-left: auto;">#}
+        <img src="{% static 'pic/default/ewm.jpg' %}" style="max-width: 350px;max-height: 200px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+        <div class="weui_cell_bd weui_cell_primary">
+            <p style="text-align: center;margin-right: auto;margin-left: auto;margin-top: 10px">长按上图选择“识别图中二维码”↑↑↑</p>
+        </div>
+    </div>
+    {% if  product_kinds_set.isline == '1'  %}
+    <div style="height:40px;"></div>
+    <div style=" width: 100%; position: fixed;  bottom: 0px;z-index: 1024;">
+    	{# <form method=POST><a  href="{% url 'wss:introduce_product'  product_type %}"  class="weui_btn weui_btn_primary" style="margin-top: 20px"><i class="fa   fa-plus-square-o"></i>&nbsp;&nbsp;&nbsp;&nbsp;投保</a></form>		#}      
+    <!-- 	<form class="form" method="post" action="{% url 'wss:insure_product'  %}" >{% csrf_token %}
+    	    <input id="product_type" name="product_type" type="hidden" value="{{ product_kinds_set.product_type }}">
+    		<button type="submit" class="weui_btn weui_btn_primary" style="margin-top: 20px"><i class="fa   fa-plus-square-o"></i>
+						&nbsp;&nbsp;&nbsp;&nbsp;投保
+			</button>
+    	</form> -->
+    	<!-- <a href="{% url 'wss:insure_product' %}?product_type={{ product_kinds_set.product_type }}" class="weui_btn weui_btn_primary" style="margin-top: 20px">投保</a> -->
+    	  <a href="{% url 'wss:insure_product' %}?type={{ product_kinds_set.product_type }}&referee_id={{ referee_id }}" class="weui_btn weui_btn_primary"  style="padding-top:5px;border-radius: 0px;font-size:15px;height:40px;line-height:30px;">创建订单</a>
+    </div>
+    {% else %}
+    	<div style="height:85px;"></div>
+    	 <div style=" width: 100%; position: fixed;  bottom: 0px;z-index: 1024; ">
+        <div class="weui_cells  wss_btn"  >
+		        <a class="weui_cells_access weui_cell wss_btn" href="tel:15910731868" >
+		            <div class="weui_cell_bd weui_cell_primary">
+		                <p><i class="fa  fa-phone-square"></i>&nbsp;&nbsp;&nbsp;&nbsp;投保请咨询客服</p>
+		            </div>
+		            <div class="weui_cell_ft wss_btn">15910731868</div>
+		        </a>
+			    <div class="weui_cell wss_btn">
+		            <div class="weui_cell_bd weui_cell_primary">
+		                <p><i class="fa fa-weixin"></i>&nbsp;&nbsp;&nbsp;&nbsp;微信</p>
+		            </div>
+		            <div class="weui_cell_ft wss_btn">15910731868&nbsp;&nbsp;&nbsp;</div>
+	        	</div>
+    </div>
+
+    </div>
+    {% endif%}
+
+ {% endif%}
+      
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+{% endblock %}

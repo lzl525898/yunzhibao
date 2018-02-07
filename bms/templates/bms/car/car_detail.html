@@ -1,0 +1,950 @@
+{% extends 'bms/car/base_car.html' %}
+{% load static %}					{#%static'%识别#}
+{% load legoo_tag %}    		{#认证状态转换#}
+{% block car_list %}class='active'{% endblock %}
+{% block title %} 车辆信息详情{% endblock %}
+
+{% block page_top %}
+
+    <div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+            <h2 class="text-center">车辆信息详情</h2>
+<!--             {{car.COMMERCIAL_KIND}}
+            {% for kind in car.COMMERCIAL_KIND %}
+             {{kind}}{{kind.1}}<br>
+             {% endfor %} -->
+            {% if message and message != '' %}
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="alert alert-warning text-center">{{ message }}</div>
+                    </div>
+                </div>
+            {% endif %}
+			{% if car.state == 'init' %}
+		        {% if  not car.load_weight and not car.people_number%}
+		            <a class="btn btn-success" data-toggle="modal" data-target="#confirm_plate_modal"><i class=""></i>认证行驶证</a>
+		        {% endif %}
+		      <!--   {% if not car.commercial_phone_num or not car.commercial_price %}
+		            <a class="btn btn-success" data-toggle="modal" data-target="#confirm_commercial_modal"><i class=""></i>认证商业险</a>
+		        {% endif %} -->
+		     {% endif %}
+		     {% if  car.liability_image %}
+						<a class="btn btn-success" data-toggle="modal" data-target="#confirm_liability_modal"><i class=""></i>编辑交强险</a>
+				{% endif %}
+				{% if  car.commercial_image %}
+						<a class="btn btn-success" data-toggle="modal" data-target="#confirm_commercial_modal"><i class=""></i>编辑商业险</a>
+				{% endif %}
+        
+            <table class="table table-bordered">
+            	<tr>
+                  <td colspan="2"  class=" text-center">车辆基本信息</td>
+                </tr>
+                <tr>
+                  <td class="info text-center" >姓名</td>
+                  <td class="text-center">{{ car.client.name|DefaultIfNull:'未认证' }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">联系电话</td>
+                  <td class="text-center">{{ car.client.profile.phone }}</td>
+                </tr>
+                <tr>
+	              <td class="info text-center">认证状态</td>
+	              <td class="text-center">{{ car|displayName:'state' }}</td>
+	            </tr>
+	             <tr>
+                  <td class="info text-center">信息来源</td>
+                  <td class="text-center">{% if car.car_state == '0' %}平台上传{% elif car.car_state == '1' %} 车险自动保存 {% else %}{{ car.car_state }}-未识别 {% endif %}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">创建时间</td>
+                  <td class="text-center">{{ car.create_time|date:'Y年m月d日 H:i:s' }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">车牌号</td>
+                  <td class="text-center">{{ car.plate_number|DefaultIfNull:'未认证' }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">起保年份</td>
+                  <td class="text-center">{{ car.start_date|DefaultIfNull:'未认证' }}年 </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">行驶证校验有效期</td>
+                  <td class="text-center">{% if car.plate_expiration_periods %}{{ car.plate_expiration_periods|dateformat}}{% endif %} </td>
+                </tr>
+                {% if   car.load_weight or car.people_number %}
+                <tr>
+                  <td colspan="2"  class=" text-center">行驶证认证成功</td>
+                </tr>
+                <tr>
+	              <td class="info text-center">车辆类型</td>
+	              <td class="text-center">{{ car.car_type|default_if_none:'' }}</td>
+	            </tr>
+	            <tr>
+	              <td class="info text-center">所有人</td>
+	              <td class="text-center">{{ car.holder|default_if_none:'' }}</td>
+	            </tr>
+	            <tr>
+	              <td class="info text-center">使用性质</td>
+	              <td class="text-center">{{ car.use_property|default_if_none:'' }}</td>
+	            </tr>
+	            <tr>
+	              <td class="info text-center">品牌型号</td>
+	              <td class="text-center">{{ car.brand_digging|default_if_none:'' }}</td>
+	            </tr>
+	            <tr>
+	              <td class="info text-center">车辆识别代码</td>
+	              <td class="text-center">{{ car.car_number|default_if_none:'' }}</td>
+	            </tr>
+	            <tr>
+	              <td class="info text-center">车辆发动机号</td>
+	              <td class="text-center">{{ car.engine_number|default_if_none:'' }}</td>
+	            </tr>
+	            <tr>
+	              <td class="info text-center">注册日期</td>
+	              <td class="text-center">{{ car.issue_date|date:'Y年m月d日' }}</td>
+	            </tr>
+	            {% if    car.people_number %}
+	            <tr>
+	              <td class="info text-center">核载人数(位)</td>
+	              <td class="text-center">{{ car.people_number|default_if_none:'' }}位</td>
+	            </tr>
+	            {% endif %}
+	            {% if   car.load_weight  %}
+	            <tr>
+	              <td class="info text-center">核载质量(Kg)</td>
+	              <td class="text-center">{{ car.load_weight|default_if_none:'' }}Kg</td>
+	            </tr>
+	            {% endif %}
+	            <tr>
+	              <td class="info text-center">行驶证照片</td>
+	              <td class="text-center">
+	              <table class="table table-bordered" >
+                            <tr>
+                                {% for plate_image in car.plate_image_left %}
+                                    <td>
+                                        <a href="{% static '' %}{{ plate_image }}" target="_blank"><img class="img-responsive center-block" src="{% static '' %}{{ plate_image }}" style="max-width: 250px;max-height: 60px;word-break:break-all" alt="商品图片"/></a>
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        </table>
+                </td>
+	            </tr>
+	            
+                {% endif %}
+                
+                {% if  car.liability_phone_num %}
+                <tr>
+                  <td colspan="2"  class=" text-center">交强险认证成功</td>
+                </tr>
+                <tr>
+	              <td class="info text-center">交强险保单号</td>
+	              <td class="text-center">{{ car.liability_number|default_if_none:'' }}</td>
+	            </tr>
+	            <tr>
+	              <td class="info text-center">交强险车船稅(元)</td>
+	              <td class="text-center">{{ car.liability_tax|FenToYuan }}元</td>
+	            </tr>
+	            <tr>
+	              <td class="info text-center">交强险保费(元)</td>
+	              <td class="text-center">{{ car.liability_price|default_if_none:''|FenToYuan }}元</td>
+	            </tr>
+	            <tr>
+	              <td class="info text-center">交强险承保公司</td>
+	              <td class="text-center">{{ car.liability_company|default_if_none:'' }}</td>
+	            </tr>
+	            <tr>
+	              <td class="info text-center">交强险起止时间</td>
+	              <td class="text-center">{{ car.liability_date_start|date:"Y年m月d日" }}		至	{{ car.liability_date_stop|date:"Y年m月d日" }}</td>
+	            </tr>
+	            <tr>
+	              <td class="info text-center">交强险报案电话</td>
+	              <td class="text-center">{{ car.liability_phone_num|default_if_none:'' }}</td>
+	            </tr>
+	            <tr>
+	              <td class="info text-center">交强险保单照片</td>
+	              <td class="text-center">
+	              <a href="{% static '' %}{{ car.liability_image }}" target="_blank"><img class="img-responsive" src="{% static '' %}{{ car.liability_image }}" style="max-width: 500px;max-height: 13pc;"></a>
+	              </td>
+	            </tr>
+                {% endif %}
+                
+                {% if car.commercial_phone_num and car.commercial_price %}
+                <tr>
+                  <td colspan="2"  class=" text-center">商业险认证成功</td>
+                </tr>
+                <tr>
+	              <td class="info text-center">商业险保单号</td>
+	              <td class="text-center">{{ car.commercial_num|default_if_none:'' }}</td>
+	            </tr>
+	            <tr>
+	              <td class="info text-center">商业险险种</td>
+	              <td class="text-center"> 
+	              <div class="row">
+                          <div class="col-sm-4">险种</div>
+                          <div class="col-sm-4">险种金额(元)</div>
+                    </div>
+                    <hr/>
+                    {% for tax in car.commercial_tax%}
+                        <div class="row" style="margin-bottom: 15px">
+                            <div class="col-sm-4">{{tax.com_kind}}</div>
+                            <div class="col-sm-4">{{ tax.com_price|FenToYuan }}元</div>
+                        </div>
+                      {% endfor %}
+	              </td>
+	            </tr>
+	            <tr>
+	              <td class="info text-center">商业险保费(元)</td>
+	              <td class="text-center">{{ car.commercial_price|FenToYuan }}元</td>
+	            </tr>
+	            <tr>
+	              <td class="info text-center">商业险承保公司</td>
+	              <td class="text-center">{{ car.commercial_company|default_if_none:'' }}</td>
+	            </tr>
+	            <tr>
+	              <td class="info text-center">商业险起止时间</td>
+	              <td class="text-center">{{ car.commercial_date_start|date:"Y年m月d日"}}至{{ car.commercial_date_stop|date:"Y年m月d日" }}</td>
+	            </tr>
+	            <tr>
+	              <td class="info text-center">商业险报案电话</td>
+	              <td class="text-center">{{ car.commercial_phone_num|default_if_none:'' }}</td>
+	            </tr>
+	            <tr>
+	              <td class="info text-center">商业险保单照片</td>
+	              <td class="text-center">
+	              	<a href="{% static '' %}{{ car.commercial_image }}" target="_blank"><img class="img-responsive" src="{% static '' %}{{ car.commercial_image }}" style="max-width: 400px;max-height: 13pc;"></a>
+	              </td>
+	            </tr>
+                {% endif %}
+                {% if car.state == 'success' %}
+                 <tr>
+	              <td class="info text-center">保费统计(元)</td>
+	              <td class="text-center">{{total|FenToYuan}}元</td>
+	            </tr>
+	            <tr>
+	              <td class="info text-center">返还油卡金额(元)</td>
+	              <td class="text-center">{{car.oil_card_price|FenToYuan}}元
+	              <a  href=# title="设置返还油卡金额"style="float:right"data-toggle="modal" data-target="#oil_card_modal"><i class="fa fa-edit"></i></a>
+	              </td>
+	            </tr>
+	            <tr>
+	              <td class="info text-center">净费(元)</td>
+	              <td class="text-center">{{net_value|FenToYuan}}元</td>
+	            </tr>
+		        {% endif %}
+            </table>
+        </div>
+        <div class="col-sm-2"></div>
+    </div>
+    
+    
+{#返还油卡模态框#}
+<div class="modal fade" id="oil_card_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-lg"style="width:420px">
+		<form id="oil_form" class="form" method="post" action="{% url 'bms:car_oil_card' car.id %}?type=plate">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						返还油卡
+					</h4>
+				</div>
+				<div class="modal-body"style="height: 70px">
+					<div class="col-sm-12">
+						<div class="form-group">
+		                            <label class="control-label">油卡金额:</label>
+		                            <input  name="oil_price"value=""style="width:13pc;height: 40px"placeholder="返还金额最多带两位小数" >
+	                 	</div>
+	                 </div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						返钱
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+      
+{#认证行驶证模态框#}
+<div class="modal fade" id="confirm_plate_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<form id="plate_form" class="form" method="post" action="{% url 'bms:car_certificate' car.id %}?type=plate">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						认证行驶证
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="panel-body">
+						<div class="form-group">
+		                      <div class="rowContainer">
+		                          <label class="col-sm-2 control-label">行驶证照片</label>
+		                          {% for plate_image_left in car.plate_image_left%}
+		                          <div class="col-sm-4">
+			                        <a href="{% static '' %}{{ plate_image_left }}"target="_blank">
+			                        	<img class="img-responsive" src="{% static '' %}{{ plate_image_left }}" style="max-width: 300px;max-height: 200px;word-break:break-all">
+			                        </a>
+			                        <a id="edit_{{ plate_image_left }}" name="" href="#"  onclick="edit_car_pic('{{ plate_image_left }}','plate')" ><i class="fa fa-cloud-upload"></i></a>
+		                          </div>
+		                          <div class="col-sm-1"></div>
+		                          {% endfor %}
+		                      </div>
+		                   </div>
+		             </div>
+		              <div class="panel-body">
+	              		<div class="form-group">
+	                       <div class="rowContainer">
+	                           <label class="col-sm-2 control-label">行驶证校验日期</label>
+	                           <div class="col-sm-4">
+	                           		<div class="form-control">{{ car.plate_expiration_periods}}</div>
+	                           </div>
+	                       </div>
+	                       <div class="rowContainer">
+	                           <label class="col-sm-2 control-label">车牌号:</label>
+	                           <div class="col-sm-4">
+	                                   <select class="" name="short_number" id ="">
+		                                    {% for short in short_detail %}
+		                                      <option value="{{short}}" {% if short_number|toString ==  short   %} selected ="selected" {% endif %}> {{short}} </option>
+		                                    {% endfor %}
+	                                    </select>
+	                                    <select class="" name="mid_number" id ="">
+			                                    {% for mid in mid_detail %}
+			                                      <option value="{{mid}}" {% if mid_number|toString ==  mid   %} selected ="selected" {% endif %}> {{mid}} </option>
+			                                    {% endfor %}
+			                            </select>    
+			                            <input type="text" style="width: 150px"class="" name="plate_number"value="{{ end_number|default_if_none:'' }}"maxlength="5" >
+	                           </div>
+	                           
+	                           
+	                           
+	      <!--                      <div class="form-group">
+	                                <label for="id_password" class="control-label">
+	                                    *车牌号&nbsp;: 
+	                                </label>
+	                                <div id="">
+	                                    <select class="" name="short_number" id ="">
+	                                    {% for short in short_detail %}
+	                                      <option value="{{short}}" {% if short_number|toString ==  short   %} selected ="selected" {% endif %}> {{short}} </option>
+	                                    {% endfor %}
+	                                    </select>
+	                                    <select class="" name="mid_number" id ="">
+			                                    {% for mid in mid_detail %}
+			                                      <option value="{{mid}}" {% if mid_number|toString ==  mid   %} selected ="selected" {% endif %}> {{mid}} </option>
+			                                    {% endfor %}</select>
+	                                    <input class=""  id="id_batch_plate_number" name="batch_plate_number" type="text"value="{{ end_number|default_if_none:'' }}"maxlength="5" >
+	                                </div>
+	                           </div> -->
+	                           
+	                           
+	                           
+	                           
+	                       </div>
+	                   </div>
+	     		    </div>
+		              <div class="panel-body">
+	              		<div class="form-group">
+	                       <div class="rowContainer">
+	                           <label class="col-sm-2 control-label">注册日期:</label>
+	                           <div class="col-sm-4">
+	                               <input type="text" class="form-control"data-fv-row=".rowContainer"  value="{{ posted_data.issue_date|default_if_none:'' }}" placeholder="行驶证注册日期" name="issue_date" 
+							    onFocus="WdatePicker({isShowClear:false,readOnly:true,dateFmt: 'yyyy-MM-dd'})" />
+	                           </div>
+	                       </div>
+	                       <div class="rowContainer">
+	                           <label class="col-sm-2 control-label">车辆类型</label>
+	                           <div class="col-sm-4">
+	                               <input type="text" class="form-control" data-fv-row=".rowContainer" name="car_type"value="{{ posted_data.car_type|default_if_none:'' }}"/>
+	                           </div>
+	                       </div>
+	                   </div>
+	     		    </div>
+		              <div class="panel-body">
+	              		<div class="form-group">
+	                       <div class="rowContainer">
+	                           <label class="col-sm-2 control-label">使用性质:</label>
+	                           <div class="col-sm-4">
+	                               <input type="text" class="form-control" data-fv-row=".rowContainer" name="use_property"value="{{ posted_data.use_property|default_if_none:'' }}"/>
+	                           </div>
+	                       </div>
+	                       <div class="rowContainer">
+	                           <label class="col-sm-2 control-label">品牌型号:</label>
+	                           <div class="col-sm-4">
+	                               <input type="text" class="form-control" data-fv-row=".rowContainer" name="brand_digging"value="{{ posted_data.brand_digging|default_if_none:'' }}"/>
+	                           </div>
+	                       </div>
+	                   </div>
+	     		    </div>
+		              <div class="panel-body">
+	              		<div class="form-group">
+	                       <div class="rowContainer">
+	                           <label class="col-sm-2 control-label">车辆识别代码:</label>
+	                           <div class="col-sm-4">
+	                               <input type="text" class="form-control" data-fv-row=".rowContainer" name="car_number"value="{{ posted_data.car_number|default_if_none:'' }}"/>
+	                           </div>
+	                       </div>
+	                       <div class="rowContainer">
+	                           <label class="col-sm-2 control-label">发动机号:</label>
+	                           <div class="col-sm-4">
+	                               <input type="text" class="form-control" data-fv-row=".rowContainer" name="engine_number"value="{{ posted_data.engine_number|default_if_none:'' }}"/>
+	                           </div>
+	                       </div>
+	                   </div>
+	     		    </div>
+		            <div class="panel-body">
+	              		<div class="form-group">
+	              			<div class="rowContainer">
+	                           <label class="col-sm-2 control-label">所有人:</label>
+	                           <div class="col-sm-2">
+	                               <input type="text" class="form-control" data-fv-row=".rowContainer" name="holder" value="{{ posted_data.holder|default_if_none:'' }}"/>
+	                           </div>
+	                       </div>
+	                       <div class="rowContainer">
+	                           <label class="col-sm-2 control-label">核载人数(位):</label>
+	                           <div class="col-sm-2">
+	                               <input type="text" class="form-control" data-fv-row=".rowContainer" name="people_number" value="{{ posted_data.people_number|default_if_none:'' }}"/>
+	                           </div>
+	                       </div>
+	                       <div class="rowContainer">
+	                           <label class="col-sm-2 control-label">核载质量(Kg):</label>
+	                           <div class="col-sm-2">
+	                               <input type="text" class="form-control" data-fv-row=".rowContainer" name="load_weight" value="{{ posted_data.load_weight|default_if_none:'' }}"/>
+	                           </div>
+	                       </div>
+	                   </div>
+	     		    </div>	
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						认证成功
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+{#认证交强险模态框#}
+<div class="modal fade" id="confirm_liability_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog" style="width:600px">
+		<form id="liability_form" class="form" method="post" action="{% url 'bms:car_certificate' car.id %}?type=liability">{% csrf_token %}
+
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						认证交强险
+					</h4>
+				</div>
+				<div class="modal-body">
+		              <div class="panel-body">
+	              		<div class="form-group">
+	                
+	                           <div class="col-sm-5">
+	                               <a href="{% static '' %}{{ car.liability_image }}"target="_blank">
+			                        	<img class="img-responsive" src="{% static '' %}{{ car.liability_image }}" style="max-width: 15pc;max-height: 500px;word-break:break-all">
+			                        </a>
+			                        <a id="edit_{{ car.liability_image }}" name="" href="#"  onclick="edit_car_pic('{{ car.liability_image }}','liability')" ><i class="fa fa-cloud-upload"></i></a>
+	                           </div>
+	                           <div class="col-sm-1"></div>
+	                           <div class="col-sm-6">
+	                                <div class="form-group">
+					                    	<label class="control-label">保险单号:</label>
+					                       	<input style="width:10pc"  name="liability_number"value="{{ posted_data.liability_number|default_if_none:'' }}">
+			                    	</div>
+			                    	<div class="form-group">
+					                    	<label class="control-label">车船税(元):</label>
+					                       	<input style="width:9.4pc"  name="liability_tax"value="{{ posted_data.liability_tax|default_if_none:'' }}"/>
+			                    	</div>
+			                    	<div class="form-group">
+					                    	<label class="control-label">保费 (元):</label>
+					                       	<input style="width:10pc"  name="liability_price"value="{{ posted_data.liability_price|default_if_none:'' }}">
+			                    	</div>
+			                    	<div class="form-group">
+					                    	<label class="control-label">承保公司:</label>
+					                       	<input style="width:10pc"  name="liability_company"value="{{ posted_data.liability_company|default_if_none:'' }}">
+			                    	</div>
+			                    	<div class="form-group">
+					                    	<label class="control-label">报案电话:</label>
+					                       	<input style="width:10pc"  name="liability_phone_num"value="{{ posted_data.liability_phone_num|default_if_none:'' }}">
+			                    	</div>
+			                    	<div class="form-group">
+					                    	<label class="control-label">起始日期:</label>
+					                       	<input style="width:10pc"  name="liability_date_start"value="{{ posted_data.liability_date_start|default_if_none:'' }}"placeholder="保险期限起始日期"   
+             					           		onFocus="WdatePicker({isShowClear:false,readOnly:true,dateFmt: 'yyyy-MM-dd'})" > 
+			                    	</div>
+			                    	<div class="form-group">
+					                    	<label class="control-label">截止日期:</label>
+					                       	<input style="width:10pc" name="liability_date_stop"value="{{ posted_data.liability_date_stop|default_if_none:'' }}"placeholder="保险期限终止日期" "  
+             			        			 onFocus="WdatePicker({isShowClear:false,readOnly:true,dateFmt: 'yyyy-MM-dd'})" >
+			                    	</div>	
+	                           </div>
+	                   </div>
+	     		    </div>
+	     		    </br>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						认证成功
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+{#认证商业险模态框#}
+<div class="modal fade" id="confirm_commercial_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<form id="commercial_form" class="form" method="post" action="{% url 'bms:car_certificate' car.id %}?type=commercial">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+                    <input type="hidden" value="on" id="" name="result">
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						认证商业险
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="panel-body">
+	              		<div class="form-group">
+	                           <div class="col-sm-5">
+	                               <a href="{% static '' %}{{ car.commercial_image}}"target="_blank">
+			                        	<img class="img-responsive" src="{% static '' %}{{ car.commercial_image }}" style="max-width: 15pc;max-height: 500px;word-break:break-all">
+			                        </a>
+			                        <a id="edit_{{ car.commercial_image }}" name="" href="#"  onclick="edit_car_pic('{{ car.commercial_image }}','commercial')" ><i class="fa fa-cloud-upload"></i></a>
+	                           </div>
+	                           <div class="col-sm-1"></div>
+	                           <div class="col-sm-6">
+	                                <div class="form-group">
+					                    	<label class="control-label">保险单号:</label>
+					                       	<input style="width:10pc"  name="commercial_num"value="{{ posted_data.commercial_num|default_if_none:'' }}">
+			                    	</div>
+			                    	<div class="form-group">
+					                    	<label class="control-label">承保公司:</label>
+					                       	<input style="width:9.4pc"  name="commercial_company"value="{{ posted_data.commercial_company|default_if_none:'' }}">
+			                    	</div>
+			                    	<div class="form-group">
+					                    	<label class="control-label">报案电话:</label>
+					                       	<input style="width:10pc"  name="commercial_phone_num"value="{{ posted_data.commercial_phone_num|default_if_none:'' }}">
+			                    	</div>
+			                    	<div class="form-group">
+					                    	<label class="control-label">起始日期:</label>
+					                       	<input style="width:10pc"  name="commercial_date_start"value="{{ posted_data.commercial_date_start|default_if_none:'' }}"placeholder="保险期限起始日期"   
+             					           		onFocus="WdatePicker({isShowClear:false,readOnly:true,dateFmt: 'yyyy-MM-dd'})" > 
+			                    	</div>
+			                    	<div class="form-group">
+					                    	<label class="control-label">截止日期:</label>
+					                       	<input style="width:10pc" name="commercial_date_stop"value="{{ posted_data.commercial_date_stop|default_if_none:'' }}"placeholder="保险期限终止日期" "  
+             			        			 onFocus="WdatePicker({isShowClear:false,readOnly:true,dateFmt: 'yyyy-MM-dd'})" >
+			                    	</div>
+	                           </div>
+	                     </div>
+	     		    </div>
+	     		    <div class="form-group">
+                    	<label class="control-label">商业险险种:</label>
+                       	<table class="table table-bordered" id="commercial_tax">
+	                       	<tr id="id_tax_title" class="info">
+		                           <td class="text-center">险种</td>
+		                           <td class="text-center">金额(元)</td>
+		                           <td class="text-center">操作</td>
+                        	</tr>
+               				<tr id="id_tax_item_0" name="tax_item">
+                                <input type="hidden" name="position" value="0"/>
+                                <td style="width: 200px">
+                                 <div class="form-group" >
+	                              <select class="from-control "  style="width: 150px"id="xz_0" name="xz_0">
+			                           			<option selected="selected" value="">  </option>
+			                                  {% for kind in car.COMMERCIAL_KIND %}
+			                                    <option value="{{ kind.1 }}">{{kind.1}}</option>
+			                                  {% endfor %}
+	                            	</select>
+                            </div> 
+                                {#<input class="form-control"  name="xz_0" type="text" value="" >#}
+                              </td>
+                              <td><input class="form-control"  name="je_0" type="text" value="" ></td>
+                              <td><a id="id_tax_item_delete_0" class="btn btn-default" onclick="$('#id_tax_item_0').remove()">删除</a></td>
+                         </tr>
+                         <tr id="id_tax_bottom">
+                              <td colspan="6">
+                              <a class="pointer" id="id_tax_add" onclick="add_tax_line()">添加险种清单</a>
+                             </td>
+                         </tr>
+                    </table>  	
+                  </div>	
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						认证成功
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+        {#编辑保单图片模态框#}
+   <div class="modal fade" id="edit_car_pic_modal" tabindex="-1" role="dialog" >
+      <div class="modal-dialog">
+          <form id="edit_car_form" class="form" method="post" action="{% url 'bms:edit_car_pic' car.id %}"  enctype="multipart/form-data">  {% csrf_token %}
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                  <h4 class="modal-title"><i class="fa fa-cloud-upload"></i> 编辑证件图片</h4>
+                </div>
+                <div class="modal-body">
+                  <div class="form-group" >
+                      <label class="control-label" for="car_image_edit"><i class="fa fa-picture-o"></i> 图片<small>（gif、png、jpeg或icon;）</small>: </label>
+                      <input class="filestyle" type="file" id="car_image_edit" name="car_image_edit" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                      <input  type="hidden" name="image_url_edit" id="image_url_edit" value="">
+                      <input  type="hidden" name="image_type" id="image_type" value="">
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 保 存 </button>
+                  <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> 退 出</button>
+                </div>
+              </div>
+          </form>
+      </div>
+   </div>
+{% endblock %}
+{% block script_block %}
+    <script type="text/javascript">
+    function edit_car_pic(car_image,type){
+        $('#edit_car_pic_modal').modal('show');
+        var image_url_edit = document.getElementById("image_url_edit");
+        image_url_edit.value = car_image;
+        var image_type = document.getElementById("image_type");
+        image_type.value = type;
+    }
+    
+    
+    function add_tax_line(){
+                var count = $('tr[name="tax_item"]').length;
+                var position = count;
+                if($("#id_tax_item_" + position).length > 0){
+                    for(var i=0;i<count;i++){
+                        if($("#id_tax_item_" + i).length <= 0){
+                            position = i;
+                            break;
+                        }
+                    }
+                }
+                
+                var a
+/*                  a='<tr id="id_tax_item_' + position + '" name="tax_item">' +
+                '<input type="hidden" name="position" value="' + position + '"/>' +
+                '<td>';
+                c='</td>' +
+                '<td><input class="form-control"  name="je_' + position + '" type="text" value="" required ></td>' +
+                '<td><a id="id_tax_item_delete_' + position + '" class="btn btn-default" onclick="$(\'#id_tax_item_' + position + '\').remove()">删除</a></td>' +
+                '</tr>';
+                b='<div class="form-group" ><select class="from-control "  style="width: 150px"id="xz_'+position+'" name="xz_'+position+'">'+
+                '<option selected="selected" value="">  </option>'+
+                '{% for kind in car.COMMERCIAL_KIND %} <option value="{{ kind.1 }}">{{kind.1}}</option>{% endfor %}'+'</select></div>';
+                e=a+b+c; */
+                
+                a='<tr id="id_tax_item_' + position + '" name="tax_item">' +
+                		'<input type="hidden" name="position" value="' + position + '"/>' +
+                		'<td><div class="form-group" >'+
+                			'<select class="from-control "  style="width: 150px"id="xz_'+position+'" name="xz_'+position+'">'+
+                			'<option selected="selected" value=""></option>'+
+                			'{% for kind in car.COMMERCIAL_KIND %}'+
+                			' <option value="{{ kind.1 }}">{{kind.1}}</option>'+
+                			'{% endfor %}'+
+                			'</select></div>'+
+                		'</td>' +
+                        '<td><input class="form-control"  name="je_' + position + '" type="text" value="" required ></td>' +
+                        '<td><a id="id_tax_item_delete_' + position + '" class="btn btn-default" onclick="$(\'#id_tax_item_' + position + '\').remove()">删除</a></td>' +
+                       '</tr>';
+                		
+                 $('#id_tax_bottom').before(a); 
+                
+
+/*                 $('#id_tax_bottom').before('<tr id="id_tax_item_' + position + '" name="tax_item">' +
+                        '<input type="hidden" name="position" value="' + position + '"/>' +
+                        '<td><input class="form-control"  name="xz_' + position + '" type="text" value="" required></td>' +
+                        '<td><input class="form-control"  name="je_' + position + '" type="text" value="" required ></td>' +
+                        '<td><a id="id_tax_item_delete_' + position + '" class="btn btn-default" onclick="$(\'#id_tax_item_' + position + '\').remove()">删除</a></td>' +
+                        '</tr>'); */
+
+            }
+    $(function(){
+        $('#plate_form').formValidation({
+            // I am validating Bootstrap form
+            framework: 'bootstrap',
+            locale : 'zh_CN',
+            // Feedback icons
+            icon: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+
+            // List of fields and their validation rules
+            fields: {
+                plate_number: {
+                    validators: {
+                    	notEmpty: {
+                            message: '车牌号不可以空'
+                        },
+                        regexp: {
+                            regexp:  /^[A-Z_0-9]{5}$/,
+                            message: '车牌号尾部如：XXX45,必须大写字母+数字组成'
+                        }
+                    }
+                },
+                car_type: {
+	                validators: {
+	                    notEmpty: {
+	                        message: '车辆类型为必填项且为中文'
+	                    }
+	                }
+	            },
+	            holder: {
+	                message: 'The username is not valid',
+	                validators: {
+	                    notEmpty: {
+	                        message: '所有人为必填项不能为空'
+	                    }
+	                }
+	            },
+	            use_property: {
+	                validators: {
+	                	notEmpty: {
+	                        message: '使用性质为必填项不能为空'
+	                    }
+	                }
+	            },
+	            brand_digging: {
+	                validators: {
+	                	notEmpty: {
+	                        message: '品牌型号为必填项不能为空'
+	                    }
+	                }
+	            },
+	            car_number: {
+	                validators: {
+	                    notEmpty: {
+	                        message: '车辆识别代码为必填项不能为空'
+	                    }
+	                }
+	            },
+	            engine_number: {
+	                validators: {
+	                    notEmpty: {
+	                        message: '发动机号为必填项不能为空'
+	                    }
+	                }
+	            },
+/* 	            issue_date: {
+	            	 validators: {
+		                    notEmpty: {
+		                        message: '注册日期为必填项不能为空'
+		                    }
+		                }
+	            }, */
+	            people_number: {
+	                validators: {
+/* 	                    notEmpty: { message: '核定载人数为必填项不能为空' }, */
+	                    digits: {
+	                        message: '核定载人数为数字'
+	                    }
+	                }
+	            },
+	            load_weight: {
+	                validators: {
+/* 	                    notEmpty: {message: '核定载质量为必填项不能为空'  }, */
+			            digits: {
+			            	message: '核定载质量为数字'
+		                }
+	                }
+	            }
+	            
+            }
+        });
+        
+        
+        $('#liability_form').formValidation({
+            // I am validating Bootstrap form
+            framework: 'bootstrap',
+            locale : 'zh_CN',
+            // Feedback icons
+            icon: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+
+            // List of fields and their validation rules
+            fields: {
+            	liability_number: {
+	                validators: {
+	                    notEmpty: {
+	                        message: '交强险保单号为必填项不能为空'
+	                    }
+	                }
+	            },
+	            liability_price: {
+	            	validators: {
+                        regexp: {
+                            regexp: /^\d{0,8}\.{0,1}(\d{1,2})?$/,
+                            message: '保费必须是数字，最多可输入俩位小数'
+                        }
+                    }
+	            },
+	            liability_tax: {
+	            	validators: {
+                        regexp: {
+                            regexp: /^\d{0,8}\.{0,1}(\d{1,2})?$/,
+                            message: '车船税必须是数字，最多可输入俩位小数'
+                        }
+                    }
+	            },
+	            liability_company: {
+	                validators: {
+	                    notEmpty: {
+	                        message: '承保公司为必填项不能为空'
+	                    }
+	                }
+	            },
+	            liability_phone_num: {
+	                validators: {
+	                    notEmpty: {
+	                        message: '报案电话为必填项不能为空'
+	                    }
+	                }
+	            },
+	        }
+        }).on('err.form.fv', function(e) {
+	      /*   console.log('error');
+
+	        // Active the panel element containing the first invalid element
+	        var $form         = $(e.target),
+	            validator     = $form.data('formValidation'),
+	            $invalidField = validator.getInvalidFields().eq(0),
+	            $collapse     = $invalidField.parents('.collapse');
+
+	        $collapse.collapse('show'); */
+	    });
+        
+        
+        
+        $('#commercial_form').formValidation({
+            // I am validating Bootstrap form
+            framework: 'bootstrap',
+            locale : 'zh_CN',
+            // Feedback icons
+            icon: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+
+            // List of fields and their validation rules
+            fields: {
+            	commercial_num: {
+	                validators: {
+	                    notEmpty: {
+	                        message: '商业险保单号为必填项不能为空'
+	                    }
+	                }
+	            },
+	            commercial_company: {
+	                validators: {
+	                    notEmpty: {
+	                        message: '承保公司为必填项不能为空'
+	                    }
+	                }
+	            },
+	            commercial_phone_num: {
+	                validators: {
+	                    notEmpty: {
+	                        message: '报案电话为必填项不能为空'
+	                    }
+	                }
+	            },
+	        }
+        });
+        
+      $('#oil_form').formValidation({
+            framework: 'bootstrap',
+            locale : 'zh_CN',
+            icon: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+            	 oil_price: {
+ 	            	validators: {
+ 	            		notEmpty: {message: '返还油卡金额为必填项不能为空'  },
+                         regexp: {
+                             regexp: /^\d{0,8}\.{0,1}(\d{1,2})?$/,
+                             message: '返还油卡金额必须是数字，最多可输入俩位小数'
+                         },
+                     }
+ 	            },
+	        }
+        });   
+        
+        
+        
+    });
+
+
+
+    </script>
+{% endblock %}

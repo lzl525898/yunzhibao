@@ -1,0 +1,566 @@
+{% extends 'bms/product/base_product.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block insurance_product %}class='active'{% endblock %}
+{% block title %} 编辑产品 {% endblock %}
+
+{% block page_top %}
+<div class="row">
+        <div class="col-sm-10">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <i class="fa fa-plus fa-3x pull-right"></i>
+                    <form role="form" id="edit_insurance_product_form" method="post" action="{% url 'bms:insurance_product_edit' insurance_product.id %}"  enctype="multipart/form-data">  {% csrf_token %}
+
+                        <div class="page-tailer">
+                          <h1 class="text-center">编辑产品</h1>
+                        </div>
+                        {% if message and message != '' %}
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="alert alert-warning">{{ message }}</div>
+                                </div>
+                            </div>
+                        {% endif %}
+						<div class="form-group" >
+							<label for="id_name"><i class="fa fa-user"></i> *产品名称： </label>
+							<input class="form-control"  id="id_name" name="name" type="text"
+								   value="{{ insurance_product.name }}" required >
+						</div>
+						{% if  insurance_product.product_type != "jdclbx"  %}
+                         <div class="form-group" style="display:block ;" id="id_company_id">
+                         {% else %}
+                         <div class="form-group" style="display: none;" id="id_company_id">
+                         {% endif %}
+                            <label for="id_tail_company_id"><i class="fa fa-film"></i> *保险公司： </label>
+                            <select class="form-control" id="id_tail_company_id" name="tail_company_id">
+                                <option value="">请选择</option>
+                                  {% for tail_company in tail_companys %}
+                                    <option value="{{ tail_company.id }}" {% if tail_company == insurance_product.company  %} selected {% endif %}>{{ tail_company.simple_name }}</option>
+                                  {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group" >
+                            <label for="id_product_type_id"><i class="fa fa-globe"></i> *产品类型： </label>
+                            <select class="form-control" id="id_product_type_id" name="product_type"onchange="chang_product_type()">
+                                  {% for x,y in product_types %}
+                                    <option value="{{ x }}" {% if insurance_product.product_type == x %} selected {% endif %}>{{ y }}</option>
+                                  {% endfor %}
+                            </select>
+                        </div>
+                         <div class="form-group" >
+                            <label for="id_product_type_id"><i class="fa fa-globe"></i> *产品来源： </label>
+                            <select class="form-control" id="id_create_way_id" name="create_way"onchange="chang_create_way()"required>
+                            		<option value="">请选择</option>
+                                  {% for x,y in create_ways %}
+                                    <option value="{{ x }}" {% if insurance_product.create_way == x %} selected {% endif %}>{{ y }}</option>
+                                  {% endfor %}
+                            </select>
+                        </div>
+                        {% if  insurance_product.product_type != "jdclbx"  %}
+                         <div class="form-group" style="display:block ;" id="id_product_priority_id1">
+                         {% else %}
+                         <div class="form-group" style="display: none;" id="id_product_priority_id1">
+                         {% endif %}
+							<label for="id_priority"><i class="fa fa-road"></i> *优先级(建议值为1~100之间的整数，默认值为50)： </label>
+							<input class="form-control"  id="id_priority" name="product_priority" type="number"
+								   value="{{insurance_product.priority|default_if_none:"50" }}" >
+						</div>
+<!-- ********************2017/6/30添加的对接字段 ******************************************************-->
+						<div class="form-group"style="display: block;" id="id_product_priority_id1">
+							<label for="id_priority"><i class="fa fa-road"></i> *免赔： </label>
+							<input class="form-control"  id="id_deductible" name="deductible" value="{{insurance_product.deductible }}" >
+						</div>
+<!-- ********************2017/7/03添加的对接字段 ******************************************************-->
+						<div class="form-group"style="display: block;" id="id_product_priority_id1">
+							<label for="id_priority"><i class="fa fa-road"></i> *险别： </label>
+							<input class="form-control"  id="id_risks" name="risks" value="{{insurance_product.risks }}" maxlength="20">
+						</div>
+<!-- ********************2017/6/02添加的汇聚宝对接字段 ******************************************************-->						
+						<div class="form-group"style="display: block;" id="id_insurance_lowest_price_id">
+							<label for=""><i class="fa fa-road"></i> *保险公司最低保费：<small>(最多输入两位小数)</small> </label>
+							<input class="form-control"  id="insurance_lowest_price" name="insurance_lowest_price" 
+								   value="{{ insurance_product.insurance_lowest_price|PriceFenToYuan }}" >
+						</div>
+						<div class="form-group"style="display: block;" id="id_lowest_price_id">
+							<label for=""><i class="fa fa-road"></i> *运之宝最低保费：<small>(最多输入两位小数)</small>  </label>
+							<input class="form-control"  id="lowest_price" name="lowest_price" 
+								   value="{{ insurance_product.lowest_price|PriceFenToYuan }}" >
+						</div>
+<!-- ********************2017/5/22添加的汇聚宝对接字段 ******************************************************-->
+					
+						<div class="form-group"{% if insurance_product.create_way|toString ==  'yzb'  %} style="display: none;"{% else %}style="display: block;" {% endif %}id="id_third_party_url_id">
+							<label for="id_name"><i class="fa fa-user"></i> *第三方接口地址 </label>
+							<input class="form-control"  id="third_party_url" name="third_party_url" type="text"
+								   value="{{ insurance_product.third_party_url|default_if_none:'' }}" required maxlength="200" >
+						</div>
+						<div class="form-group" {% if insurance_product.create_way|toString ==  'yzb'  %} style="display: none;"{% else %}style="display: block;" {% endif %}id="id_third_product_number_id">
+						<label for="id_rate"><i class="fa fa-user"></i> *第三方产品编号 </label>
+							<input class="form-control"  id="third_product_number" name="third_product_number" type="text"
+								   value="{{ insurance_product.third_product_number|default_if_none:'' }}" maxlength="20" required >
+						</div> 
+						<div class="form-group" {% if insurance_product.create_way|toString ==  'yzb'  %} style="display: none;"{% else %}style="display: block;" {% endif %}id="id_merchant_number_id">
+								<label for="id_name"><i class="fa fa-user"></i> *第三方渠道商户编码 </label>
+								<input class="form-control"  id="merchant_number" name="merchant_number" type="text"
+									   value="{{ insurance_product.merchant_number|default_if_none:'' }}" required >
+						</div>
+						
+						<div class="form-group" {% if insurance_product.create_way|toString ==  'yzb'  %} style="display: none;"{% else %}style="display: block;" {% endif %}id="id_user_type_id">
+								<label for="id_name"><i class="fa fa-user"></i> *可承包被保人身份 </label>
+								<div class="form-group">
+									{% for user_type in user_types %}
+	                               	    <div class="col-sm-6">
+	                               			<input type="checkbox" value="{{user_type.0}}" name="choose_user"
+		                               			{% for code  in insurance_product.user_type_list %}
+				                 						{% if user_type.0 ==   code  %}
+				                 						checked="checked"
+					                                	{% endif %}
+			                                	{% endfor %}
+	                               			/>{{user_type.1}}
+	                               		</div>
+                               		{% endfor %}
+		                    	</div>
+						</div>
+<!-- ********************2017/5/22添加的汇聚宝对接字段end ******************************************************-->
+
+
+					    {% if  insurance_product.product_type ==  'jdclbx'   %} 
+ 							<div class="form-group"style="display: block;" id="id_intermediary_detail_id">
+ 						{% else %}
+ 							<div class="form-group"style="display: none;" id="id_intermediary_detail_id">
+ 						{% endif %}
+                            	<label for="id_intermediary_detail"><i class="fa fa-globe"></i> *可保中介： </label>
+                             </div>
+                        {% if  insurance_product.product_type ==  'jdclbx'   %} 
+ 							<div class="form-group"style="display: block;" id="id_intermediary_detail_id2">
+ 						{% else %}
+ 							<div class="form-group"style="display: none;" id="id_intermediary_detail_id2">
+ 						{% endif %}
+								{% for intermediary  in intermediary_set%}
+			                                	    <div class="col-sm-6">
+			                                			<input type="checkbox" value="{{intermediary.id}}" name="choose_intermediary"
+			                                			{% if intermediary in insurance_product.intermediarys %}
+			                                			checked="checked"
+			                                			{% endif %}
+			                                			/>{{intermediary.intermediary_name}}
+			                                		</div>
+	                              {% endfor %}
+	                     </div>
+	                     {% if  insurance_product.product_type ==  'jdclbx'   %} 
+						</br></br></br></br>
+						{% endif %}
+						{% if insurance_product.product_type == "batch" or insurance_product.product_type == "car"  %}
+		
+							<div class="form-group"style="display: block;" id="id_commission_ratio_id">
+								<label for="id_name"><i class="fa fa-user"></i> *手续费比例 </label>
+								<input class="form-control"  id="id_commission_ratio" name="commission_ratio" type="text"
+									   value="{{ insurance_product.commission_ratio|default_if_none:'' }}" required >
+							</div>
+							<div class="form-group" style="display: block;" id="id_product_rate_id1">
+							<label for="id_rate"><i class="fa fa-user"></i> *费率： </label>
+								<input class="form-control"  id="id_rate" name="rate" type="text"
+									   value="{{ insurance_product.rate|default_if_none:'' }}" maxlength="100" required >
+							</div> 
+							<div class="form-group" style="display: block;"id="id_insurance_company_rate_id">
+									<label for="id_name"><i class="fa fa-user"></i> *保险公司费率 </label>
+									<input class="form-control"  id="id_insurance_company_rate" name="insurance_company_rate" type="text"
+										   value="{{insurance_product.insurance_company_rate|default_if_none:'' }}" required >
+							</div>
+
+					{% else %}
+						<div class="form-group" style="display: none;"id="id_commission_ratio_id">
+								<label for="id_name"><i class="fa fa-user"></i> *手续费比例 </label>
+								<input class="form-control"  id="id_commission_ratio" name="commission_ratio" type="text"
+									   value="{{ insurance_product.commission_ratio|default_if_none:'' }}" required >
+							</div>
+						<div class="form-group" style="display: none;" id="id_product_rate_id1">
+							<label for="id_rate"><i class="fa fa-user"></i> *费率： </label>
+							<input class="form-control"  id="id_rate" name="rate" type="text"
+								   value="{{ insurance_product.rate|default_if_none:'' }}" maxlength="100" required >
+						</div> 
+						<div class="form-group" style="display: none;"id="id_insurance_company_rate_id">
+								<label for="id_name"><i class="fa fa-user"></i> *保险公司费率 </label>
+								<input class="form-control"  id="id_insurance_company_rate" name="insurance_company_rate" type="text"
+									   value="{{ insurance_product.insurance_company_rate|default_if_none:'' }}" required >
+							</div>
+	 					{% endif %}
+
+						
+						
+						{% if  insurance_product.product_type == "ticket"  %}
+							<div class="form-group"style="display: block;" id="id_product_rate_id2">
+						{% else%}
+							<div class="form-group"style="display: none;" id="id_product_rate_id2">
+							{% endif %}
+		                    	<label class="control-label">*货物类型:<small>(必填)</small></label>
+		                       	<table class="table table-bordered" id="good_rate">
+			                       	<tr id="id_rate_title" class="info">
+			                       			<input type="hidden" name="insurance_state" value="edit"/>
+				                           <td class="text-center">货物类型</td>
+				                           <td class="text-center">保险费率</td>
+				                           <td class="text-center">产品费率</td>
+				                           <td class="text-center">手续费比例</td>
+				                           <td class="text-center">操作</td>
+		                        	</tr>
+		               				{% for product_rate  in insurance_product.product_rate_list%}
+		                                <tr id="id_rate_item_{{forloop.counter0}}" name="rate_item">
+		                                    <input type="hidden" name="position" value="{{forloop.counter0}}"/>
+		                                    <td style="width: 200px">
+		                                    		<select class="from-control "  style="width: 150px"id="hwlx_{{forloop.counter0}}" name="hwlx_{{forloop.counter0}}">
+		                                    			<option selected="selected" value="">  </option>
+		                                    			{% for kind in insurance_product.GOOD_TYPE %}
+		                                    			<option value="{{ kind.1 }}"{% if product_rate.good_type|toString == kind.1|toString %} selected {% endif %}>{{kind.1}}</option>
+		                                    			{% endfor %}
+	                                    			</select>
+	                                  			</td>
+		                                    <td><input class="form-control"  name="bxfl_{{forloop.counter0}}" type="text" value="{{ product_rate.insurance_rate|RateFormat }}" ></td>
+		                                    <td><input class="form-control"  name="cpfl_{{forloop.counter0}}" type="text" value="{{ product_rate.products_rate|RateFormat}}" ></td>
+		                                    <td><input class="form-control"  name="sxfbl_{{forloop.counter0}}" type="text" value="{{ product_rate.commission_ratio|RateFormat}}" ></td>
+		                                    <td><a id="id_rate_item_delete_{{forloop.counter0}}" class="btn btn-default" onclick="$('#id_rate_item_{{forloop.counter0}}').remove()">删除</a></td>
+		                                </tr>
+		                                {% endfor %}
+		                         <tr id="id_rate_bottom">
+		                              <td colspan="6">
+		                              <a class="pointer" id="id_rate_add" onclick="add_rate_line()">添加货物类型清单</a>
+		                              <small ><p><i class="fa fa-heart"style="color:red"></i><font color="red">小贴士：
+		                              <a data-toggle="modal" data-target="#product_type_example_modal"><i class="fa fa-cloud-upload"></i>货物类型参考样例</a></p>
+		                              <p>1.为了您保存信息更快捷，提交前请删除空白表单；</p>
+		                              <p>2.由于系统升级。若产品费率固定，请点击"添加清单"在货物类型中选择"其他"，然后输入对应费率后保存；</p>
+		                              <p>3.费率只取小数点后前六位数字；</p></font></small>
+		                             </td>
+		                         </tr>
+		                    </table>  
+		                    
+		                    </div>	
+		                    {# 可保货物价值#}
+		                {% if  insurance_product.product_type|toString ==  'ticket' or insurance_product.product_type|toString ==  'batch'  %} 
+ 							<div class="form-group"style="display: block;" id="id_product_price_id2">
+ 						{% else %}
+ 							<div class="form-group"style="display: none;" id="id_product_price_id2">
+ 						{% endif %}
+		                    {#<div class="form-group">#}
+								<label for="id_priority"><i class="fa fa-road"></i> *可保货物价值： </label>
+								<div class="rowContainer"  style="margin-bottom:42px">
+									<div  class="col-sm-3"  style="">
+										<input class=""  id="insurance_price_min" name="insurance_price_min" type="number"
+											    value="{{insurance_product.insurance_price_min |PriceFenToYuan}}" >
+									</div>
+									<div class="col-sm-1"  >&nbsp;至&nbsp;</div>
+									
+									<div  class="col-sm-8" style="">
+										<input class=""  id="insurance_price_max" name="insurance_price_max" type="number"
+											   value="{{insurance_product.insurance_price_max|PriceFenToYuan}}" >
+									</div>
+							 </div>
+		                    
+		                  </div>	
+						
+						
+						
+						
+
+
+                        <div class="form-group" >
+                            <label for="id_insurance_type"><i class="fa fa-globe"></i> *险种类型： </label>
+                            <select class="form-control" id="id_insurance_type" name="insurance_type">
+                            <option selected="selected" value="">  </option>
+                                  {% for x,y in insurance_types %}
+                                    <option value="{{ x }}" {% if insurance_product.insurance_type == x %} selected {% endif %}>{{ y }}</option>
+                                  {% endfor %}
+                            </select>
+                        </div>
+                        
+{#                         <div class="form-group">#}
+{# 							<label for="id_product_introduce"><i class="fa fa-road"></i> 产品介绍： </label>#}
+ {#                            <textarea id="id_product_introduce" name="product_introduce" class="form-control" maxlength="820px" style="min-height: 100px">{{ insurance_product.product_introduce|default_if_none:'' }}</textarea>#}
+{# 						</div>#}
+{# 						<div class="form-group">#}
+{# 							<label for="id_product_characteristic"><i class="fa fa-road"></i> 产品特点： </label>#}
+ {#                            <textarea id="id_product_characteristic" name="product_characteristic" class="form-control" maxlength="820px" style="min-height: 100px">{{ insurance_product.product_characteristic|default_if_none:'' }}</textarea>#}
+{# 						</div>#}
+						
+{#                        <div class="form-group" >#}
+{#                            <label for="id_product_id"><i class="fa fa-film"></i> 保险文档： </label>#}
+{#                            {% if documents %}#}
+{#                                <div class="checkbox">#}
+{#                                  {% for document in documents %}#}
+{#                                    <label><input type="checkbox" name="documents" value="{{ document.id }}" {% if document in insurance_product.documents %} checked {% endif %}>{{ document.name }}</label>#}
+{#                                  {% endfor %}#}
+{#                                </div>#}
+{#                            {% else %}#}
+{#                                <div>暂无保险文档</div>#}
+{#                            {% endif %}#}
+{#                        </div>#}
+                        <div class="form-group">
+                            <label for="id_channel"><i class="fa fa-life-bouy"></i> 是否显示： </label>
+                            <div class="">
+                                <label class="radio-inline">
+                                  <input type="radio" name="active" id="id_show" value="show" {% if insurance_product.active == 'show' or not insurance_product.is_hidden %}checked{% endif %}> 显示
+                                </label>
+                                <label class="radio-inline">
+                                  <input type="radio" name="active" id="id_hidden" value="hidden" {% if insurance_product.active == 'hidden' or insurance_product.is_hidden %}checked{% endif %}> 隐藏
+                                </label>
+                            </div>
+                        </div>
+                        <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 保 存</button>
+                        <a class="btn btn-default" href="{% url 'bms:insurance_product_list' '1' %}"><i class="fa fa-times"></i> 返 回</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2"></div>
+</div>
+
+
+{#参考样例模态框#}
+<div class="modal fade" id="product_type_example_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-lg"style="width: 500px">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						货物参数参考样例
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="panel-body">
+						 <a href="{% static 'pic/default/example_product_type.png' %}"target="_blank">
+			                        	<img class="img-responsive" src="{% static 'pic/default/example_product_type.png' %}" style="max-width: 440px;max-height: 500px;word-break:break-all">
+			               </a>
+		             </div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+	</div>
+</div>
+
+
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+    
+    //###############################产品补充信息页面联动#########################
+    function chang_create_way(){
+    	var product_type = $('#id_create_way_id');
+    	var $id_third_party_url_id = $('#id_third_party_url_id');
+    	var $id_third_product_number_id = $('#id_third_product_number_id');
+    	var $id_merchant_number_id = $('#id_merchant_number_id');
+    	//alert(product_type.val())
+    	if (product_type.val()==''){
+    		alert("请选择产品来源");
+    		$id_third_party_url_id.hide();
+    		$id_third_product_number_id.hide();
+    		$id_merchant_number_id.hide();
+    	}
+    	else if(product_type.val()=='yzb'){
+    		$id_third_party_url_id.hide();
+    		$id_third_product_number_id.hide();
+    		$id_merchant_number_id.hide();
+    	}
+    	else{
+    		$id_third_party_url_id.show();
+    		$id_third_product_number_id.show();
+    		$id_merchant_number_id.show();
+    	}
+  }
+    
+    
+    //###############################产品类型页面联动#########################
+    function chang_product_type(){
+    	var product_type = $('#id_product_type_id');
+    	var $state = $('#id_state_id');
+		var $product_rate1 = $('#id_product_rate_id1');
+		var $product_rate2 = $('#id_product_rate_id2');
+		var $commission_ratio = $('#id_commission_ratio_id');
+		var $insurance_company_rate = $('#id_insurance_company_rate_id');
+		var $id_product_price_id2 = $('#id_product_price_id2');
+		//车险页面联动
+		var $company = $('#id_company_id');
+		var $product_priority = $('#id_product_priority_id1');
+		var $intermediary_detail = $('#id_intermediary_detail_id');
+		var $intermediary_detail2 = $('#id_intermediary_detail_id2');
+    	if (product_type.val()==''){
+    		alert("请选择产品类型");
+    		$state.hide();
+    		$insurance_company_rate.hide();
+    		$product_rate1.hide();
+            $product_rate2.hide(); 
+            $commission_ratio.hide();
+            $id_product_price_id2.hide(); 
+            $company.hide();
+            $product_priority.hide();
+            $intermediary_detail.hide();
+            $intermediary_detail2.hide();
+    	}//运单
+    	else if(product_type.val()=='car'){
+    		//alert("car----");
+    		$state.show();
+    		$insurance_company_rate.show();
+    		$product_rate1.show();
+            $product_rate2.hide(); 
+            $commission_ratio.show();
+            $id_product_price_id2.hide(); 
+            $company.show();
+            $product_priority.show();
+            $intermediary_detail.hide();
+            $intermediary_detail2.hide();
+    	}//单票
+    	else if(product_type.val()=='ticket'){
+    		//alert("ticket");
+    		$state.hide();
+    		$insurance_company_rate.hide();
+    		$product_rate1.hide();
+            $product_rate2.show(); 
+            $commission_ratio.hide();
+            $id_product_price_id2.show(); 
+            $company.show();
+            $product_priority.show();
+            $intermediary_detail.hide();
+            $intermediary_detail2.hide();
+    	}//车次
+    	else if(product_type.val()=='batch'){
+    		//alert("batch");
+    		$state.show();
+    		$insurance_company_rate.show();
+    		$product_rate1.show();
+            $product_rate2.hide();
+            $commission_ratio.show();
+            $id_product_price_id2.show(); 
+            $company.show();
+            $product_priority.show();
+            $intermediary_detail.hide();
+            $intermediary_detail2.hide();
+    	}
+    	//机动车保险
+    	else if(product_type.val()=='jdclbx'){
+    		//alert("batch");
+    		$state.show();
+    		$insurance_company_rate.hide();
+    		$product_rate1.hide();
+            $product_rate2.hide(); 
+            $commission_ratio.hide();
+            $id_product_price_id2.hide(); 
+            $company.hide();
+            $product_priority.hide();
+            $intermediary_detail.show();
+            $intermediary_detail2.show();
+            }
+    }
+    
+ //*****************************************************************************8*****   
+    function add_rate_line(){
+        var count = $('tr[name="rate_item"]').length;
+        var position = count;
+        if($("#id_rate_item_" + position).length > 0){
+            for(var i=0;i<count;i++){
+                if($("#id_rate_item_" + i).length <= 0){
+                    position = i;
+                    break;
+                }
+            }
+        }
+        var a
+        a='<tr id="id_rate_item_' + position + '" name="rate_item">' +
+		'<input type="hidden" name="position" value="' + position + '"/>' +
+		'<td><select class="from-control "  style="width: 150px"id="hwlx_'+position+'" name="hwlx_'+position+'">'+
+			'<option selected="selected" value=""></option>'+
+			'{% for kind in insurance_product.GOOD_TYPE %}<option value="{{ kind.1 }}">{{kind.1}}</option>{% endfor %}</select></td>' +
+        '<td><input class="form-control"  name="bxfl_' + position + '" type="text" value="" required ></td>' +
+        '<td><input class="form-control"  name="cpfl_'+position+'" type="text" value="" ></td>'+
+        '<td><input class="form-control"  name="sxfbl_'+position+'" type="text" value="" ></td>'+
+        '<td><a id="id_rate_item_delete_' + position + '" class="btn btn-default" onclick="$(\'#id_rate_item_' + position + '\').remove()">删除</a></td>' +
+       '</tr>';
+		
+ 		$('#id_rate_bottom').before(a); 
+    }
+    
+       $(function(){
+
+            $('#edit_insurance_product_form').formValidation({
+                // I am validating Bootstrap form
+                framework: 'bootstrap',
+                locale : 'zh_CN',
+                // Feedback icons
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+
+                // List of fields and their validation rules
+                fields: {
+                    name: {
+                        validators: {
+                            notEmpty: {
+                                message: '保险公司名称不可为空'
+                            },
+                            stringLength: {
+                                min: 2,
+                                max: 20,
+                                message: '请输入2～20个字符'
+                            }
+                        }
+                    },
+                    product_introduce: {
+                        validators: {
+                        	notEmpty: {
+                                message: '产品介绍不可为空'
+                            },
+                        }
+                    },
+                    product_characteristic: {
+                        validators: {
+                        	notEmpty: {
+                                message: '产品特点不可为空'
+                            },
+                        }
+                    },    
+                    
+                }
+            });
+
+
+        });
+    </script>
+{% endblock %}
+
+{#,#}
+{#                    docking_rate: {#}
+{#                        validators: {#}
+{#                            regexp: {#}
+{#                                regexp: /^[-+]?[0-9]*\.?[0-9]+$/,#}
+{#                                message: '系统对接投保基础费率为小数'#}
+{#                            }#}
+{#                        }#}
+{#                    },#}
+{#                    car_rate: {#}
+{#                        validators: {#}
+{#                            regexp: {#}
+{#                                regexp: /^[-+]?[0-9]*\.?[0-9]+$/,#}
+{#                                message: '单车单次投保基础费率为小数'#}
+{#                            }#}
+{#                        }#}
+{#                    },#}
+{#                    batch_rate: {#}
+{#                        validators: {#}
+{#                            regexp: {#}
+{#                                regexp: /^[-+]?[0-9]*\.?[0-9]+$/,#}
+{#                                message: '单票货物投保基础费率为小数'#}
+{#                            }#}
+{#                        }#}
+{#                    }#}

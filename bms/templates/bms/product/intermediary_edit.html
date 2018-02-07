@@ -1,0 +1,161 @@
+{% extends 'bms/product/base_product.html' %}
+{% load static %}
+{% load legoo_tag %}
+{%  block intermediary_list  %}class='active'{% endblock %}
+{% block title %} 编辑中介渠道 {% endblock %}
+
+{% block page_top %}
+<div class="row">
+        <div class="col-sm-10">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <i class="fa fa-plus fa-3x pull-right"></i>
+                    <form role="form" id="create_head_company_form" method="post" action="{% url 'bms:intermediary_edit' intermediary.id %}"enctype="multipart/form-data">  {% csrf_token %}
+
+                        <div class="page-header">
+                          <h1 class="text-center">编辑中介渠道</h1>
+                        </div>
+                        {% if message and message != '' %}
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="alert alert-warning">{{ message }}</div>
+                                </div>
+                            </div>
+                        {% endif %}
+						<div class="form-group" >
+							<label for="id_name"><i class="fa fa-user"></i> *中介渠道名称： </label>
+							<input class="form-control"  id="id_intermediary_name" name="intermediary_name" type="text"
+								   value="{{ intermediary.intermediary_name|default_if_none:'' }}" maxlength="10" required >
+						</div>
+						<div class="form-group" >
+							<label for="id_description"><i class="fa fa-file-text"></i> *中介渠道描述： </label>
+							<input class="form-control"  id="id_intermediary_description" name="intermediary_description" type="text"
+								   value="{{ intermediary.intermediary_introduce }}" maxlength="500" required >
+						</div>
+						<div class="form-group" >
+							<label for="id_description"><i class="fa fa-usd"></i> *中介渠道利润点： </label>
+							<input type=""class="form-control"  id="intermediary_profit_point" name="intermediary_profit_point" 
+								   value="{{ intermediary.intermediary_profit_point }}" maxlength="6" required >
+						</div>
+						<div class="form-group" >
+							<label for="id_phone"><i class="fa fa-phone"></i> *联系电话：<small><font color='red'>(可输入手机号或座机号码，座机号码格式：0451-1234567) </font></small> </label>
+							<input class="form-control"  id="id_intermediary_phone" name="intermediary_phone" type="text"
+								   value="{{ intermediary.intermediary_phone}}" maxlength="500" required >
+						</div>
+						<div class="form-group" >
+							<label for="id_phone"><i class="fa fa-taxi"></i> *可保保单车辆类型：<small>（请点选下方的保单车辆类型）</small> </label>		
+						</div>
+						<div class="form-group" >
+								{% for car_type  in order_car_type%}
+			                                	    <div class="col-sm-6"style="margin-bottom: 15px;">
+			                                			<input type="checkbox" value="{{car_type.0}}" name="choose_car_type"
+			                                			     {% if car_type.0  in intermediary.order_car_type   %}
+						                 						 checked="checked"
+							                                  {% endif %}/>{{car_type.1}}
+			                                		</div>
+	                              {% endfor %}
+	                     </div>
+	                     <div class="form-group" >
+							<label for="id_phone"><i class="fa fa-road"></i> *可保车牌省份：<small>（请点选下方的可保车牌省份）</small> </label>		
+						</div>
+						<div class="form-group">
+								{% for short  in short_detail%}
+			                                	    <div class="col-sm-1"style="margin-bottom: 15px;">
+			                                			<input type="checkbox" value="{{short}}" name="choose_plate"
+			                                			   {% if short  in intermediary.plate_number_list   %}
+						                 						 checked="checked"
+							                                  {% endif %}/>{{short}}
+			                                		</div>
+	                              {% endfor %}
+	                     </div>
+						<div class="form-group" >
+							<label for="id_phone"><i class="fa fa-users"></i> *出单机构：<small>（请点选下方的子公司）</small> </label>		
+						</div>
+						<div class="form-group">
+								{% for tail_company  in tail_company_set%}
+			                                	    <div class="col-sm-6">
+			                                			<input type="checkbox" value="{{tail_company.id}}" name="choose_com"
+			                                			
+						                 						{% if tail_company  in intermediary.intermediary_company_list   %}
+						                 						checked="checked"
+							                                	{% endif %}
+					                                	
+			                                			/>{{tail_company.simple_name}}
+			                                		</div>
+	                              {% endfor %}
+	                     </div>
+	                     </br></br></br></br>
+
+                        <div class="form-group">
+                            <label for="id_channel"><i class="fa fa-life-bouy"></i> 是否激活： </label>
+                            <div class="">
+                                <label class="radio-inline">
+                                  <input type="radio" name="active" id="id_show" value="show" {% if  intermediary.state == True   %}checked="checked"{% endif %}> 激活
+                                </label>
+                                <label class="radio-inline">
+                                  <input type="radio" name="active" id="id_hidden" value="hidden"{% if  intermediary.state == False   %}checked="checked"{% endif %}> 隐藏
+                                </label>
+                            </div>
+                        </div>
+                        <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 保 存</button>
+                        <a class="btn btn-default" href="{% url 'bms:intermediary_detail' intermediary.id%}"><i class="fa fa-times"></i> 返 回</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2"></div>
+</div>
+
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+       $(function(){
+
+            $('#create_head_company_form').formValidation({
+                // I am validating Bootstrap form
+                framework: 'bootstrap',
+                locale : 'zh_CN',
+                // Feedback icons
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+
+                // List of fields and their validation rules
+                fields: {
+                    name: {
+                        validators: {
+ /*                            notEmpty: {
+                                message: '保险公司名称不可为空'
+                            }, */
+                            stringLength: {
+                                min: 2,
+                                max: 20,
+                                message: '请输入2～20个字符'
+                            }
+                        }
+                    },
+                    description: {
+                        validators: {
+                            stringLength: {
+                                min: 2,
+                                max: 500,
+                                message: '请输入2～500个字符'
+                            }
+                        }
+                    },
+                    phone: {
+                        validators: {
+                            regexp: {
+                                regexp: /^[0-9]+$/,
+                                message: '手机号码只能由数字组成'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}

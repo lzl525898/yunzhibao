@@ -1,0 +1,302 @@
+{% extends 'bms/campaign/base_campaign.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block campaign_logistics %}class='active'{% endblock %}
+{% block title %} 物流公司详情{% endblock %}
+
+{% block page_top %}
+
+    <div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+
+            <h2 class="text-center">物流公司详情</h2>
+            {% if message and message != '' %}
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="alert alert-warning text-center">{{ message }}</div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <table class="table table-bordered">
+                <tr>
+                  <td class="info text-center">公司名称</td>
+                  <td class="text-center">{{ logistics.company_name }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">公司图片</td>
+                  <td class="text-center">
+                    <table class="table table-bordered" >
+                    <tr>
+                    	<a onclick="add_logistics_pic()"><i class="fa fa-plus "></i>&nbsp;&nbsp;添加公司图片</a>
+                    </tr>
+                        {% for logistics_image_set  in logistics_image_list %}
+                         <tr>
+                            {% for logistics_image in logistics_image_set %}
+                                <td>
+                                    <a href="{% static '' %}{{ logistics_image }}" target="_blank"><img class="img-responsive center-block" src="{% static '' %}{{ logistics_image }}" style="max-width: 50px;max-height: 50px;word-break:break-all" alt="物流公司图片"/></a>
+                                </td>
+                                <td colspan="2" >
+                                    <a id="edit_{{ logistics_image }}" name="" href="#"  onclick="edit_logistics_pic('{{ logistics_image }}')" class="pull-right"><i class="fa fa-pencil-square-o"></i></a>
+                                    <br/>
+                                    <a id="delete_{{ logistics_image }}" name="" href="#"  onclick="delete_logistics_pic('{{ logistics_image }}')" class="pull-right "><i class="fa fa-trash-o"></i></a>
+                                </td>
+                            {% endfor %}  
+                        </tr> 
+                       {% endfor %} 
+                     <!--   <td><a onclick="add_logistics_pic()"><i class="fa fa-plus fa-3x"></i></a></td> -->
+                    </table>
+
+                  </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">运输专线</td>
+                  <td class="text-center">
+                      {% for special_line in logistics.special_line_list %}
+                      {{ special_line }}&nbsp;&nbsp;&nbsp;
+                      {% endfor %}
+                  </td>
+                </tr>
+                 <tr>
+                  <td class="info text-center">联系人/联系电话</td>
+                  <td class="text-center">
+<!--                   {%if contacts%}
+                    {% for contact in contacts%} -->
+                    <table align="center">
+                                <tr>
+				                  <td class="text-center">{{ logistics.person }}&nbsp;&nbsp;&nbsp;{{ logistics.phone }}</td>
+				                </tr>
+				                <tr>
+				                  <td class="text-center">{% if logistics.person1 %}&nbsp;&nbsp;&nbsp;{{ logistics.person1 }}{% endif %}{% if logistics.phone1 %}&nbsp;&nbsp;&nbsp;{{ logistics.phone1 }}{% endif %}</td>
+				                </tr>
+                    </table>
+<!--                   {% endfor %}
+                  {% endif %} -->
+                  </td>
+                </tr>
+<!--                 <tr>
+                  <td class="info text-center">联系人</td>
+                  <td class="text-center">{{ logistics.person }}{% if logistics.person1 %}&nbsp;&nbsp;&nbsp;{{ logistics.person1 }}{% endif %}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">联系电话</td>
+                  <td class="text-center">{{ logistics.phone }}{% if logistics.phone1 %}&nbsp;&nbsp;&nbsp;{{ logistics.phone1 }}{% endif %}{% if logistics.phone2 %}&nbsp;&nbsp;&nbsp;{{ logistics.phone2 }}{% endif %}</td>
+                </tr> -->
+                <tr>
+                  <td class="info text-center">优先级</td>
+                  <td class="text-center">{{ logistics.priority }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">公司介绍</td>
+                  <td class="text-center"style="max-width: 400px; word-wrap:break-word;">{{ logistics.description |safe}} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">创建时间</td>
+                  <td class="text-center">{{ logistics.create_time|date:'Y年m月d日 H:i:s' }}</td>
+                </tr>
+            </table>
+            <a class="btn btn-success" href="{% url 'bms:logistics_edit' logistics.id %}"><i class="fa fa-edit"></i> 编 辑</a>
+            <a class="btn btn-danger" data-toggle="modal" data-target="#delete_logistics_modal"><i class="fa fa-edit"></i> 删 除</a>
+            <a class="btn btn-default" href="{% url 'bms:logistics_list' '1' %}"><i class="fa fa-times"></i> 返 回</a>
+        </div>
+        <div class="col-sm-2"></div>
+    </div>
+
+
+{#删除模态框#}
+<div class="modal fade" id="delete_logistics_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<form id="delete_goods_form" class="form" method="post" action="{% url 'bms:logistics_delete' logistics.id %}">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">
+							&times;
+						</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+                    <input type="hidden" value="" id="id_logistics_id" name="logistics_id">
+					<h4 class="modal-title">
+						<i class="fa fa-trash-o">
+						</i>
+						删除物流公司
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<label class="control-label">
+							删除后不可恢复，是否确认删除？
+						</label>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-trash-o"></i>
+						删 除
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+
+
+
+
+{#增加物流公司号模态框#}
+<div class="modal fade" id="add_logistics_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<form id="logistics_form" class="form" method="post" action="{% url 'bms:add_logistics_pic' logistics.id %}" enctype="multipart/form-data">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						增加物流公司图片
+					</h4>
+				</div>
+				<div class="modal-body">
+                    <div class="form-group" >
+                        <label class="control-label" for="id_logistics_image"><i class="fa fa-picture-o"></i>物流公司照片（可多选）: </label>
+                        <input class="filestyle" type="file" id="id_logistics_image" name="add_logistics_image_pic" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox" multiple>
+                    </div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						确定
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+
+
+
+         {#编辑物流公司图片模态框#}
+     <div class="modal fade" id="edit_logistics_pic_modal" tabindex="-1" role="dialog" >
+        <div class="modal-dialog">
+            <form id="edit_logistics_form" class="form" method="post" action="{% url 'bms:edit_logistics_pic' logistics.id %}"  enctype="multipart/form-data">  {% csrf_token %}
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title"><i class="fa fa-pencil-square-o"></i> 编辑物流公司图片</h4>
+                  </div>
+                  <div class="modal-body">
+                    <div class="form-group" >
+                        <label class="control-label" for="id_manage_logistics_image"><i class="fa fa-picture-o"></i> 图片<small>（gif、png、jpeg或icon;）</small>: </label>
+                        <input class="filestyle" type="file" id="id_manage_logistics_image" name="logistics_image_edit" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                        <input  type="hidden" name="image_url_edit" id="image_url_edit" value="">
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 保 存 </button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> 退 出</button>
+                  </div>
+                </div>
+            </form>
+        </div>
+     </div>
+
+
+{#     删除物流公司图片模态框#}
+     <div class="modal fade" id="delete_logistics_detail_pic_modal" tabindex="-1" role="dialog" >
+        <div class="modal-dialog">
+            <form id="delete_logistics_form" class="form" method="post" action="{% url 'bms:delete_logistics_pic' logistics.id %}"  enctype="multipart/form-data">  {% csrf_token %}
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title"><i class="fa fa-trash-o"></i> 删除物流公司图片</h4>
+                  </div>
+                  <div class="modal-body">
+                    <div class="form-group" >
+                        <label class="control-label">删除后不可恢复，是否确认删除？</label>
+                        <input  type="hidden" name="image_detail_url_delete" id="image_detail_url_delete" value="">
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 删 除 </button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> 退 出</button>
+                  </div>
+                </div>
+            </form>
+        </div>
+     </div>
+
+{% endblock %}
+
+{% block script_block %}
+<script type="text/javascript">
+       $(function(){
+           console.log("formvalidations running");
+            $('#pay_logistics_form').formValidation({
+                // I am validating Bootstrap form
+                framework: 'bootstrap',
+                locale : 'zh_CN',
+                // Feedback icons
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+                fields: {
+                    pay_logistics:{
+                        validators:{
+                            notEmpty: {
+                                message: '货物价值不可为空'
+                            },
+                            regexp:{
+                                regexp: /^\d+$/,
+                                message: '请输入正整数'
+                            }
+                        }
+
+                    }
+                }
+            });
+        });
+
+
+    function add_logistics_pic(){
+        $('#add_logistics_modal').modal('show');
+    }
+
+{#       删除图片#}
+    function delete_logistics_pic(logistics_image){
+        $('#delete_logistics_detail_pic_modal').modal('show');
+        var image_url_delete = document.getElementById("image_detail_url_delete");
+        image_url_delete.value = logistics_image;
+    }
+    function edit_logistics_pic(logistics_image){
+        $('#edit_logistics_pic_modal').modal('show');
+        var image_url_edit = document.getElementById("image_url_edit");
+        image_url_edit.value = logistics_image;
+    }
+
+
+
+</script>
+
+
+
+{% endblock %}

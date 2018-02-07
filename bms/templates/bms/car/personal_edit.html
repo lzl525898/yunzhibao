@@ -1,0 +1,224 @@
+{% extends 'bms/car/base_car.html' %}
+{% load static %}					{#%static'%识别#}
+{% load legoo_tag %}    		{#认证状态转换#}
+{% block personal_list %}class='active'{% endblock %}
+{% block title %} 编辑个人保险 {% endblock %}
+
+{% block page_top %}
+<div class="row">
+        <div class="col-sm-10">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <i class="fa fa-plus fa-3x pull-right"></i>
+                    <form role="form" id="create_insurance_product_form" method="post" action="{% url 'bms:personal_edit' personal.id %}"  enctype="multipart/form-data">  {% csrf_token %}
+						<input class="form-control"  id="personal_state" name="personal_state" value="edit" type="hidden" >
+                        <div class="page-tailer">
+                          <h1 class="text-center">编辑个人保险</h1>
+                        </div>
+                        {% if message and message != '' %}
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="alert alert-warning">{{ message }}</div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        <div class="form-group"style="display: block;" id="id_company_id">
+                            <label for="id_tail_company_id"><i class="fa fa-film"></i> *用户： </label>
+                            <select class="form-control chosen-select input-group-addon" id="client_id" name="client_id"style='width:830px'>
+                            <option selected="selected" value="">  </option>
+                                <option value="">请选择</option>
+                                  {% for client in clients %}
+                                    <option value="{{ client.id }}" {% if personal.client.id|toString == client.id|toString %} selected {% endif %}>{{ client.profile.phone  }}--{% if client.company_name %}{{ client.company_name }}{% else %}{{ client.name }}{% endif %}</option>
+                                  {% endfor %}
+                            </select>
+                        </div>
+						<div class="form-group" >
+							<label for="id_name"><i class="fa fa-user"></i> *保单号： </label>
+							<input class="form-control"  id="paper_id" name="paper_id" type="text"
+								   value="{{ personal.paper_id|default_if_none:'' }}" required >
+						</div>
+						<div class="form-group"style="display: block;" id="id_company_id">
+                            <label for="id_tail_company_id"><i class="fa fa-film"></i> *承保公司： </label>
+                            <select class="form-control" id="id_tail_company_id" name="tail_company_id"required>
+                                <option value="">请选择</option>
+                                  {% for tail_company in tail_companys %}
+                                    <option value="{{ tail_company.id }}" {% if personal.company.id|toString == tail_company.id|toString %} selected {% endif %}>{{ tail_company.simple_name }}</option>
+                                  {% endfor %}
+                            </select>
+                        </div>
+                        
+                        
+
+                        <div class="form-group" >
+                            <label for="id_product_type_id"><i class="fa fa-globe"></i> *险种： </label>
+                            <select class="form-control" id="insurance_type" name="insurance_type"required>
+                                  {% for x,y in insurance_type_list %}
+                                    <option value="{{ x }}" {% if personal.insurance_type == x %} selected {% endif %}>{{ y }}</option>
+                                  {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group"style="display: block;">
+							<label for="id_priority"><i class="fa fa-road"></i> *上传保单：<small><font  id = "id_insurance_text"color='red' ></font></small> </label>
+							<div class="">
+                                <label class="radio-inline">
+                                  <select class="" name="up_state" id ="up_state" onchange = 'change_liability("insurance",this.value)'>
+ 			      						 <option value="pdf" {% if personal.up_state|toString == "pdf" %} selected {% endif %}> 上传保单pdf文件 </option>
+	                                      <option value="picture" {% if personal.up_state|toString == "picture" %} selected {% endif %}> 上传保单图片 </option>
+	                                      <option value="web_url" {% if personal.up_state|toString == "web_url" %} selected {% endif %}> 上传保单下载链接 </option>
+                                   </select>
+                                </label>
+                                
+                                <label class="radio-inline">
+                                  <div  id ='insurance_pic_up' {% if personal.up_state|toString == 'picture'  %}style="display: block;"{% else %}style="display: none;"{% endif %}>
+		  			      		  <input class="filestyle" type="file" id="" name="insurance_image" data-icon="true" data-input="true" 
+													data-buttonText="选择图片" data-iconName="glyphicon-inbox"multiple  accept="image/*">
+		  			      		</div>
+                                </label>
+                                
+                                <label class="radio-inline">
+                                  <div  id ='insurance_pdf_up' {% if personal.up_state|toString == 'pdf' or not personal  %}style="display: block;"{% else %}style="display: none;"{% endif %}>
+			  			      				<input class="filestyle" type="file" id="" name="insurance_image" data-icon="true" 
+			  			      				data-input="true" data-buttonText="选择文件" data-iconName="glyphicon-inbox"accept="application/pdf">
+			  			      		</div>
+                                </label>
+                                
+                                <label class="radio-inline">
+                                  <div  id ='insurance_web_url_up' {% if personal.up_state|toString == 'web_url' %}style="display: block;"{% else %}style="display: none;"{% endif %}>
+			  			      				<input class="text"  id="" name="insurance_image" >
+			  			      		</div>
+                                </label>
+                            </div>
+						</div>
+
+						
+						<div class="form-group">
+                            <label for=""><i class="fa fa-road"></i> *其他：<small><font color="red">（选填）</font></small> </label>
+                            <table class="table table-bordered" id="id_batch_list">
+                                <tr id="id_properties_title" class="info">
+                                    <td class="text-center">字段名称</td>
+                                    <td class="text-center">字段内容</td>
+                                    <td class="text-center">操作</td>
+                                </tr>
+                                {%  for other_set in personal.other_list %}
+                                <tr id="id_properties_item_{{forloop.counter0}}" name="properties_item">
+		                            <input type="hidden" name="position" value="{{forloop.counter0}}"/>
+                                    <td><input class="form-control"  name="mc_{{forloop.counter0}}" type="text" value="{{ other_set.field_name }}" ></td>
+		                            <td><input class="form-control"  name="nr_{{forloop.counter0}}" type="text" value="{{ other_set.field_content }}" ></td>
+                                    <td><a id="id_properties_item_delete_{{forloop.counter0}}" class="btn btn-default" onclick="$('#id_properties_item_{{forloop.counter0}}').remove()">删除</a></td>
+                                </tr>
+                                {% endfor %}
+                                <tr id="id_properties_bottom">
+                                    <td colspan="6">
+                                    <a class="pointer" id="id_properties_add" onclick="add_other_line()">补充其他信息</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        
+                        <div class="form-group"style="display: block;">
+							<label for="id_priority"><i class="fa fa-road"></i> *保单日期： </label>
+							<div class="rowContainer">
+	                            <label class="col-sm-2 ">开始日期</label>
+	                            <div class="col-sm-4">
+	                            	<div class="input-group date" id="datetimePicker">
+	                                    <input type="text" class="form-control" name="date_start" data-fv-row=".rowContainer" value="{{ personal.date_start|date:'Y-m-d'}}"
+	                                    onFocus="WdatePicker({isShowClear:false,readOnly:true,dateFmt: 'yyyy-MM-dd'})" />
+	                                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+	                                </div>
+	                            </div>
+	                          </div>
+	                          <div class="rowContainer">
+		                            <label class="col-sm-2 control-label">截止日期</label>
+		                            <div class="col-sm-4">
+		                              <div class="input-group date" id="datetimePicker">
+		                                    <input type="text" class="form-control" name="date_stop" data-fv-row=".rowContainer" value="{{ personal.date_stop|date:'Y-m-d'}}"
+		                                    onFocus="WdatePicker({isShowClear:false,readOnly:true,dateFmt: 'yyyy-MM-dd'})" />
+		                                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+		                                </div>
+		                            </div>
+		                        </div>
+						</div>
+          
+
+ 						<div class="form-group"style="display: block;" id="id_state_id">
+                            <label for="id_channel"><i class="fa fa-life-bouy"></i> 是否显示： </label>
+                            <div class="">
+                                <label class="radio-inline">
+                                  <input type="radio" name="active" id="id_show" value="show" {% if not personal.is_hidden %}checked {% endif %}> 显示
+                                </label>
+                                <label class="radio-inline">
+                                  <input type="radio" name="active" id="id_hidden" value="hidden"{% if  personal.is_hidden %}checked {% endif %}> 隐藏
+                                </label>
+                            </div>
+                        </div>
+                        <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 保 存</button>
+                        {#<button class="btn btn-default" onclick="history.back()" ><i class="fa fa-times"></i> 返 回</button>#}
+                        <a class="btn btn-default" href="{% url 'bms:personal_list' page_index %}"><i class="fa fa-times"></i> 返 回</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2"></div>
+</div>
+
+
+
+
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+  //三种上传保单的方式  
+    function change_liability( type,value){
+    	//alert(type+value)
+    	var picture_up = $('#'+type+'_pic_up');//上传保单图片
+    	var document_up = $('#'+type+'_pdf_up');//上传保单文件
+    	var url_up = $('#'+type+'_web_url_up');//上传保单下载链接
+    	document.getElementById('id_insurance_text').innerText=""
+    	if (value== 'picture'){
+    		picture_up.show();
+    		document_up.hide();
+    		url_up.hide();
+    		document.getElementById('id_insurance_text').innerText='(按住“CTRL”按键，可选择多张图片)'
+    	}
+    	else if (value == 'pdf'){
+    		picture_up.hide();
+    		document_up.show();
+    		url_up.hide();
+    		document.getElementById('id_insurance_text').innerText=""
+    	}
+    	else if (value == 'web_url'){
+    		picture_up.hide();
+    		document_up.hide();
+    		url_up.show();
+    		document.getElementById('id_insurance_text').innerText=""
+    	}
+    	else{
+    		alert("请选择保单上传方式")
+    	}
+    	
+    }
+  
+    //添加其他部分
+    function add_other_line(){
+                var count = $('tr[name="properties_item"]').length;
+                var position = count;
+                if($("#id_properties_item_" + position).length > 0){
+                    for(var i=0;i<count;i++){
+                        if($("#id_properties_item_" + i).length <= 0){
+                            position = i;
+                            break;
+                        }
+                    }
+                }
+
+                $('#id_properties_bottom').before('<tr id="id_properties_item_' + position + '" name="properties_item">' +
+                        '<input type="hidden" name="position" value="' + position + '"/>' +
+                        '<td><input class="form-control"  name="mc_' + position + '" type="text" value="" required></td>' +
+                        '<td><input class="form-control"  name="nr_' + position + '" type="text" value="" required ></td>' +
+                        '<td><a id="id_properties_item_delete_' + position + '" class="btn btn-default" onclick="$(\'#id_properties_item_' + position + '\').remove()">删除</a></td>' +
+                        '</tr>');
+
+            }
+    </script>
+{% endblock %}

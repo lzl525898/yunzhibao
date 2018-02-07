@@ -1,0 +1,63 @@
+ {% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}报价{% endblock %}
+
+{% block container_block %}
+
+<div class="top">
+	<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+		<tbody>
+			<tr>
+					<td width="20%" valign="middle">
+							<a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a>
+					</td>
+					<td class="wz" width="60%" valign="middle" align="center">
+							<span id="toptitle">
+									<i class="fa   fa-file-text"></i>&nbsp;<strong>询价列表</strong>
+							</span>
+					</td>
+					<td width="20%" valign="middle" align="right">
+					<a id="aso" href="#"></a>
+					</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+           <div class="weui_cells_title wss_dashed" style="margin-top: -2px;padding-top:45px;"><i class="fa  fa-reorder"></i> &nbsp; 有{{ count }}家保险公司可供选择</div>
+                  <div class="weui_cells weui_cells_access wss_p"  >
+                    {% if intermediaryPrice %}
+        	        {% for intermediary in intermediaryPrice %}
+			        <a class="weui_cell wss_cell" href="{% url 'wss:jdclbx_intermediary_detail' intermediary.id %}?referee_id={{ referee_id }}" style="padding:10px 15px;" >
+			            <div class="weui_cell_bd weui_cell_primary" style="width:60%;">
+			                 <p>&nbsp;&nbsp;&nbsp;&nbsp;{{ intermediary.company.simple_name }}</p>
+			            </div>
+			             <div class="weui_cell_ft"  style="width:40%;"><font color='red'>报价{{intermediary.order_price_add_profit|FenToYuan }} 元</font>
+			            </div>
+			        </a>
+			        <div  class="wss_dashed_bottom"></div>
+			        {% endfor %}
+               {% else %}
+               <div  class="thumbBox"  style="padding-top: 25%;"><img  src="/static/pic/default/201305122026542520.gif" alt="icon"  style="max-width: 180px;max-height: 180px;word-break:break-all;" ></div>
+			    <div  class="thumbBox"  style="padding-top: 5%;"><p>抱歉，您当前还没有询价结果!</p></div>
+			    {% endif %}
+   		     </div>
+		       
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+<script src="{% static 'js/jquery-2.1.4.js' %}"></script> 
+<script src="{% static 'js/fastclick.js' %}"></script>
+<script>
+  $(function() {
+    FastClick.attach(document.body);
+  });
+</script>
+{% endblock %}

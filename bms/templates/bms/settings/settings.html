@@ -1,0 +1,18 @@
+{% extends 'bms/settings/base_settings.html' %}
+{% load static %}
+{% load legoo_tag %}
+
+{% block page_top %}
+    <h1 class="text-center">系统设置说明</h1>
+    <h2 class="text-center"><small>--请谨慎操作</small></h2>
+
+{% endblock %}
+{% block page_middle %}
+        <hr/>
+        <h4>注意事项：</h4>
+        <p>（1）此设置将严重影响服务器运行，非专业人员严禁操作。</p>
+        <p>（2）操作之前请确认您已明确了解此操作带来的后果。</p>
+        <p>（3）不当的操作将可能带来不可逆的、非常严重的后果，操作过程中请保持谨慎。</p>
+        <p>（4）仅超级管理员可以操作此内容，若您误入此页面请速与超级管理员联系。</p>
+
+{% endblock %}

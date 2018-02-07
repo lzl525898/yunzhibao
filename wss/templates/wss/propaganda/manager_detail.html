@@ -1,0 +1,136 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}物流管理系统{% endblock %}
+
+{% block container_block %}
+{#    首页所在位置，进入页面后的默认页面#}
+    <script  type="text/javascript">
+		  wx.ready(function () {
+			  wx.onMenuShareAppMessage({
+			      title: '物流管理系统',
+			      desc: '运之宝~只为让您安心~~。',
+			      link: '{{a.url |safe}}',
+			      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5Ub0pCbLOgmNnlm1sZ8beiaLefnP8xwT9SCciaxyrNQz2KAFDMjRDWCR4XVCtLj29rMLfF9NUUWrUtKg/0?wx_fmt=png',
+			      /* trigger: function (res) {alert('用户点击分享到朋友圈'); },
+			      success: function (res) {alert('已分享'); },
+			      cancel: function (res) { alert('已取消');},
+			      fail: function (res) { alert(JSON.stringify(res)); } */
+			    });
+			 wx.onMenuShareTimeline({
+			      title: '物流管理系统',
+			      link:'{{ a.url|safe }}',
+			      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5Ub0pCbLOgmNnlm1sZ8beiaLeeIibavLCjib3DrnHIkFL0Z3XTztcibZhb2564ics3njB1YuymjWQg7F3Cw/0?wx_fmt=png',
+			      /* trigger: function (res) {alert('用户点击分享到朋友圈'); },
+			      success: function (res) {alert('已分享'); },
+			      cancel: function (res) { alert('已取消');},
+			      fail: function (res) { alert(JSON.stringify(res)); } */
+			    });  
+		});
+</script>
+{#修改后的公司#}
+<div class="top">
+	<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+		<tbody>
+			<tr>
+					<td width="20%" valign="middle">
+							<a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a>
+					</td>
+					<td class="wz" width="60%" valign="middle" align="center">
+							<span id="toptitle">
+									<i class="fa   fa-truck"></i>&nbsp;<strong>物流管理系统-云龙软件</strong>
+							</span>
+					</td>
+					<td width="20%" valign="middle" align="right">
+					<a id="aso" href="#"></a>
+					</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<div class="weui_cells_title wss_dashed" style="margin-top: -2px;padding-top:45px;"><i class="fa  fa-reorder"></i> &nbsp; 系统名称</div>
+<div class="weui_cells wss_p">
+	<div  class="weui_cell">
+		    <div class="weui_cell_bd weui_cell_primary">
+		         <p>&nbsp;&nbsp;&nbsp;&nbsp;云龙软件</p>
+		    </div>
+    </div>
+</div>
+
+<div class="weui_cells_title wss_dashed" ><i class="fa fa-user"></i> &nbsp; 联系人/联系电话</div>
+<div class="weui_cells weui_cells_access wss_p">
+        <a class="weui_cell" href="tel:{{ logistics.phone}}">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;杨海龙</p>
+            </div>
+            <div class="weui_cell_ft">13611141264</div>
+        </a>
+</div>
+
+         <div class="weui_cells_title wss_dashed" ><i class="fa fa-info-circle"></i> &nbsp; 系统简介</div>
+		        <div class="weui_cells weui_cells_form">
+		            <div class="weui_cell wss_p">
+		                <div class="weui_cell_bd weui_cell_primary">
+		                    <div  class="weui_textarea" style="background-color: #ffffff；text-align:justify; text-justify:distribute-all-lines; text-align-last:justify; text-indent:10px; ">
+北京云龙晋铜科技有限公司于2010年在北京正式成立，是一家为物流企业提供整体信息管理解决方案和服务的物流软件企业，伴随着物流行业的发展和成长，是中国物流企业信息管理解决方案的倡导者和领跑者。
+公司致力于为物流企业提供高附加值的物流管理信息系统，通过独特的业务框架和先进的应用产品，为物流企业铸就强大的实时管理能力和领先的业务竞争优势。专业团队多年致力于基层，通过与大量客户面对面的交流，收集每一个用户的需求，建立了云龙软件系统完善的功能及业务流程。
+云龙软件可助力物流企业实现：托单管理、发货管理、配送管理、回执管理、结账管理、数据统计等多项日常业务，同时提供包括单车核算、利润分析、统计报表等多项实时决策支持。
+通过一体化综合信息管理平台，实现货物、财务、行政事务一体化管理。系统简单、实用、易操作、交互性好，未接触过计算机的使用者也能很快上手。并可根据不同客户的需求快速定制化开发，帮助物流企业在公司内部实现数据全局共享、数据维护、实时交换数据。公司积累了为238家物流企业提供物流信息管理服务的经验，覆盖全国28个省市。
+		                    </div>
+		                </div>
+		            </div>
+		        </div>
+<!-- <div class="weui_cells_title hd" style="text-align: center;">物流管理系统-云龙软件</div> -->
+<!--         <div class="wss_title"><i class="fa   fa-th-large"></i> &nbsp; <strong>物流管理系统-云龙软件</strong></div>
+{#    <div class="weui_cells">#}
+{#        <img src="{% static 'pic/default/favicon.ico' %}" style="max-width: 350px;max-height: 300px;display:block;text-align: center;margin-right: auto;margin-left: auto;">#}
+{#    </div>#}
+	<div class="weui_cells_title wss_title_first" ><i class="fa  fa-reorder"></i> &nbsp; 系统名称</div>
+    <div class="weui_cells">
+	        <div class="weui_cell">
+	            <div class="weui_cell_bd weui_cell_primary">
+	                <p>云龙软件</p>
+	            </div>
+	        </div>
+    </div>
+    <div class="weui_cells_title wss_title_first" ><i class="fa fa-cog"></i> &nbsp; 联系人</div>
+    <div class="weui_cells">
+	        <div class="weui_cell">
+	            <div class="weui_cell_bd weui_cell_primary">
+	                <p>杨海龙</p>
+	            </div>
+	        </div>
+    </div>
+    <div class="weui_cells_title wss_title_first" ><i class="fa fa-phone"></i> &nbsp; 联系电话</div>
+    <div class="weui_cells weui_cells_access">
+            <a class="weui_cell" href="tel:13611141264">
+                <div class="weui_cell_bd weui_cell_primary">
+                     <p style="color:#c7e4b0;"><i class="fa  fa-phone-square" ></i> </p>
+                </div>
+                <div class="weui_cell_ft">13611141264</div>
+            </a>
+        </div>
+    <div class="weui_cells_title wss_title_first" ><i class="fa fa-info-circle"></i> &nbsp; 系统简介</div>
+    <div class="weui_cells weui_cells_form">
+            <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <textarea class="weui_textarea" rows="8">北京云龙晋铜科技有限公司于2010年在北京正式成立，是一家为物流企业提供整体信息管理解决方案和服务的物流软件企业，伴随着物流行业的发展和成长，是中国物流企业信息管理解决方案的倡导者和领跑者。
+公司致力于为物流企业提供高附加值的物流管理信息系统，通过独特的业务框架和先进的应用产品，为物流企业铸就强大的实时管理能力和领先的业务竞争优势。专业团队多年致力于基层，通过与大量客户面对面的交流，收集每一个用户的需求，建立了云龙软件系统完善的功能及业务流程。
+云龙软件可助力物流企业实现：托单管理、发货管理、配送管理、回执管理、结账管理、数据统计等多项日常业务，同时提供包括单车核算、利润分析、统计报表等多项实时决策支持。
+通过一体化综合信息管理平台，实现货物、财务、行政事务一体化管理。系统简单、实用、易操作、交互性好，未接触过计算机的使用者也能很快上手。并可根据不同客户的需求快速定制化开发，帮助物流企业在公司内部实现数据全局共享、数据维护、实时交换数据。公司积累了为238家物流企业提供物流信息管理服务的经验，覆盖全国28个省市。
+
+                    </textarea>
+                </div>
+            </div>
+        </div>
+         -->
+  
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+{% endblock %}

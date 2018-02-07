@@ -1,0 +1,204 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}我的{% endblock %}
+
+{% block container_block %}
+<!-- <link href="{% static 'css/mian.css' %}" rel="stylesheet"> -->
+{#    首页所在位置，进入页面后的默认页面#}
+<script type="text/javascript">
+
+</script>
+ <div class="top">
+	<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+		<tbody>
+			<tr>
+					<td width="23%" valign="middle">
+							<!-- <a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a> -->
+							<a class="btn1" href="{% url 'wss:secondhand_list'  '1' %}"><i class="fa fa-chevron-left"></i></a>
+					</td>
+					<td class="wz" width="53%" valign="middle" align="center">
+							<span id="toptitle">
+									<i class="fa fa-edit"></i>&nbsp;<strong>我的商品</strong>
+							</span>
+					</td>
+					<td width="23%" valign="middle" align="right">
+					<a id="aso" href="#"></a>
+					</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<!--网站栏目-->
+
+<!--banner-->
+	<div class="container" id="container"style="display:block;padding-top:34px;">
+			<div class="bd">
+			    <div class="weui_search_bar" id="search_bar">
+			        <form class="weui_search_outer"  action="{% url 'wss:wx_my_secondhands'  '1'%}" method="POST" >{% csrf_token %}
+			            <div class="weui_search_inner">
+			                <i class="weui_icon_search"></i>
+			                <input type="search" class="weui_search_input" id="search_input" name="search_keyword" placeholder="请按名称搜索" required/>
+			                <a href="javascript:" class="weui_icon_clear" id="search_clear"></a>
+			            </div>
+			            <label for="search_input" class="weui_search_text" id="search_text">
+			                <i class="weui_icon_search"></i>
+			                <span>搜索</span>
+			            </label>
+			        </form>
+			        <a href="javascript:" class="weui_search_cancel" id="search_cancel">取消</a>
+			    </div>
+			</div>
+		</div>
+	<div class="weui_dialog_alert"  id="dialog_alert"style="display:none;">
+			    <div class="weui_mask"></div>
+			    <div class="weui_dialog">
+			        <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示信息</strong></div>
+			        <div class="weui_dialog_bd"></div>
+			        <div class="weui_dialog_ft">
+			            <a href="javascript:close();" class="weui_btn_dialog primary" id="confirm">确定</a>
+			        </div>
+			    </div>
+	</div>
+	<div class="weui_tab">
+        <div class="weui_navbar">
+            <div class="weui_navbar_item weui_bar_item_on" >
+                全部
+            </div>
+            {% if order_page  %}
+            <div class="weui_navbar_item " >
+                发布
+            </div>
+            <div class="weui_navbar_item " >
+                下架
+            </div>
+            <div class="weui_navbar_item">
+                已完成
+            </div>
+            {% endif %}
+        </div>
+        <div class="weui_tab_bd">
+
+<!-- ######################全部############################## -->
+        <div class="weui_cells weui_cells_access" id="show_0" style="display:none">
+             {% if mall_goods_list %}
+        	  {% for mall_goods in mall_goods_list %}
+                    <a class="weui_cell wss_p"   href="{% url 'wss:secondhand_detail' mall_goods.id %}?referee_id={{ referee_id }}">
+                        <div class="weui_cell_bd weui_cell_primary">
+                            {% if mall_goods.goods_name %}
+                                <p>商品名称：{{ mall_goods.goods_name }}</p>
+                            {% endif %}
+                            {% if mall_goods.goods_count %}
+                                <p>商品数量：{{ mall_goods.goods_count }}</p>
+                            {% endif %}
+                            <p class="">单价：{{ mall_goods.unit_price |FenToYuan }}元</p>
+                        </div>
+                        <div class="weui_cell_ft wss_p">{{ mall_goods|displayName:'state' }}</div>
+                    </a>
+                    <div  class="wss_dashed_bottom"></div>
+           {% endfor %}
+               {% else %}
+                <div  class="thumbBox"  style="padding-top: 25%;"><img  src="/static/pic/default/201305122026542520.gif" alt="icon"  style="max-width: 180px;max-height: 180px;word-break:break-all;" ></div>
+			    <div  class="thumbBox"  style="padding-top: 5%;"><p>抱歉，您当前还没有商品!</p></div>
+			    {% endif %}
+        </div>
+        
+<!-- ######################发布商品############################## -->
+          <div class="weui_cells weui_cells_access" id="show_1" style="display:none">
+           {% if publish_list %}
+        	  {% for mall_goods in publish_list %}
+                    <a class="weui_cell wss_p"   href="{% url 'wss:secondhand_detail' mall_goods.id %}?referee_id={{ referee_id }}">
+                        <div class="weui_cell_bd weui_cell_primary">
+                            {% if mall_goods.goods_name %}
+                                <p>商品名称：{{ mall_goods.goods_name }}</p>
+                            {% endif %}
+                            {% if mall_goods.goods_count %}
+                                <p>商品数量：{{ mall_goods.goods_count }}</p>
+                            {% endif %}
+                            <p class="">单价：{{ mall_goods.unit_price |FenToYuan }}元</p>
+                        </div>
+                        <div class="weui_cell_ft wss_p">{{ mall_goods|displayName:'state' }}</div>
+                    </a>
+                    <div  class="wss_dashed_bottom"></div>
+           		{% endfor %}
+	    {% else %}
+	    <div  class="thumbBox"  style="padding-top: 25%;"><img  src="/static/pic/default/201305122026542520.gif" alt="icon"  style="max-width: 180px;max-height: 180px;word-break:break-all;" ></div>
+	    <div  class="thumbBox"  style="padding-top: 5%;"><p>抱歉，您当前还没有商品!</p></div>
+	    {% endif %}
+        </div>
+        
+        
+ <!-- ######################下架商品############################## -->
+        <div class="weui_cells weui_cells_access" id="show_2" style="display:none">
+         {% if offshelf_list %}
+        	  {% for mall_goods in offshelf_list %}
+                    <a class="weui_cell wss_p"   href="{% url 'wss:secondhand_detail' mall_goods.id %}?referee_id={{ referee_id }}">
+                        <div class="weui_cell_bd weui_cell_primary">
+                            {% if mall_goods.goods_name %}
+                                <p>商品名称：{{ mall_goods.goods_name }}</p>
+                            {% endif %}
+                            {% if mall_goods.goods_count %}
+                                <p>商品数量：{{ mall_goods.goods_count }}</p>
+                            {% endif %}
+                            <p class="">单价：{{ mall_goods.unit_price |FenToYuan }}元</p>
+                        </div>
+                        <div class="weui_cell_ft wss_p">{{ mall_goods|displayName:'state' }}</div>
+                    </a>
+                    <div  class="wss_dashed_bottom"></div>
+             {% endfor %}
+      {% else %}
+                <div  class="thumbBox"  style="padding-top: 25%;"><img  src="/static/pic/default/201305122026542520.gif" alt="icon"  style="max-width: 180px;max-height: 180px;word-break:break-all;" ></div>
+			    <div  class="thumbBox"  style="padding-top: 5%;"><p>抱歉，您当前还没有商品!</p></div>
+	 {% endif %}
+     </div>
+        
+<!-- ######################已完成############################## -->
+        <div class="weui_cells weui_cells_access"  id="show_3" style="display:none">
+          {% if done_list %}
+        	  {% for mall_goods in done_list %}
+                    <a class="weui_cell wss_p"   href="{% url 'wss:secondhand_detail' mall_goods.id %}?referee_id={{ referee_id }}">
+                        <div class="weui_cell_bd weui_cell_primary">
+                            {% if mall_goods.goods_name %}
+                                <p>商品名称：{{ mall_goods.goods_name }}</p>
+                            {% endif %}
+                            {% if mall_goods.goods_count %}
+                                <p>商品数量：{{ mall_goods.goods_count }}</p>
+                            {% endif %}
+                            <p class="">单价：{{ mall_goods.unit_price |FenToYuan }}元</p>
+                        </div>
+                        <div class="weui_cell_ft wss_p">{{ mall_goods|displayName:'state' }}</div>
+                    </a>
+                    <div  class="wss_dashed_bottom"></div>
+           {% endfor %}
+               {% else %}
+                <div  class="thumbBox"  style="padding-top: 25%;"><img  src="/static/pic/default/201305122026542520.gif" alt="icon"  style="max-width: 180px;max-height: 180px;word-break:break-all;" ></div>
+			    <div  class="thumbBox"  style="padding-top: 5%;"><p>抱歉，您当前还没有商品!</p></div>
+			    {% endif %}
+        </div>
+
+        </div>
+    </div>
+       
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+<script src="{% static 'js/search.js' %}"type="text/javascript"></script>
+<script type="text/javascript">
+$(function () {
+	$('#show_0').show();
+	$(".weui_navbar_item").each(function(index){
+        $(this).click(function(){
+        	$(this).addClass('weui_bar_item_on').siblings('.weui_bar_item_on').removeClass('weui_bar_item_on');     
+        	$('#show_'+index).siblings('.weui_cells').hide();
+        	 $('#show_'+index).show();
+        });
+    }) ;         
+});
+</script>
+
+{% endblock %}

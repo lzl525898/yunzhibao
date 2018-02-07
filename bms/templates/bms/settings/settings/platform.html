@@ -1,0 +1,183 @@
+{% extends 'bms/settings/base_settings.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block level_3 %}in{% endblock %}
+{% block settings_platform %}class='active'{% endblock %}
+{% block page_middle %}
+
+
+<div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+            {% if message and message != '' %}
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="alert alert-warning">{{ message }}</div>
+                    </div>
+                </div>
+            {% endif %}
+            <h2 class="text-center">设置物流平台</h2>
+            <table class="table table-bordered">
+            <tr>
+                    <td class="info text-left"><label id="">平台名称</label></td>
+                    <td class="info text-left"><label id="">AppId</label></td>
+                    <td class="info text-left"><label id="">密钥</label></td>
+                    <td class="info text-left"><label id="">操作</label></td>
+            </tr>
+            {% if platforms %}
+                {% for platform in platforms %}
+                <tr>
+                    <td class="text-left">{{ platform.name }}</td>
+                    <td class="text-left">{{ platform.platform_key }}</td>
+                    <td class="text-left">{{ platform.platform_secret }}</td>
+                    <td class="text-left"><a onclick="edit_platform('{{ platform.id }}','{{ platform.name }}','{{ platform.platform_key }}','{{ platform.platform_secret }}')"><i class="fa fa-pencil-square-o"></i></a></td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td class="info text-danger text-center" colspan="2"><h4>暂无设置项</h4></td>
+                </tr>
+            {% endif %}
+            <tr>
+                <td class="text-center" colspan="4"><a onclick="add_platform()"><i class="fa fa-plus" style="font-size: 24px"></i></a></td>
+            </tr>
+            </table>
+        </div>
+        <div class="col-sm-2"></div>
+</div>
+
+
+<div class="modal fade" id="add_platform_modal" tabindex="-1" role="dialog" >
+    <div class="modal-dialog">
+        <form id="id_manage_shop_form" class="form" method="post" action="{% url 'bms:settings_platform' %}"  >  {% csrf_token %}
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title"><i class="fa fa-edit"></i> 新增物流平台</h4>
+              </div>
+              <div class="modal-body">
+                <div class="form-group" >
+                    <label for="id_platform_name"><i class="fa fa-leaf"></i> *物流平台名称： </label>
+                    <input class="form-control" id="id_platform_name" name="platform_name"  type="text" value="" required >
+                </div>
+                <div class="form-group" >
+                    <label for="id_platform_key"><i class="fa fa-leaf"></i> *物流平台key值： </label>
+                    <div class="row">
+				        <div class="col-xs-8"><input class="form-control" id="id_platform_key" name="platform_key"  type="text" value="" required ></div>
+				        <div class="col-xs-4"><input type="button" value="自动获取key" onclick="getKey(1);"></div>
+				    </div>
+                </div>
+                <div class="form-group" >
+                    <label for="id_platform_key"><i class="fa fa-leaf"></i> *物流平台secret值： </label>
+                    <div class="row">
+				        <div class="col-xs-8"><input class="form-control" id="id_platform_secret" name="platform_secret"  type="text" value="" required ></div>
+				        <div class="col-xs-4"><input type="button" value="自动获取secret" onclick="getSecret(1);"></div>
+				    </div>
+    
+                </div>
+              </div>
+
+              <div class="modal-footer">
+                <button class="btn btn-success" type="submit"><i class="fa fa-save"></i> 提 交</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> 退 出</button>
+              </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{#    edit#}
+    <div class="modal fade" id="edit_platform_modal" tabindex="-1" role="dialog" >
+    <div class="modal-dialog">
+        <form id="" class="form" method="post" action="{% url 'bms:edit_platform' %}">{% csrf_token %}
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title"><i class="fa fa-edit"></i> 编辑物流平台</h4>
+              </div>
+              <div class="modal-body">
+                  <input type="hidden" id="id_platform_modal" name="platform_modal">
+                <div class="form-group" >
+                    <label for="id_platform_name_edit"><i class="fa fa-leaf"></i> *物流平台名称： </label>
+                    <input class="form-control" id="id_platform_name_edit" name="platform_name_edit"  type="text" value="" required >
+                </div>
+                <div class="form-group" >
+                    <label for="id_platform_key_edit"><i class="fa fa-leaf"></i> *物流平台key值： </label>
+				    <div class="row">
+				        <div class="col-xs-8"><input class="form-control" id="id_platform_key_edit" name="platform_key_edit"  type="text" value="" required ></div>
+				        <div class="col-xs-4"><input type="button" value="自动获取key" onclick="getKey(2);"></div>
+				    </div>
+                </div>
+                <div class="form-group" >
+                    <label for="id_platform_key"><i class="fa fa-leaf"></i> *物流平台secret值： </label>
+                    <div class="row">
+				        <div class="col-xs-8"><input class="form-control" id="id_platform_secret_edit" name="platform_secret_edit"  type="text" value="" required ></div>
+				        <div class="col-xs-4"><input type="button" value="自动获取secret" onclick="getSecret(2);"></div>
+				    </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button class="btn btn-success" type="submit"><i class="fa fa-save"></i> 提 交</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> 退 出</button>
+              </div>
+            </div>
+        </form>
+    </div>
+</div>
+  {% endblock %}
+
+
+{% block script_block %}
+<script>
+    function add_platform(){
+        $('#add_platform_modal').modal('show');
+    }
+    function edit_platform(platform_id,name,key,secret){
+        $('#edit_platform_modal').modal('show');
+        $('#id_platform_modal').val(platform_id);
+        $('#id_platform_name_edit').val(name);
+        $('#id_platform_key_edit').val(key);
+        $('#id_platform_secret_edit').val(secret);
+    }
+    function getKey(flag){
+        
+        var timestamp = (new Date()).valueOf(); 
+        var str = "yzb"+timestamp;
+        if( flag==1){
+        	$("#id_platform_key").val(str);
+        }else{
+        	$("#id_platform_key_edit").val("");
+        	$("#id_platform_key_edit").val(str);
+        }
+    }
+    function getSecret(flag){
+        
+        var timestamp = (new Date()).valueOf(); 
+        var str = randomWord(false, 27)+timestamp;
+
+        if( flag==1){
+            $("#id_platform_secret").val(str);
+        }else{
+        	$("#id_platform_secret_edit").val("");
+        	$("#id_platform_secret_edit").val(str);
+        }
+
+    }
+    function randomWord(randomFlag, min, max){
+        var str = "",
+            range = min,
+            arr = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+     
+        // 随机产生
+        if(randomFlag){
+            range = Math.round(Math.random() * (max-min)) + min;
+        }
+        for(var i=0; i<range; i++){
+            pos = Math.round(Math.random() * (arr.length-1));
+            str += arr[pos];
+        }
+        return str;
+    }
+</script>
+
+{% endblock %}

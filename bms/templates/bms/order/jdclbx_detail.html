@@ -1,0 +1,1003 @@
+{% extends 'bms/order/base_order.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block jdclbx_list %}class='active'{% endblock %}
+{% block title %} 车险订单详情 {% endblock %}
+
+{% block page_top %}
+
+    <div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+
+            <h2 class="text-center">车险订单详情</h2>
+            {% if message and message != '' %}
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="alert alert-warning text-center">{{ message }}</div>
+                    </div>
+                </div>
+            {% endif %}
+<!--             <a class="btn btn-success" data-toggle="modal" data-target="#verify_plate_modal"><i class=""></i>审核行驶证</a>
+            <a class="btn btn-success" data-toggle="modal" data-target="#verify_id_card_modal"><i class=""></i>审核身份证</a>
+            <a class="btn btn-success" data-toggle="modal" data-target="#verify_business_license_modal"><i class=""></i>审核营业执照</a>
+            
+            测试按钮结束 -->
+            <!-- <a class="btn btn-success" data-toggle="modal" data-target="#verify_modal"><i class=""></i>审核</a> -->
+            {% if not jdclbx_set.car_type or not jdclbx_set.holder or not jdclbx_set.use_property or not jdclbx_set.brand_digging or not jdclbx_set.car_number %}
+            <a class="btn btn-success" data-toggle="modal" data-target="#verify_plate_modal"><i class=""></i>审核行驶证</a>
+            {% endif %}
+            {% if jdclbx_set.user_classify == 'personal'%}
+	             {% if not jdclbx_set.applicant_name or not jdclbx_set.certificate_number %}
+	            	<a class="btn btn-success" data-toggle="modal" data-target="#verify_id_card_modal"><i class=""></i>审核身份证</a>
+	            {% endif %}
+            {% endif %}
+            {% if jdclbx_set.user_classify == 'unit'%}
+	            {% if not jdclbx_set.applicant_company_name or not jdclbx_set.organ%}
+	            	<a class="btn btn-success" data-toggle="modal" data-target="#verify_business_license_modal"><i class=""></i>审核营业执照</a>
+	            {% endif %}
+            {% endif %}
+            {% if jdclbx_set.state == 'verify' %} 
+            <!-- <a class="btn btn-success" data-toggle="modal" data-target="#verify_modal"><i class=""></i>审核</a>  -->
+	            {% if rate_state == 'unhide' %}
+	            <a class="btn btn-success" data-toggle="modal" data-target="#process_price_modal"><i class=""></i>填写中介手续费</a>
+	            {% endif %}
+            {% else %}
+            <a class="btn btn-success" data-toggle="modal" data-target="#process_price_modal"><i class=""></i>查看中介手续费</a>
+            {% endif %}
+		    
+		    </br> </br> 
+		    {#*******************************************************车险报价信息***************************************************************#}
+            {% if jdclbx_set.state == 'wait' %}
+            <table class="table table-bordered" id="id_batch_list">
+            		<tr><td colspan="8"  class=" text-center">报价信息</td></tr>
+                     <tr id="id_properties_title" class="info">
+                         <td class="text-center">报价公司</td>
+                         <td class="text-center">交强险报价</td>
+                         <td class="text-center">车船稅报价</td>
+                         <td class="text-center">商业险报价</td>
+                         <td class="text-center">中介总报价</td>
+                         <td class="text-center">去除手续费</td>
+                         <td class="text-center">添加利润点</td>
+                         <td class="text-center">操作</td>
+                     </tr>
+                     {% for intermediary_price in intermediary_price_list %}
+                     <tr >
+                         <td class="text-center">{{intermediary_price.company.simple_name}}</td>
+                         <td class="text-center">{{intermediary_price.liability_price|FenToYuan}}</td>
+                         <td class="text-center">{{intermediary_price.vehicle_vessel_price|FenToYuan}}</td>
+                         <td class="text-center">{{intermediary_price.commercial_price|FenToYuan}}</td>
+                         <td class="text-center">{{intermediary_price.order_price_all|FenToYuan}}</td>
+                         <td class="text-center">{{intermediary_price.order_price_no_process|FenToYuan}}</td>
+                         <td class="text-center">{{intermediary_price.order_price_add_profit|FenToYuan}}</td>
+                         <td class="text-center"><a href="{% url 'bms:jdclbx_choose_company' intermediary_price.id %}">确认投保</a></td>
+                     </tr>
+                     {% endfor %}
+         </table>
+         {% endif %}
+      {#*******************************************************报价信息结束***************************************************************#}   
+            <table class="table table-bordered">
+            {#*******************************************************车辆基本信息***************************************************************#}
+                <tr>
+                  <td colspan="2"  class=" text-center">车辆基本信息</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">投保车辆大类</td>
+	              <td class="text-center">{% if jdclbx_set.order_car_type == 'passenger_car' %}九座以下客车  {% elif jdclbx_set.order_car_type == 'truck' %}货车 {% else %}{{ jdclbx_set.order_car_type}}未找到对应货物大类{% endif %}</td>
+              </tr>
+      <!--         <tr>
+                  <td class="info text-center">车辆所在城市</td>
+	              <td class="text-center">{{jdclbx_set.city.name}}</td>
+              </tr> -->
+                {% if jdclbx_set.plate_image_left %}
+                <tr>
+                  <td class="info text-center">行驶证正页</td>
+	              <td class="text-center">
+	              <a href="{% static '' %}{{ jdclbx_set.plate_image_left }}" target="_blank"><img class="img-responsive" src="{% static '' %}{{ jdclbx_set.plate_image_left }}" style="max-width: 500px;max-height: 7pc;"></a>
+	              </td>
+              </tr>
+              {% endif %}
+              {% if jdclbx_set.plate_image_right %}
+              <tr>
+                  <td class="info text-center">行驶证附页</td>
+	              <td class="text-center">
+	              <a href="{% static '' %}{{ jdclbx_set.plate_image_right }}" target="_blank"><img class="img-responsive" src="{% static '' %}{{ jdclbx_set.plate_image_right}}" style="max-width: 500px;max-height: 7pc;"></a>
+	              </td>
+              </tr>
+              {% endif %}
+              <tr>
+                  <td class="info text-center">订单号</td>
+	              <td class="text-center">{{jdclbx_set.paper_id}}</td>
+              </tr>
+              <tr>
+                  <td class="info text-center">订单状态</td>
+	              <td class="text-center">{{jdclbx_set|displayName:"state" }}</td>
+              </tr>
+              
+              <tr>
+                  <td class="info text-center">车牌号</td>
+	              <td class="text-center">{{jdclbx_set.plate_number}}</td>
+              </tr>
+              {% if jdclbx_set.car_type %}
+              <tr>
+                  <td class="info text-center">车辆类型</td>
+	              <td class="text-center">{{jdclbx_set.car_type |CX_CarType}}</td>
+              </tr>
+              {% endif %}
+              {% if jdclbx_set.holder %}
+              <tr>
+                  <td class="info text-center">所有人</td>
+	              <td class="text-center">{{jdclbx_set.holder}}</td>
+              </tr>
+              {% endif %}
+              {% if jdclbx_set.use_property %}
+              <tr>
+                  <td class="info text-center">使用性质</td>
+	              <td class="text-center">{{jdclbx_set.use_property |CX_UseProperty}}</td>
+              </tr>
+              {% endif %}
+              {% if jdclbx_set.brand_digging %}
+              <tr>
+                  <td class="info text-center">品牌型号</td>
+	              <td class="text-center">{{jdclbx_set.brand_digging}}</td>
+              </tr>
+              {% endif %}
+              {% if jdclbx_set.car_number %}
+              <tr>
+                  <td class="info text-center">车辆识别代码</td>
+	              <td class="text-center">{{jdclbx_set.car_number}}</td>
+              </tr>
+              {% endif %}
+              {% if jdclbx_set.engine_number %}
+              <tr>
+                  <td class="info text-center">发动机号</td>
+	              <td class="text-center">{{jdclbx_set.engine_number}}</td>
+              </tr>
+              {% endif %}
+              {% if jdclbx_set.issue_date %}
+              <tr>
+                  <td class="info text-center">注册日期</td>
+	              <td class="text-center">{{ jdclbx_set.issue_date|date:'Y-m-d'}}</td>
+              </tr>
+              {% endif %}
+               {% if jdclbx_set.people_number %}
+              <tr>
+                  <td class="info text-center">核载人数(位)</td>
+	              <td class="text-center">{{jdclbx_set.people_number}}</td>
+              </tr>
+              {% endif %}
+              {% if jdclbx_set.load_weight %}
+              <tr>
+                  <td class="info text-center">核载质量(Kg)</td>
+	              <td class="text-center">{{jdclbx_set.load_weight}}</td>
+              </tr>
+              {% endif %} 
+               {#*******************************************************投保人信息***************************************************************#} 
+               <tr>
+                  <td colspan="2"  class=" text-center">投保人信息</td>
+                </tr>
+               <tr>
+                  <td class="info text-center">投保使用账户</td>
+	              <td class="text-center">
+	              		<a href="{% url 'bms:item_detail' jdclbx_set.client.id %}" target="_blank">{{ jdclbx_set.client.company_name }} &nbsp;&nbsp;&nbsp;{{ jdclbx_set.client.name }} &nbsp;&nbsp;&nbsp; {{ jdclbx_set.client.profile.phone }}</a>
+				  </td>
+              </tr>
+              {% if jdclbx_set.user_classify == 'unit'%}
+              <tr>
+                  <td class="info text-center">营业执照</td>
+	              <td class="text-center">
+		              <a href="{% static '' %}{{ jdclbx_set.business_license_image }}" target="_blank"><img class="img-responsive" src="{% static '' %}{{ jdclbx_set.business_license_image}}" style="max-width: 500px;max-height: 7pc;"></a>
+		          </td>
+              </tr>
+              {% if jdclbx_set.applicant_company_name %}
+              <tr>
+                  <td class="info text-center">单位名称</td>
+	              <td class="text-center">{{jdclbx_set.applicant_company_name}}</td>
+              </tr>
+              {% endif %}
+              {% if jdclbx_set.organ %}
+              <tr>
+                  <td class="info text-center">组织机构号</td>
+	              <td class="text-center">{{jdclbx_set.organ}}</td>
+              </tr>
+              {% endif %}
+              {% endif %}
+              {% if jdclbx_set.user_classify == 'personal'%}
+              	{% if  jdclbx_set.id_card_up %}
+	              <tr>
+	                  <td class="info text-center">身份证正面</td>
+		              <td class="text-center">
+		              <a href="{% static '' %}{{ jdclbx_set.id_card_up }}" target="_blank"><img class="img-responsive" src="{% static '' %}{{ jdclbx_set.id_card_up}}" style="max-width: 500px;max-height: 7pc;"></a>
+		              </td>
+	              </tr>
+	              {% endif %}
+	              {% if jdclbx_set.id_card_down %}
+	              <tr>
+	                  <td class="info text-center">身份证背面</td>
+		              <td class="text-center">
+		              <a href="{% static '' %}{{ jdclbx_set.id_card_down }}" target="_blank"><img class="img-responsive" src="{% static '' %}{{ jdclbx_set.id_card_down}}" style="max-width: 500px;max-height: 7pc;"></a>
+		              </td>
+	              </tr>
+	              {% endif %}
+	              {% if jdclbx_set.applicant_name %}
+	              <tr>
+	                  <td class="info text-center">投保人姓名</td>
+		              <td class="text-center">{{jdclbx_set.applicant_name}}</td>
+	              </tr>
+	              {% endif %}
+	              {% if jdclbx_set.certificate_number %}
+	              <tr>
+	                  <td class="info text-center">身份证号</td>
+		              <td class="text-center">{{jdclbx_set.certificate_number}}</td>
+	              </tr>
+	              {% endif %}
+              {% endif %}
+              <tr>
+                  <td class="info text-center">投保人手机号</td>
+	              <td class="text-center">{{jdclbx_set.applicant_phone}}</td>
+              </tr>
+              {#*******************************************************被保人信息*************************************************************#} 
+               <tr>
+                  <td colspan="2"  class=" text-center">被保人信息</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">被保人姓名</td>
+	              <td class="text-center">{{jdclbx_set.insured_name}}</td>
+              </tr>
+                <tr>
+                  <td class="info text-center">被保人手机号</td>
+	              <td class="text-center">{{jdclbx_set.insured_phone}}</td>
+              </tr>
+              <tr>
+                  <td class="info text-center">保单邮寄地址</td>
+	              <td class="text-center">{{jdclbx_set.mail_address}}{{jdclbx_set.policy_address}}</td>
+              </tr>
+                {#*******************************************************投保险种信息***************************************************************#}
+                <tr>
+                <td class="info text-center">投保险种信息</td>
+                <td class="text-center">
+                			<table class="table table-bordered" id="id_batch_list">
+                                <tr id="id_properties_title" class="info">
+                                    <td class="text-center">保险名称</td>
+                                    <td class="text-center">投保状态</td>
+                                    <td class="text-center">保险名称</td>
+                                     <td class="text-center">投保状态</td>
+                                </tr>
+                                <tr >
+                                    <td>交强险</td>
+                                    <td>{% if jdclbx_set.liability_state == True %}投保 {% else %} 不投保 {% endif %}</td>
+                                    <td>车船税</td>
+                                    <td>{% if jdclbx_set.vehicle_vessel_tax_state == True %}投保 {% else %} 不投保 {% endif %}</td>
+                                </tr>
+                                <tr >
+                                    <td>三者险</td>
+                                    <td>{% if jdclbx_set.third_insurance == 0 %}不投保 {% else %} {{jdclbx_set.third_insurance|FenToYuan }} 元 {% endif %}</td>
+                                    <td>车损险</td>
+                                    <td>{% if jdclbx_set.damage_insurance == True %}投保 {% else %} 不投保 {% endif %}</td>
+                                </tr>
+                                <tr >
+                                    <td>玻璃险</td>
+                                    <td>{% if jdclbx_set.glass_insurance == 'no' %} 不投保 {% elif jdclbx_set.glass_insurance == "china" %} 国产{% elif jdclbx_set.glass_insurance == "import" %} 进口 {% else %}{{ jdclbx_set.glass_insurance}}状态错误{% endif %} </td>
+                                    <td>司机险</td>
+                                    <td>{% if jdclbx_set.driver_insurance == 0 %}不投保 {% else %} {{jdclbx_set.driver_insurance|FenToYuan }} 元 {% endif %}</td>
+                                </tr>
+                                <tr >
+                                    <td>盗抢险</td>
+                                    <td>{% if jdclbx_set.theft_insurance == True %}投保 {% else %} 不投保 {% endif %}</td>
+                                    <td>乘客险</td>
+                                    <td>{% if jdclbx_set.passenger_insurance == 0 %}不投保 {% else %} {{jdclbx_set.passenger_insurance|FenToYuan }} 元 {% endif %}</td>
+                                </tr>
+                                <tr >
+                                    <td>不计免赔险</td>
+                                    <td>{% if jdclbx_set.iop_insurance == True %}投保 {% else %} 不投保 {% endif %}</td>
+                                    <td>自燃损失</td>
+                                    <td>{% if jdclbx_set.autoignition_insurance == True %}投保 {% else %} 不投保 {% endif %}</td>
+                                </tr>
+                                <tr >
+                                    <td>涉水险</td>
+                                    <td>{% if jdclbx_set.wading_insurance == True %}投保 {% else %} 不投保 {% endif %}</td>
+                                    <td>划痕险</td>
+                                    <td>{% if jdclbx_set.scratch_insurance == 0 %}不投保 {% else %} {{jdclbx_set.scratch_insurance|FenToYuan }} 元 {% endif %}</td>
+                                </tr>
+                            </table>
+                </td>
+                </tr> 
+                {% if jdclbx_set.liability_state == True %}
+                <tr>
+                  <td class="info text-center">交强险保险起期</td>
+	              <td class="text-center">{{jdclbx_set.liability_expectStartTime| default_if_none:'' |date:'Y-m-d' }}</td>
+              </tr>
+              {% endif %}
+              <tr>
+                  <td class="info text-center">商业险保险起期</td>
+	              <td class="text-center">{{jdclbx_set.commercial_expectStartTime|default_if_none:'' |date:'Y-m-d' }}</td>
+              </tr>
+              {#*******************************************************询价结果***************************************************************#} 
+              {% if  jdclbx_set.state == 'done' or jdclbx_set.state == 'paid' or jdclbx_set.state == 'init'    %}
+               <tr>
+                  <td colspan="2"  class=" text-center">订单信息</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">投保公司</td>
+	              <td class="text-center"><a href="{% url 'bms:item_detail' jdclbx_set.company.id %}" target="_blank">{{jdclbx_set.company.simple_name }}</a> </td>
+              </tr>
+              <tr>
+                  <td class="info text-center">应付费用</td>
+	              <td class="text-center">{{jdclbx_set.price|FenToYuan }} 元</td>
+              </tr>
+              <tr>
+                  <td class="info text-center">实付费用</td>
+	              <td class="text-center">{{jdclbx_set.pay_price|FenToYuan }} 元</td>
+              </tr>
+              <tr>
+                  <td class="info text-center">付费时间</td>
+	              <td class="text-center">{{jdclbx_set.pay_time|default_if_none:'' |date:'Y-m-d' }}</td>
+              </tr>
+              {% endif  %}
+              {% if  jdclbx_set.state == 'done' %}
+		              {% if jdclbx_set.commercial_image_list  %}
+			               <tr>
+			                  <td class="info text-center">商业险保单号</td>
+				              <td class="text-center">{{jdclbx_set.commercial_id }}</td>
+			              </tr>
+			               <tr>
+			                  <td class="info text-center">商业险保单图片</td>
+				              <td class="text-center">
+					               <table class="table table-bordered" >
+				                         <tr>
+				                            {% for insurance_image in jdclbx_set.commercial_image_list %}
+				                                <td>
+				                                    <a href="{% static '' %}{{ insurance_image }}" target="_blank"><img class="img-responsive center-block" src="{% static '' %}{{ insurance_image }}" style="max-width: 50px;max-height: 50px;word-break:break-all" alt="商品图片"/></a>
+				                                </td>
+				                                <!-- <td colspan="2" >
+				                                    <a id="edit_{{ insurance_image }}" name="" href="#"   onclick="edit_insurance_pic('{{ insurance_image }}')"style = "cursor:pointer;"  class="pull-right"><i class="fa fa-pencil-square-o "></i></a>
+				                                    <br/>
+				                                    <a id="delete_{{ insurance_image }}" name="" href="#"  onclick="delete_insurance_pic('{{ insurance_image }}')" class="pull-right "><i class="fa fa-trash-o"></i></a>
+				                                </td> -->
+				                            {% endfor %}  
+				                        </tr> 
+				                    </table>
+				              </td>
+			              </tr>
+			         {% endif %}
+			         {% if jdclbx_set.liability_state == True %}
+				               <tr>
+				                  <td class="info text-center">交强险保单号</td>
+					              <td class="text-center">{{jdclbx_set.liability_id }}</td>
+				              </tr>
+				               <tr>
+				                  <td class="info text-center">交强险保单图片</td>
+					              <td class="text-center"><table class="table table-bordered" >
+					                         <tr>
+					                            {% for insurance_image in jdclbx_set.liability_image_list %}
+					                                <td>
+					                                    <a href="{% static '' %}{{ insurance_image }}" target="_blank"><img class="img-responsive center-block" src="{% static '' %}{{ insurance_image }}" style="max-width: 50px;max-height: 50px;word-break:break-all" alt="商品图片"/></a>
+					                                </td>
+					                            {% endfor %}  
+					                        </tr> 
+					                    </table>
+					              </td>
+				              </tr>
+              			{% endif %}
+            {% endif %}
+              
+            </table>
+            
+
+         
+           <!--  <a class="btn btn-success" href="{% url 'bms:jdclbx_edit' jdclbx_set.id %}"><i class="fa fa-edit"></i> 编 辑</a> -->
+            {% if jdclbx_set.state == 'wait' or jdclbx_set.state == 'verify' or   jdclbx_set.state == 'init'  %}
+            <a class="btn btn-success" href="{% url 'bms:jdclbx_edit' jdclbx_set.id %}"><i class="fa fa-edit"></i> 编 辑</a>
+            {% endif %}
+            {% if jdclbx_set.state != 'paid' and jdclbx_set.state != 'done'  %}
+            <a class="btn btn-success" data-toggle="modal" data-target="#delete_jdclbx_modal"><i class="fa fa-trash-o fa-lg"></i>  删 除</a>
+            {% endif %}
+            
+            {% if  jdclbx_set.state == 'init'  %}
+            <a class="btn btn-success" data-toggle="modal" data-target="#pay_jdclbx_modal"><i class="fa fa-edit"></i> 付 款</a>
+            {% endif %}
+
+        </div>
+        <div class="col-sm-2"></div>
+    </div>
+    
+    
+{# 删除订单模态框 #}
+<div class="modal fade" id="delete_jdclbx_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<form id="pay_order_form" class="form" method="post" action="{% url 'bms:jdclbx_delete' jdclbx_set.id %}">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						删除订单
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group" style="text-align: center;">
+		                            <p><font color='red'>确认删除本订单？</font></p>
+		                            <p><font color = 'red'>订单删除后，无法复原，请谨慎操作！！！</font></p>
+	                 	</div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						确 认
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+{# 付款模态框 #}
+<div class="modal fade" id="pay_jdclbx_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<form id="pay_order_form" class="form" method="post" action="{% url 'bms:jdclbx_pay' jdclbx_set.id %}">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						付款
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+                        <p><font color = 'red'>确认用户已经线下付款，确认后订单状态不可更改。</font></p>
+					</div>
+					<div class="form-group">
+                        <input id="id_pay_order" value="{{ jdclbx_set.price|FenToYuan }} 元" class="form-control " name="pay_order" disabled="disabled"  >
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						确 认
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+
+
+             
+{#信息审核通过模态框#}
+<div class="modal fade" id="verify_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-lg"style="width:420px">
+		<form id="verify_form" class="form" method="post" action="{% url 'bms:jdclbx_verify' jdclbx_set.id %}">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						信息审核通过
+					</h4>
+				</div>
+				<div class="modal-body"style="height: 70px">
+					<div class="col-sm-12">
+						<div class="form-group" style="text-align: center;">
+		                            <p><font color='red'>请确认信息正确性，</font></p>
+		                            <p><font color = 'red'>信息确认后提交保险公司报价无法修改！！！</font></p>
+	                 	</div>
+	                 </div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						通过
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+
+         {#填写中介手续费模态框#}
+<div class="modal fade  " id="process_price_modal" data-backdrop="static" tabindex="-1" role="dialog" >
+	<div class="modal-dialog modal-lg"style="width:700px">
+		<!-- <form id="verify_form" class="form" method="post" action="{% url 'bms:jdclbx_verify' jdclbx_set.id %}">{% csrf_token %} -->
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						添加中介手续费
+					</h4>
+				</div>
+	            <div>
+	            	{% if message and message != '' %}
+		                <div class="row">
+		                    <div class="col-sm-12">
+		                        <div class="alert alert-warning text-center">{{ message }}</div>
+		                    </div>
+		                </div>
+		            {% endif %}
+	            	<div class="panel-body">
+	                
+			         <!-- 添加手续费比例开始 -->
+		          		<table class="table table-bordered table-hover">
+		                   <tbody>
+		                           <tr>
+		                          		<td colspan="1" class="success text-center"width= "20%" >中介渠道名称</td>
+		                              	<td class="success text-center"width= "70%" >手续费填写详情</td> 
+		                               	<td class="success text-center"width= "10%" >操作</td> 
+		                           </tr>
+		                           {% for intermediary_detail in jdclbx_set.intermediary_list %}
+		                           <form id="verify_form" class="form" method="post" action="{% url 'bms:add_jdclbx_process' jdclbx_set.id %}">{% csrf_token %}
+		                           <input type="hidden" class="" name="jdcbx_intermediary_id" value = "{{intermediary_detail.id}}"/>
+				                          <tr>
+				                          		<td colspan="1" class="active text-center"width= "20%" >{{intermediary_detail.intermediary_name}}</td>
+				                          		<td class="active text-center"width= "70%" >
+				                          		<table>
+		 		                          			<tr style="border-bottom: 1px solid #ddd;">
+						  			      				<td class="active text-center"width= "25%" >公司名称 </td> 
+											             <td class="active text-center"width= "30%" >交强险手续费%</td> 
+											             <td class="active text-center"width= "30%" >商业险手续费%</td> 
+											             <td class="active text-center"width= "15%" >操作</td> 
+										             </tr> 
+					  			      				{% for company in intermediary_detail.intermediary_company_list %}
+					  			      				<tr>
+					  			      				<td class="active text-center"width= "25%" >
+															<div class="form-group" style="text-align: center;">
+											                            <p>{{company.simple_name}}</p>
+										                 	</div>
+										             </td> 
+										             <td class="active text-center"width= "30%" >
+															<input style="width:80%" class="" name="liability_process_price_{{company.id}}"id = 'liability_process_price_{{intermediary_detail.id}}_{{company.id}}'
+															{% if jdclbx_set.state != 'verify' %} disabled = 'disabled' {% endif %}
+															{% for intermediary_rate in intermediary_rate_list %}
+															{% if intermediary_rate.intermediary == intermediary_detail and intermediary_rate.company == company %}
+															value = "{{intermediary_rate.liability_process_price}}"
+															{% endif %}
+															{% if intermediary_rate.intermediary == intermediary_detail and intermediary_rate.company == company and intermediary_rate.company_state == False %}
+															disabled='disabled'
+															{% endif %}
+															{% endfor %}
+															placeholder="0.0"/>
+										             </td> 
+										             <td class="active text-center"width= "30%" >
+															<input style="width:80%" class="" name="commercial_process_price_{{company.id}}"id="commercial_process_price_{{intermediary_detail.id}}_{{company.id}}"
+															{% if jdclbx_set.state != 'verify' %} disabled = 'disabled' {% endif %}
+															{% for intermediary_rate in intermediary_rate_list %}
+															{% if intermediary_rate.intermediary == intermediary_detail and intermediary_rate.company == company %}
+															value = "{{intermediary_rate.commercial_process_price}}"
+															{% endif %}
+															{% if intermediary_rate.intermediary == intermediary_detail and intermediary_rate.company == company and intermediary_rate.company_state == False%}
+															disabled='disabled'
+															{% endif %}
+															{% endfor %}
+															placeholder="0.0"/>
+										             </td> 
+										             <td class="active text-center"width= "15%" >
+															<input type="checkbox" value="1" name="choose_state_{{company.id}}"
+															{% if jdclbx_set.state != 'verify' %} disabled = 'disabled' {% endif %}
+															{% for intermediary_rate in intermediary_rate_list %}
+															{% if intermediary_rate.intermediary == intermediary_detail and intermediary_rate.company == company and intermediary_rate.company_state == False  %}
+															checked="checked"
+															{% endif %}
+															{% endfor %}
+															onclick="checkboxOnclick(this,'{{intermediary_detail.id}}','{{company.id}}')"/>不保
+										             </td> 
+										             </tr>
+					  			      				{% endfor %}
+					  			      				 
+					  			      			</table>
+					  			      		 </td>
+					  			      		<td colspan="1" class="active text-center"width= "10%" >
+					  			      			<button type="submit" class="btn btn-primary"{% if jdclbx_set.state != 'verify' %} disabled = 'disabled' {% endif %}>提交</button>
+					  			      		</td>	
+				                       </tr>
+				                     </form>
+				                   {% endfor %}      
+		                    </tbody>
+		                </table> 
+			         </div>
+			      </div>
+				<div class="modal-footer">
+					<form id="verify_form" class="form" method="post" action="{% url 'bms:verify_process_state' jdclbx_set.id %}">{% csrf_token %}
+						<div class="form-group" style="text-align: center;">
+								<p><font color = 'red'>温馨提示：1、填写手续费比例时请逐一提交，提交手续费比例后，信息仍可修改。</font></p>
+			                    <p><font color = 'red'>2、点击保存并提交后，保险公司手续费无法修改，请确认您填写的信息！！！</font></p>
+		                 </div>
+		                <button type="submit" class="btn btn-danger" id="id_modal"{% if jdclbx_set.state != 'verify' %} disabled = 'disabled' {% endif %}><i class="fa fa-save"></i>
+							保存并提交
+						</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">
+							<i class="fa fa-times">
+							</i>
+							退 出
+						</button>
+				</form>
+			</div>
+		</div>
+    	
+	</div>
+</div>
+
+{#认证行驶证模态框#}
+<div class="modal fade" id="verify_plate_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<form id="plate_form" class="form" method="post" action="{% url 'bms:jdclbx_verify' jdclbx_set.id %}">{% csrf_token %}
+		<!-- <input type ='hidden'  value='plate'class="form-control " name='certificate' /> -->
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						认证行驶证
+					</h4>
+				</div>
+				<div class="modal-body">
+				<input type ='hidden'  value='plate'class="form-control " name='certificate' />
+					<div class="panel-body">
+						<div class="form-group">
+		                      <div class="rowContainer">
+		                          <label class="col-sm-2 control-label">行驶证照片</label>
+		                          <div class="col-sm-4">
+			                        <a href="{% static '' %}{{ jdclbx_set.plate_image_left }}"target="_blank">
+			                        	<img class="img-responsive" src="{% static '' %}{{ jdclbx_set.plate_image_left }}" style="max-width: 300px;max-height: 200px;word-break:break-all">
+			                        </a>
+		                          </div>
+		                          <div class="col-sm-1"></div>
+		                          <div class="col-sm-4">
+			                        <a href="{% static '' %}{{ jdclbx_set.plate_image_right }}"target="_blank">
+			                        	<img class="img-responsive" src="{% static '' %}{{ jdclbx_set.plate_image_right }}" style="max-width: 300px;max-height: 200px;word-break:break-all">
+			                        </a>
+		                          </div>
+		                          <div class="col-sm-1"></div>
+		                      </div>
+		                   </div>
+		             </div>
+		              <div class="panel-body">
+	              		<div class="form-group">
+	                       <div class="rowContainer">
+	                           <label class="col-sm-2 control-label">所有人:</label>
+	                           <div class="col-sm-4">
+	                           			<input type="text" class="form-control" data-fv-row=".rowContainer" name="holder" maxlength="10"
+	                           			 {% if jdclbx_set.holder %} value='{{jdclbx_set.holder}}' {% else %}value="{{ posted_data.holder|default_if_none:'' }}"{% endif %}/>
+	                           </div>
+	                       </div>
+	                       <div class="rowContainer">
+	                           <label class="col-sm-2 control-label">车牌号:</label>
+	                           <div class="col-sm-4">
+	                                   <select class="" name="short_number" id =""style="height: 34px;">
+		                                    {% for short in short_detail %}
+		                                      <option value="{{short}}" {% if short_number|toString ==  short   %} selected ="selected" {% endif %}> {{short}} </option>
+		                                    {% endfor %}
+	                                    </select>
+	                                    <select class="" name="mid_number" id =""style="height: 34px;">
+			                                    {% for mid in mid_detail %}
+			                                      <option value="{{mid}}" {% if mid_number|toString ==  mid   %} selected ="selected" {% endif %}> {{mid}} </option>
+			                                    {% endfor %}
+			                            </select>    
+			                            <input type="text" style="width: 150px;height: 34px;"class="" name="plate_number"value="{{ end_number|default_if_none:'' }}"maxlength="5" >
+	                           </div>
+	                           
+	                       </div>
+	                   </div>
+	     		    </div>
+		              <div class="panel-body">
+	              		<div class="form-group">
+	                       <div class="rowContainer">
+	                           <label class="col-sm-2 control-label">使用性质:</label>
+	                           <div class="col-sm-4">
+	                               <select class="from-control "  id="user_property" name="use_property"style="width: 250px;height: 34px;">
+	                               		  <option  value=""> 请选择 </option>
+		                                  {% for use_property in jdclbx_set.USE_PROPERTY %}
+		                                    	<option value="{{ use_property.0 }}" {% if jdclbx_set.use_property|toString == use_property.0  %} selected="selected"  
+		                                    	{% elif not jdclbx_set.use_property and  posted_data.use_property|toString == use_property.0  %} selected="selected"  
+		                                    	{% endif %}>{{use_property.1}}</option>
+		                                  {% endfor %}
+		                            </select>
+	                           </div>
+	                       </div>
+	                       <div class="rowContainer">
+	                           <label class="col-sm-2 control-label">车辆类型:</label>
+	                           <div class="col-sm-4">
+	                               <select class="from-control "  id="car_type" name="car_type"style="width: 250px;height: 34px;">
+		                            	<option  value=""> 请选择 </option>
+		                                  {% for car_type in jdclbx_set.CAR_TYPE %}
+		                                    <option value="{{ car_type.0 }}" {% if  jdclbx_set.car_type|toString  == car_type.0 %} selected="selected" {% elif posted_data.car_type == car_type.0 %} selected="selected" {% endif %}>{{car_type.1}}</option>
+		                                  {% endfor %}
+		                            </select>
+	                           </div>
+	                       </div>
+	                   </div>
+	     		    </div>
+		              <div class="panel-body">
+	              		<div class="form-group">
+		              		<div class="rowContainer">
+		                           <label class="col-sm-2 control-label">注册日期:</label>
+		                           <div class="col-sm-4">
+		                               <input type="text" class="form-control"data-fv-row=".rowContainer" 
+		                               {% if jdclbx_set.issue_date %} value="{{ jdclbx_set.issue_date|date:'Y-m-d'}}"{% else %}value="{{ posted_data.issue_date|default_if_none:'' }}" {% endif %}placeholder="行驶证注册日期" name="issue_date" 
+								    onFocus="WdatePicker({isShowClear:false,readOnly:true,dateFmt: 'yyyy-MM-dd'})" />
+		                           </div>
+		                       </div>
+	                       
+	                       <div class="rowContainer">
+	                           <label class="col-sm-2 control-label">品牌型号:</label>
+	                           <div class="col-sm-4">
+	                               <input type="text" class="form-control" data-fv-row=".rowContainer" name="brand_digging"
+	                               {% if jdclbx_set.brand_digging %} value="{{ jdclbx_set.brand_digging}}"{% else %}value="{{ posted_data.brand_digging|default_if_none:'' }}"{% endif %}/>
+	                           </div>
+	                       </div>
+	                   </div>
+	     		    </div>
+		              <div class="panel-body">
+	              		<div class="form-group">
+	                       <div class="rowContainer">
+	                           <label class="col-sm-2 control-label">车辆识别代码:</label>
+	                           <div class="col-sm-4">
+	                               <input type="text" class="form-control" data-fv-row=".rowContainer" name="car_number"
+	                               {% if jdclbx_set.car_number %} value='{{jdclbx_set.car_number}}'{% else %}value="{{ posted_data.car_number|default_if_none:'' }}"{% endif %}/>
+	                           </div>
+	                       </div>
+	                       <div class="rowContainer">
+	                           <label class="col-sm-2 control-label">发动机号:</label>
+	                           <div class="col-sm-4">
+	                               <input type="text" class="form-control" data-fv-row=".rowContainer" name="engine_number"
+	                               {% if jdclbx_set.engine_number %} value='{{jdclbx_set.engine_number}}'{% else %}value="{{ posted_data.engine_number|default_if_none:'' }}"{% endif %}/>
+	                           </div>
+	                       </div>
+	                   </div>
+	     		    </div>
+		            <div class="panel-body">
+	              		<div class="form-group">
+	                       <div class="rowContainer">
+	                           <label class="col-sm-2 control-label">核载人数(位):</label>
+	                           <div class="col-sm-4">
+	                               <input type="number"   class="form-control" data-fv-row=".rowContainer" name="people_number"maxlength="2"
+	                               {% if jdclbx_set.people_number %} value='{{jdclbx_set.people_number}}'{% else %}value="{{ posted_data.people_number|default_if_none:'' }}"{% endif %}/>
+	                           </div>
+	                       </div>
+	                       <div class="rowContainer">
+	                           <label class="col-sm-2 control-label">核载质量(Kg):</label>
+	                           <div class="col-sm-4">
+	                               <input type="number" class="form-control" data-fv-row=".rowContainer" name="load_weight"maxlength="6"
+	                               {% if jdclbx_set.load_weight %} value='{{jdclbx_set.load_weight}}'{% else %}value="{{ posted_data.load_weight|default_if_none:'' }}"{% endif %}/>
+	                           </div>
+	                       </div>
+	                   </div>
+	     		    </div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						认证成功
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+
+
+{#填写身份证模态框#}
+<div class="modal fade" id="verify_id_card_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-lg"style="width:700px">
+		 <form id="verify_form" class="form" method="post" action="{% url 'bms:jdclbx_verify' jdclbx_set.id %}">{% csrf_token %} 
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						补充身份证信息
+					</h4>
+				</div>
+	            <div class="modal-body">
+	                <input type ='hidden'  value='id_card'class="form-control " name='certificate' />
+					    <div class="panel-body">
+	              		<div class="form-group">
+	                       <div class="rowContainer">
+	                           <!-- <label class="col-sm-2 control-label">正页:</label> -->
+	                           <div class="col-sm-6">
+	                               <a href="{% static '' %}{{ jdclbx_set.id_card_up }}" target="_blank">
+	                                    <img class="img-responsive" src="{% static '' %}{{ jdclbx_set.id_card_up }}" style="max-width: 500px;max-height: 9pc;">
+	                               </a>
+	                           </div>
+	                       </div>
+	                       <div class="rowContainer">
+	                           <!-- <label class="col-sm-2 control-label">附页:</label> -->
+	                           <div class="col-sm-6">
+	                               <a href="{% static '' %}{{ jdclbx_set.id_card_down }}" target="_blank">
+	                                    <img class="img-responsive" src="{% static '' %}{{ jdclbx_set.id_card_down }}" style="max-width: 500px;max-height: 9pc;">
+	                               </a>
+	                           </div>
+	                       </div>
+	                   </div>
+	     		    </div>
+	     		    <div class="panel-body">
+	              		<div class="form-group">
+	                       <div class="rowContainer">
+	                            <label class="col-sm-2 control-label">姓名:</label>
+	                            <div class="col-sm-4">
+	                            	<input type="text" class="form-control" name="applicant_name" maxlength="10"{% if posted_data.applicant_name %} value="{{ posted_data.applicant_name}}" {%else %} value = ""{% endif %}/>
+	                            </div>
+	                        </div>
+	                        <div class="rowContainer">
+	                            <label class="col-sm-2 control-label">身份证号:</label>
+	                            <div class="col-sm-4">
+	                                <input type="text" class="form-control" name="certificate_number" {% if posted_data.certificate_number %} value="{{ posted_data.certificate_number}}" {%else %} value = ""{% endif %}/>
+	                            </div>
+	                        </div>
+	                   </div>
+	     		    </div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						保存
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+
+
+{#填写营业执照模态框#}
+<div class="modal fade" id="verify_business_license_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-lg"style="width:600px">
+		 <form id="verify_form" class="form" method="post" action="{% url 'bms:jdclbx_verify' jdclbx_set.id %}">{% csrf_token %} 
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						补充营业执照信息
+					</h4>
+				</div>
+	            <div class="modal-body">
+	            <input type ='hidden'  value='business_license'class="form-control " name='certificate' />
+					    <div class="panel-body">
+	              		<div class="form-group">
+	                       <div class="rowContainer">
+	                           <div class="col-sm-12">
+	                               <a href="{% static '' %}{{ jdclbx_set.business_license_image }}" target="_blank">
+	                                    <img class="img-responsive" src="{% static '' %}{{ jdclbx_set.business_license_image }}" style="max-width: 450px;max-height: 20pc;">
+	                               </a>
+	                           </div>
+	                       </div>
+	                   </div>
+	     		    </div>
+	      		    <div class="panel-body">
+	              		<div class="form-group">
+	                       <div class="rowContainer">
+	                           <label class="col-sm-3 ">单位名称:</label>
+	                           <div class="col-sm-4">
+	                               <input type="text" class="form-control" name="applicant_company_name"maxlength="20"
+	                                      {% if posted_data.applicant_company_name %} value="{{ posted_data.applicant_company_name}}" {%else %} value = ""{% endif %}/>
+	                           </div>
+	                       </div>
+	                   </div>
+	     		    </div> 
+	     		    
+	     		    <div class="panel-body">
+	              		<div class="form-group">
+	                       <div class="rowContainer">
+	                           <label class="col-sm-3 control-label">组织机构号</label>
+	                           <div class="col-sm-4">
+	                               <input type="text" class="form-control" name="organ_number" 
+	                                 {% if posted_data.organ_number %} value="{{ posted_data.organ_number}}" {%else %} value = ""{% endif %}/>
+	                           </div>
+	                       </div>
+	                   </div>
+	     		    </div> 
+	     		    
+	     		    
+	     		    
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						保存
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+    $(document).ready(function() {
+    	var process_price_state;
+    	process_price_state = '{{process_price_state|safe}}';
+    	//alert(process_price_state);
+    	if (process_price_state=='open'){
+    		$('#process_price_modal').modal('show');
+    	};
+    })
+    
+    function checkboxOnclick(checkbox,intermediary_id,company_id){
+    	var commercial_process_id ='commercial_process_price_'+intermediary_id+'_'+company_id
+    	var liability_process_id ='liability_process_price_'+intermediary_id+'_'+company_id
+    	if ( checkbox.checked == true){
+    		document.getElementById(liability_process_id).value="0.0"
+    		document.getElementById(commercial_process_id).value="0.0"
+    		document.getElementById(liability_process_id).disabled="disabled"
+    		document.getElementById(commercial_process_id).disabled="disabled"
+    	}
+    	else{
+    		document.getElementById(liability_process_id).disabled=""
+        	document.getElementById(commercial_process_id).disabled=""
+    	}
+	}
+
+    </script>
+{% endblock %}

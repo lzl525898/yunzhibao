@@ -1,0 +1,153 @@
+{% extends 'bms/car/base_car.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block car_list %}class='active'{% endblock %}
+{% block title %} 添加车辆{% endblock %}
+
+{% block page_top %}
+<div class="row">
+        <div class="col-sm-10">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <i class="fa fa-plus fa-3x pull-right"></i>
+                    <form role="form" id="create_car_form" method="post" action="{% url 'bms:car_create' %}"  enctype="multipart/form-data">  {% csrf_token %}
+                        <div class="page-tailer">
+                          <h1 class="text-center">添加车辆</h1>
+                        </div>
+                        {% if message and message != '' %}
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="alert alert-warning">{{ message }}</div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {# posted_data=={{posted_data}}#}
+				
+						<div class="form-group" >
+                            <label for="profile_phone"><i class="fa fa-film"></i> *拥有人手机号： </label>
+                            <select class="from-control chosen-select"  style="width: 830px"id="profile_phone" name="profile_phone">
+                            	<option selected="selected" value="">  </option>
+                                  {% for client in clients %}
+                                    <option value="{{ client.profile.phone }}" {% if posted_data.profile_phone|toString == profile_phone|toString %} selected {% endif %}>{{client.name}}：{{client.profile.phone}}</option>
+                                  {% endfor %}
+                            </select>
+                        </div>
+						<div class="form-group">
+								<div class="form-group">
+	                                <label for="id_password" class="control-label">
+	                                    *车牌号&nbsp;: 
+	                                </label>
+	                                <div id="">
+	                                    <select class="" name="short_number" id ="">
+	                                    {% for short in short_detail %}
+	                                      <option value="{{short}}" {% if posted_data.short_number|toString ==  short   %} selected ="selected" {% endif %}> {{short}} </option>
+	                                    {% endfor %}
+	                                    </select>
+	                                    <select class="" name="mid_number" id ="">
+			                                    {% for mid in mid_detail %}
+			                                      <option value="{{mid}}" {% if posted_data.mid_number|toString ==  mid   %} selected ="selected" {% endif %}> {{mid}} </option>
+			                                    {% endfor %}</select>
+	                                    <input class="" style="width:250px" id="plate_number" name="plate_number" type="text" value="{{ posted_data.plate_number|default_if_none:'' }}"maxlength="5" placeholder="请填写五位由数字和字母组成的字符串">
+	                                </div>
+	                           </div>
+							<!-- <label for="plate_number"><i class="fa fa-road"></i> *车牌号： </label>
+							<input class="form-control"  id="plate_number" name="plate_number" type="text"
+								   value="{{ posted_data.plate_number|default_if_none:'' }}"> -->
+						</div>
+						<div class="form-group">
+							<label for="plate_number"><i class="fa fa-road"></i> *行驶证校验有效期： </label>
+							<a href="{% static 'pic/default/example4.png' %}"target="_blank"><i class="fa fa-cloud-upload"></i><small>样例图片</small></a>
+							<input class="form-control"  id="plate_expiration_periods" name="plate_expiration_periods"value="{{ posted_data.plate_expiration_periods|default_if_none:'' }}"placeholder="校验有效期" 
+                            onFocus="WdatePicker({isShowClear:false,readOnly:true,dateFmt: 'yyyy-MM'})" >
+						</div>
+						<div class="form-group">
+							<label for="plate_number"><i class="fa fa-road"></i> 选择起保年份（默认为当年）： </label>
+							<input class="form-control"  id="start_date" name="start_date"value="{{ posted_data.start_date|default_if_none:'start_date' }}"
+                            placeholder="保险期限起始日期" onFocus="WdatePicker({isShowClear:false,readOnly:true,dateFmt: 'yyyy'})" >
+                        </div>
+                        
+                        <div class="form-group" >
+                            <label class="control-label" for="id_plate_image_left"><i class="fa fa-picture-o"></i>*行驶证正页：<small>（gif、png、jpeg或icon;）</small>: </label>
+                            <a href="{% static 'pic/default/example5.png' %}"target="_blank"><i class="fa fa-cloud-upload"></i><small>样例图片</small></a>
+                            <input class="filestyle" type="file" id="id_plate_image_left" name="id_plate_image_left" data-icon="true" data-input="true" 
+                            				data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                        </div>
+                         
+                        <div class="form-group" >
+                            <label class="control-label" for="id_plate_image_right"><i class="fa fa-picture-o"></i>*行驶证附页：<small>（gif、png、jpeg或icon;）</small>: </label>
+                            <a href="{% static 'pic/default/example6.png' %}"target="_blank"><i class="fa fa-cloud-upload"></i><small>样例图片</small></a>
+                            <input class="filestyle" type="file" id="id_plate_image_right" name="id_plate_image_right" data-icon="true" 
+                            data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                        </div>
+                       
+                        <div class="form-group" >
+                            <label class="control-label" for="id_commercial_image"><i class="fa fa-picture-o"></i>商业险保单图片<small>（gif、png、jpeg或icon;）</small>: </label>
+                            <a href="{% static 'pic/default/example3.jpg' %}"target="_blank"><i class="fa fa-cloud-upload"></i><small>样例图片</small></a>
+                            <input class="filestyle" type="file" id="id_commercial_image" name="id_commercial_image" data-icon="true" 
+                            data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                        </div>
+                        <div class="form-group" >
+                            <label class="control-label" for="id_liability_image"><i class="fa fa-picture-o"></i>交强险保单图片<small>（gif、png、jpeg或icon;）</small>: </label>
+                            <a href="{% static 'pic/default/example2.jpg' %}"target="_blank"><i class="fa fa-cloud-upload"></i><small>样例图片</small></a>
+                            <input class="filestyle" type="file" id="id_liability_image" name="id_liability_image" data-icon="true" data-input="true" 
+                            data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                        </div>
+
+
+                        <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 保 存</button>
+                        <a class="btn btn-default" href="{% url 'bms:car_list' '1' %}"><i class="fa fa-times"></i> 返 回</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2"></div>
+</div>
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+       $(function(){
+
+            $('#create_car_form').formValidation({
+                // I am validating Bootstrap form
+                framework: 'bootstrap',
+                locale : 'zh_CN',
+                // Feedback icons
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+
+                // List of fields and their validation rules
+                fields: {
+                	//关联用户电话号码
+                	profile_phone: {
+                        validators: {
+                        	notEmpty: {
+                                message: '关联用户不可以空'
+                            },
+                            regexp: {
+                                regexp:  /^0?(13[0-9]|15[012356789]|17[0678]|18[0-9]|14[57])[0-9]{8}$/,
+                                message: '请输入正确的手机号码'
+                            }
+                        }
+                    },
+                //关联用户电话号码
+                    plate_number: {
+                        validators: {
+                        	notEmpty: {
+                                message: '车牌号不可以空'
+                            },
+                            regexp: {
+                                regexp:  /^[A-Z_0-9]{5}$/,
+                                message: '车牌号组成为“黑AXXX45”,大写字母+数字组成'
+                            }
+                        }
+                    },
+                }
+            });
+        });
+
+    </script>
+{% endblock %}

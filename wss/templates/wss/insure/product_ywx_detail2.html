@@ -1,0 +1,68 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}中华联合驾驶员意外险{% endblock %}
+
+{% block container_block %}
+{#    首页所在位置，进入页面后的默认页面#}
+
+<script  type="text/javascript">
+wx.ready(function () {
+	  wx.onMenuShareAppMessage({
+	      title: '中华联合驾驶员意外险详情',
+	      desc: '运之宝~只为让您安心~~。',
+	      link: '{{main_url}}wss/insure/product_ywx_detail2?referee_id={{ mine_id }}',
+	      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5UZha8Y5GQHtuDY2SkYLSn4zs3G0lq3DUcpnqr5dIvXlDZIemkrZzqE0JNJ9ic3S8xK3vBIibVFnYdXQ/0?wx_fmt=png',
+	    });
+
+	 wx.onMenuShareTimeline({
+	      title: '中华联合驾驶员意外险详情',
+	      link:'{{main_url}}wss/insure/product_ywx_detail2?referee_id={{ mine_id }}',
+	      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5UZha8Y5GQHtuDY2SkYLSn4zs3G0lq3DUcpnqr5dIvXlDZIemkrZzqE0JNJ9ic3S8xK3vBIibVFnYdXQ/0?wx_fmt=png',
+	    });  
+});
+</script>
+
+    <div class="weui_cells_title hd" style="text-align: center;">中华联合驾驶员意外险详情</div>
+
+    <div class="weui_cells">
+        <a href="{% static 'pic/temp/zhywx.jpg' %}" target="_blank">
+            <img src="{% static 'pic/temp/zhywx.jpg' %}" style="max-width: 350px;max-height: 300px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+        </a>
+    </div>
+    <div class="weui_cells weui_cells_access">
+        <a class="weui_cell" href="tel:15910731868">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>投保请咨询客服：</p>
+            </div>
+            <div class="weui_cell_ft">15910731868</div>
+        </a>
+    </div>
+    <div class="weui_cells">
+        <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>微信：</p>
+            </div>
+            <div class="weui_cell_ft">15910731868</div>
+        </div>
+    </div>
+
+
+{#    <a href="{% url 'wss:prompt' %}?type=batch" class="weui_btn weui_btn_primary" style="margin-top: 20px">投保</a>#}
+
+
+
+    <div class="weui_cells">
+{#        <img src="{% static 'pic/default/logo.png' %}" style="max-width: 200px;max-height: 200px;display:block;text-align: center;margin-right: auto;margin-left: auto;">#}
+        <img src="{% static 'pic/default/ewm.jpg' %}" style="max-width: 350px;max-height: 200px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+        <div class="weui_cell_bd weui_cell_primary">
+            <p style="text-align: center;margin-right: auto;margin-left: auto;margin-top: 10px">长按上图选择“识别图中二维码”↑↑↑</p>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_block %}
+{% endblock %}
+{% block script_block %}
+
+{% endblock %}

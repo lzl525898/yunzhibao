@@ -1,0 +1,450 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}我的{% endblock %}
+
+{% block container_block %}
+
+<!-- 下面这部分已经弃用 -->
+    <div id="search_pic_model" class="row control-show" >
+		<div class="weui_dialog_alert" >
+		        <div class="weui_mask" style="z-index:999;"></div>
+		        <div class="weui_dialog"  style="z-index:1000;">
+		            <div class="weui_dialog_hd"><strong class="weui_dialog_title"id="id_message_id"></strong></div>
+		            <div class="weui_dialog_bd">
+				            <div style="display: none;" id ="id_liability_image">
+					            {% if car.liability_image %}
+					            <img class="img-responsive" src="{% static '' %}{{ car.liability_image }}" style="max-width: 200px;max-height: 13pc;"type="hidden">
+					            {% endif %}
+					         </div>
+					         <div style="display: none;" id ="id_commercial_image">
+					            {% if car.commercial_image %}
+					            <img class="img-responsive" src="{% static '' %}{{ car.commercial_image }}" style="max-width: 200px;max-height: 13pc;"type="hidden">
+					            {% endif %}
+					         </div>
+					         <div style="display: none;" id ="id_plate_image">
+					            {% for plate_image in car.plate_image_left %}
+					            <div><img class="img-responsive center-block" src="{% static '' %}{{ plate_image }}" style="max-width: 200px;max-height: 13pc;word-break:break-all" alt="商品图片"/></div>
+			                    {% endfor %}
+		                    </div>
+		            </div>
+		            <div class="weui_dialog_ft">
+		                <a onclick="$('#search_pic_model').addClass('control-show');" class="weui_btn_dialog primary">取消</a>
+		            </div>
+		        </div>
+		    </div>
+    </div>
+    
+    <!-- 修改日期模态框 -->
+<!--   补充信息  -->
+    <div id="change_time_model" class="row control-show">
+		<div class="weui_dialog_alert">
+		        <div class="weui_mask" style="z-index:6;"></div>
+		        <div class="weui_dialog"  style="z-index:13;">
+		            <div class="weui_dialog_hd"><strong class="weui_dialog_title"id="id_time_state"></strong></div>
+		            <div class="weui_dialog_bd">
+		            <div class="weui_dialog_bd"><small><font color= 'red' id="id_za_message_id"></font></small></div>
+					<form id="change_time_form" method="post" action="{% url 'wss:wx_change_car_time'  car.id  %}" enctype="multipart/form-data" style="padding-top:30px;">{% csrf_token %}
+			        <div class="weui_cell  wss_dashed_bottom"  id ="ticket_taxpayerRegNum"style ="display:block">
+			        <input class="weui_input" id="time_type" type="hidden" name="time_type"  value="" >
+			            <div class="weui_cell_bd weui_cell_primary">
+				          		<input class="weui_input" id="start_date" type="text" name="change_time_detail" placeholder="请输入时间" value="" >
+				        </div>
+			        </div>
+		     		</form>
+		            </div>
+		            <div class="weui_dialog_ft">
+		            	<a  onclick='$("#change_time_form").submit();'  class="weui_btn_dialog primary">确定</a>
+		                <a onclick="$('#change_time_model').addClass('control-show');" class="weui_btn_dialog primary">取消</a>
+		            </div>
+		        </div>
+		    </div>
+    </div>
+    
+    {% if car_message %}
+    <div id="car_message_model" class="row ">
+		<div class="weui_dialog_alert">
+		        <div class="weui_mask" style="z-index:999;"></div>
+		        <div class="weui_dialog" style="z-index:1000;">
+		            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+		            <div class="weui_dialog_bd"id="id_message_id">{{car_message}}</div>
+		            <div class="weui_dialog_ft">
+		                <a onclick="$('#car_message_model').addClass('control-show');" class="weui_btn_dialog primary">确定</a>
+		            </div>
+		        </div>
+		    </div>
+    </div>
+    {% endif %}
+      <!--   查看详情  -->
+{#    首页所在位置，进入页面后的默认页面#}
+<!-- <div class="wss_title" ><i class="fa   fa-file-text"></i> &nbsp; <strong>订单详情</strong></div> -->
+       <div class="top">
+		<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+			<tbody>
+				<tr>
+						<td width="20%" valign="middle">
+							    <a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a>
+					    </td>
+						<td class="wz" width="60%" valign="middle" align="center">
+								<span id="toptitle">
+										<i class="fa    fa-file-text"></i>&nbsp;<strong>车险详情</strong>
+								</span>
+						</td>
+						<td width="20%" valign="middle" align="right">
+						<a id="aso" href="#"></a>
+						</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	
+<div class="weui_cells wss_p" style="padding-top:30px;">
+      <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【{% if car.insured_classify == 'personal' %}被保人姓名 {% elif car.insured_classify == 'unit' %}单位名称{% endif %}】</p>
+            </div>
+            <div class="weui_cell_ft">{{ car.insured_name }}</div>
+        </div>
+       
+    
+        <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary" >
+                <p>【{% if car.insured_classify == 'personal' %}身份证号码 {% elif car.insured_classify == 'unit' %}组织机构代码证{% endif %}】</p>
+            </div>
+            <div class="weui_cell_ft">{{ car.insured_number }}</div>
+        </div>
+        
+
+ 
+<!--         <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【创建时间】</p>
+            </div>
+            <div class="weui_cell_ft">{{car.create_time|date:'Y年m月d日' }}</div>
+        </div> -->
+        <!-- 行驶证 -->
+        {% if car.plate_number %}
+        <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【车牌号】</p>
+            </div>
+            <div class="weui_cell_ft">{{car.plate_number}}</div>
+        </div>
+        {% endif %}
+        {% if car.plate_expiration_periods %}
+        <a class="weui_cell wss_dashed_bottom"  href="#" onclick="change_time('plate')" >
+            <div class="weui_cell_bd weui_cell_primary">
+                <p><font color="#000">【校验有效期】</font></p>
+            </div>
+            <div class="weui_cell_ft">{{car.plate_expiration_periods|date:'Y-m'}}&nbsp;<i class="fa fa-edit"></i></div>
+        </a>
+        {% endif %}
+        {% if car.license_expiration_time %}
+        <a class="weui_cell wss_dashed_bottom"  href="#" onclick="change_time('license')" >
+            <div class="weui_cell_bd weui_cell_primary">
+                <p><font color="#000">【运营证到期时间】</font></p>
+            </div>
+            <div class="weui_cell_ft">{{car.license_expiration_time|date:'Y-m'}}&nbsp;<i class="fa fa-edit"></i></div>
+        </a>
+        {% endif %}
+        {% if car.grade_expiration_time %}
+        <a class="weui_cell wss_dashed_bottom"  href="#" onclick="change_time('grade')" >
+            <div class="weui_cell_bd weui_cell_primary">
+                <p><font color="#000">【等级评定到期时间】</font></p>
+            </div>
+            <div class="weui_cell_ft">{{car.grade_expiration_time|date:'Y-m' }}&nbsp;<i class="fa fa-edit"></i></div>
+        </a>
+        {% endif %}
+        {% if car.twolevel_expiration_time %}
+        <a class="weui_cell wss_dashed_bottom"  href="#" onclick="change_time('twolevel')" >
+            <div class="weui_cell_bd weui_cell_primary">
+                <p><font color="#000">【二级维护到期时间】</font></p>
+            </div>
+            <div class="weui_cell_ft">{{ car.twolevel_expiration_time|date:'Y-m'}}&nbsp;<i class="fa fa-edit"></i></div>
+        </a>
+        {% endif %}
+        {% if car.trailer_expiration_time %}
+        <a class="weui_cell wss_dashed_bottom"  href="#" onclick="change_time('trailer')" >
+            <div class="weui_cell_bd weui_cell_primary">
+                <p><font color="#000">【挂车车船稅到期时间】</font></p>
+            </div>
+            <div class="weui_cell_ft">{{ car.trailer_expiration_time|date:'Y-m'}}&nbsp;<i class="fa fa-edit"></i></div>
+        </a>
+        {% endif %}
+        {% if  car.plate_image_left %}
+        <a class="weui_cell weui_cells_access wss_dashed_bottom"  href="{% url 'wss:search_policy_picture'  car.id  %}?policy_state=car&pic_state=plate&referee_id={{ referee_id }}"  target="_blank">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p><font color="#000">【行驶证】</font></p>
+                </div>
+                <div class="weui_cell_ft">
+                </div>
+            </a>
+<!--         <a class="weui_cell  wss_dashed_bottom"  href="#" onclick="search_pic('plate');">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p><font color="#000">【行驶证】</font></p>
+                </div>
+                <div class="weui_cell_ft"><img src="{% static '' %}{{car.plate_image_left.0}}" style="max-width: 20px;max-height: 20px;display:block;text-align: center;margin-right: auto;margin-left: auto;"></div>
+            </a> -->
+          {% endif %}
+        <!-- 交强险 -->
+        {% if car.liability_company_new.simple_name %}
+        <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【交强保险公司】</p>
+            </div>
+            <div class="weui_cell_ft">{{car.liability_company_new.simple_name}}</div>
+        </div>
+        {% endif %}
+        {% if car.liability_number  %}
+        <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【交强险保单号】</p>
+            </div>
+            <div class="weui_cell_ft">{{car.liability_number }}</div>
+        </div>
+        {% endif %}
+        
+        {% if  car.liability_company_new.parent.phone %}
+        <a class="weui_cell weui_cells_access wss_dashed_bottom"  href="tel:{{ car.liability_company_new.parent.phone}}">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p ><font color="#000">【交强险报案电话】</font></p>
+            </div>
+            <div class="weui_cell_ft">{{ car.commercial_company_new.parent.phone}}</div>
+        </a>
+        {% endif %}
+        {% if car.liability_date_stop  %}
+        <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【交强险到期时间】</p>
+            </div>
+            <div class="weui_cell_ft">{{car.liability_date_stop |date:'Y年m月d日' }}</div>
+        </div>
+        {% endif %}
+        {% if  car.liability_image_list %}
+        <a class="weui_cell weui_cells_access wss_dashed_bottom"  href="{% url 'wss:search_policy_picture'  car.id  %}?policy_state=car&pic_state=liability&referee_id={{ referee_id }}"  target="_blank">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p><font color="#000">【交强险保单】</font></p>
+                </div>
+                <div class="weui_cell_ft">
+                </div>
+            </a>
+        <!-- <a class="weui_cell  wss_dashed_bottom"  href="#" onclick="search_pic('liability');">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p><font color="#000">【交强险保单】</font></p>
+                </div>
+                <div class="weui_cell_ft"><img src="{% static '' %}{{car.liability_image}}" style="max-width: 20px;max-height: 20px;display:block;text-align: center;margin-right: auto;margin-left: auto;"></div>
+            </a> -->
+          {% endif %}
+        <!-- 商业险 -->
+        {% if car.commercial_company_new.simple_name %}
+        <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【商业险保险公司】</p>
+            </div>
+            <div class="weui_cell_ft">{{car.commercial_company_new.simple_name}}</div>
+        </div>
+        {% endif %}
+        {% if car.commercial_num  %}
+        <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【商业险保单号】</p>
+            </div>
+            <div class="weui_cell_ft">{{car.commercial_num }}</div>
+        </div>
+        {% endif %}
+        {% if  car.commercial_company_new.parent.phone %}
+        <a class="weui_cell weui_cells_access wss_dashed_bottom"  href="tel:{{ car.commercial_company_new.parent.phone}}">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p ><font color="#000">【商业险报案电话电话】</font></p>
+            </div>
+            <div class="weui_cell_ft">{{ car.commercial_company_new.parent.phone}}</div>
+        </a>
+        {% endif %}
+        {% if car.commercial_date_stop  %}
+        <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【商业险到期时间】</p>
+            </div>
+            <div class="weui_cell_ft">{{car.commercial_date_stop |date:'Y年m月d日' }}</div>
+        </div>
+        {% endif %}
+        {% if  car.commercial_image_list %}
+        <a class="weui_cell weui_cells_access wss_dashed_bottom"  href="{% url 'wss:search_policy_picture'  car.id  %}?policy_state=car&pic_state=commercial&referee_id={{ referee_id }}"  target="_blank">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p><font color="#000">【商业险保单】</font></p>
+                </div>
+                <div class="weui_cell_ft">
+                </div>
+            </a>
+        <!-- <a class="weui_cell  wss_dashed_bottom"  href="#" onclick="search_pic('commercial');">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p><font color="#000">【商业险保单】</font></p>
+                </div>
+                <div class="weui_cell_ft"><img src="{% static '' %}{{car.commercial_image}}" style="max-width: 20px;max-height: 20px;display:block;text-align: center;margin-right: auto;margin-left: auto;"></div>
+            </a> -->
+          {% endif %}
+        
+      {% if car.commercial_tax %}
+		   <div class="weui_cells_title weui_navbar_item" style="text-align: left; background-color: #F3F3F3;color:#5172D5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-paw" ></i>商业险保费明细</div>
+		   <div class="weui_cells wss_p" >
+	    	    <table class="bordered"  style="width:100%;text-align: center;">    
+	    	    		{% if car.liability_price %}
+	    	    		<tr>
+								<td style="text-align: center;">交强险保费</td>
+								<td style="text-align: center;">{{ car.liability_price|default_if_none:''|FenToYuan }}元</td>
+						</tr>
+	    	    		{% endif %}
+	    	    		{% if car.liability_tax %}
+	    	    		<tr>
+								<td style="text-align: center;">交强险车船稅</td>
+								<td style="text-align: center;">{{ car.liability_tax|FenToYuan }}元</td>
+						</tr>
+	    	    		
+	    	    		{% endif %}
+						{% for tax in car.commercial_tax %}
+						<tr>
+								<td style="text-align: center;">{{tax.com_kind}}</td>
+								<td style="text-align: center;">{{tax.com_price |FenToYuan}}元
+								{% if tax.com_notice %} <small>（保额：{{tax.com_notice}}）</small>{% endif %}
+								</td>
+						</tr>
+						{% endfor %}
+			
+				</table>
+	    </div>
+      {% endif %}  
+
+	 {% if  total_price %}
+        <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【保费合计金额】</p>
+            </div>
+            <div class="weui_cell_ft">{{total_price|FenToYuan}}元</div>
+        </div>
+        {% endif %}
+        {% if  car.oil_card_price|FenToYuan %}
+        <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【返还油卡金额】</p>
+            </div>
+            <div class="weui_cell_ft">{{ car.oil_card_price|FenToYuan}}元</div>
+        </div>
+        {% endif %}
+        {% if  net_price  %}
+        <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【净费】</p>
+            </div>
+            <div class="weui_cell_ft">{{net_price |FenToYuan}}元</div>
+        </div>
+        {% endif %}
+
+   </div>
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+ <script src="{% static 'js/jquery-weui.js' %}"></script>
+    <script type="text/javascript">
+    
+    <!--时间插件-->
+    $(function () {
+  	var currYear = (new Date()).getFullYear();	
+  	var opt={};
+  	opt.date = {preset : 'date'};
+  	opt.datetime = {preset : 'datetime'};
+  	opt.time = {preset : 'time'};
+  	opt.default = {
+  		theme: 'android-ics light', //皮肤样式
+          display: 'modal', //显示方式 
+          mode: 'scroller', //日期选择模式
+  		dateFormat: 'yyyy-mm',
+  		dateOrder : 'yymm', //面板中日期排列格式
+  		lang: 'zh',
+  		showNow: true,
+  		nowText: "今天",
+          startYear: currYear - 50, //开始年份
+          endYear: currYear + 50 //结束年份
+          
+  	};
+
+    	$("#start_date").mobiscroll($.extend(opt['date'], opt['default']));
+
+  }); 
+    
+    //修改新添加的日期
+    function change_time(type){
+    	var type=type;
+    	var time_name="";
+    	var test_state="0"
+    	//alert(type)
+    	if (type == 'license'){
+    		time_name="修改"+"运营证到期时间";
+    	}
+    	else if (type == 'grade'){
+    		time_name="修改"+"等级评定到期时间";
+    	}
+    	else if (type == 'twolevel'){
+    		time_name="修改"+"二级维护到期时间";
+    	}
+    	else if (type == 'trailer'){
+    		time_name="修改"+"挂车车船稅到期时间";
+    	}
+    	else if (type == 'plate'){
+    		time_name="修改"+"行驶证校验有效期";
+    	}
+    	else{
+    		test_state="1"
+    	}
+    	if (test_state=="0"){
+    		document.getElementById('id_time_state').innerHTML = time_name ;
+    	    document.getElementById('time_type').value=type;
+    	    $('#change_time_model').removeClass('control-show');
+    	}
+    	else{
+    		alert("网络问题，未获取到您想修改的时间参数请稍后再试")
+    	}
+    	
+    }
+    
+	$("#start_date1").calendar({
+		onChange: function (p, values, displayValues) {
+	      console.log(values, displayValues);
+	    }
+	  });
+    
+    
+    function search_pic(state,pic_url){
+    	document.getElementById('id_message_id').innerText='';
+    	var id_liability_image = $('#id_liability_image');//行驶证
+    	var id_commercial_image = $('#id_commercial_image');//交强险
+    	var id_plate_image = $('#id_plate_image');//商业险
+        $('#search_pic_model').removeClass('control-show');
+        if (state=="liability"){
+        	document.getElementById('id_message_id').innerText='交强险保单图片';
+        	id_liability_image.show();
+        	id_commercial_image.hide();
+        	id_plate_image.hide();
+        }
+        else if (state=="commercial"){
+        	document.getElementById('id_message_id').innerText='商业险保单图片';
+        	id_liability_image.hide();
+        	id_commercial_image.show();
+        	id_plate_image.hide();
+        }
+        else if (state=="plate"){
+        	document.getElementById('id_message_id').innerText='行驶证图片';
+        	id_commercial_image.hide();
+        	id_liability_image.hide();
+        	id_plate_image.show();
+        }
+        
+
+}
+    </script>
+
+{% endblock %}

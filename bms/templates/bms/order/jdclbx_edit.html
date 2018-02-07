@@ -1,0 +1,966 @@
+{% extends 'bms/order/base_order.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block jdclbx_list %}class='active'{% endblock %}
+{% block title %} 车辆信息编辑{% endblock %}
+
+{% block page_top %}
+	        <div class="row">
+	            <div class="col-lg-10">
+	                        <div class="panel panel-default">
+					                <div class="panel-body">
+					                    <i class="fa fa-plus fa-3x pull-right"></i>
+							                <div class="page-header">
+							                    <h2 class="text-center">编辑车险订单</h2>
+							                    {% if message and message != '' %}
+									                <div class="row">
+									                    <div class="col-sm-12">
+									                        <div class="alert alert-warning text-center">{{ message }}</div>
+									                    </div>
+									                </div>
+									            {% endif %}
+							                </div>
+						
+							                {#<form id="defaultForm" method="post" class="form-horizontal" action="target.php">#}
+							                <form id="defaultForm" method="post" class="form-horizontal" enctype="multipart/form-data">{% csrf_token %}
+							                <input type="hidden" style="width: 120px"class="" name="jdclbx_state"value="edit"> 
+							                <input id="bms_order_type" name="order_state" type="hidden" value="111">{# 为解决js报错 #}
+							                    <div class="panel-group" id="steps">
+							                        <!-- Step 1 -->
+							                        <div class="panel panel-default">
+							                            <div class="panel-heading">
+							                                <h4 class="panel-title"><a data-toggle="collapse" data-parent="#steps" href="#stepOne"><i class="fa fa-road"></i>录入车辆信息<small>(以下全为必填项)</small></a></h4>
+							                            </div>
+							                            <div id="stepOne" class="panel-collapse collapse in">
+							                                <div class="panel-body">
+												                 <div class="form-group">
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">行驶证正页</label>
+											                            <div class="col-sm-4">
+											                            		{% if  jdclbx_set.plate_image_left %}
+															                        <a href="{% static '' %}{{ jdclbx_set.plate_image_left }}"target="_blank">
+															                        	<img class="img-responsive" src="{% static '' %}{{ jdclbx_set.plate_image_left }}" style="max-width: 200px;max-height: 150px;word-break:break-all">
+															                        </a>
+														                        {% endif %}
+														                    {% if jdclbx_set.state != 'paid' and jdclbx_set.state != 'done' %}
+											                            	<input class="filestyle" type="file" id="id_plate_image_left" name="id_plate_image_left" data-icon="true" style="height: 34px"
+												                            data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+												                            {% endif %}
+												                            <a href="{% static 'pic/default/example5.png' %}"target="_blank"><i class="fa fa-cloud-upload"></i><small>样例图片</small></a>
+											                            </div>
+											                        </div>
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">行驶证附页</label>
+											                            <div class="col-sm-4">
+											                                   {% if  jdclbx_set.plate_image_right %}
+															                        <a href="{% static '' %}{{ jdclbx_set.plate_image_right }}"target="_blank">
+															                        	<img class="img-responsive" src="{% static '' %}{{ jdclbx_set.plate_image_right }}" style="max-width: 200px;max-height: 150px;word-break:break-all">
+															                        </a>
+														                        {% endif %}
+														                     {% if jdclbx_set.state != 'paid' and jdclbx_set.state != 'done' %}
+											                                <input class="filestyle" type="file" id="id_plate_image_right" name="id_plate_image_right" data-icon="true" style="height: 34px"
+												                            data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+												                            {% endif %}
+												                            <a href="{% static 'pic/default/example6.png' %}"target="_blank"><i class="fa fa-cloud-upload"></i><small>样例</small></a>
+											                            </div>
+											                        </div>
+											                    </div>
+											                    
+											                    <div class="form-group">
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">投保车辆大类</label>
+											                            <div class="col-sm-4">
+											                                <select class="from-control "  id="order_car_type" name="order_car_type"style="height: 34px"{% if jdclbx_set.state == 'paid' or  jdclbx_set.state == 'done' %}disabled="disabled"{% endif %}>
+												                                    <option value="passenger_car" {% if jdclbx_set.order_car_type ==  'passenger_car' %} selected="selected"  {% endif %}>九座以下客车</option>
+												                                    <option value="truck" {% if jdclbx_set.order_car_type ==  'truck'   %} selected="selected"  {% endif %}>货车</option>
+												                            </select>
+											                            </div>
+											                        </div>
+							 				                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">车辆所在城市</label>
+											                            <div class="col-sm-4">
+											                                	<select class="" name="pro_area" id ="pro_area"style="width: 90px"onchange="change_prov('1')"{% if jdclbx_set.state == 'paid' or  jdclbx_set.state == 'done' %}disabled="disabled"{% endif %}>
+												                                    {% for pro_area  in pro_area_list%}
+												                            				<option value="{{ pro_area.code }}" {% if jdclbx_set.city.parentcode|toString == pro_area.code %} selected{% endif %}>{{ pro_area.name }}</option>
+												                            	    {% endfor%}
+												                                    </select>
+											                                    <select class="" name="city_area" id ="city_area"style="width: 120px"{% if jdclbx_set.state == 'paid' or  jdclbx_set.state == 'done' %}disabled="disabled"{% endif %}>
+											                                    	{% for city_area  in city_area_list%}
+											                                    	   {% if city_area.parentcode ==  jdclbx_set.city.parentcode|toString  %}
+												                            				<option value="{{ city_area.code }}" {% if jdclbx_set.city.code|toString  == city_area.code  %} selected{% endif %}>{{ city_area.name }}</option>
+												                            				{% endif %}
+												                            	    {% endfor%}
+											                                    </select>
+											                            </div>
+											                        </div> 
+											                    </div>
+											                    
+											                    
+											                    
+							                                     <div class="form-group">
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">车牌号</label>
+											                            <div class="col-sm-4">
+											                            	<select class="" name="short_number" id ="id_short_number"style="height: 34px"{% if jdclbx_set.state == 'paid' or  jdclbx_set.state == 'done' %}disabled="disabled"{% endif %}onchange="pro_plate_relevance(this.value,'')">
+												                                    {% for short in short_detail %}
+												                                      <option value="{{short}}" {% if short_number ==  short   %} selected ="selected" {% endif %}> {{short}} </option>
+												                                    {% endfor %}
+											                                    </select>
+											                                    <select class="" name="mid_number" id =""style="height: 34px"{% if jdclbx_set.state == 'paid' or  jdclbx_set.state == 'done' %}disabled="disabled"{% endif %}>
+													                                    {% for mid in mid_detail %}
+													                                      <option value="{{mid}}" {% if mid_number ==  mid   %} selected ="selected" {% endif %}> {{mid}} </option>
+													                                    {% endfor %}
+													                            </select>    
+													                            <input type="text" style="width: 120px;height: 34px"class="" name="plate_number"value="{{ end_number|default_if_none:'' }}"
+													                            maxlength="5" onblur="test_plate(this.value)"{% if jdclbx_set.state == 'paid' or  jdclbx_set.state == 'done' %}disabled="disabled"{% endif %}> 
+											                            </div>
+											                        </div>
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">车辆类型</label>
+											                            <div class="col-sm-4">
+											                                <select class="from-control "  id="car_type" name="car_type"style="height: 34px">
+												                            	<option  value="">  </option>
+												                                  {% for car_type in car_type_list %}
+												                                    <option value="{{ car_type.0 }}" {% if jdclbx_set.car_type|toString == car_type.0 %} selected="selected" {% endif %}>{{car_type.1}}</option>
+												                                  {% endfor %}
+												                            </select>
+											                            </div>
+											                        </div>
+											                    </div>
+											                    <div class="form-group">
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">所有人</label>
+											                            <div class="col-sm-4">
+											                                <input type="text" class="form-control" name="holder"maxlength="100"{% if jdclbx_set.holder %} value="{{ jdclbx_set.holder }}" {%else %} value = ""{% endif %}/>
+											                            </div>
+											                        </div>
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">使用性质</label>
+											                            <div class="col-sm-4">
+											                                <select class="from-control "  id="use_property" name="use_property"style="height: 34px">
+												                                  {% for use_property in use_property_list %}
+												                                    <option value="{{ use_property.0 }}" {% if jdclbx_set.use_property|toString == use_property.0  %} selected="selected"  {% endif %}>{{use_property.1}}</option>
+												                                  {% endfor %}
+												                            </select>
+											                            </div>
+											                        </div>
+											                    </div>
+											                    <div class="form-group">
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">品牌型号</label>
+											                            <div class="col-sm-4">
+											                                <input type="text" class="form-control" name="brand_digging" {% if jdclbx_set.brand_digging %} value="{{ jdclbx_set.brand_digging}}" {%else %} value = ""{% endif %}/>
+											                            </div>
+											                        </div>
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">车辆识别代码</label>
+											                            <div class="col-sm-4">
+											                                <input type="text" class="form-control" name="car_number" data-fv-row=".rowContainer" {% if jdclbx_set.car_number %} value="{{ jdclbx_set.car_number}}" {%else %} value = ""{% endif %}/>
+											                            </div>
+											                        </div>
+											                    </div>
+											                    <div class="form-group">
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">发动机号</label>
+											                            <div class="col-sm-4">
+											                                <input type="text" class="form-control" name="engine_number" {% if jdclbx_set.engine_number %} value="{{ jdclbx_set.engine_number}}" {%else %} value = ""{% endif %}/>
+											                            </div>
+											                        </div>
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">注册日期</label>
+											                            <div class="col-sm-4">
+											                               <div class="input-group date" id="datetimePicker">
+											                                    <input type="text" class="form-control" name="issue_date" data-fv-row=".rowContainer" {% if jdclbx_set.issue_date %} value="{{ jdclbx_set.issue_date|date:'Y-m-d'}}"{%else %} value = ""{% endif %}
+											                                    onFocus="WdatePicker({isShowClear:false,readOnly:true,dateFmt: 'yyyy-MM-dd'})" />
+											                                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+											                                </div>
+											                            </div>
+											                        </div>
+											                    </div>
+											                     <div class="form-group">
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">核载人数(位)</label>
+											                            <div class="col-sm-4">
+											                                <input type="text" class="form-control" name="people_number"{% if jdclbx_set.people_number %} value="{{ jdclbx_set.people_number}}" {%else %} value = ""{% endif %} />
+											                            </div>
+											                        </div>
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">核载质量(Kg)</label>
+											                            <div class="col-sm-4">
+											                                <input type="text" class="form-control" name="load_weight" data-fv-row=".rowContainer" {% if jdclbx_set.load_weight %} value="{{ jdclbx_set.load_weight}}" {%else %} value = ""{% endif %} />
+											                            </div>
+											                        </div>
+											                    </div>
+								<!-- 			                   <div class="form-group">
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">检验有效期至</label>
+											                            <div class="col-sm-4">
+											                                <div class="input-group date" id="datetimePicker">
+											                                    <input type="text" class="form-control" name="plate_expiration_periods" data-fv-row=".rowContainer" 
+											                                    {% if jdclbx_set.people_number %} value="{{ jdclbx_set.people_number}}" {%else %} value = ""{% endif %} onFocus="WdatePicker({isShowClear:false,readOnly:true,dateFmt: 'yyyy-MM'})" />
+											                                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+											                                </div>
+											                            </div>
+											                        </div>
+											                    </div> -->
+							                                </div>
+							                            </div>
+							                        </div>
+						
+							                        <!-- Step 2 -->
+							                        <div class="panel panel-default">
+							                            <div class="panel-heading">
+							                                <h4 class="panel-title"><a data-toggle="collapse" data-parent="#steps" href="#stepTwo"><i class="fa fa-road"></i>录入投保人信息</a></h4>
+							                            </div>
+							                            <div id="stepTwo" >{#class="panel-collapse collapse"#}
+							                                <div class="panel-body">
+							                      				<div class="form-group">
+														            <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">投保使用账户</label>
+											                            <div class="col-sm-4">
+											                                <select class="from-control "  id="id_client_id" name="client_id"style="height: 34px"{% if jdclbx_set.state == 'paid' or  jdclbx_set.state == 'done' %}disabled="disabled"{% endif %}>
+												                            	<option  value="">  </option>
+												                                  {% for client in clients %}
+												                                    <option value="{{ client.id }}" {% if jdclbx_set.client == client %} selected="selected" {% endif %}>{{client.name}}：{{client.profile.phone}}</option>
+												                                  {% endfor %}
+												                            </select>
+											                            </div>
+											                        </div>
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">投保人身份选择</label>
+											                            <div class="col-sm-4">
+											                               <select class="from-control "  id="id_user_classify" name="user_classify" onchange="chang_user_classify()"style="height: 34px"{% if jdclbx_set.state == 'paid' or  jdclbx_set.state == 'done' %}disabled="disabled"{% endif %}>
+												                            	<option  value="unit"{% if jdclbx_set.user_classify == "unit"  %} selected {% endif %}> 单位 </option>
+												                            	<option  value="personal"{% if jdclbx_set.user_classify ==  "personal"  %} selected {% endif %}> 个人 </option>
+												                            </select>
+											                        </div>
+											                    </div>
+											                    </div>
+											                    
+											                    {% if jdclbx_set.user_classify == "personal"  %}
+											                    <div class="form-group" id="id_business_license_image" style="display: none;">
+											                    {% else %}
+											                    <div class="form-group" id="id_business_license_image" style="display: block;">
+											                    {% endif %}
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">组织机构代码证
+											                            <p><small><font size="1.5"color="red">(三证合一提供营业执照)</font></small></p></label>
+											                              <div class="col-sm-4">
+											                                   {% if  jdclbx_set.business_license_image %}
+														                        <a href="{% static '' %}{{ jdclbx_set.business_license_image }}"target="_blank">
+														                        	<img class="img-responsive" src="{% static '' %}{{ jdclbx_set.business_license_image }}" style="max-width: 200px;max-height: 150px;word-break:break-all">
+														                        </a>
+														                        {% endif %}
+														                     {% if jdclbx_set.state != 'paid' and  jdclbx_set.state != 'done' %}
+											                                <input class="filestyle" type="file" id="business_license_image" name="business_license_image" data-icon="true" style="height: 34px"
+												                            data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+												                            {% endif %}
+												                           <!--  <a href="{% static 'pic/default/example6.png' %}"target="_blank"><i class="fa fa-cloud-upload"></i><small>样例</small></a> -->
+											                            </div>
+											                        </div>
+											                    </div>
+											                    
+											                    {% if jdclbx_set.user_classify == "personal"  %}
+											                    <div class="form-group" id="user_unit" style="display: none;">
+											                    {% else %}
+											                    <div class="form-group" id="user_unit" style="display: block;">
+											                    {% endif %}
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">单位名称</label>
+											                            <div class="col-sm-4">
+											                            	<input type="text" class="form-control" name="applicant_company_name"maxlength="100"{% if jdclbx_set.applicant_company_name %} value="{{ jdclbx_set.applicant_company_name}}" {%else %} value = ""{% endif %}/>
+											                            </div>
+											                        </div>
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">组织机构号<p><small>(或营业执照号)</small></p></label>
+											                            <div class="col-sm-4">
+											                                <input type="text" class="form-control" name="organ_number" {% if jdclbx_set.organ %} value="{{ jdclbx_set.organ}}" {%else %} value = ""{% endif %}/>
+											                            </div>
+											                        </div>
+											                    </div>
+											                    
+											                    {% if jdclbx_set.user_classify == "personal"  %}
+											                    <div class="form-group"id="user_personal" style="display: block;">
+											                    {% else%}
+											                    <div class="form-group"id="user_personal" style="display: none;">
+											                    {% endif %}
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">身份证正面</label>
+											                            <div class="col-sm-4">
+              																	{% if  jdclbx_set.id_card_up %}
+														                        <a href="{% static '' %}{{ jdclbx_set.id_card_up }}"target="_blank">
+														                        	<img class="img-responsive" src="{% static '' %}{{ jdclbx_set.id_card_up }}" style="max-width: 200px;max-height: 150px;word-break:break-all">
+														                        </a>
+														                        {% endif %}
+														                        {% if jdclbx_set.state != 'paid' and  jdclbx_set.state != 'done' %}
+														                        <input class="" type="file" style="height: 34px"id="id_card_up" name="id_card_up" data-icon="true" 
+														                        data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+														                        {% endif %}
+														                        <!-- <a href="{% static 'pic/default/example5.png' %}"target="_blank"><i class="fa fa-cloud-upload"></i><small>样例图片</small></a> -->
+											                            </div>
+											                            {#背面#}
+											                            <div class="col-sm-4">
+											                            		{% if jdclbx_set.id_card_down %}
+														                        <a href="{% static '' %}{{ jdclbx_set.id_card_down }}"target="_blank">
+														                        	<img class="img-responsive" src="{% static '' %}{{ jdclbx_set.id_card_down }}" style="max-width: 200px;max-height: 150px;word-break:break-all">
+														                        </a>
+														                        {% endif %}
+														                        {% if jdclbx_set.state != 'paid' and  jdclbx_set.state != 'done' %}
+														                        <input class="filestyle" type="file"style="height: 34px" id="id_card_down" name="id_card_down" 
+														                        data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+														                        {% endif %}
+												                                <!-- <a href="{% static 'pic/default/example5.png' %}"target="_blank"><i class="fa fa-cloud-upload"></i><small>样例图片</small></a> -->
+											                            </div>
+											                        </div>
+											                    </div>
+											                    
+											                    {% if jdclbx_set.user_classify == "personal"  %}
+											                    <div class="form-group"id="user_personal1" style="display: block;">
+											                    {% else%}
+											                    <div class="form-group"id="user_personal1" style="display: none;">
+											                    {% endif %}
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">投保人姓名</label>
+											                            <div class="col-sm-4">
+											                            	<input type="text" class="form-control" name="applicant_name"maxlength="100" 
+											                            	{% if jdclbx_set.applicant_name %} value="{{ jdclbx_set.applicant_name}}" {%else %} value = ""{% endif %}/>
+											                            </div>
+											                        </div>
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">身份证号</label>
+											                            <div class="col-sm-4">
+											                                <input type="text" class="form-control" name="certificate_number" 
+											                                {% if jdclbx_set.certificate_number %} value="{{ jdclbx_set.certificate_number}}" {%else %} value = ""{% endif %}/>
+											                            </div>
+											                        </div>
+											                    </div>
+											                    
+											                    <div class="form-group">
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">投保人手机号</label>
+											                            <div class="col-sm-4">
+											                            	<input type="text" class="form-control" name="applicant_phone" 
+											                            	{% if jdclbx_set.applicant_phone %} value="{{ jdclbx_set.applicant_phone}}" {%else %} value = ""{% endif %}/>
+											                            </div>
+											                        </div>
+											                    </div>
+											                    
+											                    {#************************************2017/1/18页面修改*************#}
+											                    <div style="height: 5px;margin: 0px 0 8px;"><hr width="100%"  /></div>
+											                    <div class="form-group">
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">被保人身份信息</label>
+											                            <div class="col-sm-4">
+											                                <select class="from-control "  id="insured_information" name="insured_information"onchange="chang_insured_information()"style="height: 34px"{% if jdclbx_set.state == 'paid' or  jdclbx_set.state == 'done' %}disabled="disabled"{% endif %}>
+												                            	<option  value="same"> 同投保人 </option>  
+												                            	<option  value="different" selected="selected"  >  手工录入</option>     
+												                            </select>
+											                            </div>
+											                        </div>
+											                        
+											                        
+												                    <div class="form-group" id="choose_insured_classify" style="display: block;">
+											                            <label class="col-sm-2 control-label">被保人身份选择</label>
+											                            <div class="col-sm-4">
+											                               <select class="from-control "  id="id_insured_classify" name="insured_classify" onchange="chang_insured_classify()"style="height: 34px"{% if jdclbx_set.state == 'paid' or  jdclbx_set.state == 'done' %}disabled="disabled"{% endif %}>
+												                            	<option  value="unit"{% if jdclbx_set.insured_classify == "unit"  %} selected {% endif %}> 单位 </option>
+												                            	<option  value="personal"{% if jdclbx_set.insured_classify ==  "personal"  %} selected {% endif %}> 个人 </option>
+												                            </select>
+												                        </div>
+												                    </div>
+											                    
+											                    </div>
+											                    {#*********************************2017/2/7页面修改**********************************#}
+											                    {% if jdclbx_set.insured_classify == "unit"  %}
+											                    <div class="form-group" id="insured_business_license_image" style="display: block;">
+											                    {% else %}
+											                    <div class="form-group" id="insured_business_license_image" style="display: none;">
+											                    {% endif %}
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">组织机构代码证
+											                            <p><small><font size="1.5"color="red">(三证合一提供营业执照)</font></small></p></label>
+											                              <div class="col-sm-4">
+											                              		{% if  jdclbx_set.insured_license_image %}
+														                        <a href="{% static '' %}{{ jdclbx_set.insured_license_image }}"target="_blank">
+														                        	<img class="img-responsive" src="{% static '' %}{{ jdclbx_set.insured_license_image }}" style="max-width: 200px;max-height: 150px;word-break:break-all">
+														                        </a>
+														                        {% endif %}
+														                        {% if jdclbx_set.state != 'paid' and  jdclbx_set.state != 'done' %}
+											                                	<input class="filestyle" type="file" id="insured_business_license_image" name="insured_business_license_image" data-icon="true" style="height: 34px"
+												                            data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+												                                {% endif %}
+												                           <!--  <a href="{% static 'pic/default/example6.png' %}"target="_blank"><i class="fa fa-cloud-upload"></i><small>样例</small></a> -->
+											                            </div>
+											                        </div>
+											                    </div>
+												                    
+												                    {% if jdclbx_set.insured_classify == "unit"   %}
+												                    <div class="form-group" id="insured_unit" style="display: block;">
+												                    {% else %}
+												                     <div class="form-group" id="insured_unit" style="display: none;">
+												                    {% endif %}
+												                        <div class="rowContainer">
+												                            <label class="col-sm-2 control-label">被保单位名称</label>
+												                            <div class="col-sm-4">
+												                            	<input type="text" class="form-control" name="insured_applicant_company_name"maxlength="100" value = "{{jdclbx_set.insured_name}}"/>
+												                            </div>
+												                        </div>
+												                        <div class="rowContainer">
+												                            <label class="col-sm-2 control-label">组织机构号<p><small>(或营业执照号)</small></p></label>
+												                            <div class="col-sm-4">
+												                                <input type="text" class="form-control" name="insured_organ_number" value = "{{jdclbx_set.insured_number}}"/>
+												                            </div>
+												                        </div>
+												                    </div>
+												                    
+												                    {% if jdclbx_set.insured_classify == "personal"     %}
+												                    <div class="form-group"id="insured_personal" style="display: block;">
+												                    {% else%}
+												                    <div class="form-group"id="insured_personal" style="display: none;">
+												                    {% endif %}
+												                        <div class="rowContainer">
+												                            <label class="col-sm-2 control-label">身份证正面</label>
+												                            <div class="col-sm-4">
+												                            	{% if   jdclbx_set.insured_card_up %}
+														                        <a href="{% static '' %}{{  jdclbx_set.insured_card_up }}"target="_blank">
+														                        	<img class="img-responsive" src="{% static '' %}{{  jdclbx_set.insured_card_up }}" style="max-width: 200px;max-height: 150px;word-break:break-all">
+														                        </a>
+														                        {% endif %}
+														                        {% if jdclbx_set.state != 'paid' and  jdclbx_set.state != 'done' %}
+												                            	<input class="filestyle" type="file" id="insured_card_up" name="insured_card_up" data-icon="true" style="height: 34px"
+													                            data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+													                            {% endif %}
+													                           <!--  <a href="{% static 'pic/default/example5.png' %}"target="_blank"><i class="fa fa-cloud-upload"></i><small>样例图片</small></a> -->
+												                            </div>
+												                        </div>
+												                        <div class="rowContainer">
+												                            <label class="col-sm-2 control-label">身份证背面</label>
+												                            <div class="col-sm-4">
+												                            	{% if  jdclbx_set.insured_card_down %}
+														                        <a href="{% static '' %}{{  jdclbx_set.insured_card_down }}"target="_blank">
+														                        	<img class="img-responsive" src="{% static '' %}{{ jdclbx_set.insured_card_down }}" style="max-width: 200px;max-height: 150px;word-break:break-all">
+														                        </a>
+														                        {% endif %}
+														                        {% if jdclbx_set.state != 'paid' and  jdclbx_set.state != 'done' %}
+												                                <input class="filestyle" type="file" id="insured_card_down" name="insured_card_down" data-icon="true" style="height: 34px"
+													                            data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+													                            {% endif %}
+													                            <!-- <a href="{% static 'pic/default/example6.png' %}"target="_blank"><i class="fa fa-cloud-upload"></i><small>样例</small></a> -->
+												                            </div>
+												                        </div>
+												                    </div>
+												                    
+												                    {% if jdclbx_set.insured_classify == "personal"    %}
+												                    <div class="form-group"id="insured_personal1" style="display: block;">
+												                    {% else%}
+												                    <div class="form-group"id="insured_personal1" style="display: none;">
+												                    {% endif %}
+												                        <div class="rowContainer">
+												                            <label class="col-sm-2 control-label">被保人姓名</label>
+												                            <div class="col-sm-4">
+												                            	<input type="text" class="form-control" name="insured_applicant_name"  value = "{{jdclbx_set.insured_name}}"maxlength="100"/>
+												                            </div>
+												                        </div>
+												                        <div class="rowContainer">
+												                            <label class="col-sm-2 control-label">被保人身份证号</label>
+												                            <div class="col-sm-4">
+												                                <input type="text" class="form-control" name="insured_certificate_number" value = "{{jdclbx_set.insured_number}}"/>
+												                            </div>
+												                        </div>
+												                    </div>
+											                    {#*****************修改结束************************************************************#}
+											                    
+					
+											                    {#*************************被保人信息录入**************#}
+											                    {% if posted_data.insured_information == "different"   %}
+											                    <div class="form-group"id="insured_phone" style="display: block;">
+											                    {% else%}
+											                    <div class="form-group"id="insured_phone" style="display: none;">
+											                    {% endif %}
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">被保人手机号</label>
+											                            <div class="col-sm-4">
+											                               <input type="text" class="form-control" name="insured_phone"  value = "{{jdclbx_set.insured_phone}}"/>
+											                            </div>
+											                        </div>
+											                    </div>
+											                    {#****************************结束*****************************************#}
+			                    
+											                    <div class="form-group"style="display: block;">
+											                    	<div class="rowContainer"id="insured_address" {% if jdclbx_set.city.code == '1101' %}style="display: none;"{% else %}style="display: block;"{% endif %}>
+											                            <label class="control-label col-sm-2" style="float:left;">保单邮寄地址</label>
+											                            <div class="col-sm-10">
+											                                <select class="" name="startSiteName_prov" id ="startSiteName_prov"onchange="change_prov('2')"style="width: 90px;height: 34px">
+												                                 {% for pro_area  in pro_area_list%}
+												                            		<option value="{{ pro_area.code }}" {% if pro_area.code|toString == mail_prov_set.code|toString %} selected{% endif %}>{{ pro_area.name }}</option>
+												                            	  {% endfor%}
+										                                    </select>
+										                                    <select class="" name="startSiteName_city" id ="startSiteName_city"style="width: 90px;height:34px;"onchange="change_city('startSiteName_')">
+										                                    {% for city_area  in city_area_list%}
+									                                    	   {% if city_area.parentcode == mail_prov_set.code|toString  %}
+										                            				<option value="{{ city_area.code }}" {% if city_area.code|toString == mail_city_set.code|toString  %} selected{% endif %}>{{ city_area.name }}</option>
+										                            				{% endif %}
+										                            	    {% endfor%}
+										                                    </select>
+										                                    <select class=""name="startSiteName_dist"id ="startSiteName_dist" style="width: 90px;height:34px">
+										                                    {% for dist_area  in dist_area_list%}
+									                                    	  		 {% if dist_area.parentcode ==  mail_city_set.code|toString  %}
+										                            				<option value="{{ dist_area.code }}" {% if dist_area.name|toString == mail_dist|toString  %} selected{% endif %}>{{ dist_area.name }}</option>
+										                            				{% endif %}
+										                            	    {% endfor%}
+										                            	    </select> 
+										                                    <input type="text" class="" name="policy_address" maxlength="50"style="width: 23pc;height:34px;"
+										                                    value="{{ jdclbx_set.policy_address|default_if_none:'' }}" />
+											                                
+											                            </div>
+											                        </div>
+											                    </div>
+											                    
+											                    
+							                                </div>
+							                            </div>
+							                        </div>
+						
+							                        <!-- Step 3 -->
+							                        <div class="panel panel-default">
+							                            <div class="panel-heading">
+							                                <h4 class="panel-title"><a data-toggle="collapse" data-parent="#steps" href="#stepThree"><i class="fa fa-road"></i>录入投保险种种类</a></h4>
+							                            </div>
+								                            <div id="stepThree" >{#class="panel-collapse collapse"#}
+								                  				 <div class="panel-body">
+								                  				 
+								                  				 	<div class="form-group">
+																            <div class="rowContainer">
+													                            <label class="col-sm-2 control-label">交强险</label>
+													                            <div class="col-sm-4">
+													                                <select class="from-control "  id="liability_state" name="liability_state"style="height: 34px"{% if jdclbx_set.state == 'paid' or  jdclbx_set.state == 'done' %}disabled="disabled"{% endif %}>
+														                                  <option value="yes"{% if jdclbx_set.liability_state == True  %} selected="selected"  {% endif %}>投保</option>
+														                                  <option value="no"{% if jdclbx_set.liability_state == False  %} selected="selected"  {% endif %}>不投保</option>
+														                            </select>
+													                            </div>
+													                        </div>
+													                        <div class="rowContainer">
+													                            <label class="col-sm-2 control-label">车船税</label>
+													                            <div class="col-sm-4">
+													                               <select class="from-control "  id="vehicle_vessel_tax_state" name="vehicle_vessel_tax_state"style="height: 34px"{% if jdclbx_set.state == 'paid' or  jdclbx_set.state == 'done' %}disabled="disabled"{% endif %}>
+														                            	<option  value="yes" {% if jdclbx_set.vehicle_vessel_tax_state == True  %} selected="selected"  {% endif %}> 投保 </option>
+														                            	<option  value="no" {% if jdclbx_set.vehicle_vessel_tax_state == False  %} selected="selected"  {% endif %} > 不投保</option>
+														                            </select>
+													                            </div>
+													                        </div>
+													                    </div>
+								                  				 
+									                  				 <div class="form-group">
+																            <div class="rowContainer">
+													                            <label class="col-sm-2 control-label">三者险</label>
+													                            <div class="col-sm-4">
+													                                <select class="from-control "  id="third_insurance" name="third_insurance"style="height: 34px"{% if jdclbx_set.state == 'paid' or  jdclbx_set.state == 'done' %}disabled="disabled"{% endif %}>
+														                                  <option value="0" {% if jdclbx_set.third_insurance ==  0  %} selected="selected"  {% endif %} >不投保</option>
+														                                  <option value="5000000" {% if jdclbx_set.third_insurance ==  5000000  %} selected="selected"  {% endif %} >5万</option>
+														                                  <option value="10000000" {% if jdclbx_set.third_insurance ==  10000000  %} selected="selected"  {% endif %} >10万</option>
+														                                  <option value="20000000" {% if jdclbx_set.third_insurance ==  20000000  %} selected="selected"  {% endif %} >20万</option>
+														                                  <option value="30000000" {% if jdclbx_set.third_insurance ==  30000000  %} selected="selected"  {% endif %} >30万</option>
+														                                  <option value="50000000" {% if jdclbx_set.third_insurance ==  50000000  %} selected="selected"  {% endif %} >50万</option>
+														                                  <option value="100000000" {% if jdclbx_set.third_insurance ==  100000000  %} selected="selected"  {% endif %} >100万</option>
+														                                  <option value="150000000" {% if jdclbx_set.third_insurance ==  150000000  %} selected="selected"  {% endif %} >150万</option>
+														                                  <option value="200000000" {% if jdclbx_set.third_insurance ==  200000000  %} selected="selected"  {% endif %} >200万</option>
+														                                  <option value="250000000" {% if jdclbx_set.third_insurance ==  250000000  %} selected="selected"  {% endif %} >250万</option>
+														                                  <option value="300000000" {% if jdclbx_set.third_insurance ==  300000000  %} selected="selected"  {% endif %} >300万</option>
+														                            </select>
+													                            </div>
+													                        </div>
+													                        <div class="rowContainer">
+													                            <label class="col-sm-2 control-label">车损险</label>
+													                            <div class="col-sm-4">
+													                               <select class="from-control "  id="damage_insurance" name="damage_insurance"style="height: 34px"{% if jdclbx_set.state == 'paid' or  jdclbx_set.state == 'done' %}disabled="disabled"{% endif %}>
+													                               		<option  value="no" {% if jdclbx_set.damage_insurance == False  %} selected="selected"  {% endif %}> 不投保 </option>
+														                            	<option  value="yes" {% if jdclbx_set.damage_insurance == True  %} selected="selected"  {% endif %}> 投保 </option>
+														                            	
+														                            </select>
+													                            </div>
+													                        </div>
+													                    </div>
+													                    
+													                   <div class="form-group">
+																            <div class="rowContainer">
+													                            <label class="col-sm-2 control-label">玻璃险</label>
+													                            <div class="col-sm-4">
+													                                <select class="from-control "  id="glass_insurance" name="glass_insurance"style="height: 34px"{% if jdclbx_set.state == 'paid' or  jdclbx_set.state == 'done' %}disabled="disabled"{% endif %}>
+														                                  <option value="no" {% if jdclbx_set.glass_insurance ==  "no"  %} selected="selected"  {% endif %}>不投保</option>
+														                                  <option value="china" {% if jdclbx_set.glass_insurance ==  "china"  %} selected="selected"  {% endif %}>国产</option>
+														                                  <option value="import" {% if jdclbx_set.glass_insurance ==  "import"  %} selected="selected"  {% endif %}>进口</option>
+														                            </select>
+													                            </div>
+													                        </div>
+													                        <div class="rowContainer">
+													                            <label class="col-sm-2 control-label">司机险</label>
+													                            <div class="col-sm-4">
+													                               <select class="from-control "  id="driver_insurance" name="driver_insurance"style="height: 34px"{% if jdclbx_set.state == 'paid' or  jdclbx_set.state == 'done' %}disabled="disabled"{% endif %}>
+														                            	<option  value="0" {% if jdclbx_set.driver_insurance ==  0  %} selected="selected"  {% endif %}>不投保 </option>
+														                            	<option  value="1000000"{% if jdclbx_set.driver_insurance ==  1000000  %} selected="selected"  {% endif %}> 1万</option>
+														                            	<option  value="2000000"{% if jdclbx_set.driver_insurance ==  2000000  %} selected="selected"  {% endif %}> 2万</option>
+														                            	<option  value="5000000"{% if jdclbx_set.driver_insurance ==  5000000  %} selected="selected"  {% endif %}> 5万</option>
+														                            	<option  value="10000000"{% if jdclbx_set.driver_insurance ==  10000000  %} selected="selected"  {% endif %}> 10万</option>
+														                            	<option  value="20000000"{% if jdclbx_set.driver_insurance ==  20000000  %} selected="selected"  {% endif %}> 20万</option>
+														                            </select>
+													                            </div>
+													                        </div>
+													                    </div>
+													                    
+													                    
+													                    <div class="form-group">
+																            <div class="rowContainer">
+													                            <label class="col-sm-2 control-label">盗抢险</label>
+													                            <div class="col-sm-4">
+													                                <select class="from-control "  id="theft_insurance" name="theft_insurance"style="height: 34px"{% if jdclbx_set.state == 'paid' or  jdclbx_set.state == 'done' %}disabled="disabled"{% endif %}>
+														                                  <option value="no" {% if jdclbx_set.theft_insurance == False  %} selected="selected"  {% endif %}>不投保</option>
+														                                  <option value="yes" {% if jdclbx_set.theft_insurance == True  %} selected="selected"  {% endif %}>投保</option>
+														                            </select>
+													                            </div>
+													                        </div>
+													                        <div class="rowContainer">
+													                            <label class="col-sm-2 control-label">乘客险</label>
+													                            <div class="col-sm-4">
+													                               <select class="from-control "  id="passenger_insurance" name="passenger_insurance"style="height: 34px"{% if jdclbx_set.state == 'paid' or  jdclbx_set.state == 'done' %}disabled="disabled"{% endif %}>
+														                            	<option value="0" {% if jdclbx_set.passenger_insurance ==  0  %} selected="selected"  {% endif %}> 不投保 </option>
+														                            	<option  value="1000000"{% if jdclbx_set.passenger_insurance ==  1000000  %} selected="selected"  {% endif %}> 1万</option>
+														                            	<option  value="2000000"{% if jdclbx_set.passenger_insurance ==  2000000  %} selected="selected"  {% endif %}> 2万</option>
+														                            	<option  value="5000000"{% if jdclbx_set.passenger_insurance ==  5000000  %} selected="selected"  {% endif %}> 5万</option>
+														                            	<option  value="10000000"{% if jdclbx_set.passenger_insurance ==  10000000  %} selected="selected"  {% endif %}> 10万</option>
+														                            	<option  value="20000000"{% if jdclbx_set.passenger_insurance ==  20000000  %} selected="selected"  {% endif %}> 20万</option>
+														                            </select>
+													                            </div>
+													                        </div>
+													                    </div>
+													                    
+													                    
+													                    <div class="form-group">
+																            <div class="rowContainer">
+													                            <label class="col-sm-2 control-label">不计免赔险</label>
+													                            <div class="col-sm-4">
+													                                <select class="from-control "  id="iop_insurance" name="iop_insurance"style="height: 34px"{% if jdclbx_set.state == 'paid' or  jdclbx_set.state == 'done' %}disabled="disabled"{% endif %}>
+														                                  <option value="no" {% if jdclbx_set.iop_insurance == False  %} selected="selected"  {% endif %}> 不投保 </option>
+														                                  <option value="yes" {% if jdclbx_set.iop_insurance == True  %} selected="selected"  {% endif %}> 投保 </option>
+														                            </select>
+													                            </div>
+													                        </div>
+													                        <div class="rowContainer">
+													                            <label class="col-sm-2 control-label">自燃损失</label>
+													                            <div class="col-sm-4">
+													                               <select class="from-control "  id="autoignition_insurance" name="autoignition_insurance"style="height: 34px"{% if jdclbx_set.state == 'paid' or  jdclbx_set.state == 'done' %}disabled="disabled"{% endif %}>
+														                            	<option value="no" {% if jdclbx_set.autoignition_insurance == False  %} selected="selected"  {% endif %}> 不投保 </option>
+														                                  <option value="yes" {% if jdclbx_set.autoignition_insurance == True  %} selected="selected"  {% endif %}> 投保 </option>
+														                            </select>
+													                            </div>
+													                        </div>
+													                    </div>
+													                    
+													                    
+													                    <div class="form-group">
+																            <div class="rowContainer">
+													                            <label class="col-sm-2 control-label">涉水险</label>
+													                            <div class="col-sm-4">
+													                                <select class="from-control "  id="wading_insurance" name="wading_insurance"style="height: 34px"{% if jdclbx_set.state == 'paid' or  jdclbx_set.state == 'done' %}disabled="disabled"{% endif %}>
+														                                  <option value="no" {% if jdclbx_set.wading_insurance ==  False  %} selected="selected"  {% endif %}>不投保</option>
+														                                  <option value="yes" {% if jdclbx_set.wading_insurance ==  True  %} selected="selected"  {% endif %}> 投保</option>
+														                            </select>
+													                            </div>
+													                        </div>
+													                        <div class="rowContainer">
+													                            <label class="col-sm-2 control-label">划痕险</label>
+													                            <div class="col-sm-4">
+													                               <select class="from-control "  id="scratch_insurance" name="scratch_insurance"style="height: 34px"{% if jdclbx_set.state == 'paid' or  jdclbx_set.state == 'done' %}disabled="disabled"{% endif %}>
+														                            	<option  value="0" {% if jdclbx_set.scratch_insurance ==  0  %} selected="selected"  {% endif %}>不投保 </option>
+														                            	<option  value="200000" {% if jdclbx_set.scratch_insurance ==  200000  %} selected="selected"  {% endif %}> 2千</option>
+														                            	<option  value="500000" {% if jdclbx_set.scratch_insurance ==  500000  %} selected="selected"  {% endif %}> 5千</option>
+														                            	<option  value="1000000" {% if jdclbx_set.scratch_insurance ==  1000000  %} selected="selected"  {% endif %}> 1万</option>
+														                            	<option  value="2000000" {% if jdclbx_set.scratch_insurance ==  2000000  %} selected="selected"  {% endif %}> 2万</option>
+														                            </select>
+													                            </div>
+													                        </div>
+													                    </div>
+													                    
+													                    <div class="form-group">
+																            <div class="rowContainer">
+													                            <label class="col-sm-2 control-label">交强险保险起期
+													                            <p><small><font size="1.5"color="red">注：交强险未投保，则不用填写此项</font></small></p></label>
+													                            <div class="col-sm-4">
+													                                <div class="input-group date" id="datetimePicker">
+														                                    <input type="text" class="form-control" name="liability_expectStartTime" data-fv-row=".rowContainer" {% if jdclbx_set.liability_expectStartTime %} value="{{ jdclbx_set.liability_expectStartTime|date:'Y-m-d'}}" {%else %} value = ""{% endif %} 
+														                                    onFocus="WdatePicker({isShowClear:false,readOnly:true,dateFmt: 'yyyy-MM-dd'})" {% if jdclbx_set.state == 'paid' or  jdclbx_set.state == 'done' %}disabled="disabled"{% endif %}/>
+														                                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+														                                </div>
+													                            </div>
+													                        </div>
+													                        <div class="rowContainer">
+													                            <label class="col-sm-2 control-label">商业险保险起期</label>
+													                            <div class="col-sm-4">
+													                               <div class="input-group date" id="datetimePicker">
+													                                    <input type="text" class="form-control" name="commercial_expectStartTime" data-fv-row=".rowContainer" {% if jdclbx_set.commercial_expectStartTime %} value="{{ jdclbx_set.commercial_expectStartTime|date:'Y-m-d'}}" {%else %} value = ""{% endif %} 
+													                                    onFocus="WdatePicker({isShowClear:false,readOnly:true,dateFmt: 'yyyy-MM-dd'})" {% if jdclbx_set.state == 'paid' or  jdclbx_set.state == 'done' %}disabled="disabled"{% endif %}/>
+													                                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+													                                </div>
+													                            </div>
+													                        </div>
+													                    </div>
+							                  				 
+							                  				 			<div class="form-group">
+													                        <div class="rowContainer">
+													                            <label class="col-sm-2 control-label">特别约定</label>
+													                            <div class="col-sm-10">
+													                            	<textarea class="form-control" name="special_agreement" rows=1 {% if jdclbx_set.state == 'paid' or  jdclbx_set.state == 'done' %}disabled="disabled"{% endif %}>{% if  jdclbx_set.special_agreement %} {{  jdclbx_set.special_agreement}}{% endif %}</textarea>
+													                            </div>
+													                        </div>
+													                    </div>
+	
+							                                </div>
+							                            </div>
+							                        </div>
+							                       <div class="panel panel-default">
+							                  				 <div class="panel-body">
+									 								<div class="form-group">
+											                            <div class="col-lg-6 col-lg-offset-6">
+											                                <button type="submit" id = 'test_success' class="btn btn-primary">提交</button>
+											                                <a class="btn btn-success" href="{% url 'bms:jdclbx_detail' jdclbx_set.id %}"> 返回</a>
+											                            </div>
+										                        	</div>
+
+							                                </div>
+							                        </div>
+							                    </div>
+							                </form>
+							            </div>
+							        </div>
+	            </div>
+	        </div>
+	        
+	        
+
+{% endblock %}
+{% block script_block %}
+	<script type="text/javascript">
+
+	  //###############################投保人页面联动#########################
+    function chang_user_classify(){
+    	var user_classify = $('#id_user_classify');
+    	var $business_license_image = $('#id_business_license_image');//投保营业执照照片
+ 		var $user_unit = $('#user_unit');//投保单位信息部分
+ 		var $user_personal = $('#user_personal'); //投保人身份证部分
+ 		var $user_personal1 = $('#user_personal1'); //投保人身份证信息部分
+ 		//alert(user_classify.val())
+ 		if (user_classify.val()==''){
+    		alert("请选择投保人身份");
+    		$user_unit.hide();
+    		$business_license_image.hide();
+    		$user_personal.hide();
+    		$user_personal1.hide();
+    	}//
+    	else if(user_classify.val()=='unit'){
+    		$user_unit.show();
+    		$business_license_image.show();
+    		$user_personal.hide();
+    		$user_personal1.hide();
+    	}//单位
+    	else if(user_classify.val() == 'personal'){
+    		$user_unit.hide();
+    		$business_license_image.hide();
+    		$user_personal.show();
+    		$user_personal1.show();
+    	}//个人
+    }
+	  
+	  //###############################被保人页面联动#########################
+	  //是否同投保人
+    function chang_insured_information(){
+    	var insured_information = $('#insured_information');
+ 		var $choose_insured_classify = $('#choose_insured_classify');
+ 		//
+ 		var $business_license_image = $('#insured_business_license_image');//被保人营业执照照片
+ 		var $user_unit = $('#insured_unit');//被保人单位信息部分
+ 		var $user_personal = $('#insured_personal'); //被保人身份证部分
+ 		var $user_personal1 = $('#insured_personal1'); //被保人身份证信息部分
+ 		var $insured_phone = $('#insured_phone'); //被保人手机号
+ 		
+     	if (insured_information.val()==''){
+    		alert("请选择被保人信息录入方式");
+    		$choose_insured_classify.hide();
+    	}
+    	else if(insured_information.val()=='same'){
+    		$choose_insured_classify.hide();
+    		$user_unit.hide();
+    		$business_license_image.hide();
+    		$user_personal.hide();
+    		$user_personal1.hide();
+    		$insured_phone.hide();
+    	}
+    	else if(insured_information.val() == 'different'){
+    		$choose_insured_classify.show();
+    		chang_insured_classify();
+    	}
+    }
+	//判断被保人是单位还算个人
+	function chang_insured_classify(){
+
+    	var user_classify = $('#id_insured_classify');
+	
+    	var $business_license_image = $('#insured_business_license_image');//被保人营业执照照片
+ 		var $user_unit = $('#insured_unit');//被保人单位信息部分
+ 		var $user_personal = $('#insured_personal'); //被保人身份证部分
+ 		var $user_personal1 = $('#insured_personal1'); //被保人身份证信息部分
+ 		var $insured_phone = $('#insured_phone'); //被保人手机号
+ 		//alert(user_classify.val())
+     	if (user_classify.val()==''){
+    		alert("请选择投保人身份");
+    		$user_unit.hide();
+    		$business_license_image.hide();
+    		$user_personal.hide();
+    		$user_personal1.hide();
+    	}//
+    	else if(user_classify.val()=='unit'){
+    		$user_unit.show();
+    		$business_license_image.show();
+    		$insured_phone.show();
+    		$user_personal.hide();
+    		$user_personal1.hide();
+    	}//单位
+    	else if(user_classify.val() == 'personal'){
+    		$user_unit.hide();
+    		$business_license_image.hide();
+    		$insured_phone.show();
+    		$user_personal.show();
+    		$user_personal1.show();
+    	}//个人
+    }
+	//######################################城市和车牌号联动#################
+function pro_plate_relevance(plate_number , pro_name)	{
+		var plate_number =plate_number;
+		var pro_name =pro_name;
+		var json=[["aaa","bbb","ccc","ddd"]];
+		var pro_list=new Array()
+		pro_list=[
+		          ["京","北京市",'11'],["津","天津市",'12'],["冀","河北省",'13'],["晋","山西省",'14'],["蒙","内蒙古自治区",'15'],
+		          ["辽",'辽宁省','21'],["吉","吉林省",'22'],["黑","黑龙江省",'23'],
+		          ["沪","上海市",'31'],["苏","江苏省",'32'],["浙","浙江省",'33'],["皖","安徽省",'34'],["闽","福建省",'35'],["赣","江西省",'36'],["鲁","山东省",'37'],
+		          ["豫","河南省",'41'], ["鄂","湖北省",'42'],["湘","湖南省",'43'],["粤","广东省",'44'],["桂","广西壮族自治区",'45'],["琼","海南省",'46'],
+		          ["渝","重庆市",'50'],["川","四川省",'51'],["贵","贵州省",'52'],["云","云南省",'53'],["藏","西藏自治区",'54'],
+		          ["陕","陕西省",'61'],["甘","甘肃省",'62'],["青","青海省",'63'],["宁","宁夏回族自治区",'64'],["新","新疆维吾尔自治区",'65'],
+		          ];
+		for(detail in pro_list){
+			//省-车-牌联动
+			if (pro_name != ''){
+				if (pro_name == pro_list[detail][1] ){
+					$("#id_short_number").val(pro_list[detail][0]);
+					//change_prov('1');
+					if (pro_list[detail][0] == '京'){
+						$('#insured_address').hide();
+					}
+					else{
+						$('#insured_address').show();
+					}
+					break;
+				}
+			}
+			//车牌-省-联动
+			if (plate_number != ''){
+				if (plate_number == pro_list[detail][0] ){
+					$("#pro_area").val(pro_list[detail][2]);
+					change_prov('1');
+					if (pro_list[detail][0] == '京'){
+						$('#insured_address').hide();
+					}
+					else{
+						$('#insured_address').show();
+					}
+					break;
+				}
+			}
+		}
+		
+	}
+	
+//######################################地址页面联动#################
+function change_prov(state) {
+	if (state=='1'){
+		var province_selector = document.getElementById( 'pro_area' );
+	    var city_selector = document.getElementById('city_area');
+	    var a= province_selector.text;
+	    var index=province_selector.selectedIndex;//获取当前option  selectedIndex代表的是你所选中项的index
+	    var province_name=province_selector.options[index].text;
+	    pro_plate_relevance('',province_name);
+	}
+	else{
+		var province_selector = document.getElementById( 'startSiteName_prov' );
+		alert(province_selector.value)
+	    var city_selector = document.getElementById('startSiteName_city');
+	}
+/*     var province_selector = document.getElementById( 'pro_area' );
+    var city_selector = document.getElementById('city_area'); */
+    $.ajax({
+        url: "/bms/interface/locations/get_city_list/",
+        data: {prov_code: province_selector.value},
+        type: 'GET',
+        dataType: 'json',
+        timeout: 15000,
+        success: function (data) {
+       // alert("success")
+        	var a=1
+        	city_selector.innerHTML = '';
+        	 for (var key1 in data['data']) {
+        		 city_selector.options.add(getOption(data['data'][key1], key1));
+            }
+        	if (state != '1'){
+        		change_city('startSiteName_');
+        	}
+        		
+        },
+        error: function (data) {
+        	alert(data['message']);
+            /* $('#id_message').removeClass('control-show');
+            $('#id_message_id').html(data['message']) */
+        }
+    });
+}
+
+function change_city(state) {
+//	alert("666")
+   // var province_selector = document.getElementById(state+'prov');
+    var city_selector = document.getElementById(state+'city');
+    var dist_selector = document.getElementById(state+'dist');
+    $.ajax({
+        url: "/bms/interface/locations/get_dist_list/",
+        data: {city_code: city_selector.value},
+        type: 'GET',
+        dataType: 'json',
+        timeout: 15000,
+        success: function (data) {
+        	//alert("success")
+        	var a=1
+        	dist_selector.innerHTML = '';
+        	 for (var key1 in data['data']) {
+        		 dist_selector.options.add(getOption(data['data'][key1], key1));
+            }
+        },
+        error: function (data) {
+            $('#id_message').removeClass('control-show');
+            $('#id_message_id').html(data['message'])
+        }
+    });
+}
+
+
+function test_plate(value){
+	var plate_number = value
+	var message
+	var test_success = document.getElementById('test_success');
+	if (plate_number.length != 5){
+		message = '车牌号输入框应为5位字母和数字组合，如："12345" ';
+		test_success.disabled="disabled";
+		alert(message);
+	}
+	else{
+		test_success.disabled="";
+	}
+}
+
+	</script>
+{% endblock %}

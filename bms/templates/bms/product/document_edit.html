@@ -1,0 +1,166 @@
+{% extends 'bms/product/base_product.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block insurance_document %}class='active'{% endblock %}
+{% block title %} 编辑保险文档 {% endblock %}
+
+{% block page_top %}
+<div class="row">
+        <div class="col-sm-10">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <i class="fa fa-plus fa-3x pull-right"></i>
+                    <form role="form" id="edit_insurance_document_form" method="post" action="{% url 'bms:insurance_document_edit' insurance_document.id %}"  enctype="multipart/form-data">  {% csrf_token %}
+                        <div class="page-header">
+                          <h1 class="text-center">编辑保险文档</h1>
+                        </div>
+                        {% if message and message != '' %}
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="alert alert-warning">{{ message }}</div>
+                                </div>
+                            </div>
+                        {% endif %}
+						<div class="form-group" >
+							<label for="id_name"><i class="fa fa-user"></i> *文档名称： </label>
+							<input class="form-control"  id="id_name" name="name" type="text"
+								   value="{{ insurance_document.name }}" maxlength="50" required >
+						</div>
+						<div class="form-group" >
+							<label for="id_simple_name"><i class="fa fa-road"></i> *文档名简称： </label>
+							<input class="form-control"  id="id_simple_name" name="simple_name" type="text"
+								   value="{{ insurance_document.simple_name }}" required >
+						</div>
+                        <div class="form-group" >
+                            <label for="id_company_id"><i class="fa fa-film"></i> *文档所属保险公司： </label>
+                            <select class="form-control" id="id_company_id" name="company_id">
+                                <option value="" selected>请选择</option>
+                                  {% for company in companys %}
+                                    <option value="{{ company.id }}" {% if insurance_document.company == company %} selected {% endif %}>{{ company.simple_name }}</option>
+                                  {% endfor %}
+                            </select>
+                        </div>
+{#                        <div class="form-group" >#}
+{#                            <label for="id_product_id"><i class="fa fa-film"></i> 产品： </label>#}
+{#                            {% if insurance_products %}#}
+{#                                <div class="checkbox">#}
+{#                                  {% for insurance_product in insurance_products %}#}
+{#                                    <label><input type="checkbox" name="insurance_product" value="{{ insurance_product.id }}" {% if insurance_document in insurance_product.documents %} checked {% endif %}>{{ insurance_product.name }}</label>#}
+{#                                  {% endfor %}#}
+{#                                </div>#}
+{#                            {% else %}#}
+{#                                <div>暂无产品</div>#}
+{#                            {% endif %}#}
+{#                        </div>#}
+                        <div class="form-group" >
+                            <label class="control-label" for="id_document_file"><i class="fa fa-picture-o"></i>上传文档文件<small>（word,excel,PDF）</small>: </label>
+                            <input class="filestyle" type="file" id="id_document_file" name="document_file" multiple="multiple" data-icon="true" data-input="true" data-buttonText="选择文件" data-iconName="glyphicon-inbox">
+                        </div>
+						<div class="form-group">
+							<label for="id_note"><i class="fa fa-road"></i> *备注： </label>
+							<input class="form-control"  id="id_note" maxlength="50" name="note" type="text" value="{{ insurance_document.note }}">
+						</div>
+						<div class="form-group">
+							<label for="id_content"><i class="fa fa-road"></i> *文档内容： </label>
+                            <textarea id="id_content" name="content" class="form-control" maxlength="15000" style="min-height: 200px">{{ insurance_document.content }}</textarea>
+						</div>
+
+                        <div class="form-group">
+                            <label for="id_channel"><i class="fa fa-life-bouy"></i> 是否显示： </label>
+                            <div class="">
+                                <label class="radio-inline">
+                                  <input type="radio" name="active" id="id_show" value="show" {% if insurance_document.active == 'show' or not insurance_document.is_hidden %}checked{% endif %}> 显示
+                                </label>
+                                <label class="radio-inline">
+                                  <input type="radio" name="active" id="id_hidden" value="hidden" {% if insurance_document.active == 'hidden' or insurance_document.is_hidden %}checked{% endif %}> 隐藏
+                                </label>
+                            </div>
+                        </div>
+                        <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 保 存</button>
+                        <a class="btn btn-default" href="{% url 'bms:insurance_document_list' '1' %}"><i class="fa fa-times"></i> 返 回</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2"></div>
+</div>
+
+
+
+{##############管理文档内容modal###############}
+<div class="modal fade" id="user_protocol_modal" tabindex="-1" role="dialog" >
+    <div class="modal-dialog">
+        <form id="id_user_protocol_form" class="form" method="post" action=""  >  {% csrf_token %}
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title"><i class="fa fa-edit"></i> 用户协议</h4>
+              </div>
+              <div class="modal-body">
+				<div class="form-group" >
+					<label class="control-label" for="id_html"><i class="fa fa-bar-chart"></i> HTML: </label>
+					<textarea id="id_html" name="html" class="form-control" style="min-height: 200px">{{ setting.user_protocol }}</textarea>
+				</div>
+              </div>
+              <div class="modal-footer">
+                <button class="btn btn-success" type="submit"><i class="fa fa-floppy-o"></i> 提 交</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> 退 出</button>
+              </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+       $(function(){
+
+            $('#edit_insurance_document_form').formValidation({
+                // I am validating Bootstrap form
+                framework: 'bootstrap',
+                locale : 'zh_CN',
+                // Feedback icons
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+
+                // List of fields and their validation rules
+                fields: {
+                    name: {
+                        validators: {
+                            notEmpty: {
+                                message: '保险文档名称不可为空'
+                            },
+                            stringLength: {
+                                min: 2,
+                                max: 50,
+                                message: '请输入2～20个字符'
+                            }
+                        }
+                    },
+                    simple_name: {
+                        validators: {
+                            stringLength: {
+                                max: 10,
+                                message: '简称不能超过10个字符'
+                            }
+                        }
+                    },
+                    note: {
+                        validators: {
+                            stringLength: {
+                                max: 50,
+                                message: '最多可输入50字符'
+                            }
+                        }
+                    }
+                }
+            });
+
+
+        });
+    </script>
+{% endblock %}

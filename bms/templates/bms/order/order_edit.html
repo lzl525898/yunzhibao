@@ -1,0 +1,703 @@
+{% extends 'bms/order/base_order.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block order_order %}class='active'{% endblock %}
+{% block title %} 创建订单{% endblock %}
+
+{% block page_top %}
+<div class="row">
+        <div class="col-sm-10">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <i class="fa fa-plus fa-3x pull-right"></i>
+					<form role="form" id="edit_order_form" method="post" action="{% url 'bms:order_edit' order.id %}" enctype="multipart/form-data">  {% csrf_token %}
+					<input class="form-control" type="hidden"  id="bms_order_type" name="order_state"  value="edit">
+                        <div class="page-tailer">
+                          <h1 class="text-center">编辑</h1>
+                        </div>
+                        {% if message and message != '' %}
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="alert alert-warning">{{ message }}</div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        <div id="id_message" class="row control-show">
+                            <div class="col-sm-12">
+                                <div id="id_message_id" class="alert alert-warning">{{ message }}</div>
+                            </div>
+                        </div>
+                        <div class="form-group" >
+                            <label for="id_company_id"><i class="fa fa-film"></i> *保险公司： </label>
+                            <select class="form-control" id="id_company_id" name="company_id">
+                                    <option value="{{ order.company.id }}" >{{ order.company.simple_name }}</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_product_type"><i class="fa fa-globe"></i> *产品类型： </label>
+                            <select class="form-control" id="id_product_type" name="product_type">
+                                  {% for x,y in product_types %}
+                                  	 {% if order.product_type  ==  x  %}
+                                    	<option value="{{ x }}" >{{ y }}</option>
+                                	 {% endif %}
+                                  {% endfor %}
+                            </select>
+                        </div>
+                        <div id="id_hidden_insurance_product" class="form-group">
+                            <label for="id_insurance_product_id"><i class="fa fa-film" ></i> *产品： </label>
+                        	<select class="form-control" id="id_insurance_product_id" name="insurance_product_id">
+                                    <option value="{{ order.insurance_product.id }}" >{{ order.insurance_product.name }}</option>
+                            </select>
+                        </div>
+     					<!-- 添加的货物类型 -->                   
+                     {#   <div id="id_hidden_good_type" class="form-group" style="display: none;">class="control-show"#}
+                       {% if  order.product_type|toString ==  'ticket'  %} 
+ 							<div class="form-group"style="display: block;" id="id_state_id">
+ 						{% else %}
+ 							<div class="form-group"style="display: none;" id="id_state_id">
+ 						{% endif %}
+                       {# <div id="id_hidden_good_type" class="control-show"  style="margin-bottom: 15px;">#}
+                            <label for="id_good_type_id"><i class="fa fa-film"></i> *货物类型/费率：{{order.good_type}} </label>
+                            <select class="form-control" id="id_good_type_id" name="good_type_id"  onchange="getCargo()">
+	                            {% for good_type in order.insurance_product.product_rate_list %}
+	                            	<option value="{{ good_type.good_type }}" {% if  order.good_type  ==  good_type.good_type  %} selected="selected"{% endif %}>{{ good_type.good_type }}/{{ good_type.products_rate }}</option>
+	                            {% endfor %}
+                            
+                            </select>
+                        </div>
+                        
+                        <!-- 添加普通货物详情 -->     
+                        {% if  order.product_type|toString ==  'ticket'  %} 
+ 							<div class="form-group"style="display: block;" id="">
+ 						{% else %}
+ 							<div class="form-group"style="display: none;" id="">
+ 						{% endif %}              
+                       {# <div id="id_hidden_common_good" class="control-show" style="margin-bottom: 15px;">#}
+                            <label for="id_common_good_id"><i class="fa fa-film"></i> *货物详情：</label>
+                            <select class="form-control" id="id_common_good_id" name="common_good_id">
+                           {% for product_cargo in product_cargo_list %}
+                           <option  value="{{product_cargo.cargo_number}}"{% if product_cargo.cargo == order.cargo %}selected="selected" {% endif %}>{{product_cargo.cargo_name }}</option>
+                           {% endfor %}
+                           {# <option selected="selected" value=""></option>#}
+                           {# {% for common_good in common_good_list%}#}
+                            	{#<option value="{{ common_good }}" {% if posted_data.common_good_id|toString == transport_type.1|toString %} selected{% endif %}>{{ common_good }}</option>#}
+                            	{#<option value="{{ common_good }}">{{ common_good }}</option>#}
+                            	{#{% endfor%}#}
+                            </select>
+                        </div>
+                        
+                        <!-- 添加货物运输方式 -->                   
+                        <div id="id_hidden_transport_type" class="form-group"style="margin-bottom: 15px;">
+                            <label for="id_transport_type_id"><i class="fa fa-film"></i> *运输方式： </label>
+                            <select class="form-control" id="id_transport_type_id" name="transport_type_id">
+                            {% for transport_type in transport_list%}
+                            	<option value="{{ transport_type.0 }}" {% if order.transport_type ==  transport_type.0  %} selected="selected" {% elif transport_type.1 == '陆运' %}selected{% endif %}>{{ transport_type.1 }}</option>
+                            	{% endfor%}
+                            </select>
+                        </div>
+                        
+                        <div class="form-group" >
+                            <label for="id_client"><i class="fa fa-film"></i> *投保人：</label>
+                            <select class="form-control chosen-select input-group-addon" id="id_client" name="client_id"style='width:780px'onchange="find_user(this.value)">
+                            <option selected="selected" value="">  </option>
+                                  {% for client in clients %}
+                                    <option value="{{ client.id }}" {% if order.client.id  ==  client.id  %} selected="selected" {% endif %}> {{ client.profile.phone  }}--{% if client.company_name %}{{ client.company_name }}{% else %}{{ client.name }}{% endif %}</option>
+                                  {% endfor %}
+                            </select>
+                        </div>
+                         <!-- ******************************** 汇聚宝添加字段***********************************************************************-->
+ <!--                        <div class="form-group" >
+                            <label for="id_client"><i class="fa fa-film"></i> *投保人身份选择： </label>
+                            <select class="form-control chosen-select input-group-addon" id="client_type" name="client_type"style='width:780px'>
+                            <option selected="selected" value="">  </option>
+                                <option value="">请选择</option>
+                                    <option value="person" {% if order.client_type|toString == 'person'  %} selected {% endif %}>货主</option>
+                                    <option value="company" {% if order.client_type|toString == 'company'  %} selected {% endif %}>物流公司</option>
+                            </select>
+                        </div> -->
+                        <!-- ******************************** 汇聚宝添加字段end************************************************************-->
+                        <div class="form-group">
+							<label for="id_insured"><i class="fa fa-road"></i> *投保人姓名<small><font color = '#ff7575'>（如果本单选择的用户已认证可不填写）</font></small>： </label>
+							<input class="form-control"  id="client_name" name="client_name" type="text"
+								   value="{{ order.client_name|default_if_none:'' }}">
+						</div>
+<!-- 						<div class="form-group">
+							<label for="id_insured"><i class="fa fa-road"></i> *投保人证件号<small><font color = '#ff7575'>（如果本单选择的用户已认证可不填写）</font></small>： </label>
+							<input class="form-control"  id="client_id_card" name="client_id_card" type="text"
+								   value="{{ order.client_id_card|default_if_none:'' }}">
+						</div> -->
+                        
+						<div class="form-group">
+							<label for="id_insured"><i class="fa fa-road"></i> *被保险人姓名<small><font color = '#ff7575'>（不填写，默认和投保人一致）</font></small>： </label>
+							<input class="form-control"  id="id_insured" name="insured" type="text"
+								   value="{{ order.insured|default_if_none:'' }}">
+						</div>
+						<div class="form-group" >
+                            <label for="id_client"><i class="fa fa-film"></i> *被保险人身份选择： </label>
+                            <select class="form-control chosen-select input-group-addon" id="client_type" name="client_type"style='width:780px'>
+                            <option selected="selected" value="">  </option>
+                                <option value="">请选择</option>
+                                    <option value="person" {% if order.client_type|toString == 'person'  %} selected {% endif %}>货主</option>
+                                    <option value="company" {% if order.client_type|toString == 'company'  %} selected {% endif %}>物流公司</option>
+                            </select>
+                        </div>
+						
+<!-- 						<div class="form-group">
+							<label for="id_insured"><i class="fa fa-road"></i> *被保险人证件号<small><font color = '#ff7575'>（不填写，默认和投保人一致）</font></small>： </label>
+							<input class="form-control"  id="insured_id_card" name="insured_id_card" type="text"
+								   value="{{ order.insured_id_card|default_if_none:'' }}">
+						</div> -->
+						
+					{% if  order.product_type|toString ==  'ticket'  %} 
+ 							<div class="form-group"style="display: block;" id="id_hidden_pack_method">
+ 						{% else %}
+ 							<div class="form-group"style="display: none;" id="id_hidden_pack_method">
+ 					{% endif %}
+					{#<div id="id_hidden_pack_method"  class="control-show"style="margin-bottom: 15px;">#}
+					   <div  class="form-group"  >
+                        	<!-- 添加包装方式 -->                   
+                            <label class="control-label" for="id_pack_method_id"> *包装方式：</label>
+                            <div >
+                            <select  id="id_pack_method_id" name="pack_method_id"style="width: 10pc"onchange="change_pack_method()">
+	                           {% for pack_method in pack_method_list%}
+				                  <option value="{{ pack_method.0.0 }}" {% if pack_method.0.0  == pack_family  %}selected="selected" {% endif %}>{{ pack_method.0.0  }}</option>
+				                {% endfor%}
+                            </select>&nbsp;&nbsp;
+     						<!-- 添加的包装方式详情 -->
+                            <select id="id_pack_detail_id" name="pack_detail_id" style="width: 10pc">
+                             {% for pack_method in pack_method_list%}
+			                 	{% if pack_method.0.0  == pack_family  %}
+			                 		{% for pack_detail in pack_method.1 %}
+			                         	<option value="{{ pack_detail.0 }}" {% if pack_detail.0 == order.pack_method %}selected="selected" {% endif %}>{{ pack_detail.1  }}</option>
+			                        {% endfor %}
+			                     {% endif %}  	
+			                 {% endfor%} 
+                            </select>
+                            </div>
+                        </div>	
+                     </div>
+						
+<!-- 修改后的起运地目的地 -->      
+
+
+				<div class="form-group">
+                            <div class="form-group">
+                                <label for="id_password" class="control-label">
+                                    *修改起运地&nbsp;: 
+                                </label>
+                                <div id="">
+                                    <select class="" name="startSiteName_prov" id ="startSiteName_prov"onchange="change_city_list( 'startSiteName_')">>
+                                    {% for cargo_area  in cargo_area_list%}
+						                 {% if cargo_area.level ==  '1'  %}
+						     				<option value="{{ cargo_area.code }}" {% if cargo_area.code ==  start_prov  %}selected="selected" {% endif %}>{{ cargo_area.name }}</option>
+						     			{% endif %}
+						     	    {% endfor%}
+                                    </select>
+                                    <select class="" name="startSiteName_city" id ="startSiteName_city"onchange="change_dist_list( 'startSiteName_')">>
+                                    {% for cargo_area  in cargo_area_list%}
+						                 {% if cargo_area.level ==  '2'  and cargo_area.parentcode == start_prov   %}
+						     				<option value="{{ cargo_area.code }}" {% if cargo_area.code ==  start_city  %}selected="selected" {% endif %}>{{ cargo_area.name }}</option>
+						     			 {% endif %}
+						     	    {% endfor%}
+                                    </select>
+                                    <select class=""name="startSiteName_dist"id ="startSiteName_dist" >
+	                                    {% for cargo_area  in cargo_area_list%}
+							                 {% if cargo_area.level ==  '3' and cargo_area.parentcode == start_city  %}
+							     				<option value="{{ cargo_area.code }}" {% if cargo_area.code ==  start_dis  %}selected="selected" {% endif %}>{{ cargo_area.name }}</option>
+							     			{% endif %}
+							     	    {% endfor%}                                    
+                                    </select> 
+                                </div>
+                           </div>
+				</div> 
+						    
+				<div class="form-group">
+                            <div class="form-group">
+                                <label for="id_password" class="control-label">
+                                    *修改目的地&nbsp;:
+                                </label>
+                                <div id="">
+                                    <select class="" name="targetSiteName_prov" id ="targetSiteName_prov"onchange="change_city_list( 'targetSiteName_')">
+                                    {% for cargo_area  in cargo_area_list%}
+		                                  {% if cargo_area.level ==  '1'  %}
+		                      				<option value="{{ cargo_area.code }}" {% if cargo_area.code ==  target_prov  %}selected="selected" {% endif %}>{{ cargo_area.name }}</option>
+		                      				{% endif %}
+		                      	    {% endfor%}
+                                    </select>
+                                    <select class="" name="targetSiteName_city" id ="targetSiteName_city"onchange="change_dist_list( 'targetSiteName_')">
+                                    {% for cargo_area  in cargo_area_list%}
+						                 {% if cargo_area.level ==  '2'  and cargo_area.parentcode == target_prov   %}
+						     				<option value="{{ cargo_area.code }}" {% if cargo_area.code ==  target_city  %}selected="selected" {% endif %}>{{ cargo_area.name }}</option>
+						     			 {% endif %}
+						     	    {% endfor%}
+                                    </select>
+                                    <select class=""name="targetSiteName_dist"id ="targetSiteName_dist" >
+                                     {% for cargo_area  in cargo_area_list%}
+						                 {% if cargo_area.level ==  '3'  and cargo_area.parentcode == target_city   %}
+						     				<option value="{{ cargo_area.code }}" {% if cargo_area.code ==  target_dis  %}selected="selected" {% endif %}>{{ cargo_area.name }}</option>
+						     			 {% endif %}
+						     	    {% endfor%}
+                                    
+                                    </select> 
+                                </div>
+                            </div>
+						</div> 
+                        
+                        {% if  order.product_type|toString ==  'ticket' or  order.product_type|toString ==  'car' %} 
+	 							<div class="form-group"style="display: block;" id="id_insurance_price_id">
+	 						{% else %}
+	 							<div class="form-group"style="display: none;" id="id_insurance_price_id">
+	 					{% endif %}
+						{#<div id="id_insurance_price_id" class="form-group control-show">#}
+							<label for="id_insurance_price"><i class="fa fa-road"></i> *货物价值： </label>
+							<input class="form-control"  id="id_insurance_price" name="insurance_price" type="text"
+								   value="{{ order.insurance_price  |FenToYuan  }}">
+						</div>
+						{% if    order.product_type|toString ==  'car' %} 
+		 							<div class="form-group"style="display: block;" id="id_car">
+		 						{% else %}
+		 							<div class="form-group"style="display: none;" id="id_car">
+		 				{% endif %}
+	                   {#<div id="id_car" class="control-show">#}
+							<div class="form-group">
+								<label for="id_car_transport_id"><i class="fa fa-road"></i> *运单号： </label>
+								<input class="form-control"  id="id_car_transport_id" name="car_transport_id" type="text"
+									   value="{{ order.transport_id|default_if_none:'' }}"maxlength="50">
+							</div>
+							<div class="form-group">
+								<label for="id_car_commodityName"><i class="fa fa-road"></i> *货物名称： </label>
+								<input class="form-control"  id="id_car_commodityName" name="car_commodityName" type="text"
+									   value="{{ order.commodityName |default_if_none:'' }}">
+							</div>
+							<div class="form-group">
+								<label for="id_car_commodityCases"><i class="fa fa-road"></i> *货物数量： </label>
+								<input class="form-control"  id="id_car_commodityCases" name="car_commodityCases" type="text"
+									   value="{{ order.commodityCases|default_if_none:'' }}">
+							</div>
+	                    </div>
+
+
+	 			<div class="form-group"  {% if    order.product_type|toString ==  'batch' %}  style="display: block;"{% else %}style="display: none;" {% endif %}id="id_batch">
+
+                        <div class="form-group" >
+                            <label for="id_batch_insurance_price"><i class="fa fa-film"></i> *货物价值：</label>
+                            <select class="form-control" id="id_batch_insurance_price" name="batch_insurance_price">
+                                 <option value="">请选择</option>
+                                {% for batch_price_detail in batch_price_list %}
+                                <option value="{{batch_price_detail.0}}"{% if batch_insurance_price|toString ==  batch_price_detail.0   %} selected ="selected" {% endif %}>{{batch_price_detail.1}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+						<div class="form-group">
+							<div class="form-group">
+	                                <label for="id_password" class="control-label">
+	                                    *车牌号&nbsp;: 
+	                                </label>
+	                                <div id="">
+	                                    <select class="" name="ticket_short_number" id ="">
+	                                    {% for short in short_detail %}
+	                                      <option value="{{short}}" {% if short_number|toString ==  short   %} selected ="selected" {% endif %}> {{short}} </option>
+	                                    {% endfor %}
+	                                    </select>
+	                                    <select class="" name="ticker_mid_number" id ="">
+			                                    {% for mid in mid_detail %}
+			                                      <option value="{{mid}}" {% if mid_number|toString ==  mid   %} selected ="selected" {% endif %}> {{mid}} </option>
+			                                    {% endfor %}</select>
+	                                    <input class=""  id="id_batch_plate_number" name="batch_plate_number" type="text"value="{{ end_number|default_if_none:'' }}"maxlength="5" >
+	                                </div>
+	                           </div>
+				<!-- 			<label for="id_batch_plate_number"><i class="fa fa-road"></i> *车牌号： </label>
+							<input class="form-control"  id="id_batch_plate_number" name="batch_plate_number" type="text"
+								   value="{{ order.plate_number|default_if_none:'' }}"> -->
+						</div>
+						<div class="form-group">
+							<label for="id_batch_plate_number_plus"><i class="fa fa-road"></i> *挂车牌号： </label>
+							<input class="form-control"  id="id_batch_plate_number_plus" name="batch_plate_number_plus" type="text"
+								   value="{{ order.plate_number_plus|default_if_none:'' }}">
+						</div>
+
+                        <div class="form-group">
+                            <label for=""><i class="fa fa-road"></i> *保险清单： </label>
+                            <table class="table table-bordered" id="id_batch_list">
+                                <tr id="id_properties_title" class="info">
+                                    <td class="text-center">运单号</td>
+                                    <td class="text-center">起运地</td>
+                                    <td class="text-center">目的地</td>
+                                    <td class="text-center">货物名称</td>
+                                    <td class="text-center">货物数量</td>
+                                    <td class="text-center">操作</td>
+                                </tr>
+
+	                                {% for batch in order.batch_list %}
+		                                <tr id="id_properties_item_{{forloop.counter0}}" name="properties_item">
+		                                    <input type="hidden" name="position" value="{{forloop.counter0}}"/>
+		                                    <td><input class="form-control"  name="yd_{{forloop.counter0}}" type="text" value="{{ batch.transport_id }}" ></td>
+		                                    <td><input class="form-control"  name="qyd_{{forloop.counter0}}" type="text" value="{{ batch.startSiteName }}" ></td>
+		                                    <td><input class="form-control"  name="mdd_{{forloop.counter0}}" type="text" value="{{ batch.targetSiteName }}" ></td>
+		                                    <td><input class="form-control"  name="hwmc_{{forloop.counter0}}" type="text" value="{{ batch.commodityName }}" ></td>
+		                                    <td><input class="form-control"  name="hwsl_{{forloop.counter0}}" type="text" value="{{ batch.commodityCases }}"></td>
+		                                    <td><a id="id_properties_item_delete_{{forloop.counter0}}" class="btn btn-default" onclick="$('#id_properties_item_{{forloop.counter0}}').remove()">删除</a></td>
+		                                </tr>
+		                           {% endfor %}
+                                <tr id="id_properties_bottom">
+                                    <td colspan="6">
+                                    <a class="pointer" id="id_properties_add" onclick="add_batch_line()">添加车次清单</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="form-group">
+							<label for="batch_commodityCases"><i class="fa fa-road"></i> *货物件数： </label>
+							<input class="form-control"  id="batch_commodityCases" name="batch_commodityCases" type="text"
+								   value="{{ order.commodityCases  }}">
+						</div>
+                        <div class="form-group" >
+                            <div style="color: red">友情提示：如果上传清单文档或照片，请先点击删除按钮，清除该行！！！</div>
+                        </div>
+                        <div class="form-group" >
+                            <label class="control-label" for="id_batch_file"><i class="fa fa-picture-o"></i>上传清单文档文件<small>（word,excel,PDF）</small>: </label>
+                            <input class="filestyle" type="file" id="id_batch_file" name="batch_file" data-icon="true" data-input="true" data-buttonText="选择文件" data-iconName="glyphicon-inbox">
+                        </div>
+                        <div class="form-group" >
+                            <label class="control-label" for="id_batch_image"><i class="fa fa-picture-o"></i>上传清单照片(可多选)<small>（gif、png、jpeg或icon;）</small>: </label>
+                            <input class="filestyle" type="file" id="id_batch_image" name="batch_image_list" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox" multiple>
+                        </div>
+                        {#2017/12/03添加编辑添加众安资料部分#}
+						{% if "众安"  in order.insurance_product.company.parent.description  %}
+						 <div class="form-group" id="id_tb_client_type"  >
+							<label for="id_batch_insurance_price"><i class="fa fa-film"></i> *投保人类型： </label>
+                            <select class="form-control" id="tb_client_type1" name="tb_client_type"  >
+                                <option value="">请选择</option>
+                                <option value="person"{% if order.tb_client_type|toString ==  "person"   %} selected ="selected" {% endif %}>个人</option>
+               					<option value="company"{% if order.tb_client_type|toString ==  "company"  %} selected ="selected" {% endif %}>公司</option>
+                            </select>
+						</div>
+						<div class="form-group"id="id_taxpayerRegNum"  >
+							<label for="id_insured"><i class="fa fa-road"></i> *纳税人识别号<small><font color = '#ff7575'></font></small>： </label>
+							<input class="form-control"  id="taxpayerRegNum" name="taxpayerRegNum" type="text"
+								   value="{{ order.taxpayerRegNum|default_if_none:'' }}">
+						</div>
+						<div class="form-group"id="id_holderCertType"  >
+							<label for="id_insured"><i class="fa fa-road"></i> *投保人证件类型<small><font color = '#ff7575'></font></small>： </label>
+							<select class="form-control" id="tb_holderCertType" name="tb_holderCertType"  >
+                                <option value="">请选择</option>
+                                <option value="TY"{% if order.tb_holderCertType|toString ==  "TY"   %} selected ="selected" {% endif %}>统一社会信用代码</option>
+               					<option value="Z"{% if order.tb_holderCertType|toString ==  "Z"  %} selected ="selected" {% endif %}>组织机构代码</option>
+                            </select>
+						</div>
+						<div class="form-group"id="id_holderCertNo"  >
+							<label for="id_insured"><i class="fa fa-road"></i> *投保人证件号<small><font color = '#ff7575'></font></small>： </label>
+							<input class="form-control"  id="holderCertNo" name="holderCertNo" type="text"
+								   value="{{ order.holderCertNo|default_if_none:'' }}">
+						</div>
+						<div class="form-group"id="id_insureCertType"  >
+							<label for="id_insured"><i class="fa fa-road"></i> *被保人证件类型<small><font color = '#ff7575'></font></small>： </label>
+							<select class="form-control" id="bb_insureCertType" name="bb_insureCertType"  >
+                                <option value="">请选择</option>
+                                <option value="TY"{% if order.bb_insureCertType|toString ==  "TY"   %} selected ="selected" {% endif %}>统一社会信用代码</option>
+               					<option value="Z"{% if order.bb_insureCertType|toString ==  "Z"  %} selected ="selected" {% endif %}>组织机构代码</option>
+                            </select>
+						</div>
+						<div class="form-group"id="id_bb_insureCertNo"  >
+							<label for="id_insured"><i class="fa fa-road"></i> *被保人证件号<small><font color = '#ff7575'></font></small>： </label>
+							<input class="form-control"  id="bb_insureCertNo" name="bb_insureCertNo" type="text"
+								   value="{{ order.bb_insureCertNo|default_if_none:'' }}">
+						</div>
+				{%  endif %}
+				{#添加结束#}
+               </div>
+
+
+ 				<div class="form-group"{% if  order.product_type|toString ==  'ticket'  %} style="display: block;"{% else %}style="display: none;"{% endif %} id="id_ticket">
+						<div class="form-group">
+							<label for="id_ticket_transport_id"><i class="fa fa-road"></i> *运单号： </label>
+							<input class="form-control"  id="id_ticket_transport_id" name="ticket_transport_id" type="text"
+								   value="{{ order.transport_id }}"maxlength="50">
+						</div>
+						<div class="form-group">
+							<div class="form-group">
+	                                <label for="id_password" class="control-label">*车牌号&nbsp;: </label>
+		                              <div id="">
+		                                    <select class="" name="short_number" id ="">
+		                                    {% for short in short_detail %}
+		                                      <option value="{{short}}" {% if short_number|toString ==  short   %} selected ="selected" {% endif %}> {{short}} </option>
+		                                    {% endfor %}
+		                                    </select>
+		                                    <select class="" name="mid_number" id ="">
+				                                    {% for mid in mid_detail %}
+				                                      <option value="{{mid}}" {% if mid_number|toString ==  mid   %} selected ="selected" {% endif %}> {{mid}} </option>
+				                                    {% endfor %}</select>
+		                                    <input class=""  id="id_ticket_plate_number" name="ticket_plate_number" type="text"value="{{ end_number|default_if_none:'' }}"maxlength="5" >
+		                                </div>
+		                           </div>
+						
+							<!-- <label for="id_ticket_plate_number"><i class="fa fa-road"></i> *车牌号： </label>
+							<input class="form-control"  id="id_ticket_plate_number" name="ticket_plate_number" type="text"
+								   value="{{ order.plate_number}}"> -->
+						</div>
+						<div class="form-group">
+							<label for="id_ticket_plate_number_plus"><i class="fa fa-road"></i> *挂车牌号： </label>
+							<input class="form-control"  id="id_ticket_plate_number_plus" name="ticket_plate_number_plus" type="text"
+								   value="{{ order.plate_number_plus}}">
+						</div>
+						<div class="form-group">
+							<label for="id_ticket_commodityName"><i class="fa fa-road"></i> *货物名称： </label>
+							<input class="form-control"  id="id_ticket_commodityName" name="ticket_commodityName" type="text"
+								   value="{{ order.commodityName }}">
+						</div>
+						<div class="form-group">
+							<label for="id_ticket_commodityCases"><i class="fa fa-road"></i> *货物数量： </label>
+							<input class="form-control"  id="id_ticket_commodityCases" name="ticket_commodityCases" type="text"
+								   value="{{ order.commodityCases}}">
+						</div>
+						{#2017/12/03添加编辑添加众安资料部分#}
+						{% if "众安"  in order.insurance_product.company.parent.description  %}
+						<div class="form-group" id="id_tb_client_type_ticket" >
+							<label for="id_batch_insurance_price"><i class="fa fa-film"></i> *投保人类型： </label>
+                            <select class="form-control" id="tb_client_type_ticket" name="tb_client_type_ticket"  onchange="add_ticket_detail(this.value)">
+                                <option value="">请选择</option>
+                                <option value="person"{% if order.tb_client_type|toString ==  "person"   %} selected ="selected" {% endif %}>个人</option>
+               					<option value="company"{% if order.tb_client_type|toString ==  "company"  %} selected ="selected" {% endif %}>公司</option>
+                            </select>
+						</div>
+						<div class="form-group"id="id_taxpayerRegNum_ticket" {% if order.tb_client_type|toString ==  "company"  %} style="display: block"{% else %} style="display: none"{% endif %}>
+							<label for="id_insured"><i class="fa fa-road"></i> *纳税人识别号<small><font color = '#ff7575'></font></small>： </label>
+							<input class="form-control"  id="taxpayerRegNum_ticket" name="taxpayerRegNum_ticket" type="text"
+								   value="{{ order.taxpayerRegNum|default_if_none:'' }}">
+						</div>
+						<div class="form-group"id="id_holderCertNo_ticket" {% if order.tb_client_type|toString ==  "company"  %} style="display: none"{% else %} style="display: block"{% endif %}>
+							<label for="id_insured"><i class="fa fa-road"></i> *投保人证件号33<small><font color = '#ff7575'></font></small>： </label>
+							<input class="form-control"  id="holderCertNo_ticket" name="holderCertNo_ticket" type="text"
+								   value="{{ order.holderCertNo|default_if_none:'' }}">
+						</div>
+						{% endif %}
+						{#添加结束#}
+						
+                    </div>
+                    
+                    
+                        <div class="form-group">
+                            <label for="id_channel"><i class="fa fa-life-bouy"></i> 是否激活： </label>
+                            <div class="">
+                                <label class="radio-inline">
+                                  <input type="radio" name="active" id="id_show" value="show" checked> 显示
+                                </label>
+                                <label class="radio-inline">
+                                  <input type="radio" name="active" id="id_hidden" value="hidden"> 隐藏
+                                </label>
+                            </div>
+                        </div>
+                        <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 保 存</button>
+{#                    onclick="confirm_order()"#}
+                        <a class="btn btn-default" href="{% url 'bms:order_list' '1' %}"><i class="fa fa-times"></i> 返 回</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2"></div>
+</div>
+
+
+
+{##}
+{#确定生成订单#}
+{# <div class="modal fade" id="confirm_order_modal" tabindex="-1" role="dialog" >#}
+{#    <div class="modal-dialog">#}
+{#        <form id="confirm_order_form" class="form" method="post" action="{% url 'bms:order_create' %}"  enctype="multipart/form-data">  {% csrf_token %}#}
+{#            <div class="modal-content">#}
+{#              <div class="modal-header">#}
+{#                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>#}
+{#                <h4 class="modal-title"><i class="fa fa-save"></i> 确认创建订单</h4>#}
+{#              </div>#}
+{#              <input id="id_batch_list_name" type="hidden" name="batch_list_name" value="">#}
+{#              <div class="modal-body">#}
+{#                <div class="form-group" >#}
+{#                    <label class="control-label">订单生成后不可恢复，是否确认创建？</label>#}
+{#                </div>#}
+{#              </div>#}
+{#              <div class="modal-footer">#}
+{#                <button class="btn btn-success" type="submit" onclick="submit_order()"><i class="fa fa-floppy-o"></i> 确 定 </button>#}
+{#                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> 退 出</button>#}
+{#              </div>#}
+{#            </div>#}
+{#        </form>#}
+{#    </div>#}
+{# </div>#}
+
+
+
+{% endblock %}
+
+{% block script_block %}
+
+<script type="text/javascript">
+  function add_ticket_detail(value){
+	  var value =value
+	  //alert(44)
+	  var insurance_type_selector = document.getElementById('id_product_type');
+	  if (insurance_type_selector.value == 'ticket'){
+		  if (value == "person"){
+			  document.getElementById("id_taxpayerRegNum_ticket").style.display="none";//纳税人识别号
+			  document.getElementById("id_holderCertNo_ticket").style.display="block";//投保人证件
+		  }
+		  else if ( value == "company"){
+			  document.getElementById("id_taxpayerRegNum_ticket").style.display="block";//纳税人识别号
+			  document.getElementById("id_holderCertNo_ticket").style.display="none";//投保人证件
+		  }
+		  else{
+			  alert("众安保险请选择投保人类型")
+		  }
+	  }
+  }
+</script>
+    <script type="text/javascript">
+       $(function(){
+    	   //change_pack_method();
+    	   getCargo()
+
+            $('#create_order_form').formValidation({
+                // I am validating Bootstrap form
+                framework: 'bootstrap',
+                locale : 'zh_CN',
+                // Feedback icons
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+
+                // List of fields and their validation rules
+                fields: {
+                    transport_id: {
+                        validators: {
+                            notEmpty: {
+                                message: '运单号不可为空'
+                            },
+                            stringLength: {
+                                min: 2,
+                                max: 50,
+                                message: '请输入2～50个字符'
+                            }
+                        }
+                    },
+                    plate_number: {
+                        validators: {
+                            notEmpty: {
+                                message: '车牌号不可为空'
+                            },
+                            stringLength: {
+                                max: 12,
+                                message: '请输入正确的车牌号'
+                            }
+                        }
+                    },
+                    insurance_rate: {
+                        validators: {
+                            regexp: {
+                                regexp: /^[0-9]+([.]{1}[0-9]+){0,1}$/,
+                                message: '请填写正确的费率格式'
+                            }
+                        }
+                    },
+                    insurance_price: {
+                        validators: {
+                            regexp: {
+                                regexp: /^\d{0,8}\.{0,1}(\d{1,2})?$/,
+                                message: '必须是数字，最多可输入俩位小数'
+                            }
+                        }
+                    },
+                    ticket_commodityCases: {
+                        validators: {
+                            regexp: {
+                            	regexp: /^\d{0,8}\.{0,1}(\d{1,2})?$/,
+                            	message: '必须是数字，最多可输入俩位小数'
+                                /* regexp: /^\d+$/, */
+                               /*  message: '请输入正整数' */
+                            }
+                        }
+                    },
+                    car_commodityCases: {
+                        validators: {
+                            regexp: {
+                            	regexp: /^\d{0,8}\.{0,1}(\d{1,2})?$/,
+                            	message: '必须是数字，最多可输入俩位小数'
+                                /* regexp: /^\d+$/, */
+                                /* message: '请输入正整数' */
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+
+{#    function confirm_order(){#}
+{#        $('#confirm_order_modal').modal('show');#}
+{#    }#}
+{#   function submit_order(){#}
+{#        $('#create_order_form').submit();#}
+{#    }#}
+{#    #}
+
+    function add_batch_line(){
+                var count = $('tr[name="properties_item"]').length;
+                var position = count;
+                if($("#id_properties_item_" + position).length > 0){
+                    for(var i=0;i<count;i++){
+                        if($("#id_properties_item_" + i).length <= 0){
+                            position = i;
+                            break;
+                        }
+                    }
+                }
+
+                $('#id_properties_bottom').before('<tr id="id_properties_item_' + position + '" name="properties_item">' +
+                        '<input type="hidden" name="position" value="' + position + '"/>' +
+                        '<td><input class="form-control"  name="yd_' + position + '" type="text" value="" required></td>' +
+                        '<td><input class="form-control"  name="qyd_' + position + '" type="text" value="" required ></td>' +
+                        '<td><input class="form-control"  name="mdd_' + position + '" type="text" value="" required ></td>' +
+                        '<td><input class="form-control"  name="hwmc_' + position + '" type="text" value="" required ></td>' +
+                        '<td><input class="form-control"  name="hwsl_' + position + '" type="text" value="" required ></td>' +
+                        '<td><a id="id_properties_item_delete_' + position + '" class="btn btn-default" onclick="$(\'#id_properties_item_' + position + '\').remove()">删除</a></td>' +
+                        '</tr>');
+
+            }
+
+    //######################################用户信息联动#################
+    function find_user(id) {
+    	var id = id;
+    	//alert('id======'+id)
+    	if (id==''){
+    		document.getElementById('client_name').value = "";
+    		document.getElementById('client_id_card').value = "";
+    		document.getElementById('id_insured').value = "";
+    		document.getElementById('insured_id_card').value = "";
+    	}
+    	else{
+    		$.ajax({
+    			url: "/bms/interface/locations/get_user_detail/",
+    			data: {user_id: id},
+                type: 'GET',
+                dataType: 'json',
+                timeout: 15000,
+                success: function (data) {
+                    if (data.code=='1'){
+                    	alert(data.message);
+                    }
+                    else{
+                    	document.getElementById('client_name').value = data.data['user_name'];
+                		document.getElementById('client_id_card').value = data.data['user_number'];
+                		document.getElementById('id_insured').value =data.data['user_name'];
+                		document.getElementById('insured_id_card').value = data.data['user_number'];
+                    } 		
+              },
+              error: function (data) {
+              	alert(data.message);
+              }
+    		});
+    	}
+    }
+
+    </script>
+{% endblock %}

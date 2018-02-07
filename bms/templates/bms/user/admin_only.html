@@ -1,0 +1,35 @@
+{% extends 'bms/user/base_user.html' %}
+{% load static %}
+{% if admin.is_superuser %}
+{% block user_admin %}class='active'{% endblock %}
+{% endif %}
+
+
+
+{% block page_top %}
+    <div class="row">
+        <div class="col-sm-12">
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <h2 class="text-center">仅限超级管理员使用</h2>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+

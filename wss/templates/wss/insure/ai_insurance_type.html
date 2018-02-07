@@ -1,0 +1,275 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}选择险种{% endblock %}
+
+{% block container_block %}
+<style>
+.weui_input {
+  width: 100%;
+  border:0px solid #C8C8CD;  
+  border-radius: 3px !important;
+  outline: 0;
+  -webkit-appearance: none; 
+  background-color: #5172D5;
+  font-size: 14px;
+  color: #fff;
+  height: 2em;
+  line-height: 2em;
+}
+#item-ifo #ico {
+width: 16px;
+height: 16px;
+position: absolute;
+top: 22px;
+left: 42px;
+z-index: 3;
+color:#fff;
+}  
+</style>
+{% if message %}
+    <div class="weui_dialog_alert">
+        <div class="weui_mask"></div>
+        <div class="weui_dialog">
+            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+            <div class="weui_dialog_bd">{{ message }}</div>
+            <div class="weui_dialog_ft">
+                <a onclick="close_dialog();" class="weui_btn_dialog primary">确定</a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{#    首页所在位置，进入页面后的默认页面#}
+<div class="top">
+	<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+		<tbody>
+			<tr>
+					<td width="20%" valign="middle">
+							<a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a>
+					</td>
+					<td class="wz" width="60%" valign="middle" align="center">
+							<span id="toptitle">
+									<i class="fa   fa-file-text"></i>&nbsp;<strong>选择险种</strong>
+							</span>
+					</td>
+					<td width="20%" valign="middle" align="right">
+					<a id="aso" href="#"></a>
+					</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<form id="wss_register_form" method="POST" action="/wss/insure/insurance_period/">{% csrf_token %}
+     <input type="hidden" name="paper_id" value="{{ paper_id }}">
+	<div class="weui_cells" style="height:100%;background:#F3F3F3;padding-top:20px;">
+       <div class="weui_panel weui_panel_access">
+		      <div class="weui_panel_hd"  style="background:#F3F3F3;">交强险和车船使用税</div>
+		      <div class="weui_panel_bd">
+		        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+			          <div class="weui_media_bd">
+			            <h4 class="weui_media_title"  style="font-size:14px;">交强险</h4>
+			            <p class="weui_media_desc">国家规定的强制保险</p>
+			          </div>
+			          <div class="weui_media_hd" style="margin-right:.1em">
+			                <input class="weui_switch" type="checkbox"  checked  id="jqx" name= "liability_state">
+			          </div>
+		        </a>
+		        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+			          <div class="weui_media_bd">
+			            <h4 class="weui_media_title"  style="font-size:14px;">车船使用税</h4>
+			            <p class="weui_media_desc">以排量为收取标准的国家税收</p>
+			          </div>
+			         <div class="weui_media_hd" style="margin-right:.1em">
+			                 <input class="weui_switch" type="checkbox"  checked  id="ccs" name="vehicle_vessel_tax_state">
+			          </div>
+		        </a>
+		      </div>
+		</div>
+		<div class="weui_panel weui_panel_access">
+		      <div class="weui_panel_hd"  style="background:#F3F3F3;padding:0px 15px 10px;">商业险</div>
+		      <div class="weui_panel_bd">
+		        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+			          <div class="weui_media_bd">
+			            <h4 class="weui_media_title"  style="font-size:14px;">三者险</h4>
+			            <p class="weui_media_desc">用于赔付对他人造成的财产损失</p>
+			          </div>
+			          <div class="weui_media_hd" style="margin-right:.1em"  id="item-ifo">
+			                <input class="weui_input" type="text"    id="szx" value="10万"  name="third_insurance"><i class="fa fa-angle-down" id="szx" ></i>
+			          </div>
+		        </a>
+		        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+			          <div class="weui_media_bd">
+			            <h4 class="weui_media_title"  style="font-size:14px;">车损险</h4>
+			            <p class="weui_media_desc">用于赔付自己车辆损失</p>
+			          </div>
+			         <div class="weui_media_hd" style="margin-right:.1em">
+			                 <input class="weui_switch" type="checkbox"  checked  id="csx" name="damage_insurance">
+			          </div>
+		        </a>
+		        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+			          <div class="weui_media_bd">
+			            <h4 class="weui_media_title"  style="font-size:14px;">玻璃险</h4>
+			            <p class="weui_media_desc">用于赔付非抗力对玻璃造成的损失</p>
+			          </div>
+			          <div class="weui_media_hd" style="margin-right:.1em"  id="item-ifo">
+			                <input class="weui_input" type="text"    id="blx" value="不投保" name="glass_insurance"><i class="fa fa-angle-down" id="blx" ></i>
+			          </div>
+		        </a>
+		        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+			          <div class="weui_media_bd">
+			            <h4 class="weui_media_title"  style="font-size:14px;">司机险</h4>
+			            <p class="weui_media_desc">用于对司机造成的人身伤害</p>
+			          </div>
+			         <div class="weui_media_hd" style="margin-right:.1em"  id="item-ifo">
+			                 <input class="weui_input" type="text"    id="sjx" value="不投保" name="driver_insurance" ><i class="fa fa-angle-down" id="sjx" ></i>
+			          </div>
+		        </a>
+		        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+			          <div class="weui_media_bd">
+			            <h4 class="weui_media_title"  style="font-size:14px;">乘客险</h4>
+			            <p class="weui_media_desc">车内本车乘客（非驾驶员）的人身伤亡费用</p>
+			          </div>
+			          <div class="weui_media_hd" style="margin-right:.1em"  id="item-ifo">
+			                 <input class="weui_input" type="text"    id="ckx" value="不投保"  name="passenger_insurance"><i class="fa fa-angle-down" id="ckx" ></i>
+			          </div>
+		        </a>
+		        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+			          <div class="weui_media_bd">
+			            <h4 class="weui_media_title"  style="font-size:14px;">盗抢险</h4>
+			            <p class="weui_media_desc">用于赔付车辆被盗抢损失</p>
+			          </div>
+			         <div class="weui_media_hd" style="margin-right:.1em">
+			                 <input class="weui_switch" type="checkbox"   id="dqx" name="theft_insurance">
+			          </div>
+		        </a>
+		        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+			          <div class="weui_media_bd">
+			            <h4 class="weui_media_title"  style="font-size:14px;">不计免赔险</h4>
+			            <p class="weui_media_desc">事故发生时自己不再承担损失</p>
+			          </div>
+			         <div class="weui_media_hd" style="margin-right:.1em">
+			                 <input class="weui_switch" type="checkbox"   checked id="bjmpx" name="iop_insurance">
+			          </div>
+		        </a>
+		        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+			          <div class="weui_media_bd">
+			            <h4 class="weui_media_title"  style="font-size:14px;">自燃损失险</h4>
+			            <p class="weui_media_desc">车辆的自身原因起火造成车辆本身的损失</p>
+			          </div>
+			         <div class="weui_media_hd" style="margin-right:.1em">
+			                 <input class="weui_switch" type="checkbox"   id="zrssx" name="autoignition_insurance">
+			          </div>
+		        </a>
+		       <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+			          <div class="weui_media_bd">
+			            <h4 class="weui_media_title"  style="font-size:14px;">划痕险</h4>
+			            <p class="weui_media_desc">他人恶意行为造成的车辆车身人为划痕</p>
+			          </div>
+			          <div class="weui_media_hd" style="margin-right:.1em"  id="item-ifo">
+			                <input class="weui_input" type="text"    id="hhx" value="不投保" name="scratch_insurance" ><i class="fa fa-angle-down" id="ico" ></i>
+			          </div>
+		        </a>
+		        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+			          <div class="weui_media_bd">
+			            <h4 class="weui_media_title"  style="font-size:14px;">涉水险</h4>
+			            <p class="weui_media_desc">因水淹或涉水行驶造成发动机损坏的费用</p>
+			          </div>
+			         <div class="weui_media_hd" style="margin-right:.1em">
+			                 <input class="weui_switch" type="checkbox"   id="shesx" name="wading_insurance">
+			          </div>
+		        </a>
+		      </div>
+		</div>
+	   <div style="height:20px;"></div>
+        <div class="weui_cell ">
+                <div class="weui_cell_bd weui_cell_primary " >
+								<button type="submit" class="weui_btn weui_btn_primary">下一步</button>
+                </div>
+        </div>
+</div>
+</form>
+      
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+ <script src="{% static 'js/jquery-2.1.4.js' %}"></script>
+ <script src="{% static 'js/fastclick.js' %}"></script>
+ <script>
+  $(function() {
+    FastClick.attach(document.body);
+  });
+ </script>
+ <script src="{% static 'js/jquery-weui.js' %}"></script>
+  <script src="{% static 'js/city-picker.js' %}"></script>
+ <script type="text/javascript">
+      $("#szx").select({
+        title: "选择",
+        items: ["不投保","10万", "20万","30万", "50万","100万", "150万","200万", "250万", "300万"],
+        onChange: function(d) {
+          console.log(this, d);
+        },
+        onClose: function() {
+          console.log("close");
+        },
+        onOpen: function() {
+          console.log("open");
+        },
+      });
+      $("#blx").select({
+          title: "选择",
+          items: ["不投保","国产", "进口"],
+          onChange: function(d) {
+            console.log(this, d);
+          },
+          onClose: function() {
+            console.log("close");
+          },
+          onOpen: function() {
+            console.log("open");
+          },
+        });
+      $("#sjx").select({
+          title: "选择",
+          items: ["不投保","1万", "2万","5万", "10万","20万"],
+          onChange: function(d) {
+            console.log(this, d);
+          },
+          onClose: function() {
+            console.log("close");
+          },
+          onOpen: function() {
+            console.log("open");
+          },
+        });
+      $("#ckx").select({
+          title: "选择",
+          items: ["不投保","1万", "2万","5万", "10万","20万"],
+          onChange: function(d) {
+            console.log(this, d);
+          },
+          onClose: function() {
+            console.log("close");
+          },
+          onOpen: function() {
+            console.log("open");
+          },
+        });
+      $("#hhx").select({
+          title: "选择",
+          items: ["不投保","2千", "5千","1万", "2万"],
+          onChange: function(d) {
+            console.log(this, d);
+          },
+          onClose: function() {
+            console.log("close");
+          },
+          onOpen: function() {
+            console.log("open");
+          },
+        });
+    </script>
+{% endblock %}

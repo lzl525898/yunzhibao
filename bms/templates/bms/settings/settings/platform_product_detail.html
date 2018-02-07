@@ -1,0 +1,202 @@
+{% extends 'bms/settings/base_settings.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block level_4 %} in {% endblock %}
+{% block platform_product %}class='active'{% endblock %}
+{% block page_top %}
+   <!-- BEGIN PAGE HEADER-->
+         <div class="row">
+            <div class="col-md-12">
+               <!-- BEGIN PAGE TITLE & BREADCRUMB-->
+               <ul class="page-breadcrumb breadcrumb">
+                  <li>
+                     <i class="icon-home"></i>
+                     <a href="index.html">系统管理</a> 
+                     <i class="icon-angle-right"></i>
+                  </li>
+                  <li>
+                     <a href="#">平台信息管理</a>
+                     <i class="icon-angle-right"></i>
+                  </li>
+                  <li><a href="#">保险产品管理-产品详情</a></li>
+               </ul>
+               <!-- END PAGE TITLE & BREADCRUMB-->
+            </div>
+         </div>
+{% endblock %}
+
+{% block page_middle %}
+
+ <div class="row">
+        <div class="col-sm-12">
+            <table class="table table-bordered"  style="width:100%;">
+                <tr>
+                  <td class="info text-center" style="width:20%;">产品名称</td>
+                  <td class="text-center" style="width:80%;">{{platformProducts.name}} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">产品图标</td>
+                   <td>
+                      <a href="{% static '' %}{{ platformProducts.wx_product_pic }}" target="_blank">
+                  		<img class="img-responsive center-block" src="{% static '' %}{{ platformProducts.wx_product_pic }}" style="max-width: 250px;max-height: 60px;word-break:break-all" alt="展示图片"/>
+                  	  </a>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">产品类型</td>
+                  <td class="text-center">{{ platformProducts|displayName:'product_type' }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">优先级</td>
+                  <td class="text-center"style="max-width: 400px; word-wrap:break-word;">{{ platformProducts.priority }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">投保方式</td>
+                  <td class="text-center"style="max-width: 400px; word-wrap:break-word;">{{ platformProducts|displayName:'isline' }} </td>
+                </tr>
+                {% if platformProducts.isline == '2'%}
+                <tr>
+                  <td class="info text-center">产品链接地址</td>
+                  <td class="text-center"style="max-width: 400px; word-wrap:break-word;">{{ platformProducts.product_url }}</td>
+                </tr>
+                {% else %}
+               <tr>
+                  <td class="info text-center">产品特点</td>
+                  <td class="text-center"style="max-width: 400px; word-wrap:break-word;">{{ platformProducts.product_characteristic }}</td>
+                </tr>
+                 <tr>
+                  <td class="info text-center">产品介绍</td>
+                  <td class="text-center"style="max-width: 400px; word-wrap:break-word;">{{ platformProducts.product_introduce|safe }}</td>
+                </tr>
+                {% endif %}
+                {#****************************微信分享********************************************************************************************#}
+                <tr>
+                  <td class="info text-center">分享标题</td>
+                  <td class="text-center"style="max-width: 400px; word-wrap:break-word;">{{ platformProducts.wx_share_title|safe }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">微信分享介绍</td>
+                  <td class="text-center"style="max-width: 400px; word-wrap:break-word;">{{ platformProducts.wx_share_desc|safe }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">微信分享图片</td>
+                   <td>
+                      <a href="{% static '' %}{{ platformProducts.wx_share_pic }}" target="_blank">
+                  		<img class="img-responsive center-block" src="{% static '' %}{{ platformProducts.wx_share_pic }}" style="max-width: 250px;max-height: 1000px;word-break:break-all" alt="分享图片"/>
+                  	  </a>
+                  </td>
+
+                {#****************************微信分享结束*****************************************************************************************#}
+            </table>
+             <a class="btn btn-default" href="{% url 'bms:platform_product_list'  %}"><i class="fa fa-times"></i> 返 回</a>
+        </div>
+    </div>
+<!--  <div class="row">
+            <div class="col-md-12">
+               BEGIN VALIDATION STATES
+               <div class="portlet box green">
+                  <div class="portlet-body form">
+                     <div class="form-body">
+                        BEGIN FORM
+                        <form action="{% url 'bms:platform_product_save' %}" id="form_sample_2" class="form-horizontal" method="POST">{% csrf_token %}
+                           <div class="form-group">
+                              <label class="control-label col-md-2">产品名称<span class="required">*</span></label>
+                              <div class="col-md-8">
+                                <p>{{platformProducts.name}}</p>
+                              </div>
+                           </div>
+                           <div class="form-group">
+                              <label class="control-label col-md-2">产品类型<span class="required">*</span></label>
+                              <div class="col-md-8">
+                                 	     <p>{{platformProducts.product_type}}</p>
+                              </div>
+                           </div>
+                           <div class="form-group">
+                              <label class="control-label  col-md-2">产品特点<span class="required">*</span></label>
+                              <div class="col-md-8">
+											   <p>{{platformProducts.product_characteristic}}</p>
+                              </div>
+                           </div>
+                           <div class="form-group">
+                              <label class="control-label col-md-2">产品介绍<span class="required">*</span></label>
+                              <div class="col-md-8">
+                          			 <textarea id="intro_id" name="content"  style="width:760px;height:320px;">{{platformProducts.product_introduce}}</textarea>
+                              </div>
+                           </div>
+                           <div class="form-actions fluid">
+                              <div class="col-md-offset-3 col-md-9">
+                                <button class="btn btn-success" type="submit"  id="save"><i class="fa fa-save"></i> 保 存 </button>
+                    			<button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-save"></i> 退 出</button>                             
+                              </div>
+                           </div>
+                        </form>
+                        END FORM
+                     </div>
+                  </div>
+                  END VALIDATION STATES
+               </div>
+            </div>
+         </div>
+         END PAGE CONTENT  -->
+
+{% endblock %}
+
+
+{% block page_bottom %}
+{% endblock %}
+
+
+{% block script_block %}
+    <script charset="utf-8" src="{% static 'kindEditor/kindeditor.js' %}"></script>
+	<script charset="utf-8" src="{% static 'kindEditor/lang/zh_CN.js' %}"></script>
+	<script>
+	    // 打开Dialog后创建编辑器
+	    KindEditor.ready(function(K) {
+	    	
+	        window.editor = K.create('#intro_id',{
+	
+	        	afterBlur: function(){this.sync();}
+	        });
+        });
+	</script>
+<!-- 
+   <script type="text/javascript">
+	$(document).ready(function() {
+
+	    $('#form_sample_2').formValidation({
+	        message: 'This value is not valid',
+	        icon: {
+	            valid: 'glyphicon glyphicon-ok',
+	            invalid: 'glyphicon glyphicon-remove',
+	            validating: 'glyphicon glyphicon-refresh'
+	        },
+	        fields: {
+	        	insurance_name: {
+	                row: '.col-sm-4',
+	                validators: {
+	                    notEmpty: {
+	                        message: '产品名称是必填项！'
+	                    }
+	                }
+	            },
+	            product_type: {
+	                row: '.col-sm-4',
+	                validators: {
+	                    notEmpty: {
+	                        message: '产品类型是必填项！'
+	                    }
+	                }
+	            },
+	            insurance_feature: {
+	                row: '.col-sm-4',
+	                validators: {
+	                    notEmpty: {
+	                        message: '产品特点是必填项！'
+	                    }
+	                }
+	            }
+	        }
+	    });
+	});
+	</script> -->
+{% endblock %}

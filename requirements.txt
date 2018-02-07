@@ -1,0 +1,10 @@
+django==1.7.1
+redis
+django-celery
+djangorestframework==2.3.5
+jieba
+openpyxl
+pymongo==2.7.2
+mongoengine==0.8.7
+mod_wsgi==4.5.2
+rsa

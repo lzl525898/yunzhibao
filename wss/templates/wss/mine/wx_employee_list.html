@@ -1,0 +1,194 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}保险管家{% endblock %}
+
+{% block container_block %}
+<!-- <link href="{% static 'css/mian.css' %}" rel="stylesheet"> -->
+{#    首页所在位置，进入页面后的默认页面#}
+
+    <div class="top">
+		<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+			<tbody>
+				<tr>
+						<td width="20%" valign="middle">
+								<a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a>
+						</td>
+						<td class="wz" width="60%" valign="middle" align="center">
+								<span id="toptitle">
+										<i class="fa   fa-file-text"></i>&nbsp;<strong>员工保险</strong>
+								</span>
+						</td>
+						<td width="20%" valign="middle" align="right">
+						<a id="aso" href="#"></a>
+						</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<div class="weui_tab">
+        <div class="weui_tab_bd">
+        <div class="weui_cells weui_cells_access" id="show_0" style="display:block;padding-top:28px;">
+             {% if employee_insurance_list %}
+		        	  {% for employee in employee_insurance_list %}
+		                    <a class="weui_cell wss_p"   href="{% url 'wss:wx_employee_detail' employee.id %}">
+		                        <div class="weui_cell_bd weui_cell_primary">
+		                            {% if employee.company.simple_name %}
+		                                <p><i class="fa fa-barcode" style="color:#CCC;padding-right:10px;"></i>{{ employee.company.simple_name }}</p>
+		                            {% endif %}
+		                            {% if employee.insurance_type  %}
+		                                <p><i class="fa fa-institution" style="color:#CCC;padding-right:10px;"></i>{{ employee|displayName:'insurance_type'  }}</p>
+		                            {% endif %}
+		                            {% if employee.date_stop %}
+		                            <p><i class="fa fa-calendar" style="color:#CCC;padding-right:10px;"></i>{{ employee.date_stop|date:'Y年m月d日' }}</p>
+		                            {% endif %}
+		                        </div>
+		                        <div class="weui_cell_ft wss_p"></div>
+		                    </a>
+		                    <div  class="wss_dashed_bottom"></div>
+		           {% endfor %}
+		          <div id= "id_properties_bottom"><input type="hidden" class="" id="page_input" name="page_input"  value="{{paging.page_index}}"/></div>
+		           
+					<div class="weui-loadmore" id ="load_more" {%  if paging.page_index  !=  paging.total_pages_count %}style="display:block"{% else %} style="display:none"{% endif %}>  
+					    <i class="weui-loading"></i>  
+					    <span class="weui-loadmore__tips">正在加载</span>  
+					</div>  
+		        	<div  id ="no_more" {%  if paging.page_index  !=  paging.total_pages_count %}style="text-align:center;display:none" {% else %} style="text-align:center;display:block"{% endif %}> 
+		        			<small>
+		          	 			<font color=black>没有更多了</font>
+		          	 		</small>
+		        	</div>
+          {% else %}
+           			<div  class="thumbBox"  style="padding-top: 25%;"><img  src="/static/pic/default/201305122026542520.gif" alt="icon"  style="max-width: 180px;max-height: 180px;word-break:break-all;" ></div>
+	    			<div  class="thumbBox"  style="padding-top: 5%;"><p>抱歉，您当前还没有员工保险记录!</p></div>
+	    {% endif %}
+        </div>
+
+        </div>
+    </div>
+       
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+<script src="{% static 'js/search.js' %}"type="text/javascript"></script>
+<script>  
+var loading = false;
+ $(document).scroll(function(){
+	 //alert(1)
+	 var page_input = document.getElementById('page_input').value;
+		var total_pages='{{paging.total_pages_count}}';
+		page_input =  parseInt(page_input);
+		total_pages =  parseInt(total_pages);
+		if (page_input == total_pages){
+			loading = true;
+			document.getElementById('load_more').style.display='none';
+			document.getElementById('no_more').style.display='block';
+		}
+		else{
+			document.getElementById('load_more').style.display='block';
+			document.getElementById('no_more').style.display='none';
+		}
+    if ($(document).scrollTop() >= 200) {
+    	if(loading) {return};
+    	loading = true;
+    	setTimeout(function(){
+    		get_data()
+    		loading =false;
+    	},2000);
+    }
+});  
+
+</script>
+<script type="text/javascript">
+function get_data(){
+	var page_input = document.getElementById('page_input').value;
+	var next_page='{{paging.next_page}}';
+	var total_pages='{{paging.total_pages_count}}';
+	//alert(typeof $("#page_input").val());
+	//alert(typeof total_pages);
+	page_input =  parseInt(page_input);
+	next_page =  parseInt(next_page);
+	total_pages =  parseInt(total_pages);
+	//alert(page_input+"-------"+next_page+'------'+total_pages)
+	//alert(typeof page_input);
+	//alert(typeof total_pages);
+	if (page_input && total_pages ){
+		if (page_input == total_pages){
+			alert("已经是最后一页了");
+		}
+		else{
+			//获取新数据
+			$.ajax({
+    			url: "/wss/mine/get_policy_detail/",
+    			data: {policy_state: "employee",search_keyword:"{{search_keyword}}",page:next_page},
+                type: 'GET',
+                dataType: 'json',
+                timeout: 15000,
+                success: function (data) {
+                	//alert(66666);
+                	//查询失败
+                	if (data.code=='1'){
+                    	alert(data.message);
+                    }
+                	//查询成功
+                    else{
+                    	var policy_insurance_list=data.data.policy_insurance_list
+                    	//alert(data.data.policy_insurance_list[0]['employee_id'])
+                    	for ( i in policy_insurance_list ){
+                    		//alert(i)
+                    		var policy_id = policy_insurance_list[i]['policy_id'];
+                    		var simple_name = policy_insurance_list[i]['simple_name'];
+                    		var insurance_type = policy_insurance_list[i]['insurance_type'];
+                    		var date_stop = policy_insurance_list[i]['date_stop'];
+                    		//var url ="wss:wx_employee_detail";
+                    		//url = "{% url'" +url +"' "+ employee_id + " " +"%" +"}";
+                    		var url="/wss/mine/wx_employee_detail/"+policy_id
+                    		//alert(employee_id+"------------"+simple_name+"------------"+paper_id+"------------"+create_time)
+                    		add_detail='<a class="weui_cell wss_p"  href="'+url+'">'+'<div class="weui_cell_bd weui_cell_primary">'
+							
+                      	   if (simple_name){
+                      		   add_detail = add_detail +'<p><i class="fa fa-barcode" style="color:#CCC;padding-right:10px;"></i>'+simple_name+'</p>'
+                      	   }
+                      		if(insurance_type){
+                      			add_detail = add_detail +'<p><i class="fa fa-institution" style="color:#CCC;padding-right:10px;"></i>'+insurance_type+'</p>'
+                      		}
+                      		if (date_stop){
+                      			add_detail = add_detail  +'<p><i class="fa fa-calendar" style="color:#CCC;padding-right:10px;"></i>'+date_stop+'</p>'
+                      		}
+                      		add_detail = add_detail +'</div><div class="weui_cell_ft wss_p"></div></a><div  class="wss_dashed_bottom"></div>';
+                    								
+                    								
+                    								
+                    		//alert(add_detail);
+                    		$('#id_properties_bottom').before(add_detail);//加载新内容
+                    	}
+                    	$("#page_input").val(next_page);
+                    	//alert(data.data.employee_insurance_list["employee_id"])	
+                    }
+                	
+                   
+              },
+              error: function (data) {
+            	  //alert(data.message)
+              	alert('网络延迟，请退出后重试.');
+              }
+    		});
+			//end
+			
+		}
+		
+	}
+	else{
+		alert("网络延迟未获取更多信息，可退出后重试")
+	}
+	
+}
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends 'bms/settings/base_settings.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block level_5 %} in {% endblock %}
+{% block advertising %}class='active'{% endblock %}
+{% block title %} 广告位详情 {% endblock %}
+
+{% block page_top %}
+<div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+        <h2 class="text-center">广告位详情</h2>
+        {% if message and message != '' %}
+             <div class="row">
+                 <div class="col-sm-12">
+                     <div class="alert alert-warning text-center">{{ message }}</div>
+                 </div>
+             </div>
+         {% endif %}
+        <table class="table table-bordered">
+                <tr>
+                  <td class="info text-center">名称</td>
+                  <td class="text-center">{{ advertising.name }} </td>
+                </tr>
+                {% if advertising.picture %}
+                <tr>
+                  <td class="info text-center">图标</td>
+                  <td class="text-center">
+                  		<a href="{% static '' %}{{ advertising.picture }}" target="_blank"><img class="img-responsive center-block" src="{% static '' %}{{ advertising.picture }}" style="max-width: 300px;max-height: 300px;word-break:break-all" alt="图标"/></a>
+                   </td>
+                </tr>
+                {% endif %}
+                 <tr>
+                  <td class="info text-center">广告位</td>
+                  <td class="text-center">{{ advertising.position.name }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">地址</td>
+                  <td class="text-center">{{ advertising.advertising_url }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">状态</td>
+                  <td class="text-center">{% if advertising.is_hidden %}隐藏 {% else %}显示 {% endif %} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">创建时间</td>
+                  <td class="text-center">{{ advertising.create_time }} </td>
+                </tr>
+       </table>
+        <a class="btn btn-success" href="{% url 'bms:advertising_edit' advertising.id %}"><i class="fa fa-edit"></i> 编 辑</a>
+        <a class="btn btn-default" href="{% url 'bms:advertising_list' '1' %}"><i class="fa fa-times"></i> 返 回</a>
+        
+        
+        
+        </div>
+        <div class="col-sm-2"></div>
+  </div>
+{% endblock %}
+
+{% block page_middle %}
+{% endblock %}
+
+
+{% block page_bottom %}
+{% endblock %}
+
+
+{% block script_block %}
+    <script charset="utf-8" src="{% static 'kindEditor/kindeditor.js' %}"></script>
+	<script charset="utf-8" src="{% static 'kindEditor/lang/zh_CN.js' %}"></script>
+	<script>
+
+	</script>
+
+{% endblock %}

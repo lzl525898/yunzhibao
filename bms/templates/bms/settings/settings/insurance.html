@@ -1,0 +1,240 @@
+{% extends 'bms/settings/base_settings.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block level_3 %}in{% endblock %}
+{% block settings_insurance %}class='active'{% endblock %}
+{% block page_middle %}
+
+
+<div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+			            {% if message and message != '' %}
+			                <div class="row">
+			                    <div class="col-sm-12">
+			                        <div class="alert alert-warning">{{ message }}</div>
+			                    </div>
+			                </div>
+			            {% endif %}
+        <h2 class="text-center">设置保险公司平台配置</h2>
+           {% if platforms %}
+                {% for platform in platforms %}
+			 			 <table class="table table-bordered">
+			                <tr>
+			                    <td class="info text-left" style="width:25%"><label id="">保险公司名称:</label></td>
+			                    <td class="text-left" style="width:60%">{{ platform.company.simple_name }}</td>
+			                    <td class="text-left">
+			                     		<a href="#"onclick="edit_insurance('{{ platform.id }}','{{ platform.i_name }}','{{ platform.i_config }}')"><button class="btn btn-xs btn-info" style="width:30px;" title="编辑"><i class="fa fa-edit"></i></button></a>
+			                           &nbsp;&nbsp;&nbsp;
+			                           <a href="{% url 'bms:insurance_delete' platform.id %}" onclick="return confirmAct();"><button class="btn btn-xs btn-danger" style="width:30px;" title="删除"><i class="fa fa-trash-o"></i></button></a>
+			                    </td>
+			                </tr>
+			                 {% for config in platform.i_config %}
+						                <tr>
+						                    <td class="info text-left" style="max-width: 400px; word-wrap:break-word;"><label id="">{{ config.c_key }}:</label></td>
+						                    <td class="text-left" colspan="2"style="max-width: 400px; word-wrap:break-word;">{{ config.c_value }}</td>
+						                </tr>
+			                  {% endfor %}         
+			            </table>
+			            
+			              {#  编辑模块 #}
+			            	<div class="modal fade" id="edit_insurance_modal{{ platform.id }}" tabindex="-1" role="dialog" >
+											    <div class="modal-dialog">
+											        <form id="id_manage_shop_form" class="form" method="post" action="{% url 'bms:edit_insurance' platform.id%}"  >  {% csrf_token %}
+											            <div class="modal-content">
+											              <div class="modal-header">
+											                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+											                <h4 class="modal-title"><i class="fa fa-edit"></i> 编辑保险公司平台配置</h4>
+											              </div>
+											              <div class="modal-body">
+											                   <input type="hidden" id="id_insurance_modal_{{ platform.id }}" name="insurance_modal">
+											                    <div class="form-group">
+											                           	<div class="row">
+																					<div class="col-xs-12 col-lg-3">
+																							  <label for="id_insurance_name_edit">保险平台名称：</label>
+																					</div>
+																					<div class="col-xs-12 col-lg-9">
+																							<input class="form-control" disabled="true " id="id_insurance_name_edit_{{ platform.id }}" name="insurance_name_edit_{{ platform.id }}" type="text" placeholder="保险公司名称"
+																			                 value="{{platform.company.simple_name}}">
+																					</div>
+																		</div> 
+											                    </div>
+											                    <div class="form-group">
+											                        <table class="table table-bordered" id="id_batch_list">                      
+											                            <tr id="id_properties_title" class="info">
+											                                <td class="text-center">配置项</td>
+											                                <td class="text-center">配置项的值</td>
+											                                <td class="text-center">操作</td>
+											                          </tr>
+											                            <tr id="id_properties_bottom_edit">
+											                                <td colspan="6">
+											                                {% for config in platform.i_config %}
+											                                <tr id="id_properties_item_{{ platform.id }}_{{forloop.counter0}}" name="properties_item_{{ platform.id }}">
+												                                <input type="hidden" name="position_edit_{{ platform.id }}" value="{{forloop.counter0}}"/>
+												                                <td><input class="form-control"  name="configkey_{{ platform.id }}_{{forloop.counter0}}" type="text"  value="{{ config.c_key }}"></td>
+												                                <td><input class="form-control"  name="configvalue_{{ platform.id }}_{{forloop.counter0}}" type="text" value="{{ config.c_value }}" required></td>
+												                                <td><a id="id_properties_item_delete_{{ platform.id }}_{{forloop.counter0}}" class="btn btn-default" onclick="$('#id_properties_item_{{ platform.id }}_{{forloop.counter0}}').remove()">删除</a></td>
+												                            </tr>
+												                            {% endfor %}
+												                            <tr  id="id_properties_bottom_{{ platform.id }}">
+												                                <td colspan="6">
+												                                	<a class="pointer" id="id_properties_add_{{ platform.id }}" onclick="add_edit_line('{{platform.id}}')">添加新配置项</a>
+												                                </td>
+												                            </tr>
+											                        </table>
+											                   </div>
+											               </div>  
+											               <div class="modal-footer">
+											                    <button class="btn btn-success" type="submit" ><i class="fa fa-save"></i> 保 存 </button>
+											                    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-save"></i> 退 出</button>
+											                </div>  
+											           </div>
+											           </form>     
+											      </div>  
+											 </div>     	            
+                  {% endfor %}
+          {% else %}
+                <tr>
+                    <td class="info text-danger text-center" colspan="2"><h4>暂无设置项</h4></td>
+                </tr>
+          {% endif %}
+            <tr>
+                <td class="text-center" colspan="2"><a onclick="add_platform()"><i class="fa fa-plus" style="font-size: 24px"></i></a></td>
+            </tr>      
+        </div>
+        <div class="col-sm-2"></div>
+</div>
+
+
+{#  添加模块 #}
+<div class="modal fade" id="add_insurance_modal" tabindex="-1" role="dialog" >
+    <div class="modal-dialog">
+        <form id="id_manage_shop_form" class="form" method="post" action="{% url 'bms:insurance_platform'%}"  >  {% csrf_token %}
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title"><i class="fa fa-edit"></i> 新增保险公司平台配置</h4>
+              </div>
+              <div class="modal-body">
+                    <div class="form-group">
+							<div class="row">
+							      <div class="col-xs-12 col-lg-3">
+									     <label for="id_platform_name_edit"></i> 保险平台名称： </label>
+								  </div>
+								  <div class="col-xs-12 col-lg-9">
+				                            <select class="form-control" id="id_insurance_name" name="insurance_name">
+				                                <option value="">请选择</option>
+				                                  {% for tail_company in tail_companys %}
+				                                    <option value="{{ tail_company.id }}" {% if posted_data.tail_company_id|toString == tail_company.id|toString %} selected {% endif %}>{{ tail_company.simple_name }}</option>
+				                                  {% endfor %}
+				                            </select>
+		                            </div>
+                            </div>
+                    </div>
+                    <div class="form-group">
+                        <table class="table table-bordered" id="id_batch_list">                      
+                            <tr id="id_properties_title" class="info">
+                                <td class="text-center">配置项</td>
+                                <td class="text-center">配置项的值</td>
+                                <td class="text-center">操作</td>
+                          </tr>
+                            <tr id="id_properties_item_0" name="properties_item">
+                                <input type="hidden" name="position" value="0"/>
+                                <td><input class="form-control"  name="configkey_0" type="text" value="" required></td>
+                                <td><input class="form-control"  name="configvalue_0" type="text" value="" required></td>
+                                <td><a id="id_properties_item_delete_0" class="btn btn-default" onclick="$('#id_properties_item_0').remove()">删除</a></td>
+                            </tr>
+                            <tr id="id_properties_bottom">
+                                <td colspan="6">
+                                <a class="pointer" id="id_properties_add" onclick="add_batch_line()">添加新配置项</a>
+                                </td>
+                            </tr>
+                        </table>
+                   </div>
+               </div>  
+               <div class="modal-footer">
+                    <button class="btn btn-success" type="submit" ><i class="fa fa-save"></i> 保 存 </button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-save"></i> 退 出</button>
+                </div>  
+           </div>
+           </form>     
+      </div>  
+ </div>        
+  {% endblock %}
+
+
+{% block script_block %}
+<script>
+    function add_platform(){
+        $('#add_insurance_modal').modal('show');
+    }
+    
+    
+    function edit_insurance(platform_id,name,config){
+  		var test='#edit_insurance_modal'+platform_id;
+  		$(test).modal('show');
+  		$('#id_insurance_modal_'+platform_id).val(platform_id);
+    }   
+    
+    
+    
+    function add_batch_line(){
+        var count = $('tr[name="properties_item"]').length;
+        var position = count;
+        if($("#id_properties_item_" + position).length > 0){
+            for(var i=0;i<count;i++){
+                if($("#id_properties_item_" + i).length <= 0){
+                    position = i;
+                    break;
+                }
+            }
+        }
+
+        $('#id_properties_bottom').before('<tr id="id_properties_item_' + position + '" name="properties_item">' +
+                '<input type="hidden" name="position" value="' + position + '"/>' +
+                '<td><input class="form-control"  name="configkey_' + position + '" type="text" value="" required></td>' +
+                '<td><input class="form-control"  name="configvalue_' + position + '" type="text" value="" required ></td>' +
+                '<td><a id="id_properties_item_delete_' + position + '" class="btn btn-default" onclick="$(\'#id_properties_item_' + position + '\').remove()">删除</a></td>' +
+                '</tr>');
+
+    }
+    
+    function add_edit_line(value){
+    	//alert(value);
+    	var name ="properties_item_"+value;
+        var count = $('tr[name='+name+']').length;
+        var position = count;
+        if($("#id_properties_item_"+value+ position).length > 0){
+            for(var i=0;i<count;i++){
+                if($("#id_properties_item_" +value+ i).length <= 0){
+                    position = i;
+                    break;
+                }
+            }
+        }  
+
+
+       $('#id_properties_bottom_'+value).before('<tr id="id_properties_item_' +value+'_'+ position + '" name="properties_item_'+value+'">' +
+                '<input type="hidden" name="position_edit_'+value+'"value="' + position + '"/>' +
+                '<td><input class="form-control"  name="configkey_' +value+'_'+ position + '" type="text" value="" required></td>' +
+                '<td><input class="form-control"  name="configvalue_' +value+'_'+ position + '" type="text" value="" required ></td>' +
+                '<td><a id="id_properties_item_delete_' +value+'_'+ position + '" class="btn btn-default" onclick="$(\'#id_properties_item_' +value+'_'+ position + '\').remove()">删除</a></td>' +
+                '</tr>');
+       // $('#id_edit_properties_add_'+value).before(a); 
+
+
+
+       
+    }
+    
+    function confirmAct(){
+  	  if(confirm("删除平台设置可能会影响系统使用，确定要删除该保险平台设置信息吗？")){
+  		  return true; 
+  	    }else{
+  	    	return false; 
+  	   }
+    }
+   
+</script>
+
+{% endblock %}

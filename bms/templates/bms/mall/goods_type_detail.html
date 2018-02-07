@@ -1,0 +1,59 @@
+{% extends 'bms/mall/base_mall.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block goodstype_list %}class='active'{% endblock %}
+{% block title %} 商品类型详情 {% endblock %}
+
+{% block page_top %}
+<div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+        <h2 class="text-center">商品类型详情</h2>
+        {% if message and message != '' %}
+             <div class="row">
+                 <div class="col-sm-12">
+                     <div class="alert alert-warning text-center">{{ message }}</div>
+                 </div>
+             </div>
+         {% endif %}
+        <table class="table table-bordered">
+                <tr>
+                  <td class="info text-center">分类名称</td>
+                  <td class="text-center">{{ goods_type.name }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">优先级</td>
+                  <td class="text-center">{{ goods_type.priority }} </td>
+                </tr>
+                {% if goods_type.picture %}
+                <tr>
+                  <td class="info text-center">图标</td>
+                  <td class="text-center">
+                  		<a href="{% static '' %}{{ goods_type.picture }}" target="_blank"><img class="img-responsive center-block" src="{% static '' %}{{ goods_type.picture }}" style="max-width: 300px;max-height: 300px;word-break:break-all" alt="图标"/></a>
+                   </td>
+                </tr>
+                {% endif %}
+                <tr>
+                  <td class="info text-center">状态</td>
+                  <td class="text-center">{% if goods_type.is_hidden %}隐藏 {% else %}显示 {% endif %} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">创建时间</td>
+                  <td class="text-center">{{ goods_type.create_time }} </td>
+                </tr>
+       </table>
+        <a class="btn btn-success" href="{% url 'bms:goods_type_edit' goods_type.id %}"><i class="fa fa-edit"></i> 编 辑</a>
+        <a class="btn btn-default" href="{% url 'bms:goods_type_list' '1' %}"><i class="fa fa-times"></i> 返 回</a>
+        
+        
+        
+        </div>
+        <div class="col-sm-2"></div>
+  </div>
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+
+    </script>
+{% endblock %}

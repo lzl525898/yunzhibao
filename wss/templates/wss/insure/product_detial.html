@@ -1,0 +1,176 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}投保{% endblock %}
+
+{% block container_block %}
+{#    首页所在位置，进入页面后的默认页面#}
+
+
+<script  type="text/javascript">
+wx.ready(function () {
+	  // 2.1 监听“分享给朋友”，按钮点击、自定义分享内容及分享结果接口
+	  wx.onMenuShareAppMessage({
+	      title: '物流保险产品超市',
+	      desc: '运之宝”物流服务一站式平台，8种物流相关保险产品供您选择。',
+	      link: '{{main_url}}wss/insure/product_list?referee_id={{ mine_id }}',
+	      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5UZha8Y5GQHtuDY2SkYLSn4zQTo1zJyq0ZZUZib7lI0KyJicxk9qkWAAAePr75jPGu3w4zWMicibsaw7MA/0?wx_fmt=png',
+	    });
+	  
+	 //  2.2 监听“分享到朋友圈”按钮点击、自定义分享内容及分享结果接口
+	 wx.onMenuShareTimeline({
+	      title: '物流保险产品超市',
+	      link:'{{main_url}}wss/insure/product_list?referee_id={{ mine_id }}',
+	      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5UZha8Y5GQHtuDY2SkYLSn4zQTo1zJyq0ZZUZib7lI0KyJicxk9qkWAAAePr75jPGu3w4zWMicibsaw7MA/0?wx_fmt=png',
+	    });  
+});
+</script>
+<!--  	<div class="wss_title" ><i class="fa   fa-file-text"></i> &nbsp; <strong>
+    </strong>
+    </div> -->
+<div class="top">
+	<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+		<tbody>
+			<tr>
+					<td width="23%" valign="middle">
+							<a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a>
+					</td>
+					<td class="wz" width="53%" valign="middle" align="center">
+							<span id="toptitle">
+									<i class="fa   fa-file-text"></i>&nbsp;<strong>{{insurance_product.name}}</strong>
+							</span>
+					</td>
+					<td width="23%" valign="middle" align="right">
+					<a id="aso" href="#"></a>
+					</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+    {% if message %}
+    		<div>
+    		<h1>{{message}}</h1>
+    		</div>
+    {% endif%}
+    {% if not message %}
+    <div class="weui_cells" style="padding-top:30px;">
+        <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p class="wss_p">【产品名称】</p>
+            </div>
+            <div class="weui_cell_ft wss_p">{{insurance_product.name}}</div>
+        </div>
+        <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p class="wss_p">【产品特点】</p>
+            </div>
+            <div class="weui_cell_ft wss_p" >{{insurance_product.product_characteristic}}</div>
+        </div>
+        {% if insurance_product.product_type == 'batch' or  insurance_product.product_type == 'car' %}
+        <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p class="wss_p ">【产品费率】</p>
+            </div>
+            <div class="weui_cell_ft wss_p">{{insurance_product.rate}}</div>
+           </div>
+            {% else %}
+           <div class="weui_cell">
+            	<div class="weui_cell_bd weui_cell_primary">
+               		<p class="wss_p">【产品费率】</p>
+            	</div>
+        	</div>
+            <div class="weui_cell">
+		    	<table class="bordered"  style="width:100%">    
+							<tr>
+									  <th class="wss_p ">货物类型</th>
+									  <th class="wss_p ">产品费率</th>
+							</tr>
+							  {% for product_rate in insurance_product.product_rate_list%}
+							<tr>
+									<td class="wss_p ">{{product_rate.good_type}}</td>
+									<td class="wss_p ">{{product_rate.products_rate |RateFormat}}</td>
+							</tr>
+							  {% endfor %}
+					</table>
+	    		</div>
+<!-- 	    
+            <div class="weui_cell">
+
+		            <div class="weui_cells weui_cells_form">
+		            		<table class="table table-bordered" >
+		                          <tr id="id_properties_title" class="info">
+		                              <td class="text-center">货物类型</td>
+		                              <td class="text-center">产品费率</td>
+		                              <td class="text-center">保险费率</td>
+		                          </tr>
+		                          {% for product_rate in insurance_product.product_rate_list%}
+		                          <tr >
+		                              <td>{{product_rate.good_type}}</td>
+		                              <td>{{product_rate.products_rate |RateFormat}}</td>
+		                              <td>{{product_rate.insurance_rate|RateFormat}}</td>
+		                          </tr>
+		                          {% endfor %}
+		                      </table>
+		                </div>
+		          </div> -->
+            {%endif%}
+       
+
+<!--         <div class="weui_cells_title">【产品简介】</div> -->
+        	<div class="weui_cell">
+            	<div class="weui_cell_bd weui_cell_primary">
+               		<p class="wss_p">【产品简介】</p>
+            	</div>
+        	</div>
+        	<div class="wss_line"></div>
+            <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <textarea class="weui_textarea wss_p" rows="12" disabled="disabled" style="background-color: #ffffff;margin-left:8px;margin-right:8px;">{{insurance_product.product_introduce}}</textarea>
+                </div>
+            </div>
+        </div>
+        <div class="wss_line"></div>
+        <div class="weui_cells">
+{#        <img src="{% static 'pic/default/logo.png' %}" style="max-width: 200px;max-height: 200px;display:block;text-align: center;margin-right: auto;margin-left: auto;">#}
+        <img src="{% static 'pic/default/ewm.jpg' %}" style="max-width: 350px;max-height: 200px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+        <div class="weui_cell_bd weui_cell_primary">
+            <p style="text-align: center;margin-right: auto;margin-left: auto;margin-top: 10px">长按上图选择“识别图中二维码”↑↑↑</p>
+        </div>
+    </div>
+    {% if insurance_product.product_type == 'ticket' or insurance_product.product_type == 'batch'  %}
+    <div style="height:40px;"></div>
+    <div style=" width: 100%; position: fixed;  bottom: 0px;z-index: 1024;">
+    		<a href="{% url 'wss:product_prompt' %}?product_id={{insurance_product.id}}&referee_id={{ referee_id }}" class="weui_btn weui_btn_primary" style="margin-top: 20px"><i class="fa   fa-plus-square-o"></i>&nbsp;&nbsp;&nbsp;&nbsp;投保</a>
+    </div>
+    {% else %}
+    	<div style="height:85px;"></div>
+    	 <div style=" width: 100%; position: fixed;  bottom: 0px;z-index: 1024; ">
+        <div class="weui_cells  wss_btn"  >
+		        <a class="weui_cells_access weui_cell wss_btn" href="tel:15910731868" >
+		            <div class="weui_cell_bd weui_cell_primary">
+		                <p><i class="fa  fa-phone-square"></i>&nbsp;&nbsp;&nbsp;&nbsp;投保请咨询客服</p>
+		            </div>
+		            <div class="weui_cell_ft wss_btn">15910731868</div>
+		        </a>
+			    <div class="weui_cell wss_btn">
+		            <div class="weui_cell_bd weui_cell_primary">
+		                <p><i class="fa fa-weixin"></i>&nbsp;&nbsp;&nbsp;&nbsp;微信</p>
+		            </div>
+		            <div class="weui_cell_ft wss_btn">15910731868&nbsp;&nbsp;&nbsp;</div>
+	        	</div>
+    </div>
+
+    </div>
+    {% endif%}
+
+ {% endif%}
+      
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+{% endblock %}

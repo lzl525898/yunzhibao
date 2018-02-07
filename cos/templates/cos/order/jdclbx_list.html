@@ -1,0 +1,211 @@
+{% extends 'cos/order/base_jdclbx_list.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block cos_jdclbx_list %}class='active'{% endblock %}
+{% block title %} 订单列表 {% endblock %}
+
+{% block page_top %}
+     <div class="row">
+        <div class="col-sm-12">
+            <form id="order_search_form" class="form-inline" role="form" method="post" action="{% url 'cos:cos_jdclbx_list' '1' %}"> {% csrf_token %}
+
+                <div class="input-group">
+                    <label for="id_pay_state" class="input-group-addon">订单状态：</label>
+                    <select id="id_pay_state" name="pay_state" class="input-group-addon">
+                        <option value="all_order">全部</option>
+                        <option value="price" {% if get_data.pay_state == "price"  %} selected {% endif %}>询价中</option>
+                        <option value="wait" {% if get_data.pay_state == "wait"  %} selected {% endif %}>未确认</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="id_client_sign" class="input-group-addon">使用的投保账户：</label>
+                    <select id="id_client_sign" name="client_sign" class="chosen-select input-group-addon " >
+                    <option selected="selected" value="">  </option>
+                        <option value="">全部</option>
+                            {% for client in clients %}
+                                <option value="{{ client.id }}" {% if get_data.id_client == client.id|toString %} selected {% endif %}>{% if client.company_name %}{{ client.company_name }}{% else %}{{ client.name }}{% endif %}</option>
+                            {% endfor %}
+                    </select>
+                </div>
+            <br/>
+<!--                 <div class="input-group" style="margin-top: 15px">
+                    <label for="id_client_sign" class="input-group-addon">起始时间：</label>
+                    <input type="datetime" value="{% if request.POST %}{{ posted_data.start_time }}{% else %}{{ start_time }}{% endif %}" style="height: 32px;" id="id_start_time" name="start_time" placeholder="点击选取起始时间 " onFocus="WdatePicker({isShowClear:false,readOnly:true,dateFmt: 'yyyy-MM-dd'})" >
+                </div>
+                <div class="input-group" style="margin-top: 15px">
+                    <label for="id_client_sign" class="input-group-addon">结束时间：</label>
+                    <input type="datetime" value="{% if request.POST %}{{ posted_data.end_time }}{% else %}{{ end_time }}{% endif %}"  style="height: 32px;" id="id_end_time" name="end_time" placeholder="点击选取结束时间 " onFocus="WdatePicker({isShowClear:false,readOnly:true,dateFmt: 'yyyy-MM-dd'})" >
+                </div> -->
+                <div class="input-group" style="margin-top: 15px">
+                    <input type="text" class="form-control" id="search_keyword" placeholder="订单号" name="search_keyword" value="{{ get_data.search_keyword}}" maxlength="30">
+                     <span class="input-group-btn">
+                        <button type="submit" class="btn btn-default"><i class="fa fa-search"></i> 搜索</button>
+                        <button id="cancel_search" type="button" class="btn btn-default"><i class="fa fa-times"></i> 取消</button>
+                    </span>
+                </div>
+            </form>
+            {#*****************************点击取消后表单提交******************#}
+	         <form id="cancel_search_form" class="hidden" role="" method="post" action="{% url 'cos:cos_jdclbx_list' 1 %}"> {% csrf_token %}
+		                <input type="hidden"  name="search_keyword"value="">
+		                <input type="hidden"  name="client_sign"value="">
+		                <input type="hidden"  name="pay_state"value="">
+		                <input type="submit" name="argsubmit" style="display:none"/>
+	         </form> 
+        </div>
+    </div>
+    
+    
+
+    <div class="row">
+        <div class="col-sm-12">
+            {% if get_data.search_keyword %}
+            <p></p>
+            <div class="alert alert-warning">
+                <p>关键字： “{{ get_data.search_keyword }}”， 搜索结果：{{ paging.item_count }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+
+    <div class="row">
+        <div class="col-sm-8">
+        {% if paging.total_pages_count > 0 %}
+            <ul class="pagination">
+                <li><a href="javascript:;" onclick='$("#choose_prev_page").submit();'>&laquo;</a></li>
+                {% for page in paging.pages %}
+                    <!-- <li {% if page == paging.page_index %}class="active"{% endif %}><a href="{% url 'bms:jdclbx_list' page %}">{{ page }}</a></li> -->
+                    
+                    <li {% if page == paging.page_index %}class="active"{% endif %}><a href="javascript:;" onclick='$("#choose_page_{{page}}").submit();'>{{ page }}</a></li>
+                     <form id="choose_page_{{page}}" class="hidden" role="" method="post" action="{% url 'cos:cos_jdclbx_list' page %}"> {% csrf_token %}
+		                <input type="hidden"  name="search_keyword"{% if get_data.search_keyword %} value="{{get_data.search_keyword}}"{% else %}value=""{% endif %}>
+		                <input type="hidden"  name="client_sign"{% if get_data.id_client %} value="{{get_data.id_client}}"{% else %}value=""{% endif %}>
+		                <input type="hidden"  name="pay_state"{% if get_data.pay_state %} value="{{get_data.pay_state}}"{% else %}value=""{% endif %}>
+		                <input type="submit" name="argsubmit" style="display:none"/>
+	         		</form>      
+                {% endfor %}
+                <li><a href="javascript:;" onclick='$("#choose_next_page").submit();'>&raquo;</a></li>
+                <div class="clearfix"></div>
+                <p>
+                    第{{ paging.page_index }}页/共{{ paging.total_pages_count }}页 &nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <a href="javascript:;" onclick='$("#first_page").submit();'>首页</a> / <a href="javascript:;" onclick='$("#last_page").submit();'>尾页</a>
+                </p>
+            </ul>
+            
+                   {#*****************************上一页搜索表单******************#}
+			<form id="choose_prev_page" class="hidden" role="" method="post" action="{% url 'cos:cos_jdclbx_list' paging.prev_page %}"> {% csrf_token %}
+		                <input type="hidden"  name="search_keyword"{% if get_data.search_keyword %} value="{{get_data.search_keyword}}"{% else %}value=""{% endif %}>
+		                <input type="hidden"  name="client_sign"{% if get_data.id_client %} value="{{get_data.id_client}}"{% else %}value=""{% endif %}>
+		                <input type="hidden"  name="pay_state"{% if get_data.pay_state %} value="{{get_data.pay_state}}"{% else %}value=""{% endif %}>
+		                <input type="submit" name="argsubmit" style="display:none"/>
+	         </form>   
+            {#*****************************下一页搜索表单******************#}
+			<form id="choose_next_page" class="hidden" role="" method="post" action="{% url 'cos:cos_jdclbx_list' paging.next_page %}"> {% csrf_token %}
+		                <input type="hidden"  name="search_keyword"{% if get_data.search_keyword %} value="{{get_data.search_keyword}}"{% else %}value=""{% endif %}>
+		                <input type="hidden"  name="client_sign"{% if get_data.id_client %} value="{{get_data.id_client}}"{% else %}value=""{% endif %}>
+		                <input type="hidden"  name="pay_state"{% if get_data.pay_state %} value="{{get_data.pay_state}}"{% else %}value=""{% endif %}>
+		                <input type="submit" name="argsubmit" style="display:none"/>
+	         </form> 
+            {#*****************************首页搜索表单******************#}
+			<form id="first_page" class="hidden" role="" method="post" action="{% url 'cos:cos_jdclbx_list' 1 %}"> {% csrf_token %}
+		               <input type="hidden"  name="search_keyword"{% if get_data.search_keyword %} value="{{get_data.search_keyword}}"{% else %}value=""{% endif %}>
+		                <input type="hidden"  name="client_sign"{% if get_data.id_client %} value="{{get_data.id_client}}"{% else %}value=""{% endif %}>
+		                <input type="hidden"  name="pay_state"{% if get_data.pay_state %} value="{{get_data.pay_state}}"{% else %}value=""{% endif %}>
+		                <input type="submit" name="argsubmit" style="display:none"/>
+	         </form> 
+            {#*****************************尾页搜索表单******************#}
+			<form id="last_page" class="hidden" role="" method="post" action="{% url 'cos:cos_jdclbx_list' paging.total_pages_count %}"> {% csrf_token %}
+		                <input type="hidden"  name="search_keyword"{% if get_data.search_keyword %} value="{{get_data.search_keyword}}"{% else %}value=""{% endif %}>
+		                <input type="hidden"  name="client_sign"{% if get_data.id_client %} value="{{get_data.id_client}}"{% else %}value=""{% endif %}>
+		                <input type="hidden"  name="pay_state"{% if get_data.pay_state %} value="{{get_data.pay_state}}"{% else %}value=""{% endif %}>
+		                <input type="submit" name="argsubmit" style="display:none"/>
+	         </form> 
+	              
+        {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block page_middle %}
+    {% if message and message != '' %}
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="alert alert-warning">{{ message }}</div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row" style="margin-top: 10px">
+        <div class="col-sm-12">
+            <div class="list-group" id="notice_group">
+                <input type="hidden" id="page_index" name="page_index" value="{{ page_index }}"/>
+                    <div class="list-group-item">
+                        <div class="row" >
+                             <div class="col-sm-3">
+                                <p class="list-group-item-text text-center">订单号</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">车牌号</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">投保类型</p>
+                            </div>
+                            <div class="col-sm-3">
+                                <p class="list-group-item-text text-center">创建日期</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">订单状态</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% for order in orders %}
+{#                        <a href="" class="list-group-item">#}
+                        <a href="{% url 'cos:cos_jdclbx_detail' order.id %}" class="list-group-item {% if order.is_hidden %}list-group-item-danger{% endif %}">
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <p class="list-group-item-text text-center"><strong>{{ order.paper_id }}</strong></p>
+                                </div>
+                                <div class="col-sm-2">
+                                    <p class="list-group-item-text text-center"><strong>{{ order.plate_number }} </strong></p>
+                                </div>
+                                
+                                 <div class="col-sm-2">
+                                    <p class="list-group-item-text text-center"><strong>
+                                    {% if order.order_car_type == 'passenger_car' %}九座以下客车 
+                                     {% elif order.order_car_type == 'truck' %}货车
+                                      {% else %}{{ order.order_car_type}}未找到对应货物大类{% endif %}
+									</strong></p>
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="list-group-item-text text-center">{{ order.create_time|date:'Y年m月d日' }}</p>
+                                </div>
+                                <div class="col-sm-2">
+                                    <p class="list-group-item-text text-center"><strong>{{ order|displayName:"state" }}</strong></p>
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+       </div>
+    </div>
+
+{% endblock %}
+
+{% block page_bottom %}
+
+{% endblock %}
+
+
+{% block script_block %}
+    <script type="text/javascript">
+
+        //“全部”按钮的响应事件，清空搜索关键字，然后提交搜索
+         $('#cancel_search').click(function(event) {
+        console.log("click cancel_search");
+        $('#cancel_search_form').submit();
+      });
+    </script>
+{% endblock %}

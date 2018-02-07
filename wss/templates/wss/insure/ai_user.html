@@ -1,0 +1,571 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}用户信息{% endblock %}
+
+{% block container_block %}
+<link href="{% static 'css/validate.css' %}" rel="stylesheet">
+<style>
+.weui_input {
+  width: 100%;
+  border:0px solid #C8C8CD;  
+  border-radius: 3px !important;
+  outline: 0;
+  -webkit-appearance: none; 
+  background-color: transparent;
+  font-size: 14px;
+  color: inherit;
+  height: 2em;
+  line-height: 2em;
+}
+</style>
+{% if message %}
+    <div class="weui_dialog_alert">
+        <div class="weui_mask"></div>
+        <div class="weui_dialog">
+            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+            <div class="weui_dialog_bd">{{ message }}</div>
+            <div class="weui_dialog_ft">
+                <a onclick="close_dialog();" class="weui_btn_dialog primary">确定</a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{#    首页所在位置，进入页面后的默认页面#}
+<div class="top">
+	<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+		<tbody>
+			<tr>
+					<td width="20%" valign="middle">
+							<a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a>
+					</td>
+					<td class="wz" width="60%" valign="middle" align="center">
+							<span id="toptitle">
+									<i class="fa   fa-user"></i>&nbsp;<strong>投保人、被保人信息</strong>
+							</span>
+					</td>
+					<td width="20%" valign="middle" align="right">
+					<a id="aso" href="#"></a>
+					</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<form id="wss_register_form" method="POST" action="/wss/insure/enquiry_insure_type/" enctype="multipart/form-data">{% csrf_token %}
+         <input type="hidden" name="paper_id" value="{{ paper_id }}">
+		<div class="weui_cells" style="height:100%;background:#F3F3F3;padding-top:20px;">
+			 <div class="weui_cells_tips">&nbsp;&nbsp;以下内容均为必填项！</div>
+			  <div class="weui_cell weui_cell_switch wss_bg">
+			        <div class="weui_cell_hd weui_cell_primary">&nbsp;&nbsp;投保人是否与行驶证所有人相同</div>
+			        <div class="weui_cell_ft">
+			          <input class="weui_switch" type="checkbox"  checked  id="ismatchxsz"  name="ismatchxsz">
+			        </div>
+			    </div>
+			    <div class="weui_cell wss_dashed_bottom" >
+				            <div class="weui_cell_hd" style="width:35%;><label class="weui_label">【用户类型】</label></div>
+				                <div class="weui_cell_bd weui_cell_primary " >
+											<input class="weui_input" type="text" placeholder="请输入用户类型"  id="user_classify" name="user_classify" value="个人"/>
+				                </div>
+				   </div>
+			     
+			     	<div style="display: none" id="company">
+			    	  <div class="weui_cell  wss_dashed_bottom" >
+				            <div class="weui_cell_hd" style="width:35%;><label for="" class="weui_label">【单位名称】</label></div>
+				                <div class="weui_cell_bd weui_cell_primary " >
+											<input class="weui_input" type="text" placeholder="请输入单位名称"  id="applicant_company_name" name="applicant_company_name" value=""/>
+				                </div>
+				        </div>
+				       
+				       </div>
+				        <div style="display: none" id="person">
+				             <div class="weui_cell  wss_dashed_bottom" >
+				                 <div class="weui_cell_hd" style="width:45%;><label for="" class="weui_label">【投保人姓名】</label></div>
+				                 <div class="weui_cell_bd weui_cell_primary " >
+											<input class="weui_input" type="text" placeholder="请输入投保人姓名"  id="applicant_name" name="wx_applicant_name" value=""/>
+				                 </div>
+				             </div>
+				        </div>
+				        <div style="display: none" id="company1">
+				          <div class="weui_cells_tips">&nbsp;&nbsp;&nbsp;组织机构代码证号/三证合一填写营业执照</div>
+				            <div class="weui_cell  wss_dashed_bottom" >
+				             	{#         <div class="weui_cell_hd"><label for="" class="weui_label">【证件号】</label></div>#}
+				                <div class="weui_cells weui_cells_form" >
+						                   <div class="weui_cell" style="background:#F3F3F3;">
+						                        <div class="weui_cell_bd weui_cell_primary">
+						                            <div class="weui_uploader">
+						                                <div class="weui_uploader_bd">
+						                                    <ul class="weui_uploader_files ul_national_image_yingye">
+						                                    </ul>
+						                                    <div class="weui_uploader_input_wrp">
+						                                        <input class="weui_uploader_input national_image_yingye" name="national_image_yingye" type="file" accept="image/jpg,image/jpeg,image/png,image/gif"/>
+						{#                                        <input type='hidden' id="id_national_image_yingye_hidden" name="national_image_yingye_hidden">#}
+						                                    </div>
+						                                </div>
+						                            </div>
+						                        </div>
+						                    </div>
+						                </div>
+				                </div>
+				        </div>
+		         <div style="display: none" id="person1">
+		                   <div class="weui_cells_tips">&nbsp;&nbsp;&nbsp;投保人身份证正面照片</div>
+				          <div class="weui_cell  wss_dashed_bottom" >
+				                 <div class="weui_cells weui_cells_form" style="background:#F3F3F3;">         
+				                    <div class="weui_cell" style="background:#F3F3F3;">
+				                        <div class="weui_cell_bd weui_cell_primary">
+				                            <div class="weui_uploader">
+				                                <div class="weui_uploader_bd">
+				                                    <ul class="weui_uploader_files ul_national_image">
+				                                    </ul>
+				                                    <div class="weui_uploader_input_wrp" >
+				                                        <input class="weui_uploader_input national_image" name="carded_image" type="file" accept="image/jpg,image/jpeg,image/png,image/gif"/>
+				{#                                        <input type='hidden' id="id_national_image_hidden" name="national_image_hidden">#}
+				                                    </div>
+				                                </div>
+				                            </div>
+				                        </div>
+				                    </div>
+				                     </div>
+                                </div>
+                               <div class="weui_cells_tips">&nbsp;&nbsp;&nbsp;投保人身份证背面照片</div>
+                                <div class="weui_cell  wss_dashed_bottom" >
+                              
+         
+                                 
+                                   <div class="weui_cells weui_cells_form" style="background:#F3F3F3;">         
+						                   <div class="weui_cell" style="background:#F3F3F3;">
+						                        <div class="weui_cell_bd weui_cell_primary">
+						                            <div class="weui_uploader">
+						                                <div class="weui_uploader_bd">
+						                                    <ul class="weui_uploader_files ul_national_image_down">
+						                                    </ul>
+						                                    <div class="weui_uploader_input_wrp">
+						                                        <input class="weui_uploader_input national_image_down" name="carded_image_down" type="file" accept="image/jpg,image/jpeg,image/png,image/gif"/>
+						{#                                        <input type='hidden' id="id_national_image_down_hidden" name="national_image_down_hidden">#}
+						                                    </div>
+						                                </div>
+						                            </div>
+						                        </div>
+						                         </div>
+						                    </div>
+				
+				
+				          </div>
+				</div>
+		     
+		       
+		        <div class="weui_cell  wss_dashed_bottom">
+				            <div class="weui_cell_hd" style="width:35%;><label for="" class="weui_label">【联系方式】</label></div>
+				                <div class="weui_cell_bd weui_cell_primary " >
+											<input class="weui_input" type="text" data-pattern="^(13[0-9]|15[012356789]|17[3678]|18[0-9]|14[57])[0-9]{8}$" data-descriptions="telphone1"  data-required="true"  placeholder="请输入投保人联系方式"  id="applicant_phone" name="applicant_phone" value=""/>
+				                </div>
+				</div>
+				<div class="weui_cell weui_cell_switch wss_bg">
+			        <div class="weui_cell_hd weui_cell_primary">&nbsp;&nbsp;被投保人是否投保人相同</div>
+			        <div class="weui_cell_ft">
+			          <input class="weui_switch" type="checkbox"  checked  id="ismatchtbr" name="ismatchtbr">
+			        </div>
+			    </div>
+			   <div style="display: none" id="notmatchtbr">
+			        <div class="weui_cell  wss_dashed_bottom">
+			            <div class="weui_cell_hd" style="width:45%;"><label for="" class="weui_label" style="width:100%;">【被保人姓名】</label></div>
+			                <div class="weui_cell_bd weui_cell_primary " >
+										<input class="weui_input" type="text" placeholder="请输入被保险人姓名"  id="insured_name" name="insured_name" value=""/>
+			                </div>
+			        </div>
+			       <div class="weui_cell  wss_dashed_bottom">
+			            <div class="weui_cell_hd" style="width:35%;"><label for="" class="weui_label">【联系方式】</label></div>
+			                <div class="weui_cell_bd weui_cell_primary " >
+										<input class="weui_input" type="text" data-pattern="^(13[0-9]|15[012356789]|17[3678]|18[0-9]|14[57])[0-9]{8}$" data-descriptions="telphone2"  data-required="true"  placeholder="请输入被保人手机号"  id="insured_phone" name="insured_phone" value=""/>
+			                </div>
+			        </div>
+		        </div>
+		        <div class="weui_cell  wss_dashed_bottom">
+		            <div class="weui_cell_hd" style="width:45%;"><label for="" class="weui_label" style="width:100%;">【保单快递地址】</label></div>
+		                <div class="weui_cell_bd weui_cell_primary " >
+									<input class="weui_input" type="text" placeholder="请选择保单快递地址"  id="ssq" name="policy_address" value=""/>
+		                </div>
+		        </div>
+		        <div class="weui_cell  wss_dashed_bottom">
+		            <div class="weui_cell_hd" style="width:35%;"><label for="" class="weui_label">【详细地址】</label></div>
+		                <div class="weui_cell_bd weui_cell_primary " >
+									<input class="weui_input" type="text" placeholder="请输入详细地址"  id="detailed_address" name="detailed_address" value=""/>
+		                </div>
+		        </div>
+		  
+		         <div style="height:20px;"></div>
+		        <div class="weui_cell ">
+		                <div class="weui_cell_bd weui_cell_primary " >
+										<button type="submit" class="weui_btn weui_btn_primary">下一步</button>
+		                </div>
+		        </div>
+        </div>
+<!-- <div style="height:55px;"></div>
+<div style=" width: 100%; position: fixed;  bottom: 0px; ">
+		<button type="submit" class="weui_btn weui_btn_primary">下一步</button>
+    </div>
+</div> -->
+</form>
+      
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+ <script src="{% static 'js/jquery-2.1.4.js' %}"></script>
+ <script src="{% static 'js/fastclick.js' %}"></script>
+ <script>
+  $(function() {
+    FastClick.attach(document.body);
+    $("#person1").css("display","block");
+  });
+ </script>
+ <script src="{% static 'js/jquery-weui.js' %}"></script>
+  <script src="{% static 'js/city-picker.js' %}"></script>
+ <script type="text/javascript">
+      $("#user_classify").select({
+        title: "选择用户类型",
+        items: ["单位", "个人"],
+        onChange: function(d) {
+          console.log(this, d);
+        },
+        onClose: function() {
+          console.log("close");
+        },
+        onOpen: function() {
+          console.log("open");
+        },
+      });
+      
+      $("#ismatchxsz").change(function(){
+    	  if ( $("#ismatchxsz").is(':checked')){
+        	  $("#noMatchT").css("display","none");
+        	  $("#company").css("display","none");
+        	  $("#person").css("display","none");
+        	  $("#ismatchxsz").css("value","1");
+        	  return ;
+    	  }
+    	  $("#noMatchT").css("display","block");
+    	  $("#ismatchxsz").css("value","0");
+    	  var user_classify = $("#user_classify").val();
+    	  if (user_classify == '个人'){
+    		  $("#person").css("display","block");
+    		  $("#person1").css("display","block");
+    		  $("#company").css("display","none");
+    		  $("#company1").css("display","none");
+    	  }else{
+    		  $("#company").css("display","block");
+    		  $("#company1").css("display","block");
+    		  $("#person").css("display","none");
+    		  $("#person1").css("display","none");
+    	  }
+
+    	});
+      
+      $("#ismatchtbr").change(function(){
+    	  if ( $("#ismatchtbr").is(':checked')){
+        	  $("#notmatchtbr").css("display","none");
+        	  return ;
+    	  }
+    	  $("#notmatchtbr").css("display","block");
+    	});
+      $("#ssq").cityPicker({
+          title: "选择省市区",
+          onChange: function (picker, values, displayValues) {
+            console.log(values, displayValues);
+          }
+        });
+      
+      $("#user_classify").change(function(){
+   /*  	  if ( $("#ismatchxsz").is(':checked')){
+        	  return ;
+    	  } */
+     	  //$("#noMatchT").css("display","block");
+    	  if ($("#user_classify").val() == '个人'){
+    		  if ( $("#ismatchxsz").is(':checked')){
+    			  $("#person").css("display","none");
+        		  $("#company").css("display","none");
+        		  $("#person1").css("display","block");
+        		  $("#company1").css("display","none");
+    		  }
+    		  else{
+    			  $("#person").css("display","block");
+        		  $("#company").css("display","none");
+        		  $("#person1").css("display","block");
+        		  $("#company1").css("display","none");
+    		  }
+    	  }else{
+    		  if ( $("#ismatchxsz").is(':checked')){
+    			  $("#person").css("display","none");
+        		  $("#company").css("display","none");
+        		  $("#person1").css("display","none");
+        		  $("#company1").css("display","block");
+    		  }
+    		  else{
+    			  $("#person").css("display","none");
+        		  $("#company").css("display","block");
+        		  $("#person1").css("display","none");
+        		  $("#company1").css("display","block");
+    		  }
+    		  
+/*     		  $("#company").css("display","block");
+    		  $("#person").css("display","none");
+    		  $("#company1").css("display","block");
+    		  $("#person1").css("display","none"); */
+  
+    	  }
+    	});
+      
+      
+      
+      
+      
+      {#行驶证证正面照#}
+      $(function () {
+      // 允许上传的图片类型
+      var allowTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'];
+      // 1024KB，也就是 1MB
+      var maxSize = 3072 * 3072;
+      // 图片最大宽度
+      var maxWidth = 400;
+      // 最大上传图片数量
+      var maxCount = 1;
+      $('.national_image').on('change', function (event) {
+      var files = event.target.files;
+
+      // 如果没有选中文件，直接返回
+      if (files.length === 0) {
+      return;
+      }
+
+      for (var i = 0, len = files.length; i < len; i++) {
+      var file = files[i];
+      var reader = new FileReader();
+      // 如果类型不在允许的类型范围内
+      if (allowTypes.indexOf(file.type) === -1) {
+      $.weui.alert({text: '该类型不允许上传'});
+      continue;
+      }
+
+      if (file.size > maxSize) {
+      $.weui.alert({text: '图片太大，不允许上传'});
+      continue;
+      }
+
+      if ($('.li_national_image').length >= maxCount) {
+      $.weui.alert({text: '最多只能上传' + maxCount + '张图片'});
+      return;
+      }
+      reader.onload = function (e) {
+
+      var img = new Image();
+      img.onload = function () {
+      // 不要超出最大宽度
+      var w = Math.min(maxWidth, img.width);
+      // 高度按比例计算
+      var h = img.height * (w / img.width);
+      var canvas = document.createElement('canvas');
+      var ctx = canvas.getContext('2d');
+      // 设置 canvas 的宽度和高度
+      canvas.width = w;
+      canvas.height = h;
+      ctx.drawImage(img, 0, 0, w, h);
+      var base64 = canvas.toDataURL('image/png');
+      console.log(base64);
+      // 插入到预览区
+      var $preview = $('<li class="weui_uploader_file weui_uploader_status li_national_image" style="background-image:url(' + base64 + ')" onclick="deletePic(this);"></li>');
+      $('.ul_national_image').append($preview);
+      $('.national_image').parent('.weui_uploader_input_wrp').hide();
+      {#var num = $('.weui_uploader_file').length;#}
+      {#$('.js_counter').text(num + '/' + maxCount);#}
+          
+      {#setTimeout(uploading('.uploader_national_image'), 30);#}
+      };
+      img.src = e.target.result;
+          $('#id_national_image_hidden').val(img.src);
+      };
+      reader.readAsDataURL(file);
+      }
+      });
+
+      });
+      {#行驶证证背面照#}
+      $(function () {
+      // 允许上传的图片类型
+      var allowTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'];
+      // 1024KB，也就是 1MB
+      var maxSize = 3072 * 3072;
+      // 图片最大宽度
+      var maxWidth = 400;
+      // 最大上传图片数量
+      var maxCount = 1;
+
+      $('.national_image_down').on('change', function (event) {
+      var files = event.target.files;
+
+      // 如果没有选中文件，直接返回
+      if (files.length === 0) {
+      return;
+      }
+
+      for (var i = 0, len = files.length; i < len; i++) {
+      var file = files[i];
+      var reader = new FileReader();
+      // 如果类型不在允许的类型范围内
+      if (allowTypes.indexOf(file.type) === -1) {
+      $.weui.alert({text: '该类型不允许上传'});
+      continue;
+      }
+
+      if (file.size > maxSize) {
+      $.weui.alert({text: '图片太大，不允许上传'});
+      continue;
+      }
+
+      if ($('.li_national_image_down').length >= maxCount) {
+      $.weui.alert({text: '最多只能上传' + maxCount + '张图片'});
+      return;
+      }
+      reader.onload = function (e) {
+      var img = new Image();
+      img.onload = function () {
+      // 不要超出最大宽度
+      var w = Math.min(maxWidth, img.width);
+      // 高度按比例计算
+      var h = img.height * (w / img.width);
+      var canvas = document.createElement('canvas');
+      var ctx = canvas.getContext('2d');
+      // 设置 canvas 的宽度和高度
+      canvas.width = w;
+      canvas.height = h;
+      ctx.drawImage(img, 0, 0, w, h);
+      var base64 = canvas.toDataURL('image/png');
+      console.log(base64);
+      // 插入到预览区
+      var $preview = $('<li class="weui_uploader_file weui_uploader_status li_national_image_down" style="background-image:url(' + base64 + ')" onclick="deletePic(this);"></li>');
+      $('.ul_national_image_down').append($preview);
+      $('.national_image_down').parent('.weui_uploader_input_wrp').hide();
+      {#var num = $('.weui_uploader_file').length;#}
+      {#$('.js_counter').text(num + '/' + maxCount);#}
+      };
+      img.src = e.target.result;
+          $('#id_national_image_down_hidden').val(img.src);
+      };
+      reader.readAsDataURL(file);
+      }
+      });
+      });
+      	
+      {#营业执照照片#}
+      $(function () {
+      // 允许上传的图片类型
+      var allowTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'];
+      // 1024KB，也就是 1MB
+      var maxSize = 3072 * 3072;
+      // 图片最大宽度
+      var maxWidth = 400;
+      // 最大上传图片数量
+      var maxCount = 1;
+
+      $('.national_image_yingye').on('change', function (event) {
+      var files = event.target.files;
+
+      // 如果没有选中文件，直接返回
+      if (files.length === 0) {
+      return;
+      }
+
+      for (var i = 0, len = files.length; i < len; i++) {
+      var file = files[i];
+      var reader = new FileReader();
+      // 如果类型不在允许的类型范围内
+      if (allowTypes.indexOf(file.type) === -1) {
+      $.weui.alert({text: '该类型不允许上传'});
+      continue;
+      }
+
+      if (file.size > maxSize) {
+      $.weui.alert({text: '图片太大，不允许上传'});
+      continue;
+      }
+
+      if ($('.li_national_image_down').length >= maxCount) {
+      $.weui.alert({text: '最多只能上传' + maxCount + '张图片'});
+      return;
+      }
+      reader.onload = function (e) {
+      var img = new Image();
+      img.onload = function () {
+      // 不要超出最大宽度
+      var w = Math.min(maxWidth, img.width);
+      // 高度按比例计算
+      var h = img.height * (w / img.width);
+      var canvas = document.createElement('canvas');
+      var ctx = canvas.getContext('2d');
+      // 设置 canvas 的宽度和高度
+      canvas.width = w;
+      canvas.height = h;
+      ctx.drawImage(img, 0, 0, w, h);
+      var base64 = canvas.toDataURL('image/png');
+      console.log(base64);
+      // 插入到预览区
+      var $preview = $('<li class="weui_uploader_file weui_uploader_status li_national_image_yingye" style="background-image:url(' + base64 + ')" onclick="deletePic(this);"></li>');
+      $('.ul_national_image_yingye').append($preview);
+      $('.national_image_yingye').parent('.weui_uploader_input_wrp').hide();
+      {#var num = $('.weui_uploader_file').length;#}
+      {#$('.js_counter').text(num + '/' + maxCount);#}
+      };
+      img.src = e.target.result;
+          $('#id_national_image_yingye_hidden').val(img.src);
+      };
+      reader.readAsDataURL(file);
+      }
+      });
+      });
+      function deletePic(obj){
+      	if (confirm("确认删除该上传图片吗?")){
+      		$(obj).parent('.weui_uploader_files').siblings(".weui_uploader_input_wrp").show();
+      		$(obj).remove();
+      	}
+      }
+    </script>
+    <!-- <script src="{% static 'js/jquery-mvalidate.js' %}"></script>
+    <script src="{% static 'js/formValidation.min.js' %}"></script>
+    <script type="text/javascript">
+     $(function(){
+    	 alert("验证通过！接下来可以做你想做的事情啦！");
+    	  $("#wss_register_form").mvalidate({
+              type: 1,
+              onKeyup: true,
+              sendForm: true,
+              firstInvalidFocus: false,
+              valid: function(event, options) {
+                  //点击提交按钮时,表单通过验证触发函数
+                  //alert("验证通过！接下来可以做你想做的事情啦！");
+                  $("#wss_register_form").submit();
+                  event.preventDefault();
+              },
+              conditional: {
+                  phoneyzm: function() {
+                      return $("#phoneyzm").val() == phoneYZM;
+                  },
+                  confirmpwd:function(val){
+                      return val==$("#password").val();
+                  }
+              },
+              descriptions: {
+                  telphone1: {
+                      required: '请输入投保人手机号码！',
+                      pattern: '你输入的投保人手机格式不正确！'
+                  },
+                  telphone2: {
+                      required: '请输入被保人手机号码！',
+                      pattern: '你输入的被保人手机格式不正确！'
+                  }
+              }
+         });
+     });
+    </script> -->
+{% endblock %}

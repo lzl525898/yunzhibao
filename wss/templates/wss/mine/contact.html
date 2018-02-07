@@ -1,0 +1,59 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% block title_block %}联系客服{% endblock %}
+
+{#{% block css_block %}#}
+{#    <link rel="stylesheet" href="{% static 'css/weui-example.css' %}"/>#}
+{#{% endblock %}#}
+
+{% block container_block %}
+    <script  type="text/javascript">
+		  wx.ready(function () {
+			  wx.onMenuShareAppMessage({
+			      title: '运之宝客服竭诚为您服务',
+			      desc: '运之宝是物流服务一站式平台，客服工作时间为每天8时至20时，欢迎咨询',
+			      link: '{{a.url |safe}}',
+			      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5UZha8Y5GQHtuDY2SkYLSn4zu3AS1DdQUICcSVSPJibrKtXeZlA63TpO8hlUWEa6HwmYY8kCpDLrv5A/0?wx_fmt=png',
+			    });
+			 wx.onMenuShareTimeline({
+			      title: '运之宝客服竭诚为您服务',
+			      link:'{{ a.url|safe }}',
+			      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5UZha8Y5GQHtuDY2SkYLSn4zu3AS1DdQUICcSVSPJibrKtXeZlA63TpO8hlUWEa6HwmYY8kCpDLrv5A/0?wx_fmt=png',
+			    });  
+		});
+</script>
+<!--         <div class="weui_cells_title hd" style="text-align: center;">联系客服</div> -->
+        <div class="wss_title" ><i class="fa   fa-user"></i> &nbsp; <strong>联系客服</strong></div>
+        <div class="weui_cells weui_cells_access wss_p">
+            <a class="weui_cell" href="tel:15910731868">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p><i class="fa  fa-phone-square"></i>&nbsp;&nbsp;客服电话：</p>
+                </div>
+                <div class="weui_cell_ft">15910731868</div>
+            </a>
+        </div>
+        <div class="weui_cells wss_p">
+            <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p><i class="fa fa-weixin"></i>&nbsp;&nbsp;客服微信</p>
+                </div>
+                <div class="weui_cell_ft">15910731868</div>
+            </div>
+        <img src="{% static 'pic/temp/yangfan.jpg' %}" style="max-width: 350px;max-height: 350px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+        <div class="weui_cell_bd weui_cell_primary">
+            <p style="text-align: center;margin-right: auto;margin-left: auto;">长按上图选择“识别图中二维码”↑↑↑</p>
+        </div>
+    </div>
+    
+    
+    
+  {# </br></br></br></br>{{a}}#}
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+{% endblock %}

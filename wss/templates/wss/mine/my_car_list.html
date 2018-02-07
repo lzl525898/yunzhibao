@@ -1,0 +1,171 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}我的{% endblock %}
+
+{% block container_block %}
+<style>
+.weui_panel_ft:before {
+  content: " ";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 1px;
+  border-top: 0px solid #E5E5E5;
+  color: #E5E5E5;
+  -webkit-transform-origin: 0 0;
+          transform-origin: 0 0;
+  -webkit-transform: scaleY(0.5);
+          transform: scaleY(0.5);
+  left: 15px;
+}
+.weui_panel:before {
+  border-top: 0px solid #E5E5E5;
+}
+.weui_panel:after {
+  border-bottom: 0px solid #E5E5E5;
+}
+.weui_btn:after {
+  border: 0px solid #E5E5E5;
+}
+</style>
+{#    首页所在位置，进入页面后的默认页面#}
+	<div class="weui_dialog_alert"  id="dialog_alert"style="display:none;">
+			    <div class="weui_mask"></div>
+			    <div class="weui_dialog">
+			        <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示信息</strong></div>
+			        <div class="weui_dialog_bd"></div>
+			        <div class="weui_dialog_ft">
+			            <a href="javascript:close();" class="weui_btn_dialog primary" id="confirm">确定</a>
+			        </div>
+			    </div>
+	</div>
+	{# 车辆提示信息#}
+		<div id="id_message" class="row control-show">
+		<div class="weui_dialog_alert">
+		        <div class="weui_mask"></div>
+		        <div class="weui_dialog">
+		            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+		            <div class="weui_dialog_bd"id="id_message_id"></div>
+		            <div class="weui_dialog_ft">
+		             	<a onclick="$('#id_message').addClass('control-show');"  class="weui_btn_dialog primary">确定</a>
+		            </div>
+		        </div>
+		    </div>
+	    </div>
+	    {#结束#}
+	  <!--     <div class="wss_title" ><i class="fa   fa-car"></i> &nbsp; <strong>我的车库</strong></div> -->
+<div class="top">
+	<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+		<tbody>
+			<tr>
+					<td width="20%" valign="middle">
+							<a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a>
+					</td>
+					<td class="wz" width="60%" valign="middle" align="center">
+							<span id="toptitle">
+									<i class="fa   fa-file-text"></i>&nbsp;<strong>我的车库</strong>
+							</span>
+					</td>
+					<td width="20%" valign="middle" align="right">
+					<a id="aso" href="#"></a>
+					</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+    <div class="weui_panel weui_panel_access"   style="padding-top:30px;">
+		        <div class="weui_panel_bd">
+		        {% if car_sets%}
+		        	{% for car_set in car_sets%}
+		                 	<div class="weui_media_box weui_media_appmsg" >
+				                <div class="weui_media_hd" style="margin-right: .2em; ">
+				                    <img class="weui_media_appmsg_thumb" src="/static/pic/default/78bOOOPICec_202.jpg" alt="">
+				                </div>
+				                <div class="weui_media_bd">
+				                    <h4 class="weui_media_title"><span>{{car_set.plate_number}}
+				                    {% if car_set.state == 'init' %}<span class="weui_btn weui_btn_mini weui_btn_primary"  style="display: inline; margin-left:10px;background:#FD9E2D; ">认证中</span>{% endif %}
+				                    {% if car_set.state == 'success' %}<span class="weui_btn weui_btn_mini weui_btn_primary"  style="display: inline; margin-left:10px;background:#c7e4b0; ">已认证</span>{% endif %}</span></h4>
+				                    <p class="weui_media_desc">商业险到期时间：{{car_set.commercial_date_stop|default_if_none:'' |date:'Y年m月d日' }}</p>
+				                    <p class="weui_media_desc">交强险到期时间：{{car_set.liability_date_stop|default_if_none:''|date:'Y年m月d日'  }}</p>
+				                    {# <p class="weui_media_desc">年检时间：{{car_set.plate_expiration_periods|dateformat}}</p> #}
+				                    <p class="weui_media_desc">年检时间：{% if car_set.plate_expiration_periods %}{{ car_set.plate_expiration_periods|dateformat}}{% endif %}</p>
+				                     <p class="weui_media_caozuo">   {% if car_set.state == 'success' %}<a href="{% url 'wss:car_edit' car_set.id %}" style="color:#5172D5;"><i class="fa fa-edit">编辑</i></a>&nbsp;&nbsp;&nbsp;&nbsp; <a href="{% url 'wss:car_upload' car_set.id%}" style="color:#5172D5;"><i class='fa fa-upload'></i>上传&nbsp;&nbsp;</a>&nbsp;&nbsp;&nbsp;&nbsp;  {% endif %}<a href="#" onclick="deleteCar('{{car_set.id}}')" style="color:#5172D5;"><i class="fa fa-trash-o">删除</i></a></p>
+				                </div>
+			                     {% if car_set.state == 'success' %}
+				              <a class="weui_panel_ft" href="{% url 'wss:car_detail' car_set.id%}" style="color:#5172D5;">详情&nbsp;&nbsp;</a> 
+                                  {% endif %} 
+				            </div>
+				            	{# 删除车辆提示信息#}
+								<div id="id_message_{{car_set.id}}" class="row control-show">
+								<div class="weui_dialog_alert">
+								        <div class="weui_mask"></div>
+								        <div class="weui_dialog">
+								            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+								            <div class="weui_dialog_bd"id="id_message_id">确认删除该车辆信息吗?</div>
+								            <div class="weui_dialog_ft">
+								             	<a href="{% url 'wss:car_delete' car_set.id %}" class="weui_btn_dialog primary"id="del_exit_{{car_set.id}}">确定</a>
+								                <a onclick="$('#id_message_{{car_set.id}}').addClass('control-show');" class="weui_btn_dialog primary">取消</a>
+								            </div>
+								        </div>
+								    </div>
+							    </div>
+							    {#结束#}
+				            {% endfor %}
+				   {% else %}
+				       <div  class="thumbBox"  style="padding-top: 15%;"><img  src="/static/pic/default/201305122026542520.gif" alt="icon"  style="max-width: 180px;max-height: 180px;word-break:break-all;" ></div>
+			            <div  class="thumbBox"  style="padding-top: 5%;"><p>抱歉，您还没有添加您的爱车信息！</p></div>
+				   
+				   {% endif %}
+				         <div style="height:40px;"></div>
+		                <div style=" width: 100%; position: fixed;  bottom: 0px;z-index: 1024;">
+			            <a href="{% url 'wss:myCar_create' %}" class="weui_btn  weui_btn_primary  btn_modify" ><i class="fa   fa-plus-circle"></i>&nbsp;&nbsp;添加车辆</a> 
+			           </div>
+		
+		        </div>
+		 </div>
+<!-- <div class="weui_dialog_confirm" id="dialog2" style="display: none;">
+    <div class="weui_mask"></div>
+    <div class="weui_dialog">
+        <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+        <div class="weui_dialog_bd" style="text-align:center;">确认删除该车辆信息吗?</div>
+        <div class="weui_dialog_ft">
+            <a href="javascript:close();" class="weui_btn_dialog default">取消</a>
+            <a href="javascript:confirm();" class="weui_btn_dialog primary">确定</a>
+        </div>
+    </div>
+</div> -->
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+   <script type="text/javascript">
+       function close(){
+    	   $("#dialog2").css("display","none");  
+    	   
+       }
+/*        function deleteCar(){
+    	   $("#dialog2").css("display","block");  
+    	   return false;
+       } */
+       function deleteCar(car_id){
+    	   var car_id = car_id;
+    	   if (car_id){
+    		   $('#id_message_'+car_id).removeClass('control-show');
+    	   }
+    	   else{
+    		   $('#id_message').removeClass('control-show');
+    		   $('#id_message_id').html('网络不稳定，未获取当前车辆信息，请稍后再试');
+    	   }
+
+       }
+
+ 
+    </script>
+
+{% endblock %}

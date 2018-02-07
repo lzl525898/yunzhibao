@@ -1,0 +1,1365 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}编辑订单{% endblock %}
+
+{% block container_block %}
+<style>
+.cd-popup {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s 0s, visibility 0s 0.3s;
+}
+.cd-popup.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s 0s, visibility 0s 0s;
+}
+.cd-popup-container {
+  transform: translateY(-40px);
+  transition-property: transform;
+  transition-duration: 0.3s;
+}
+.is-visible .cd-popup-container {
+  transform: translateY(0);
+}
+
+.weui_input {
+  width: 100%;
+  border:0px solid #C8C8CD;  
+  border-radius: 3px !important;
+  outline: 0;
+  -webkit-appearance: none; 
+  background-color: transparent;
+  font-size: 14px;
+  color: inherit;
+  height: 2em;
+  line-height: 2em;
+}
+#item-ifo {
+position: relative;
+}
+#item-ifo #ico {
+width: 16px;
+height: 16px;
+position: absolute;
+top: 5px;
+right: 2px;
+z-index: 3;
+} 
+</style>
+{% if message %}
+    <div class="weui_dialog_alert">
+        <div class="weui_mask" style="z-index: 4;"></div>
+        <div class="weui_dialog">
+            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+            <div class="weui_dialog_bd">{{ message }}</div>
+            <div class="weui_dialog_ft">
+                <a onclick="close_dialog();" class="weui_btn_dialog primary">确定</a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{#*********************删除图片提示框***************#}
+<div id="id_message" class="control-show">
+	<form id="delete_batch_form" class="form" method="post" action="{% url 'wss:wx_delete_batch_pic' order.id %}"  enctype="multipart/form-data">  {% csrf_token %}
+	<div class="weui_dialog_alert">
+	        <div class="weui_mask"></div>
+	        <div class="weui_dialog">
+	            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+	            <div class="weui_dialog_bd"id="id_message_id"></div>
+	            <div class="weui_dialog_ft">
+	            	<input  type="hidden" name="image_batch_url_delete" id="image_batch_url_delete" value="">
+	               {# <a onclick="close_dialog();" class="weui_btn_dialog primary">确定</a>#}
+	            </div>
+	            <div class="modal-footer">
+                    <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 删 除 </button>
+                    <a onclick="$('#id_message').addClass('control-show');" class="weui_btn_dialog primary"> 退 出</a>
+                </div>
+	  </div>
+	 </form>
+</div>
+{#*********************结束***************#}
+<!--         <div class="col-sm-12">
+            <div id="id_message_id" class="alert alert-warning"></div>
+        </div> -->
+    </div>
+<!-- <div id="fade" class="black_overlay"> </div> -->
+<div class="top">
+	<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+		<tbody>
+			<tr>
+					<td width="23%" valign="middle">
+							<a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a>
+					</td>
+					<td class="wz" width="53%" valign="middle" align="center">
+							<span id="toptitle">
+									<i class="fa    fa-th-list"></i>&nbsp;<strong>编辑车辆保险订单</strong>
+							</span>
+					</td>
+					<td width="23%" valign="middle" align="right">
+					<a id="aso" href="#"></a>
+					</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+ <form id="wss_register_form" method="post" action="{% url 'wss:jdclbx_order_edit' order.id %}" enctype="multipart/form-data" style="padding-top:30px;">{% csrf_token %}
+        <input type="hidden" name="chongxinxunjia_state" id="chongxinxunjia_state"  value="{{ paper_id }}">
+    
+       <div class="weui_cells_title weui_navbar_item" style="text-align: left; background-color: #F3F3F3;color:#5172D5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-paw" ></i>录入保单信息</div>
+        <div class="weui_cells weui_cells_form wss_p">
+        <div class="weui_cell wss_dashed_bottom">
+	        <!-- <div class="weui_cell_hd"><label for="name" class="weui_label"  style="width: 150px">【车辆所在城市】</label></div>
+	        <div class="weui_cell_bd weui_cell_primary">
+	          		<input class="weui_input" name="wx_home_city" id ="wx_home_city" type="text" value="{{city }}">
+	        </div> -->
+	        <div class="weui_cell_hd"><label for="name" class="weui_label"  style="width: 150px">【车牌号】</label></div>
+	                  <div class="weui_cell_bd weui_cell_primary " id="item-ifo">
+							<input class="weui_input"  style="height: 37px;" id="short" type="text" name="short" value="{{short}}"><i class="fa fa-sort-desc" id="ico"></i>
+                     </div>
+                      <div class="weui_cell_bd weui_cell_primary">
+                             <input class="weui_input" id="wx_plate_number" name="wx_plate_number" type="text" value="{{wx_plate_number }}" style="height: 37px; width:95%;" data-required="true" >
+                       </div>
+      	</div>
+      	<div class="weui_cell wss_dashed_bottom">
+	        <div class="weui_cell_hd"><label for="name" class="weui_label" style="width: 150px">【车辆使用类型】</label></div>
+	        <div class="weui_cell_bd weui_cell_primary">
+	          		<input class="weui_input" name="wx_car_type" id ="wx_car_type"type="text" value="{{ order.order_car_type|WX_CarType }}">
+	        </div>
+      	</div>
+      	<div class="weui_cell wss_dashed_bottom">
+	        <div class="weui_cell_hd"><label for="name" class="weui_label" style="width: 150px">【用户类型】</label></div>
+	        <div class="weui_cell_bd weui_cell_primary">
+	          		<input class="weui_input" name="wx_user_classify" id ="wx_user_classify"type="text" value="{{ order.user_classify|WX_UserType}}">
+	        </div>
+      	</div>
+      	<div style="display: none" id="person">
+      	<div class="weui_cell wss_dashed_bottom">
+	        <div class="weui_cell_hd"><label for="name" class="weui_label"style="width: 150px">【投保人】</label></div>
+	        <div class="weui_cell_bd weui_cell_primary">
+	          		<input class="weui_input" name="wx_applicant_name" id ="wx_applicant_name"type="text" value="{{ order.applicant_name }}">
+	        </div>
+      	</div>
+      <!-- 	<div class="weui_cell wss_dashed_bottom">
+	        <div class="weui_cell_hd"><label for="name" class="weui_label"style="width: 150px">【投保人身份证】</label></div>
+	        <div class="weui_cell_bd weui_cell_primary">
+	          		<input class="weui_input" name="wx_certificate_number" id ="wx_certificate_number"type="text" value="{{ order.certificate_number }}">
+	        </div>
+      	</div> -->
+      	</div>
+      	<div style="display: none" id="company">
+      		<div class="weui_cell wss_dashed_bottom">
+	        <div class="weui_cell_hd"><label for="name" class="weui_label"style="width: 150px">【投保单位】</label></div>
+	        <div class="weui_cell_bd weui_cell_primary">
+	          		<input class="weui_input" name="applicant_company_name" id ="applicant_company_name"type="text" value="{{ order.applicant_company_name }}">
+	        </div>
+      	</div>
+      <!-- 	<div class="weui_cell wss_dashed_bottom">
+	        <div class="weui_cell_hd"><label for="name" class="weui_label"style="width: 150px">【营业执照号】</label></div>
+	        <div class="weui_cell_bd weui_cell_primary">
+	          		<input class="weui_input" name="wx_organ_number" id ="wx_organ_number"type="text" value="{{ order.organ }}">
+	        </div>
+      	</div> -->
+      	</div>
+      	<div class="weui_cell wss_dashed_bottom">
+	        <div class="weui_cell_hd"><label for="name" class="weui_label"style="width: 150px">【投保人电话】</label></div>
+	        <div class="weui_cell_bd weui_cell_primary">
+	          		<input class="weui_input" name="wx_applicant_phone" id ="wx_applicant_phone"type="text" value="{{ order.applicant_phone }}">
+	        </div>
+      	</div>
+      	
+      	
+      	<div class="weui_cell wss_dashed_bottom">
+	        <div class="weui_cell_hd"><label for="name" class="weui_label"style="width: 150px">【被保人】</label></div>
+	        <div class="weui_cell_bd weui_cell_primary">
+	          		<input class="weui_input" name="wx_insured_name" id ="wx_insured_name"type="text" value="{{ order.insured_name }}">
+	        </div>
+      	</div>
+      	<div class="weui_cell wss_dashed_bottom">
+	        <div class="weui_cell_hd"><label for="name" class="weui_label"style="width: 150px">【被保人电话】</label></div>
+	        <div class="weui_cell_bd weui_cell_primary">
+	          		<input class="weui_input" name="wx_insured_phone" id ="wx_insured_phone"type="text" value="{{ order.insured_phone }}">
+	        </div>
+      	</div>
+      	<div class="weui_cell wss_dashed_bottom">
+	        <div class="weui_cell_hd"><label for="name" class="weui_label"style="width: 150px">【保单快递地址】</label></div>
+	        <div class="weui_cell_bd weui_cell_primary">
+	          		<input class="weui_input" name="wx_mail_address" id ="wx_mail_address"type="text" value="{{ order.mail_address }}">
+	        </div>
+      	</div>
+      	<div class="weui_cell wss_dashed_bottom">
+	        <div class="weui_cell_hd"><label for="name" class="weui_label"style="width: 150px">【保单详细地址】</label></div>
+	        <div class="weui_cell_bd weui_cell_primary">
+	          		<input class="weui_input" name="wx_policy_address" id ="wx_policy_address"type="text" value="{{ order.policy_address }}">
+	        </div>
+      	</div>
+</div>
+<div style="display: none" id="company1">
+ {#*********************营业执照图片***************#}
+<div class="weui_cell wss_dashed_bottom">
+ <div class="weui-row weui-no-gutter">
+          <div class="weui_cells_title">原营业执照的图片</div>
+            <div class="weui_cells weui_cells_form">
+                <div class="weui_cell">
+                    <div class="weui_cell_bd weui_cell_primary">
+                        <div class="weui_uploader">
+                            <div class="weui_uploader_bd">
+                                <ul class="weui_uploader_files">
+                                </ul>       
+							     <div class="weui_uploader_file">
+								     <a href="{% static '' %}{{ order.business_license_image}}"target="_blank">
+								        <img src="{% static '' %}{{  order.business_license_image }}" style="max-width: 100px;max-height: 100px;display:block;text-align: center;margin-right: auto;margin-left: auto;">&nbsp;&nbsp;
+								    </a>								 
+							     </div>
+							     <!--  <div class="weui_uploader_file">
+								    <a id="delete_{{  order.business_license_image }}" name="" href="#"  onclick="wx_delete_batch_pic('{{ order.id_card_up}}')" class=" "><i class="fa fa-trash-o"></i></a>
+							     </div> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> 
+            <div class="weui_cells_title">更新营业执照的图片<small>（图片格式：gif、png、jpeg或icon;）</small></div>
+           <div class="weui_cells weui_cells_form" style="background:#F3F3F3;">         
+                    <div class="weui_cell" style="background:#F3F3F3;">
+                        <div class="weui_cell_bd weui_cell_primary">
+                            <div class="weui_uploader">
+                                <div class="weui_uploader_bd">
+                                    <ul class="weui_uploader_files ul_license_image">
+                                    </ul>
+                                    <div class="weui_uploader_input_wrp" >
+                                        <input class="weui_uploader_input license_image" id="license_image"name="license_image" type="file" accept="image/jpg,image/jpeg,image/png,image/gif"/>
+{#                                        <input type='hidden' id="id_license_image_hidden" name="license_image_hidden">#}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+         </div>
+              </div>
+ <div style="display: none" id="person1">
+ {#*********************身份证证图片***************#}
+<div class="weui_cell wss_dashed_bottom">
+ <div class="weui-row weui-no-gutter">
+          <div class="weui_cells_title">原身份证正面图片</div>
+            <div class="weui_cells weui_cells_form">
+                <div class="weui_cell">
+                    <div class="weui_cell_bd weui_cell_primary">
+                        <div class="weui_uploader">
+                            <div class="weui_uploader_bd">
+                                <ul class="weui_uploader_files">
+                                </ul>       
+							     <div class="weui_uploader_file">
+								     <a href="{% static '' %}{{ order.id_card_up}}"target="_blank">
+								        <img src="{% static '' %}{{  order.id_card_up }}" style="max-width: 100px;max-height: 100px;display:block;text-align: center;margin-right: auto;margin-left: auto;">&nbsp;&nbsp;
+								    </a>								 
+							     </div>
+							     <!--  <div class="weui_uploader_file">
+								    <a id="delete_{{  order.id_card_up }}" name="" href="#"  onclick="wx_delete_batch_pic('{{ order.id_card_up}}')" class=" "><i class="fa fa-trash-o"></i></a>
+							     </div> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> 
+            <div class="weui_cells_title">更新身份证正面图片<small>（图片格式：gif、png、jpeg或icon;）</small></div>
+           <div class="weui_cells weui_cells_form" style="background:#F3F3F3;">         
+                    <div class="weui_cell" style="background:#F3F3F3;">
+                        <div class="weui_cell_bd weui_cell_primary">
+                            <div class="weui_uploader">
+                                <div class="weui_uploader_bd">
+                                    <ul class="weui_uploader_files ul_card_up">
+                                    </ul>
+                                    <div class="weui_uploader_input_wrp" >
+                                        <input class="weui_uploader_input card_up" id="card_up"name="card_up" type="file" accept="image/jpg,image/jpeg,image/png,image/gif"/>
+{#                                        <input type='hidden' id="id_card_up_hidden" name="card_up_hidden">#}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+         </div>
+        	<div class="weui_cell wss_dashed_bottom">
+       <div class="weui-row weui-no-gutter">
+       
+          <div class="weui_cells_title">原身份证背面图片</div>
+            <div class="weui_cells weui_cells_form">
+                <div class="weui_cell">
+                    <div class="weui_cell_bd weui_cell_primary">
+                        <div class="weui_uploader">
+                            <div class="weui_uploader_bd">
+                                <ul class="weui_uploader_files">
+                                </ul>       
+							     <div class="weui_uploader_file">
+								     <a href="{% static '' %}{{order.id_card_down}}"target="_blank">
+								        <img src="{% static '' %}{{order.id_card_down }}" style="max-width: 100px;max-height: 100px;display:block;text-align: center;margin-right: auto;margin-left: auto;">&nbsp;&nbsp;
+								    </a>								 
+							     </div>
+							    <!--   <div class="weui_uploader_file">
+								    <a id="delete_{{order.id_card_down}}" name="" href="#"  onclick="wx_delete_batch_pic('{{order.id_card_down}}')" class=" "><i class="fa fa-trash-o"></i></a>
+							     </div> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> 
+            <div class="weui_cells_title">更新身份证背面图片<small>（图片格式：gif、png、jpeg或icon;）</small></div>     
+               <div class="weui_cells weui_cells_form" >
+                   <div class="weui_cell" style="background:#F3F3F3;">
+                        <div class="weui_cell_bd weui_cell_primary">
+                            <div class="weui_uploader">
+                                <div class="weui_uploader_bd">
+                                    <ul class="weui_uploader_files ul_card_down">
+                                    </ul>
+                                    <div class="weui_uploader_input_wrp">
+                                        <input class="weui_uploader_input card_down" id="card_down"name="card_down" type="file" accept="image/jpg,image/jpeg,image/png,image/gif"/>
+{#                                        <input type='hidden' id="id_card_down_hidden" name="card_down_hidden">#}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+           </div>
+           </div>
+ {#*********************行驶证图片***************#}
+<div class="weui_cell wss_dashed_bottom">
+ <div class="weui-row weui-no-gutter">
+          <div class="weui_cells_title">原行驶证正页图片</div>
+            <div class="weui_cells weui_cells_form">
+                <div class="weui_cell">
+                    <div class="weui_cell_bd weui_cell_primary">
+                        <div class="weui_uploader">
+                            <div class="weui_uploader_bd">
+                                <ul class="weui_uploader_files">
+                                </ul>       
+							     <div class="weui_uploader_file">
+								     <a href="{% static '' %}{{ order.plate_image_left }}"target="_blank">
+								        <img src="{% static '' %}{{  order.plate_image_left }}" style="max-width: 100px;max-height: 100px;display:block;text-align: center;margin-right: auto;margin-left: auto;">&nbsp;&nbsp;
+								    </a>								 
+							     </div>
+							     <!--  <div class="weui_uploader_file">
+								    <a id="delete_{{  order.plate_image_left }}" name="" href="#"  onclick="wx_delete_batch_pic('{{ order.plate_image_left}}')" class=" "><i class="fa fa-trash-o"></i></a>
+							     </div> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> 
+            <div class="weui_cells_title">更新行驶证正页图片<small>（图片格式：gif、png、jpeg或icon;）</small></div>
+           <div class="weui_cells weui_cells_form" style="background:#F3F3F3;">         
+                    <div class="weui_cell" style="background:#F3F3F3;">
+                        <div class="weui_cell_bd weui_cell_primary">
+                            <div class="weui_uploader">
+                                <div class="weui_uploader_bd">
+                                    <ul class="weui_uploader_files ul_national_image">
+                                    </ul>
+                                    <div class="weui_uploader_input_wrp" >
+                                        <input class="weui_uploader_input national_image" id="national_image"name="national_image" type="file" accept="image/jpg,image/jpeg,image/png,image/gif"/>
+{#                                        <input type='hidden' id="id_national_image_hidden" name="national_image_hidden">#}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+         </div>
+        	<div class="weui_cell wss_dashed_bottom">
+       <div class="weui-row weui-no-gutter">
+       
+          <div class="weui_cells_title">原行驶证附页图片</div>
+            <div class="weui_cells weui_cells_form">
+                <div class="weui_cell">
+                    <div class="weui_cell_bd weui_cell_primary">
+                        <div class="weui_uploader">
+                            <div class="weui_uploader_bd">
+                                <ul class="weui_uploader_files">
+                                </ul>       
+							     <div class="weui_uploader_file">
+								     <a href="{% static '' %}{{order.plate_image_right }}"target="_blank">
+								        <img src="{% static '' %}{{order.plate_image_right }}" style="max-width: 100px;max-height: 100px;display:block;text-align: center;margin-right: auto;margin-left: auto;">&nbsp;&nbsp;
+								    </a>								 
+							     </div>
+							    <!--   <div class="weui_uploader_file">
+								    <a id="delete_{{order.plate_image_right }}" name="" href="#"  onclick="wx_delete_batch_pic('{{order.plate_image_right}}')" class=" "><i class="fa fa-trash-o"></i></a>
+							     </div> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> 
+            <div class="weui_cells_title">更新行驶证附页图片<small>（图片格式：gif、png、jpeg或icon;）</small></div>     
+               <div class="weui_cells weui_cells_form" >
+                   <div class="weui_cell" style="background:#F3F3F3;">
+                        <div class="weui_cell_bd weui_cell_primary">
+                            <div class="weui_uploader">
+                                <div class="weui_uploader_bd">
+                                    <ul class="weui_uploader_files ul_national_image_down">
+                                    </ul>
+                                    <div class="weui_uploader_input_wrp">
+                                        <input class="weui_uploader_input national_image_down" id="national_image_down"name="national_image_down" type="file" accept="image/jpg,image/jpeg,image/png,image/gif"/>
+{#                                        <input type='hidden' id="id_national_image_down_hidden" name="national_image_down_hidden">#}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+           </div>
+          {#编辑保险类型#} 
+          <div class='demos-content-padded'>
+		      <a href="javascript:;" class="weui_btn weui_btn_primary open-popup" data-target="#full">编辑保险类型</a>	
+		  </div>
+
+		    <div id="full" class='weui-popup-container'>
+		      <div class="weui-popup-overlay"></div>
+		      <div class="weui-popup-modal">
+		        <header class='demos-header'>
+		          <h2 class="demos-second-title">保险类型编辑</h2>
+		        </header>
+		
+		     <section>
+		         <div class="weui_cells" style="height:100%;background:#F3F3F3;padding-top:20px;">
+			       <div class="weui_panel weui_panel_access">
+					      <div class="weui_panel_hd"  style="background:#F3F3F3;">交强险和车船使用税</div>
+					      <div class="weui_panel_bd">
+					        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+						          <div class="weui_media_bd">
+						            <h4 class="weui_media_title"  style="font-size:14px;">交强险</h4>
+						            <p class="weui_media_desc">国家规定的强制保险</p>
+						          </div>
+						          <div class="weui_media_hd" style="margin-right:.1em">
+						                <input class="weui_switch" type="checkbox"  checked  id="jqx" name= "liability_state">
+						          </div>
+					        </a>
+					        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+						          <div class="weui_media_bd">
+						            <h4 class="weui_media_title"  style="font-size:14px;">车船使用税</h4>
+						            <p class="weui_media_desc">以排量为收取标准的国家税收</p>
+						          </div>
+						         <div class="weui_media_hd" style="margin-right:.1em">
+						                 <input class="weui_switch" type="checkbox"  checked  id="ccs" name="vehicle_vessel_tax_state">
+						          </div>
+					        </a>
+					      </div>
+					</div>
+					<div class="weui_panel weui_panel_access">
+					      <div class="weui_panel_hd"  style="background:#F3F3F3;padding:0px 15px 10px;">商业险</div>
+					      <div class="weui_panel_bd">
+					        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+						          <div class="weui_media_bd">
+						            <h4 class="weui_media_title"  style="font-size:14px;">三者险</h4>
+						            <p class="weui_media_desc">用于赔付对他人造成的财产损失</p>
+						          </div>
+						          <div class="weui_media_hd" style="margin-right:.1em"  id="item-ifo">
+						                <input class="weui_input" type="text"    id="szx" value="{{third_insurance}}" name="third_insurance"><i class="fa fa-angle-down" id="szx" ></i>
+						          </div>
+					        </a>
+					        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+						          <div class="weui_media_bd">
+						            <h4 class="weui_media_title"  style="font-size:14px;">车损险</h4>
+						            <p class="weui_media_desc">用于赔付自己车辆损失</p>
+						          </div>
+						         <div class="weui_media_hd" style="margin-right:.1em">
+						                 <input class="weui_switch" type="checkbox"  checked  id="csx" name="damage_insurance">
+						          </div>
+					        </a>
+					        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+						          <div class="weui_media_bd">
+						            <h4 class="weui_media_title"  style="font-size:14px;">玻璃险</h4>
+						            <p class="weui_media_desc">用于赔付非抗力对玻璃造成的损失</p>
+						          </div>
+						          <div class="weui_media_hd" style="margin-right:.1em"  id="item-ifo">
+						                <input class="weui_input" type="text"    id="blx" value="{{glass_insurance}}" name="glass_insurance"><i class="fa fa-angle-down" id="blx" ></i>
+						          </div>
+					        </a>
+					        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+						          <div class="weui_media_bd">
+						            <h4 class="weui_media_title"  style="font-size:14px;">司机险</h4>
+						            <p class="weui_media_desc">用于对司机造成的人身伤害</p>
+						          </div>
+						         <div class="weui_media_hd" style="margin-right:.1em"  id="item-ifo">
+						                 <input class="weui_input" type="text"    id="sjx" value="{{driver_insurance}}" name="driver_insurance" ><i class="fa fa-angle-down" id="sjx" ></i>
+						          </div>
+					        </a>
+					        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+						          <div class="weui_media_bd">
+						            <h4 class="weui_media_title"  style="font-size:14px;">乘客险</h4>
+						            <p class="weui_media_desc">车内本车乘客（非驾驶员）的人身伤亡费用</p>
+						          </div>
+						          <div class="weui_media_hd" style="margin-right:.1em"  id="item-ifo">
+						                 <input class="weui_input" type="text"    id="ckx" value="{{passenger_insurance}}"  name="passenger_insurance"><i class="fa fa-angle-down" id="ckx" ></i>
+						          </div>
+					        </a>
+					        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+						          <div class="weui_media_bd">
+						            <h4 class="weui_media_title"  style="font-size:14px;">盗抢险</h4>
+						            <p class="weui_media_desc">用于赔付车辆被盗抢损失</p>
+						          </div>
+						         <div class="weui_media_hd" style="margin-right:.1em">
+						                 <input class="weui_switch" type="checkbox"   id="dqx" name="theft_insurance">
+						          </div>
+					        </a>
+					        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+						          <div class="weui_media_bd">
+						            <h4 class="weui_media_title"  style="font-size:14px;">不计免赔险</h4>
+						            <p class="weui_media_desc">事故发生时自己不再承担损失</p>
+						          </div>
+						         <div class="weui_media_hd" style="margin-right:.1em">
+						                 <input class="weui_switch" type="checkbox"   checked id="bjmpx" name="iop_insurance">
+						          </div>
+					        </a>
+					        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+						          <div class="weui_media_bd">
+						            <h4 class="weui_media_title"  style="font-size:14px;">自燃损失险</h4>
+						            <p class="weui_media_desc">车辆的自身原因起火造成车辆本身的损失</p>
+						          </div>
+						         <div class="weui_media_hd" style="margin-right:.1em">
+						                 <input class="weui_switch" type="checkbox"   id="zrssx" name="autoignition_insurance">
+						          </div>
+					        </a>
+					       <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+						          <div class="weui_media_bd">
+						            <h4 class="weui_media_title"  style="font-size:14px;">划痕险</h4>
+						            <p class="weui_media_desc">他人恶意行为造成的车辆车身人为划痕</p>
+						          </div>
+						          <div class="weui_media_hd" style="margin-right:.1em"  id="item-ifo">
+						                <input class="weui_input" type="text"    id="hhx" value="{{scratch_insurance}}" name="scratch_insurance" ><i class="fa fa-angle-down" id="ico" ></i>
+						          </div>
+					        </a>
+					        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+						          <div class="weui_media_bd">
+						            <h4 class="weui_media_title"  style="font-size:14px;">涉水险</h4>
+						            <p class="weui_media_desc">因水淹或涉水行驶造成发动机损坏的费用</p>
+						          </div>
+						         <div class="weui_media_hd" style="margin-right:.1em">
+						                 <input class="weui_switch" type="checkbox"   id="shesx" name="wading_insurance">
+						          </div>
+					        </a>	
+					         </div>
+					          </div>
+					         <div class="weui_panel weui_panel_access">
+					        <div class="weui_panel_hd"  style="background:#F3F3F3;padding:0px 15px 10px;">保险起期</div>
+					        <div style="display: none" id="jiaoqiangxian">
+								        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+									          <div class="weui_media_bd">
+									            <h4 class="weui_media_title"  style="font-size:14px;">交强险保险起期</h4>
+									            
+									          </div>
+									          <div class="weui_media_hd" style="margin-right:.1em; width:20%;"  id="item-ifo">
+									               <input class="weui_input" style="width:100%;    background-color: transparent ; border:1px solid #C8C8CD; color: #000; "data-descriptions="liability_expectStartTime1" data-required="true"   id="jiao_start_date" type="text" name="liability_expectStartTime" placeholder="请输入保险起期时间" value="{{liability_expectStartTime}}"  style="height: 30px; width:80px;">
+									          </div>
+								        </a>
+					            </div>
+					            <div style="display: none" id="shangyexian">
+							        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+								          <div class="weui_media_bd">
+								            <h4 class="weui_media_title"  style="font-size:14px;">商业险保险起期</h4>
+								            
+								          </div>
+								          <div class="weui_media_hd" style="margin-right:.1em;width:20%;"  id="item-ifo">
+								               <input class="weui_input" style="width:100%;    background-color: transparent ; border:1px solid #C8C8CD; color: #000; " data-descriptions="commercial_expectStartTime1"  data-required="true"  id="shang_start_date" type="text" name="commercial_expectStartTime" placeholder="请输入保险起期时间" value="{{commercial_expectStartTime}}"  style="height: 30px; width:80px">
+								          </div>
+							        </a>
+					        </div>
+						
+					  </div>
+					</div>
+		          </section>
+		          <section>
+		            <a href="javascript:;" class="weui_btn weui_btn_plain_primary close-popup">关闭</a>
+		          </section>
+		 
+		      </div>
+    </div>
+            {#测试代码#}
+           <div class="cd-popup" role="alert">
+			  <div class="cd-popup-container">
+	
+			    <ul class="cd-buttons">
+			      <li><a href="#0">Yes</a></li>
+			      <li><a href="#0">No</a></li>
+			    </ul>
+			    <a href="#0" class="cd-popup-close img-replace">Close</a>
+			  </div> <!-- cd-popup-container -->
+			</div> <!-- cd-popup -->
+			
+             
+    <div style="height:60px;"></div>
+    <div class="weui_cell ">
+           <div class="weui_cell_bd weui_cell_primary " >
+			    <button type="submit" id =tijiaoxiugai class="weui_btn weui_btn_primary">提交修改</button>
+           </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+ <script src="{% static 'js/jquery-2.1.4.js' %}"></script>
+ <script src="{% static 'js/fastclick.js' %}"></script>
+<script>
+  $(function() {
+    FastClick.attach(document.body);
+    $("#tijiaoxiugai").attr("disabled", true);
+  });
+</script>
+<script src="{% static 'js/jquery-weui.js' %}"></script>
+<script src="{% static 'js/swiper.js' %}"></script>
+<script src="{% static 'js/city-picker.js' %}"></script>
+<script type="text/javascript">
+       $(document).ready(function (){ 
+			change_wx_cargo_type();		
+        });
+      
+       $("#szx").select({
+           title: "选择",
+           items: ["不投保","10万", "20万","30万", "50万","100万", "150万","200万", "250万", "300万"],
+           onChange: function(d) {
+             console.log(this, d);
+           },
+           onClose: function() {
+             console.log("close");
+           },
+           onOpen: function() {
+             console.log("open");
+           },
+         });
+         $("#blx").select({
+             title: "选择",
+             items: ["不投保","国产", "进口"],
+             onChange: function(d) {
+               console.log(this, d);
+             },
+             onClose: function() {
+               console.log("close");
+             },
+             onOpen: function() {
+               console.log("open");
+             },
+           });
+         $("#sjx").select({
+             title: "选择",
+             items: ["不投保","1万", "2万","5万", "10万","20万"],
+             onChange: function(d) {
+               console.log(this, d);
+             },
+             onClose: function() {
+               console.log("close");
+             },
+             onOpen: function() {
+               console.log("open");
+             },
+           });
+         $("#ckx").select({
+             title: "选择",
+             items: ["不投保","1万", "2万","5万", "10万","20万"],
+             onChange: function(d) {
+               console.log(this, d);
+             },
+             onClose: function() {
+               console.log("close");
+             },
+             onOpen: function() {
+               console.log("open");
+             },
+           });
+         $("#hhx").select({
+             title: "选择",
+             items: ["不投保","2千", "5千","1万", "2万"],
+             onChange: function(d) {
+               console.log(this, d);
+             },
+             onClose: function() {
+               console.log("close");
+             },
+             onOpen: function() {
+               console.log("open");
+             },
+           });
+         $("#jiao_start_date").calendar({
+     		onChange: function (p, values, displayValues) {
+     	      console.log(values, displayValues);
+     	    }
+     	  });
+     	$("#shang_start_date").calendar({
+     		onChange: function (p, values, displayValues) {
+     	      console.log(values, displayValues);
+     	    }
+     	  });
+     	 $("#jqx").change(function(){
+     		 if ( $("#jqx").is(':checked')){
+     			$("#jiaoqiangxian").css("display","block");
+     		 }
+     		 else{
+     			$("#jiaoqiangxian").css("display","none");
+     		 }	
+   	    	});
+       
+       
+       $("#wx_user_classify").select({
+           title: "选择用户类型",
+           items: ["单位", "个人"],
+           onChange: function(d) {
+             console.log(this, d);
+           },
+           onClose: function() {
+             console.log("close");
+           },
+           onOpen: function() {
+             console.log("open");
+           },
+         });
+       $("#wx_user_classify").change(function(){
+       	    	  if ($("#wx_user_classify").val() == '个人'){
+       	    			  $("#person").css("display","block");
+       	        		  $("#company").css("display","none");
+       	        		 $("#person1").css("display","block");
+      	        		  $("#company1").css("display","none");
+       	        	
+       	    	  }else{
+       	    			  $("#person").css("display","none");
+       	        		  $("#company").css("display","block");
+       	        		$("#person1").css("display","none");
+     	        		  $("#company1").css("display","block");
+       	    		  }
+       	    	});
+       $("#wx_user_classify").change(function(){
+	    	  if ($("#wx_user_classify").val() == '个人'){
+	    			  $("#person").css("display","block");
+	        		  $("#company").css("display","none");
+	        		  $("#person1").css("display","block");
+	        		  $("#company1").css("display","none");
+	        	
+	    	  }else{
+	    			  $("#person").css("display","none");
+	        		  $("#company").css("display","block");
+	        		  $("#person1").css("display","none");
+	        		  $("#company1").css("display","block");
+	    		  }
+	    	});
+       
+       $("#wx_car_type").select({
+           title: "选择车辆类型",
+           items: ["货车", "九座以下客车"],
+           onChange: function(d) {
+             console.log(this, d);
+           },
+           onClose: function() {
+             console.log("close");
+           },
+           onOpen: function() {
+             console.log("open");
+           },
+         });
+         
+         $("#wx_home_city").cityPicker({
+             title: "选择目的地",
+             showDistrict: false,
+             onChange: function (picker, values, displayValues) {
+               console.log(values, displayValues);
+             }
+           });
+       
+       function change_wx_cargo_type(){
+    		if ('{{order.user_classify}}' == 'personal'){
+    			  $("#person").css("display","block");
+	        	  $("#company").css("display","none");
+	        	  $("#person1").css("display","block");
+	        	  $("#company1").css("display","none");
+    		}
+    		else{
+    			$("#person").css("display","none");
+	            $("#company").css("display","block");
+	            $("#person1").css("display","none");
+	            $("#company1").css("display","block");
+    		}
+    		
+    		
+    		if ('{{order.liability_state}}' == 'True'){
+      			// alert("验证通过！接下来可以做你想做的事情啦1123！");
+      			      $("#jqx").attr("checked",true);
+      			    $("#jiaoqiangxian").css("display","block");
+      		}
+      		else{
+      			 
+      			       $("#jqx").attr("checked",false);
+      			       $("#jiaoqiangxian").css("display","none");
+      		}
+      		if ('{{order.vehicle_vessel_tax_state}}' == 'True'){
+    		      $("#ccs").attr("checked",true);
+    			}
+    			else{
+    				       $("#ccs").attr("checked",false);
+    			}
+    				if ('{{order.damage_insurance}}' == 'True'){
+    				      $("#csx").attr("checked",true);
+    			}
+    			else{
+    				       $("#csx").attr("checked",false);
+    			}
+    		  		if ('{{order.theft_insurance}}' == 'True'){
+    				      $("#dqx").attr("checked",true);
+    			}
+    			else{
+    				
+    				       $("#dqx").attr("checked",false);
+    			}
+    		  		if ('{{order.iop_insurance}}' == 'True'){
+    				      $("#bjmpx").attr("checked",true);
+    			}
+    			else{
+    				       $("#bjmpx").attr("checked",false);
+    			}
+    		  		if ('{{order.autoignition_insurance}}' == 'True'){
+    				      $("#zrssx").attr("checked",true);
+    			}
+    			else{
+    				       $("#zrssx").attr("checked",false);
+    			}
+    		  		if ('{{order.wading_insurance}}' == 'True'){
+    				      $("#shesx").attr("checked",true);
+    			}
+    			else{
+    				       $("#shesx").attr("checked",false);
+    			}
+      		 if ('{{order.damage_insurance}}' == 'True'||'{{order.theft_insurance}}' == 'True'||'{{order.iop_insurance}}' == 'True'||'{{order.autoignition_insurance}}' == 'True'||'{{order.wading_insurance}}' == 'True'||'{{jdclbx_order.third_insurance}}' != '0'||'{{jdclbx_order.glass_insurance}}' != 'no'||'{{jdclbx_order.driver_insurance}}' != '0'||'{{jdclbx_order.passenger_insurance}}' != '0'||'{{jdclbx_order.scratch_insurance}}' != '0'){
+      			 $("#shangyexian").css("display","block");
+      		 }
+      		 else{
+      			 $("#shangyexian").css("display","none");
+      		 }
+    	}
+       function submitform(){
+    		document.getElementById("wss_register_form").submit();
+    	}
+     
+       {#行驶证证正面照#}
+       $(function () {
+       // 允许上传的图片类型
+       var allowTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'];
+       // 1024KB，也就是 1MB
+       var maxSize = 3072 * 3072;
+       // 图片最大宽度
+       var maxWidth = 400;
+       // 最大上传图片数量
+       var maxCount = 1;
+       $('.national_image').on('change', function (event) {
+       var files = event.target.files;
+
+       // 如果没有选中文件，直接返回
+       if (files.length === 0) {
+       return;
+       }
+
+       for (var i = 0, len = files.length; i < len; i++) {
+       var file = files[i];
+       var reader = new FileReader();
+       // 如果类型不在允许的类型范围内
+       if (allowTypes.indexOf(file.type) === -1) {
+       $.weui.alert({text: '该类型不允许上传'});
+       continue;
+       }
+
+       if (file.size > maxSize) {
+       $.weui.alert({text: '图片太大，不允许上传'});
+       continue;
+       }
+
+       if ($('.li_national_image').length >= maxCount) {
+       $.weui.alert({text: '最多只能上传' + maxCount + '张图片'});
+       return;
+       }
+       reader.onload = function (e) {
+
+       var img = new Image();
+       img.onload = function () {
+       // 不要超出最大宽度
+       var w = Math.min(maxWidth, img.width);
+       // 高度按比例计算
+       var h = img.height * (w / img.width);
+       var canvas = document.createElement('canvas');
+       var ctx = canvas.getContext('2d');
+       // 设置 canvas 的宽度和高度
+       canvas.width = w;
+       canvas.height = h;
+       ctx.drawImage(img, 0, 0, w, h);
+       var base64 = canvas.toDataURL('image/png');
+       console.log(base64);
+       // 插入到预览区
+       var $preview = $('<li class="weui_uploader_file weui_uploader_status li_national_image" style="background-image:url(' + base64 + ')" onclick="deletePic(this);"></li>');
+       $('.ul_national_image').append($preview);
+       $('.national_image').parent('.weui_uploader_input_wrp').hide();      
+       };
+       img.src = e.target.result;
+           $('#id_national_image_hidden').val(img.src);
+       };
+       reader.readAsDataURL(file);
+       }
+       });
+
+       });
+       {#行驶证证背面照#}
+       $(function () {
+       // 允许上传的图片类型
+       var allowTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'];
+       // 1024KB，也就是 1MB
+       var maxSize = 3072 * 3072;
+       // 图片最大宽度
+       var maxWidth = 400;
+       // 最大上传图片数量
+       var maxCount = 1;
+
+       $('.national_image_down').on('change', function (event) {
+       var files = event.target.files;
+
+       // 如果没有选中文件，直接返回
+       if (files.length === 0) {
+       return;
+       }
+
+       for (var i = 0, len = files.length; i < len; i++) {
+       var file = files[i];
+       var reader = new FileReader();
+       // 如果类型不在允许的类型范围内
+       if (allowTypes.indexOf(file.type) === -1) {
+       $.weui.alert({text: '该类型不允许上传'});
+       continue;
+       }
+
+       if (file.size > maxSize) {
+       $.weui.alert({text: '图片太大，不允许上传'});
+       continue;
+       }
+
+       if ($('.li_national_image_down').length >= maxCount) {
+       $.weui.alert({text: '最多只能上传' + maxCount + '张图片'});
+       return;
+       }
+       reader.onload = function (e) {
+       var img = new Image();
+       img.onload = function () {
+       // 不要超出最大宽度
+       var w = Math.min(maxWidth, img.width);
+       // 高度按比例计算
+       var h = img.height * (w / img.width);
+       var canvas = document.createElement('canvas');
+       var ctx = canvas.getContext('2d');
+       // 设置 canvas 的宽度和高度
+       canvas.width = w;
+       canvas.height = h;
+       ctx.drawImage(img, 0, 0, w, h);
+       var base64 = canvas.toDataURL('image/png');
+       console.log(base64);
+       // 插入到预览区
+       var $preview = $('<li class="weui_uploader_file weui_uploader_status li_national_image_down" style="background-image:url(' + base64 + ')" onclick="deletePic(this);"></li>');
+       $('.ul_national_image_down').append($preview);
+       $('.national_image_down').parent('.weui_uploader_input_wrp').hide();
+       };
+       img.src = e.target.result;
+           $('#id_national_image_down_hidden').val(img.src);
+       };
+       reader.readAsDataURL(file);
+       }
+       });
+       });
+       	
+       
+       
+       {#身份证正面照#}
+       $(function () {
+       // 允许上传的图片类型
+       var allowTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'];
+       // 1024KB，也就是 1MB
+       var maxSize = 3072 * 3072;
+       // 图片最大宽度
+       var maxWidth = 400;
+       // 最大上传图片数量
+       var maxCount = 1;
+       $('.card_up').on('change', function (event) {
+       var files = event.target.files;
+
+       // 如果没有选中文件，直接返回
+       if (files.length === 0) {
+       return;
+       }
+
+       for (var i = 0, len = files.length; i < len; i++) {
+       var file = files[i];
+       var reader = new FileReader();
+       // 如果类型不在允许的类型范围内
+       if (allowTypes.indexOf(file.type) === -1) {
+       $.weui.alert({text: '该类型不允许上传'});
+       continue;
+       }
+
+       if (file.size > maxSize) {
+       $.weui.alert({text: '图片太大，不允许上传'});
+       continue;
+       }
+
+       if ($('.li_card_up').length >= maxCount) {
+       $.weui.alert({text: '最多只能上传' + maxCount + '张图片'});
+       return;
+       }
+       reader.onload = function (e) {
+
+       var img = new Image();
+       img.onload = function () {
+       // 不要超出最大宽度
+       var w = Math.min(maxWidth, img.width);
+       // 高度按比例计算
+       var h = img.height * (w / img.width);
+       var canvas = document.createElement('canvas');
+       var ctx = canvas.getContext('2d');
+       // 设置 canvas 的宽度和高度
+       canvas.width = w;
+       canvas.height = h;
+       ctx.drawImage(img, 0, 0, w, h);
+       var base64 = canvas.toDataURL('image/png');
+       console.log(base64);
+       // 插入到预览区
+       var $preview = $('<li class="weui_uploader_file weui_uploader_status li_card_up" style="background-image:url(' + base64 + ')" onclick="deletePic(this);"></li>');
+       $('.ul_card_up').append($preview);
+       $('.card_up').parent('.weui_uploader_input_wrp').hide();      
+       };
+       img.src = e.target.result;
+           $('#id_card_up_hidden').val(img.src);
+       };
+       reader.readAsDataURL(file);
+       }
+       });
+
+       });
+       {#身份证背面照#}
+       $(function () {
+       // 允许上传的图片类型
+       var allowTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'];
+       // 1024KB，也就是 1MB
+       var maxSize = 3072 * 3072;
+       // 图片最大宽度
+       var maxWidth = 400;
+       // 最大上传图片数量
+       var maxCount = 1;
+
+       $('.card_down').on('change', function (event) {
+       var files = event.target.files;
+
+       // 如果没有选中文件，直接返回
+       if (files.length === 0) {
+       return;
+       }
+
+       for (var i = 0, len = files.length; i < len; i++) {
+       var file = files[i];
+       var reader = new FileReader();
+       // 如果类型不在允许的类型范围内
+       if (allowTypes.indexOf(file.type) === -1) {
+       $.weui.alert({text: '该类型不允许上传'});
+       continue;
+       }
+
+       if (file.size > maxSize) {
+       $.weui.alert({text: '图片太大，不允许上传'});
+       continue;
+       }
+
+       if ($('.li_card_down').length >= maxCount) {
+       $.weui.alert({text: '最多只能上传' + maxCount + '张图片'});
+       return;
+       }
+       reader.onload = function (e) {
+       var img = new Image();
+       img.onload = function () {
+       // 不要超出最大宽度
+       var w = Math.min(maxWidth, img.width);
+       // 高度按比例计算
+       var h = img.height * (w / img.width);
+       var canvas = document.createElement('canvas');
+       var ctx = canvas.getContext('2d');
+       // 设置 canvas 的宽度和高度
+       canvas.width = w;
+       canvas.height = h;
+       ctx.drawImage(img, 0, 0, w, h);
+       var base64 = canvas.toDataURL('image/png');
+       console.log(base64);
+       // 插入到预览区
+       var $preview = $('<li class="weui_uploader_file weui_uploader_status li_card_down" style="background-image:url(' + base64 + ')" onclick="deletePic(this);"></li>');
+       $('.ul_card_down').append($preview);
+       $('.card_down').parent('.weui_uploader_input_wrp').hide();
+       };
+       img.src = e.target.result;
+           $('#id_card_down_hidden').val(img.src);
+       };
+       reader.readAsDataURL(file);
+       }
+       });
+       });
+       
+       
+       {#营业执照照片#}
+       $(function () {
+       // 允许上传的图片类型
+       var allowTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'];
+       // 1024KB，也就是 1MB
+       var maxSize = 3072 * 3072;
+       // 图片最大宽度
+       var maxWidth = 400;
+       // 最大上传图片数量
+       var maxCount = 1;
+
+       $('.license_image').on('change', function (event) {
+       var files = event.target.files;
+
+       // 如果没有选中文件，直接返回
+       if (files.length === 0) {
+       return;
+       }
+
+       for (var i = 0, len = files.length; i < len; i++) {
+       var file = files[i];
+       var reader = new FileReader();
+       // 如果类型不在允许的类型范围内
+       if (allowTypes.indexOf(file.type) === -1) {
+       $.weui.alert({text: '该类型不允许上传'});
+       continue;
+       }
+
+       if (file.size > maxSize) {
+       $.weui.alert({text: '图片太大，不允许上传'});
+       continue;
+       }
+
+       if ($('.li_license_image').length >= maxCount) {
+       $.weui.alert({text: '最多只能上传' + maxCount + '张图片'});
+       return;
+       }
+       reader.onload = function (e) {
+       var img = new Image();
+       img.onload = function () {
+       // 不要超出最大宽度
+       var w = Math.min(maxWidth, img.width);
+       // 高度按比例计算
+       var h = img.height * (w / img.width);
+       var canvas = document.createElement('canvas');
+       var ctx = canvas.getContext('2d');
+       // 设置 canvas 的宽度和高度
+       canvas.width = w;
+       canvas.height = h;
+       ctx.drawImage(img, 0, 0, w, h);
+       var base64 = canvas.toDataURL('image/png');
+       console.log(base64);
+       // 插入到预览区
+       var $preview = $('<li class="weui_uploader_file weui_uploader_status li_license_image" style="background-image:url(' + base64 + ')" onclick="deletePic(this);"></li>');
+       $('.ul_license_image').append($preview);
+       $('.license_image').parent('.weui_uploader_input_wrp').hide();
+       };
+       img.src = e.target.result;
+           $('#id_license_image_hidden').val(img.src);
+       };
+       reader.readAsDataURL(file);
+       }
+       });
+       });
+       function deletePic(obj){
+       	if (confirm("确认删除该上传图片吗?")){
+       		$(obj).parent('.weui_uploader_files').siblings(".weui_uploader_input_wrp").show();
+       		$(obj).remove();
+       	}
+       }
+       
+       $("#wx_mail_address").cityPicker({
+           title: "选择省市区",
+           onChange: function (picker, values, displayValues) {
+             console.log(values, displayValues);
+           }
+         });
+       $("#short").picker({
+           title: "选择省份代码",
+           cols: [
+              {
+               textAlign: 'center',
+               values:  ["京", "津" ,"冀" ,"晋","蒙","辽","吉","黑","沪","苏","浙","皖","闽","赣","鲁","豫","鄂","湘","粤","桂","琼","川","贵","云","渝","藏","陕","甘","青","宁","新","港","澳","台"]
+             }, 
+             {
+               textAlign: 'center',
+               values:["A", "B", "C", "D","E", "F","G", "H", "I", "J", "K","L", "M", "N", "O","P", "Q", "R","S", "T", "U", "V","W","x","Y","Z"]
+             }
+           ]
+         });
+       $("#wx_home_city").change(function(){
+    	   $("#tijiaoxiugai").attr("disabled",false);   	
+    	    $('#chongxinxunjia_state').val("change");
+  	    });
+       $("#wx_car_type").change(function(){
+    	   $("#tijiaoxiugai").attr("disabled",false);   	
+    	    $('#chongxinxunjia_state').val("change");
+  	    });
+       $("#wx_user_classify").change(function(){
+    	   $("#tijiaoxiugai").attr("disabled",false);   	
+    	    $('#chongxinxunjia_state').val("change");
+  	    });
+       $("#wx_applicant_name").change(function(){
+    	   $("#tijiaoxiugai").attr("disabled",false);   	
+    	    $('#chongxinxunjia_state').val("change");
+  	    });
+       $("#wx_certificate_number").change(function(){
+    	   $("#tijiaoxiugai").attr("disabled",false);   	
+    	    $('#chongxinxunjia_state').val("change");
+  	    });
+       $("#applicant_company_name").change(function(){
+    	   $("#tijiaoxiugai").attr("disabled",false);   	
+    	    $('#chongxinxunjia_state').val("change");
+  	    });
+       $("#wx_organ_number").change(function(){
+    	   $("#tijiaoxiugai").attr("disabled",false);   	
+    	    $('#chongxinxunjia_state').val("change");
+  	    });
+       $("#wx_applicant_phone").change(function(){
+    	   $("#tijiaoxiugai").attr("disabled",false);   	
+    	    $('#chongxinxunjia_state').val("change");
+  	    });
+       $("#wx_insured_name").change(function(){
+    	   $("#tijiaoxiugai").attr("disabled",false);   	
+    	    $('#chongxinxunjia_state').val("change");
+  	    });
+       $("#wx_insured_phone").change(function(){
+    	   $("#tijiaoxiugai").attr("disabled",false);   	
+    	    $('#chongxinxunjia_state').val("change");
+  	    });
+       $("#wx_detailed_address").change(function(){
+    	   $("#tijiaoxiugai").attr("disabled",false);   	
+    	    $('#chongxinxunjia_state').val("change");
+  	    });
+       $("#national_image").change(function(){
+    	   $("#tijiaoxiugai").attr("disabled",false);   	
+    	    $('#chongxinxunjia_state').val("change");
+  	    });
+       $("#national_image_down").change(function(){
+    	   $("#tijiaoxiugai").attr("disabled",false);   	
+    	    $('#chongxinxunjia_state').val("change");
+  	    });
+       $("#short").change(function(){
+    	   $("#tijiaoxiugai").attr("disabled",false);   	
+    	    $('#chongxinxunjia_state').val("change");
+  	    });
+       $("#wx_plate_number").change(function(){
+    	   $("#tijiaoxiugai").attr("disabled",false);   	
+    	    $('#chongxinxunjia_state').val("change");
+  	    });
+       $("#card_up").change(function(){
+    	   $("#tijiaoxiugai").attr("disabled",false);   	
+    	    $('#chongxinxunjia_state').val("change");
+  	    });
+       $("#card_down").change(function(){
+    	   $("#tijiaoxiugai").attr("disabled",false);   	
+    	    $('#chongxinxunjia_state').val("change");
+  	    });
+       $("#license_image").change(function(){
+    	   $("#tijiaoxiugai").attr("disabled",false);   	
+    	    $('#chongxinxunjia_state').val("change");
+  	    });
+       
+       //保险类型
+         $("#jqx").change(function(){
+   	   $("#tijiaoxiugai").attr("disabled",false);   	
+   	    $('#chongxinxunjia_state').val("change");
+ 	    });
+      $("#ccs").change(function(){
+      	   $("#tijiaoxiugai").attr("disabled",false);   	
+      	    $('#chongxinxunjia_state').val("change");
+    	    });
+      $("#szx").change(function(){
+      	   $("#tijiaoxiugai").attr("disabled",false);   	
+      	    $('#chongxinxunjia_state').val("change");
+    	    });
+      $("#csx").change(function(){
+      	   $("#tijiaoxiugai").attr("disabled",false);   	
+      	    $('#chongxinxunjia_state').val("change");
+    	    });
+      $("#blx").change(function(){
+      	   $("#tijiaoxiugai").attr("disabled",false);   	
+      	    $('#chongxinxunjia_state').val("change");
+    	    });
+      $("#sjx").change(function(){
+      	   $("#tijiaoxiugai").attr("disabled",false);   	
+      	    $('#chongxinxunjia_state').val("change");
+    	    });
+      $("#ckx").change(function(){
+      	   $("#tijiaoxiugai").attr("disabled",false);   	
+      	    $('#chongxinxunjia_state').val("change");
+    	    });
+      $("#dqx").change(function(){
+      	   $("#tijiaoxiugai").attr("disabled",false);   	
+      	    $('#chongxinxunjia_state').val("change");
+    	    });
+      $("#bjmpx").change(function(){
+      	   $("#tijiaoxiugai").attr("disabled",false);   	
+      	    $('#chongxinxunjia_state').val("change");
+    	    });
+      $("#zrssx").change(function(){
+      	   $("#tijiaoxiugai").attr("disabled",false);   	
+      	    $('#chongxinxunjia_state').val("change");
+    	    });
+      $("#hhx").change(function(){
+     	   $("#tijiaoxiugai").attr("disabled",false);   	
+     	    $('#chongxinxunjia_state').val("change");
+   	    });
+      $("#shesx").change(function(){
+      	   $("#tijiaoxiugai").attr("disabled",false);   	
+      	    $('#chongxinxunjia_state').val("change");
+    	    });
+      $("#jiao_start_date").change(function(){
+     	   $("#tijiaoxiugai").attr("disabled",false);   	
+     	    $('#chongxinxunjia_state').val("change");
+   	    });
+      $("#shang_start_date").change(function(){
+     	   $("#tijiaoxiugai").attr("disabled",false);   	
+     	    $('#chongxinxunjia_state').val("change");
+   	    });
+      
+       
+       jQuery(document).ready(function($){
+    	   //open popup
+    	   $('.cd-popup-trigger').on('click', function(event){
+    	     event.preventDefault();
+    	     $('.cd-popup').addClass('is-visible');
+    	   });
+    	   //close popup
+    	   $('.cd-popup').on('click', function(event){
+    	     if( $(event.target).is('.cd-popup-close') || $(event.target).is('.cd-popup') ) {
+    	       event.preventDefault();
+    	       $(this).removeClass('is-visible');
+    	     }
+    	   });
+    	   //close popup when clicking the esc keyboard button
+    	   $(document).keyup(function(event){
+    	       if(event.which=='27'){
+    	         $('.cd-popup').removeClass('is-visible');
+    	       }
+    	     });
+    	 });
+    </script>
+
+
+    <script>
+      $(document).on("open", ".weui-popup-modal", function() {
+        console.log("open popup");
+      }).on("close", ".weui-popup-modal", function() {
+        console.log("close popup");
+      });
+    </script>
+{% endblock %}

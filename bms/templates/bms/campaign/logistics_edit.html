@@ -1,0 +1,206 @@
+{% extends 'bms/campaign/base_campaign.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block campaign_logistics %}class='active'{% endblock %}
+{% block title %} 物流公司编辑 {% endblock %}
+
+{% block page_top %}
+<div class="row">
+        <div class="col-sm-10">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <i class="fa fa-plus fa-3x pull-right"></i>
+                    <form role="form" id="create_order_form" method="post" action="{% url 'bms:logistics_edit' logistics.id %}"  enctype="multipart/form-data">  {% csrf_token %}
+                    <input type="hidden" id="contact" name="contact"  value=“”>
+                        <div class="page-tailer">
+                          <h1 class="text-center">物流公司编辑</h1>
+                        </div>
+                        {% if message and message != '' %}
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="alert alert-warning">{{ message }}</div>
+                                </div>
+                            </div>
+                        {% endif %}
+						<div class="form-group">
+							<label for="id_company_name"><i class="fa fa-road"></i> *公司名称： </label>
+							<input class="form-control"  id="id_company_name" name="company_name" type="text"
+								   value="{{ logistics.company_name|default_if_none:'' }}"maxlength="30">
+						</div>
+						<div class="form-group">
+							<label for="id_special_line_list"><i class="fa fa-road"></i> *运输专线<small>(请用“-”分隔地区 例如：沈阳-哈尔滨)</small>： </label>
+							<input class="form-control"  id="id_special_line_list" name="special_line_list" type="text"
+								   value="{{ special_line_list|default_if_none:'' }}">
+						</div>
+						<div class="form-group" >
+                            <div style="color: red">友情提示：如果有更多的联系人或联系电话，请点击"+"，如果一个联系人有多个联系电话，请将联系电话以"/"分隔！！！</div>
+                        </div>
+						<div class="form-group"  id="appendContact">
+								<div class="row" >
+										<div class="col-md-5">
+												<div class="form-group">
+												<label class="control-label"><i class="fa fa-road"></i> 联系人： </label>
+												<input id="id_person" class="form-control" name="person"  type="text" value="{{ logistics.person|default_if_none:'' }}"maxlength="30">
+												</div>
+										</div>
+										<div class="col-md-5">
+												<div class="form-group">
+												<label class="control-label"><i class="fa fa-road"></i>联系电话：</label>
+												<input id="id_phone" class="form-control" name="phone"  type="text"  value="{{logistics.phone|default_if_none:'' }}"maxlength="15">
+												</div>
+										</div>
+										<div class="col-md-1">
+												<div class="form-group">
+														<label class="control-label">&nbsp;&nbsp;</label>
+														<div class="btn btn-success"  onclick="appendContact();"><i class="fa fa-plus-circle"></i></div>
+												</div>
+										</div>
+								</div>
+								{% if flag %}
+								<div class="row" >
+										<div class="col-md-5">
+												<div class="form-group">
+												<input id="id_person" class="form-control" name="person1"  type="text" value="{{ logistics.person1|default_if_none:'' }}">
+												</div>
+										</div>
+										<div class="col-md-5">
+												<div class="form-group">
+												<input id="id_phone" class="form-control" name="phone1"  type="text"  value="{{logistics.phone1|default_if_none:'' }}">
+												</div>
+										</div>
+										<div class="col-md-1">
+												<div class="form-group">
+														<div class="btn btn-success"  onclick="removeContact(this);"><i class="fa fa-minus-circle"></i></div>
+												</div>
+										</div>
+								</div>
+								{% endif %}
+						</div>
+<!-- 						<div class="form-group">
+							<label for="id_person"><i class="fa fa-road"></i> *联系人： </label>
+							<input class="form-control"  id="id_person" name="person" type="text"
+								   value="{{ logistics.person|default_if_none:'' }}">
+						</div>
+						<div class="form-group">
+							<label for="id_phone"><i class="fa fa-road"></i> *联系电话： </label>
+							<input class="form-control"  id="id_phone" name="phone" type="text"
+								   value="{{ logistics.phone|default_if_none:'' }}">
+						</div> -->
+						<div class="form-group">
+							<label for="id_description"><i class="fa fa-road"></i> 公司介绍： </label>
+							<textarea id="id_description" name="content" class="form-control" maxlength="2000" style="min-height: 200px">{{ logistics.description|default_if_none:'' }}</textarea>
+						</div>
+						<div class="form-group" >
+							<label for="id_priority"><i class="fa fa-road"></i> 优先级(建议值为1~100之间的整数，默认值为50)： </label>
+							<input class="form-control"  id="id_priority" name="priority" type="number"
+								   value="{{ logistics.priority|default_if_none:"50" }}" >
+						</div>
+
+                  <!--       <div class="form-group" >
+                            <div style="color: red">友情提示：如果有更多的联系人或联系电话，请填写在下面！！！</div>
+                        </div>
+						<div class="form-group">
+							<label for="id_person1"><i class="fa fa-road"></i> *联系人： </label>
+							<input class="form-control"  id="id_person1" name="person1" type="text"
+								   value="{{ logistics.person1|default_if_none:'' }}">
+						</div>
+						<div class="form-group">
+							<label for="id_phone1"><i class="fa fa-road"></i> *联系电话： </label>
+							<input class="form-control"  id="id_phone1" name="phone1" type="text"
+								   value="{{ logistics.phone1|default_if_none:'' }}">
+						</div>
+						<div class="form-group">
+							<label for="id_phone2"><i class="fa fa-road"></i> *联系电话： </label>
+							<input class="form-control"  id="id_phone2" name="phone2" type="text"
+								   value="{{ logistics.phone2|default_if_none:'' }}">
+						</div> -->
+                        <button class="btn btn-success" type="submit" id="submit_form" ><i class="fa fa-floppy-o"></i> 保 存</button>
+                        <a class="btn btn-default" href="{% url 'bms:logistics_list' '1'%}"><i class="fa fa-times"></i> 返 回</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2"></div>
+</div>
+
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+/*        $(function(){
+
+            $('#edit_order_form').formValidation({
+                // I am validating Bootstrap form
+                framework: 'bootstrap',
+                locale : 'zh_CN',
+                // Feedback icons
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+
+                // List of fields and their validation rules
+                fields: {
+                    transport_id: {
+                        validators: {
+                            notEmpty: {
+                                message: '运单号不可为空'
+                            },
+                            stringLength: {
+                                min: 2,
+                                max: 50,
+                                message: '请输入2～50个字符'
+                            }
+                        }
+                    }
+                }
+            });
+        }); */
+/*         $(function(){
+            //提交按钮,所有验证通过方可提交
+            $('#submit_form').click(function(){
+            	
+            	var str = "";
+            	$("#appendContact .row").each(function(){
+            	    var person = $("#id_person",$(this)).val();
+            	    var phone = $("#id_phone",$(this)).val();
+            	    if (person != "" && phone != ""){
+            	 	    splitStr = person+":" +phone+";";
+            	    }else{
+            	    	splitStr = "";
+            	    }
+            	    str += splitStr;
+            	  });
+            	str = str.substring(0, str.lastIndexOf(';'));
+            	$("#contact").val(str);
+                $('#create_order_form').submit();
+            });
+             
+        }); */
+       function appendContact(){
+    	   var div = '<div class="row" >';
+    	   div += '<div class="col-md-5"><div class="form-group"><input id="id_person" class="form-control" name="person1"  type="text"></div></div>';
+    	   div += '<div class="col-md-5"><div class="form-group"><input id="id_phone" class="form-control" name="phone1"  type="text"></div></div>';
+    	   div += '<div class="col-md-1"><div class="form-group"><div class="btn btn-success" onclick="removeContact(this);" id="test"><i class="fa fa-minus-circle"></i></div></div></div></div>';
+    	   if ($("#appendContact .row").length<2){
+         	   		$("#appendContact").append(div);  
+      	  }else{
+      		   alert("最多添加两个联系人!");
+      	  }
+       }
+       function removeContact(obj){
+    	   var objrow = obj.parentNode.parentNode.parentNode;
+           objrow.remove();
+       }
+    </script>
+<script charset="utf-8" src="{% static 'kindEditor/kindeditor.js' %}"></script>
+<script charset="utf-8" src="{% static 'kindEditor/lang/zh_CN.js' %}"></script>
+<script>
+	    KindEditor.ready(function(K) {
+	        window.editor = K.create('#id_description',{
+                uploadJson: '/bms/settings/uploadImg/'        
+	        });
+        });
+</script>
+{% endblock %}

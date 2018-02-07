@@ -1,0 +1,118 @@
+{% extends 'bms/product/base_product.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block product_tail_company %}class='active'{% endblock %}
+{% block title %} 编辑保险分公司 {% endblock %}
+
+{% block page_top %}
+<div class="row">
+        <div class="col-sm-10">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <i class="fa fa-plus fa-3x pull-right"></i>
+                    <form role="form" id="edit_tail_company_form" method="post" action="{% url 'bms:tail_company_edit' tail_company.id %}"  enctype="multipart/form-data">  {% csrf_token %}
+						<input type = 'hidden' name="head_company_id" type="text" value="{{ tail_company.parent.id }}" maxlength="100"  >
+                        <div class="page-tailer">
+                          <h1 class="text-center">编辑保险分公司</h1>
+                        </div>
+                        {% if message and message != '' %}
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="alert alert-warning">{{ message }}</div>
+                                </div>
+                            </div>
+                        {% endif %}
+						<div class="form-group" >
+							<label for="id_name"><i class="fa fa-user"></i> *保险公司名称： </label>
+							<input class="form-control"  id="id_name" name="name" type="text"
+								   value="{{ tail_company.name }}" maxlength="100" required >
+						</div>
+						<div class="form-group" >
+							<label for="id_simple_name"><i class="fa fa-user"></i> *保险公司简称： </label>
+							<input class="form-control"  id="id_simple_name" name="simple_name" type="text"
+								   value="{{ tail_company.simple_name }}" maxlength="100" required >
+						</div>
+                        <div class="form-group">
+                            <label for="id_channel"><i class="fa fa-life-bouy"></i> 是否显示： </label>
+                            <div class="">
+                                <label class="radio-inline">
+                                  <input type="radio" name="active" id="id_show" value="show" {% if tail_company.active == 'show' or not tail_company.is_hidden %}checked{% endif %}> 显示
+                                </label>
+                                <label class="radio-inline">
+                                  <input type="radio" name="active" id="id_hidden" value="hidden" {% if tail_company.active == 'hidden' or tail_company.is_hidden %}checked{% endif %}> 隐藏
+                                </label>
+                            </div>
+                        </div>
+                        <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 保 存</button>
+                        <a class="btn btn-default" href="{% url 'bms:tail_company_list' '1' %}"><i class="fa fa-times"></i> 返 回</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2"></div>
+</div>
+
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+       $(function(){
+
+            $('#edit_tail_company_form').formValidation({
+                // I am validating Bootstrap form
+                framework: 'bootstrap',
+                locale : 'zh_CN',
+                // Feedback icons
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+
+                // List of fields and their validation rules
+                fields: {
+                    name: {
+                        validators: {
+                            notEmpty: {
+                                message: '保险公司名称不可为空'
+                            },
+                            stringLength: {
+                                min: 2,
+                                max: 20,
+                                message: '请输入2～20个字符'
+                            }
+                        }
+                    }
+                }
+            });
+
+
+        });
+    </script>
+{% endblock %}
+
+{#,#}
+{#                    docking_rate: {#}
+{#                        validators: {#}
+{#                            regexp: {#}
+{#                                regexp: /^[-+]?[0-9]*\.?[0-9]+$/,#}
+{#                                message: '系统对接投保基础费率为小数'#}
+{#                            }#}
+{#                        }#}
+{#                    },#}
+{#                    car_rate: {#}
+{#                        validators: {#}
+{#                            regexp: {#}
+{#                                regexp: /^[-+]?[0-9]*\.?[0-9]+$/,#}
+{#                                message: '单车单次投保基础费率为小数'#}
+{#                            }#}
+{#                        }#}
+{#                    },#}
+{#                    batch_rate: {#}
+{#                        validators: {#}
+{#                            regexp: {#}
+{#                                regexp: /^[-+]?[0-9]*\.?[0-9]+$/,#}
+{#                                message: '单票货物投保基础费率为小数'#}
+{#                            }#}
+{#                        }#}
+{#                    }#}

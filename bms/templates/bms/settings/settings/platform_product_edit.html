@@ -1,0 +1,231 @@
+{% extends 'bms/settings/base_settings.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block level_4 %} in {% endblock %}
+{% block platform_product %}class='active'{% endblock %}
+{% block page_top %}
+   <!-- BEGIN PAGE HEADER-->
+         <div class="row">
+            <div class="col-md-12">
+               <!-- BEGIN PAGE TITLE & BREADCRUMB-->
+               <ul class="page-breadcrumb breadcrumb">
+                  <li>
+                     <i class="icon-home"></i>
+                     <a href="index.html">系统管理</a> 
+                     <i class="icon-angle-right"></i>
+                  </li>
+                  <li>
+                     <a href="#">平台信息管理</a>
+                     <i class="icon-angle-right"></i>
+                  </li>
+                  <li><a href="#">产品管理-修改保险产品</a></li>
+               </ul>
+               <!-- END PAGE TITLE & BREADCRUMB-->
+            </div>
+         </div>
+{% endblock %}
+
+{% block page_middle %}
+    {% if message and message != '' %}
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="alert alert-warning">{{ message }}</div>
+            </div>
+        </div>
+    {% endif %}
+        <div class="row">
+        <div class="col-sm-10">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                     <div class="form-body">
+                        <!-- BEGIN FORM-->
+                        <form action="{% url 'bms:platform_product_edit'  platformProducts.id %}" id="form_sample_2" class="form-horizontal" method="POST"enctype="multipart/form-data">{% csrf_token %}
+                           <div class="form-group">
+                              <label class="control-label col-md-2">产品名称<span class="required">*</span></label>
+                              <div class="col-md-8">
+                                 <input class="form-control"  id="id_insurance_name" name="insurance_name" type="text" placeholder="产品名称"
+								                 value="{{ platformProducts.name|default_if_none:'' }}">
+                              </div>
+                           </div>
+                           <div class="form-group">
+                              <label class="control-label col-md-2">产品类型<span class="required">*</span></label>
+                              <div class="col-md-8">
+                                 	     <select class="form-control" id="id_product_type_id" name="product_type">
+						                            		<option value="">请选择</option>
+						                                  {% for x,y in product_types %}
+						                                    <option value="{{ x }}" {% if platformProducts.product_type == x %} selected {% endif %}>{{ y }}</option>
+						                                  {% endfor %}
+						                            </select>
+                              </div>
+                           </div>
+                           <div class="form-group">
+                              <label class="control-label  col-md-2">产品图标<span class="">*</span></label>
+                                   <div class="col-md-8">
+                                               <input class="filestyle" type="file" id="wx_product_pic" name="wx_product_pic" data-icon="true" 
+                            data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                              </div>
+
+                           </div>
+                           <div class="form-group" >
+								<label for="id_priority" class="control-label col-md-2">优先级(不能重复)<span class="required">*</span> </label>
+								<div class="col-md-8">
+									<input class="form-control"  id="id_priority" name="priority" type="number"
+										   value="{{ platformProducts.priority}}" >
+							   </div>
+							</div>
+							<div class="form-group" >
+								<label for="id_priority" class="control-label col-md-2">是否在线投保<span class="required">*</span> </label>
+								<div class="col-md-8">
+								<div class="row">
+										<div class="col-md-3">	<input type="radio" name="isline" id="online" value="1"   class="isline"  {% if platformProducts.isline == '1' %} checked{% endif %}>线上投保</div>
+										<div class="col-md-3">	<input type="radio" name="isline" id="online" value="0"  class="isline"  {% if platformProducts.isline == '0' %} checked{% endif %}>线下投保</div>
+										<div class="col-md-3">	<input type="radio" name="isline" id="online" value="2"   class="isline"  {% if platformProducts.isline == '2' %} checked{% endif %}>第三方投保</div>
+								</div>
+								</div>
+							</div>
+							<div class="form-group" id="nodsf">
+		                           <div class="form-group">
+		                              <label class="control-label  col-md-2">产品特点<span class="required">*</span></label>
+		                              <div class="col-md-8">
+													<input class="form-control"  id="id_insurance_feature" name="insurance_feature" type="text" placeholder="产品特点"
+										                 value="{{ platformProducts.product_characteristic|default_if_none:'' }}">
+		                              </div>
+		                           </div>
+		                           <div class="form-group">
+		                              <label class="control-label col-md-2">产品介绍<span class="required">*</span></label>
+		                              <div class="col-md-8">
+		                          			 <textarea id="intro_id" name="content"  style="width:500px;height:320px;">{{platformProducts.product_introduce}}</textarea>
+		                              </div>
+		                           </div>
+                           </div>
+                           <div class="form-group" id="dsf">
+	                           <div class="form-group">
+	                              <label class="control-label col-md-2">产品链接地址<span class="required">*</span></label>
+	                              <div class="col-md-8">
+	                              			<input class="form-control"  id="id_product_url" name="product_url" type="text" placeholder="产品链接地址"
+										                 value="{{platformProducts.product_url}}">
+	                              </div>
+	                           </div>
+	                        </div>
+     {#***********************************************维护分享页面************************************************************************#}              
+                           <HR style="border:1 dashed #987cb9" width="80%" color=#987cb9 SIZE=1>
+                           <input class="hidden"  id="id_insurance_feature" name="wx_state" type="text" placeholder="微信分享标题"
+								                 value="edit">
+                            <div class="form-group">
+                              <label class="control-label  col-md-2">分享标题<span class="required">*</span></label>
+                              <div class="col-md-8">
+											<input class="form-control"  id="id_insurance_feature" name="wx_share_title" type="text" placeholder="微信分享标题"
+								                 value="{{platformProducts.wx_share_title}}"maxlengh="22">
+                              </div>
+                           </div>
+                            <div class="form-group">
+	                              <label class="control-label  col-md-2">分享描述<span class="">*</span></label>
+	                              <div class="col-md-8">
+												<input class="form-control"  id="id_insurance_feature" name="wx_share_desc" type="text" placeholder="微信分享描述"
+									                 value="{{platformProducts.wx_share_desc}}"maxlengh="50">
+	                              </div>
+                           </div>
+                           <div class="form-group">
+                              <label class="control-label  col-md-2">分享显示图片<span class="">*</span></label>
+                                                      <div class="col-md-8">
+                              <input class="filestyle" type="file" id="wx_share_pic" name="wx_share_pic" data-icon="true" data-input="true" 
+                            				data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                            				</div>
+                           </div>
+
+    
+        {#***********************************************维护分享页面结束************************************************************************#} 
+                           <div class="form-actions fluid">
+                              <div class="col-md-offset-3 col-md-9">
+                                <button class="btn btn-success" type="submit"  id="save"><i class="fa fa-save"></i> 保 存 </button>
+                    		{#	<button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-save"></i> 退 出</button>         #}                    
+                               <a class="btn btn-default" href="{% url 'bms:platform_product_list'  %}"><i class="fa fa-times"></i> 退 出</a>
+                              </div>
+                           </div>
+                        </form>
+                        <!-- END FORM-->
+                     </div>
+                  </div>
+                  <!-- END VALIDATION STATES-->
+               </div>
+            </div>
+         </div>
+         <!-- END PAGE CONTENT--> 
+{% endblock %}
+
+
+{% block page_bottom %}
+{% endblock %}
+
+
+{% block script_block %}
+    <script charset="utf-8" src="{% static 'kindEditor/kindeditor.js' %}"></script>
+	<script charset="utf-8" src="{% static 'kindEditor/lang/zh_CN.js' %}"></script>
+	<script>
+	    // 打开Dialog后创建编辑器
+	    KindEditor.ready(function(K) {
+	    	
+	        window.editor = K.create('#intro_id',{
+	
+	            uploadJson: '/bms/settings/uploadImg/'   
+	        });
+        });
+	    $(document).ready(function() {
+	    	changVal();
+	    	$(".isline").change(
+			    	function() {
+			    		 changVal();
+			    	});
+	    	function changVal(){
+		    	var selectedvalue = $("input[name='isline']:checked").val();
+		    	if (selectedvalue == 2) {
+		    		  $("#nodsf").css("display","none");
+		    		  $("#dsf").css("display","block");
+		    	}else {
+		    		  $("#nodsf").css("display","block");
+		    		  $("#dsf").css("display","none");
+		    	}
+	    	}
+	    	});
+	</script>
+<!-- 
+   <script type="text/javascript">
+	$(document).ready(function() {
+
+	    $('#form_sample_2').formValidation({
+	        message: 'This value is not valid',
+	        icon: {
+	            valid: 'glyphicon glyphicon-ok',
+	            invalid: 'glyphicon glyphicon-remove',
+	            validating: 'glyphicon glyphicon-refresh'
+	        },
+	        fields: {
+	        	insurance_name: {
+	                row: '.col-sm-4',
+	                validators: {
+	                    notEmpty: {
+	                        message: '产品名称是必填项！'
+	                    }
+	                }
+	            },
+	            product_type: {
+	                row: '.col-sm-4',
+	                validators: {
+	                    notEmpty: {
+	                        message: '产品类型是必填项！'
+	                    }
+	                }
+	            },
+	            insurance_feature: {
+	                row: '.col-sm-4',
+	                validators: {
+	                    notEmpty: {
+	                        message: '产品特点是必填项！'
+	                    }
+	                }
+	            }
+	        }
+	    });
+	});
+	</script> -->
+{% endblock %}

@@ -1,0 +1,151 @@
+{% extends 'bms/settings/base_settings.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block level_4 %} in {% endblock %}
+{% block platform_product %}class='active'{% endblock %}
+{% block page_top %}
+   <!-- BEGIN PAGE HEADER-->
+         <div class="row">
+            <div class="col-md-12">
+               <!-- BEGIN PAGE TITLE & BREADCRUMB-->
+               <ul class="page-breadcrumb breadcrumb">
+                  <li>
+                     <i class="icon-home"></i>
+                     <a href="index.html">系统管理</a> 
+                     <i class="icon-angle-right"></i>
+                  </li>
+                  <li>
+                     <a href="#">信息维护</a>
+                     <i class="icon-angle-right"></i>
+                  </li>
+                  <li><a href="#">产品维护-创建保险产品</a></li>
+               </ul>
+               <!-- END PAGE TITLE & BREADCRUMB-->
+            </div>
+         </div>
+{% endblock %}
+
+{% block page_middle %}
+    {% if message and message != '' %}
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="alert alert-warning">{{ message }}</div>
+            </div>
+        </div>
+    {% endif %}
+ <div class="row">
+            <div class="col-md-12">
+               <!-- BEGIN VALIDATION STATES-->
+               <div class="portlet box green">
+                  <div class="portlet-body form">
+                     <div class="form-body">
+                        <!-- BEGIN FORM-->
+                        <form action="{% url 'bms:platform_product_save' %}" id="form_sample_2" class="form-horizontal" method="POST">{% csrf_token %}
+                           <div class="form-group">
+                              <label class="control-label col-md-2">产品名称<span class="required">*</span></label>
+                              <div class="col-md-8">
+                                 <input class="form-control"  id="id_insurance_name" name="insurance_name" type="text" placeholder="产品名称"
+								                 value="{{ posted_data.insurance_name|default_if_none:'' }}">
+                              </div>
+                           </div>
+                           <div class="form-group">
+                              <label class="control-label col-md-2">产品类型<span class="required">*</span></label>
+                              <div class="col-md-8">
+                                 	     <select class="form-control" id="id_product_type_id" name="product_type">
+						                            		<option value="">请选择</option>
+						                                  {% for x,y in product_types %}
+						                                    <option value="{{ x }}" {% if posted_data.product_type == x %} selected {% endif %}>{{ y }}</option>
+						                                  {% endfor %}
+						                            </select>
+                              </div>
+                           </div>
+                           <div class="form-group">
+                              <label class="control-label  col-md-2">产品特点<span class="required">*</span></label>
+                              <div class="col-md-8">
+											<input class="form-control"  id="id_insurance_feature" name="insurance_feature" type="text" placeholder="产品特点"
+								                 value="{{ posted_data.insurance_feature|default_if_none:'' }}">
+                              </div>
+                           </div>
+                           <div class="form-group">
+                              <label class="control-label col-md-2">产品介绍<span class="required">*</span></label>
+                              <div class="col-md-8">
+                          			 <textarea id="intro_id" name="content"  style="width:760px;height:320px;"></textarea>
+                              </div>
+                           </div>
+                           <div class="form-actions fluid">
+                              <div class="col-md-offset-3 col-md-9">
+                                <button class="btn btn-success" type="submit"  id="save"><i class="fa fa-save"></i> 保 存 </button>
+                    			<button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-save"></i> 退 出</button>                             
+                              </div>
+                           </div>
+                        </form>
+                        <!-- END FORM-->
+                     </div>
+                  </div>
+                  <!-- END VALIDATION STATES-->
+               </div>
+            </div>
+         </div>
+         <!-- END PAGE CONTENT--> 
+      </div>
+{% endblock %}
+
+
+{% block page_bottom %}
+{% endblock %}
+
+
+{% block script_block %}
+    <script charset="utf-8" src="{% static 'kindEditor/kindeditor.js' %}"></script>
+	<script charset="utf-8" src="{% static 'kindEditor/lang/zh_CN.js' %}"></script>
+	<script>
+	    // 打开Dialog后创建编辑器
+	    KindEditor.ready(function(K) {
+	    	
+	        window.editor = K.create('#intro_id',{
+	
+	        	afterBlur: function(){this.sync();}
+	        });
+        });
+	</script>
+<!-- 
+   <script type="text/javascript">
+	$(document).ready(function() {
+
+	    $('#form_sample_2').formValidation({
+	        message: 'This value is not valid',
+	        icon: {
+	            valid: 'glyphicon glyphicon-ok',
+	            invalid: 'glyphicon glyphicon-remove',
+	            validating: 'glyphicon glyphicon-refresh'
+	        },
+	        fields: {
+	        	insurance_name: {
+	                row: '.col-sm-4',
+	                validators: {
+	                    notEmpty: {
+	                        message: '产品名称是必填项！'
+	                    }
+	                }
+	            },
+	            product_type: {
+	                row: '.col-sm-4',
+	                validators: {
+	                    notEmpty: {
+	                        message: '产品类型是必填项！'
+	                    }
+	                }
+	            },
+	            insurance_feature: {
+	                row: '.col-sm-4',
+	                validators: {
+	                    notEmpty: {
+	                        message: '产品特点是必填项！'
+	                    }
+	                }
+	            }
+	        }
+	    });
+	});
+	</script> -->
+{% endblock %}

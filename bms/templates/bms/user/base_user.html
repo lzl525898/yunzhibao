@@ -1,0 +1,47 @@
+{% extends 'bms/base.html' %}
+{% load static %}
+{% block title %} 用户管理 {% endblock %}
+{% block tab_user %}class='active'{% endblock %}
+
+{% block content_block %}
+
+
+    <div class="row">
+
+        <div class="col-sm-2">
+            <h4 class="visible-xs">选择用户类型：</h4>
+            <ul class="nav nav-pills nav-stacked">
+                {% if user.is_superuser %}
+                <li {% block user_admin %}{% endblock %}><a href="{% url 'bms:admin_list' '1'%}">管理员</a></li>
+{#                <li {% block user_client %}{% endblock %}><a href="{% url 'bms:client_list' '1'%}">客户</a></li>#}
+                {% endif %}
+                <li {% block user_registered %}{% endblock %}><a href="{% url 'bms:registered_list' '1'%}">注册用户</a></li>
+                <li {% block user_certificate %}{% endblock %}><a href="{% url 'bms:certificate_list' '1' %}"> 认证管理</a></li>
+{#                <li {% block user_transport %}{% endblock %}><a href="{% url 'bms:transport_list' '1'%}">物流公司</a></li>#}
+  {#              <li {% block user_driver %}{% endblock %}><a href="{% url 'bms:driver_list' '1'%}">司机</a></li>#}
+  {#              <li {% block user_boss %}{% endblock %}><a href="{% url 'bms:boss_list' '1'%}">货主</a></li>#}
+   {#             <li {% block user_owner %}{% endblock %}><a href="{% url 'bms:owner_list' '1'%}">车主</a></li>#}
+                <li {% block user_claim %}{% endblock %}><a href="{% url 'bms:claim_list' '1'%}">保险公司人员</a></li>
+              <!-- <li {% block user_intermediary_people %}{% endblock %}><a href="{% url 'bms:intermediary_people_list' '1'%}">保险中介人员</a></li> -->
+                <li {% block user_lawyer %}{% endblock %}><a href="{% url 'bms:lawyer_list' '1'%}">律师</a></li>
+                {% if user.is_superuser %}
+                <li {% block user_balance %}{% endblock %}><a href="{% url 'bms:balance_list' '1'%}">预存金额</a></li>
+                <li {% block user_deposit_statistical %}{% endblock %}><a href="{% url 'bms:deposit_statistical' '1'%}">预存统计</a></li>
+                {% endif %}
+       {#         <li {% block user_payment_statistical %}{% endblock %}><a href="{% url 'bms:payment_statistical' '1'%}">支付统计</a></li>#}
+
+{#                <li {% block user_client %}{% endblock %}><a href="{% url 'bms:client_list' '1'%}">客户</a></li>#}
+            </ul>
+            <hr class="visible-xs"/>
+        </div>
+
+        <div class="col-sm-10">
+            {% block page_top %}{% endblock %}
+            {% block page_middle %}{% endblock %}
+            {% block page_bottom %}{% endblock %}
+        </div>
+    </div>
+
+{% endblock %}
+
+

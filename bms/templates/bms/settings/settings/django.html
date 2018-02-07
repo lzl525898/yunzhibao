@@ -1,0 +1,72 @@
+{% extends 'bms/settings/base_settings.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block level_1 %} in {% endblock %}
+{% block settings_base %}class='active'{% endblock %}
+
+{% block page_middle %}
+
+<div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+            <h2 class="text-center">基本设置</h2>
+            <table class="table table-bordered">
+                 <tr>
+                    <td class="info text-center"><label id="id_label_SERVER_URL">服务器地址</label></td>
+                    <td class="text-center">
+                        <div class="row">
+                           <div class="col-sm-10">
+                                <label id="id_SERVER_URL" >{{ SERVER_URL }}</label>
+                           </div>
+                        </div>
+                    </td>
+                 </tr>
+                 <tr>
+                    <td class="info text-center"><label id="id_label_APP_NAME">应用名称</label></td>
+                    <td class="text-center">
+                        <div class="row">
+                           <div class="col-sm-10">
+                               <label id="id_APP_NAME" >{{ APP_NAME }}</label>
+                           </div>
+                        </div>
+                    </td>
+                </tr>
+                 <tr>
+                    <td class="info text-center"><label id="id_label_COPYRIGHT">版权声明</label></td>
+                    <td class="text-center">
+                        <div class="row">
+                           <div class="col-sm-10">
+                               <label id="id_COPYRIGHT" >{{ COPYRIGHT }}</label>
+                           </div>
+                        </div>
+                    </td>
+                </tr>
+                 <tr>
+                    <td class="info text-center"><label id="id_label_HTTP_CONNECTION_TIME_OUT">网络连接超时</label></td>
+                    <td class="text-center">
+                        <div class="row">
+                           <div class="col-sm-10">
+                                <label id="id_HTTP_CONNECTION_TIME_OUT" >{{ HTTP_CONNECTION_TIME_OUT }}(ms)</label>
+                           </div>
+                        </div>
+                    </td>
+                </tr>
+                 <tr>
+                    <td class="info text-center"><label id="id_label_DEBUG">调试模式</label></td>
+                    <td class="text-center">
+                        <div class="row">
+                           <div class="col-sm-10">
+                                <label id="id_DEBUG" >{{ DEBUG|showValue }}</label>
+                           </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-sm-2"></div>
+</div>
+{% endblock %}
+
+{% block script_block %}
+
+{% endblock %}

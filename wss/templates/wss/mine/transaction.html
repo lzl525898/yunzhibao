@@ -1,0 +1,165 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}我的{% endblock %}
+
+{% block container_block %}
+{#    首页所在位置，进入页面后的默认页面#}
+   <div class="top">
+		<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+			<tbody>
+				<tr>
+						<td width="23%" valign="middle">
+							   <a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a> 
+						</td>
+						<td class="wz" width="53%" valign="middle" align="center">
+								<span id="toptitle">
+										<i class="fa    fa-list"></i>&nbsp;<strong>预存记录</strong>
+								</span>
+						</td>
+						<td width="23%" valign="middle" align="right">
+						<a id="aso" href="#"></a>
+						</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<div style="height: 40px;"></div>
+	<div class="weui_cells_tips"></div>
+   <div class="weui_tab" style="position: relative;height: 20px;">
+            <div class="weui_navbar" >
+                <div onclick="click_1()" id="nav_click_1" class="weui_navbar_item weui_bar_item_on" >
+                    微信预存记录
+                </div>
+                <div onclick="click_3()" id="nav_click_3" class="weui_navbar_item" >
+                    后台预存记录
+                </div> 
+            </div>
+         </div>
+         <div id="click_1" class="" >
+         {% if transactions%}
+            {% for transaction in transactions %}
+                <div class="weui_cells_title wss_dashed" >订单号:{{ transaction.order_no }}</div>
+					    <div class="weui_cells wss_p">
+					       <div class="weui_cell" >
+					            <div class="weui_cell_bd weui_cell_primary">
+					                <p>预存金额</p>
+					            </div>
+					            <div class="weui_cell_ft">{{ transaction.amount }}元</div>
+					        </div>
+					       <div  class="wss_dashed_bottom"></div>
+					        <div class="weui_cell">
+					            <div class="weui_cell_bd weui_cell_primary">
+					                <p>预存时间</p>
+					            </div>
+					            <div class="weui_cell_ft">{{ transaction.create_time|date:'Y-m-d H:i' }}</div>
+					        </div>
+					        <div  class="wss_dashed_bottom"></div>
+					        <div class="weui_cell">
+					            <div class="weui_cell_bd weui_cell_primary">
+					                <p>预存状态</p>
+					            </div>
+					            {% if transaction.result == '未付款' %}
+					            <div class="weui_cell_ft"><a class="weui_btn weui_btn_mini weui_btn_default" href="javascript:;">{{ transaction.result }}</a></div>
+					            {% else %}
+					            <div class="weui_cell_ft"><a class="weui_btn weui_btn_mini weui_btn_primary" href="javascript:;">{{ transaction.result }}</a></div>
+					            {% endif %}
+					        </div>
+			  </div>
+             {% endfor %}
+           {% else%}
+                       <div  class="thumbBox"  style="padding-top: 25%;"><img  src="/static/pic/default/201305122026542520.gif" alt="icon"  style="max-width: 180px;max-height: 180px;word-break:break-all;" ></div>
+            		  <div  class="thumbBox"  style="padding-top: 5%;"><p>抱歉，您还没有预存！快去预存吧！</p></div>
+           {% endif %}
+        </div>
+
+        <div id="click_2" class="control-show" style="margin-top: 10px">
+            <div class="weui_cells_title">文档格式（word,excel,PDF）</div>
+            <div class="weui_cell" style="margin-top: 20px;margin-bottom: 20px">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <input class="filestyle" type="file" id="id_batch_file" name="batch_file" data-icon="true" data-input="true" data-buttonText="选择文件" data-iconName="glyphicon-inbox">
+                </div>
+            </div>
+        </div>
+        
+   <div id="click_3" class="control-show" >
+            {% if backstage_set%}
+            {% for backstage in backstage_set %}
+                <div class="weui_cells_title wss_dashed" >序号:{{  forloop.counter }}</div>
+					    <div class="weui_cells wss_p">
+					       <div class="weui_cell" >
+					            <div class="weui_cell_bd weui_cell_primary">
+					                <p>预存金额</p>
+					            </div>
+					            <div class="weui_cell_ft">{{ backstage.amount|FenToYuan  }}元</div>
+					        </div>
+				        <div  class="wss_dashed_bottom"></div>
+				        <div class="weui_cell">
+					            <div class="weui_cell_bd weui_cell_primary">
+					                <p>预存时间</p>
+					            </div>
+					            <div class="weui_cell_ft">{{ backstage.create_time|date:'Y-m-d H:i' }}</div>
+					        </div>  
+			  </div>
+             {% endfor %}
+                        {% else%}
+                       <div  class="thumbBox"  style="padding-top: 25%;"><img  src="/static/pic/default/201305122026542520.gif" alt="icon"  style="max-width: 180px;max-height: 180px;word-break:break-all;" ></div>
+            		  <div  class="thumbBox"  style="padding-top: 5%;"><p>抱歉，您还没有预存！快去预存吧！</p></div>
+           {% endif %}
+        </div>
+<!--             <table border="1" style="margin-top: 10px">
+            <th>订单号</th>
+            <th>操作额度</th>
+            <th>通知结果</th>
+            <th>付款时间</th>
+                {% for transaction in transactions %}
+            <tr>
+                <td style="text-align: center">{{ transaction.order_no }}</td>
+                <td style="text-align: center">{{ transaction.amount }}</td>
+                <td style="text-align: center">{{ transaction.result }}</td>
+                <td style="text-align: center">{{ transaction.create_time|date:'Y年m月d日 H:M:s' }}</td>
+            </tr>
+                {% endfor %}
+        </table> -->
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+<script type="text/javascript">
+function click_1(){
+    $('#click_1').removeClass('control-show');
+    $('#click_2').addClass('control-show');
+    $('#click_3').addClass('control-show');
+
+    $('#nav_click_1').addClass('weui_bar_item_on');
+    $('#nav_click_2').removeClass('weui_bar_item_on');
+    $('#nav_click_3').removeClass('weui_bar_item_on');
+}
+
+function click_2(){
+    $('#click_1').addClass('control-show');
+    $('#click_2').removeClass('control-show');
+    $('#click_3').addClass('control-show');
+
+    $('#nav_click_1').removeClass('weui_bar_item_on');
+    $('#nav_click_2').addClass('weui_bar_item_on');
+    $('#nav_click_3').removeClass('weui_bar_item_on');
+
+}
+
+function click_3(){
+    $('#click_1').addClass('control-show');
+    $('#click_2').addClass('control-show');
+    $('#click_3').removeClass('control-show');
+
+    $('#nav_click_1').removeClass('weui_bar_item_on');
+    $('#nav_click_2').removeClass('weui_bar_item_on');
+    $('#nav_click_3').addClass('weui_bar_item_on');
+}
+</script>
+    
+{% endblock %}

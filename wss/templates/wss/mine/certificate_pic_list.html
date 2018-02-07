@@ -1,0 +1,141 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}我的{% endblock %}
+
+{% block container_block %}
+{#    首页所在位置，进入页面后的默认页面#}
+<div class="top">
+		<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+			<tbody>
+				<tr>
+						<td width="23%" valign="middle">
+							   <a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a> 
+						</td>
+						<td class="wz" width="53%" valign="middle" align="center">
+								<span id="toptitle">
+										<i class="fa    fa-picture-o"></i>&nbsp;
+										<strong>认证信息详情</strong>
+								</span>
+						</td>
+						<td width="23%" valign="middle" align="right">
+						<a id="aso" href="#"></a>
+						</td>
+				</tr>
+			</tbody>
+		</table>
+ </div>
+ <div class="weui_cells" style="padding-top:20px;"></div>
+ {% if message %}
+ <div class="" style="margin-top: 10px;height:100%;">
+          <div class="weui_cells_title" style="text-align: center;">{{message }}</div>
+   </div>
+   {% endif %}
+<!--*******************************************************投保人身份证*********************************************************  --> 
+
+		     <div class="" style="margin-top: 10px;height:100%;">
+		             <div class="weui_cells_title" style="text-align: center;">身份证正面图片</div>
+				      <div class="weui_cell">   
+				        <img src="{% static '' %}{{ registered.national_image }}" style="max-width: 350px;max-height: 300px;display:block;text-align:center;margin-right: auto;margin-left: auto;">
+				      </div>
+				    </div>
+           <div class="" style="margin-top: 10px;height:100%;">
+                <div class="weui_cells_title"style="text-align: center;">身份证背面图片</div>
+			    <div class="weui_cell">
+			        <img src="{% static '' %}{{ registered.national_image_down}}" style="max-width: 350px;max-height: 300px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+			    </div>
+           </div>
+
+
+
+ <!--*******************************物流公司 *********************************************************************************-->
+{% if registered.user_type == 'transport'    %}
+	{% if registered.operating_permit_image   %}
+		     <div class="" style="margin-top: 10px;height:100%;">
+		             <div class="weui_cells_title" style="text-align: center;">道路运输经营许可证</div>
+				      <div class="weui_cell">   
+				        <img src="{% static '' %}{{  registered.operating_permit_image}}" style="max-width: 350px;max-height: 300px;display:block;text-align:center;margin-right: auto;margin-left: auto;">
+				      </div>
+				    </div>
+ 	  {% endif %}
+      {% if  registered.business_license_image  %}   
+           <div class="" style="margin-top: 10px;height:100%;">
+                <div class="weui_cells_title"style="text-align: center;">营业执照</div>
+			    <div class="weui_cell">
+			        <img src="{% static '' %}{{ registered.business_license_image}}" style="max-width: 350px;max-height: 300px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+			    </div>
+           </div>
+      {% endif %}
+      {% if  registered.organ_image  %}   
+           <div class="" style="margin-top: 10px;height:100%;">
+                <div class="weui_cells_title"style="text-align: center;">组织机构代码证</div>
+			    <div class="weui_cell">
+			        <img src="{% static '' %}{{ registered.organ_image}}" style="max-width: 350px;max-height: 300px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+			    </div>
+           </div>
+      {% endif %}
+{% endif %}
+	  
+
+ <!--*******************************货主 （单位）*********************************************************************************-->
+{% if  registered.user_type == 'boss'   and registered.user_classify == 'units' %}
+      {% if  registered.business_license_image  %}   
+           <div class="" style="margin-top: 10px;height:100%;">
+                <div class="weui_cells_title"style="text-align: center;">营业执照</div>
+			    <div class="weui_cell">
+			        <img src="{% static '' %}{{ registered.business_license_image}}" style="max-width: 350px;max-height: 300px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+			    </div>
+           </div>
+      {% endif %}
+      {% if  registered.organ_image  %}   
+           <div class="" style="margin-top: 10px;height:100%;">
+                <div class="weui_cells_title"style="text-align: center;">组织机构代码证</div>
+			    <div class="weui_cell">
+			        <img src="{% static '' %}{{ registered.organ_image}}" style="max-width: 350px;max-height: 300px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+			    </div>
+           </div>
+      {% endif %}
+{% endif %}
+
+
+ <!--*******************************司机*********************************************************************************-->
+{% if registered.user_type == 'driver' %}
+      {% if  registered.driver_image  %}   
+           <div class="" style="margin-top: 10px;height:100%;">
+                <div class="weui_cells_title"style="text-align: center;">驾驶证</div>
+			    <div class="weui_cell">
+			        <img src="{% static '' %}{{ registered.driver_image}}" style="max-width: 350px;max-height: 300px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+			    </div>
+           </div>
+      {% endif %}
+      {% if  registered.plate_image  %}   
+           <div class="" style="margin-top: 10px;height:100%;">
+                <div class="weui_cells_title"style="text-align: center;">行驶证</div>
+			    <div class="weui_cell">
+			        <img src="{% static '' %}{{ registered.plate_image}}" style="max-width: 350px;max-height: 300px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+			    </div>
+           </div>
+      {% endif %}
+      {% if  registered.transportation_image  %}   
+           <div class="" style="margin-top: 10px;height:100%;">
+                <div class="weui_cells_title"style="text-align: center;">营运证</div>
+			    <div class="weui_cell">
+			        <img src="{% static '' %}{{ registered.transportation_image}}" style="max-width: 350px;max-height: 300px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+			    </div>
+           </div>
+      {% endif %}
+{% endif %}
+
+
+      
+
+  
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+{% endblock %}

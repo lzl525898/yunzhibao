@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+{% load static %}
+{% load legoo_tag %}
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+    <!--  2017-08-14尝试解决页面刷新问题-->
+    <meta http-equiv="Expires" CONTENT="0">
+    <meta http-equiv="Cache-Control" CONTENT="no-cache">
+    <meta http-equiv="Pragma" CONTENT="no-cache">
+    <!--  结束-->
+    <title>{% block title_block %}WeUI{% endblock %} - {{ "APP_NAME"|settings_value }}</title>
+    {#    <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">#}
+    <link rel="stylesheet" href="{% static 'css/weui.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/legoo.css' %}"/>
+
+{#    <link rel="stylesheet" href="{% static 'css/weui-example.css' %}"/>#}
+{#    <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">#}
+        <link href="{% static 'css/font-awesome.min.css' %}" rel="stylesheet" >
+{#    <link href="{% static 'css/legoo.css' %}" rel="stylesheet" >#}
+{#    <link href="{% static 'css/formValidation.min.css' %}" rel="stylesheet" >#}
+{#    <link href="{% static 'css/formValidation.css' %}" rel="stylesheet" >#}
+		<link href="{% static 'css/common_wss.css' %}" rel="stylesheet" >
+		<link href="{% static 'css/mobiscroll/mobiscroll_002.css' %}"rel="stylesheet" type="text/css">
+		<link href="{% static 'css/mobiscroll/mobiscroll.css' %}"rel="stylesheet" type="text/css">
+		<link href="{% static 'css/mobiscroll/mobiscroll_003.css' %}" rel="stylesheet" type="text/css">
+		{#  下面一行是加载更多样式#}
+		<link rel="stylesheet" href="{% static 'css/weui.min.css' %}"/>
+		{#<link rel="stylesheet" href="http://cdn.bootcss.com/weui/1.1.1/style/weui.min.css">  #}
+    {% block css_block %}
+    
+    {% endblock %}
+</head>
+<body style="height:100%;background:#fff;" ontouchstart>
+    <div class="container js_container">
+    <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+    <script src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+    <script  type="text/javascript">
+		  wx.config({
+		    debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+		    appId: '{{app_id}}', // 必填，公众号的唯一标识
+		    timestamp: '{{ a.timestamp|safe }}', // 必填，生成签名的时间戳
+		    nonceStr: '{{ a.nonceStr|safe }}', // 必填，生成签名的随机串
+		    signature:'{{ a.signature |safe}}',// 必填，签名，见附录1
+		    jsApiList: ['checkJsApi' ,'onMenuShareTimeline','onMenuShareAppMessage','onMenuShareQQ','onMenuShareWeibo',
+		                'hideMenuItems','showMenuItems'] 
+		    });
+ 		  wx.ready(function () {
+		/*	  wx.checkJsApi({
+			      jsApiList: [
+			        'getNetworkType',
+			        'previewImage',
+			        'hideMenuItems',
+			        'showMenuItems'
+			      ],
+			      success: function (res) {
+			        alert(JSON.stringify(res));
+			      }
+			    }); */
+			  
+			  wx.onMenuShareAppMessage({
+			      title: '账户信息详情',
+			      desc: '运之宝~只为让您安心~~。',
+			      link: '{{main_url}}wss/mine/my_account?referee_id={{ mine_id }}',
+			      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5Ub0pCbLOgmNnlm1sZ8beiaLefnP8xwT9SCciaxyrNQz2KAFDMjRDWCR4XVCtLj29rMLfF9NUUWrUtKg/0?wx_fmt=png',
+			 /* trigger: function (res) {alert('用户点击发送给朋友'); },
+			      success: function (res) { alert('已分享'); },
+			      cancel: function (res) {alert('已取消');},
+			      fail: function (res) {alert(JSON.stringify(res));} */
+			    });
+			 wx.onMenuShareTimeline({
+			      title: '保险列表部分',
+			      link:'{{main_url}}wss/insure/product_list?referee_id={{ mine_id }}',
+			      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5Ub0pCbLOgmNnlm1sZ8beiaLeeIibavLCjib3DrnHIkFL0Z3XTztcibZhb2564ics3njB1YuymjWQg7F3Cw/0?wx_fmt=png',
+			      /* trigger: function (res) {alert('用户点击分享到朋友圈'); },
+			      success: function (res) {alert('已分享'); },
+			      cancel: function (res) { alert('已取消');},
+			      fail: function (res) { alert(JSON.stringify(res)); } */
+			    });  
+			 wx.hideMenuItems({
+			      menuList: [
+			        'menuItem:share:qq',
+			        'menuItem:share:QZone',
+			       /*  'menuItem:copyUrl', */
+			        'menuItem:openWithQQBrowser',
+			        'menuItem:openWithSafari',
+			        'menuItem:share:email',
+			      ],
+/*  			      success: function (res) {alert('已隐藏“分享至QQ”，“分享到qq空间”，“用qq浏览器打开”等按钮'); },
+			      fail: function (res) {alert(JSON.stringify(res));}  */
+			    });
+		});
+	</script>
+    {% block container_block %}
+    {% endblock %}
+    </div>
+    {% block page_block %}
+    {% endblock %}
+
+
+    <script src="{% static 'js/jquery-1.11.0.min.js' %}"></script>
+    <script src="{% static 'js/zepto.min.js' %}"></script>
+    <script src="{% static 'js/ajax-wx.js' %}"></script>
+{#    <script src="{% static 'js/ajax-bms.js' %}"></script>#}
+    <script src="{% static 'js/we-example.js' %}"></script>
+    <script src="{% static 'js/jquery.simpleFilePreview.js' %}"></script>
+   {# <script src="{% static 'js/jquery.cityselect.js' %}"></script>#}
+<!--     <script src="{% static 'js/pingpp_pay.js' %}"></script> -->
+{#    <script src="{% static 'js/bootstrap.min.js' %}"></script>#}
+{#    <script src="{% static 'js/jquery.cookie.js' %}"></script>#}
+{#    <script src="{% static 'js/jquery.form.js' %}"></script>#}
+{#    <script src="{% static 'js/bootstrap-filestyle.min.js' %}"></script>#}
+{#  下面一行是加载更多样式#}
+<script src="{% static 'js/jquery.min.js' %}"></script>
+{#<script src="http://cdn.bootcss.com/jquery/1.11.0/jquery.min.js"></script> #}
+<!--日期插件 -->
+ <script src="{% static 'js/mobiscroll/mobiscroll_002.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/mobiscroll/mobiscroll_004.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/mobiscroll/mobiscroll.js' %}"type="text/javascript"></script>
+<script src="{% static 'js/mobiscroll/mobiscroll_003.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/mobiscroll/mobiscroll_005.js' %}"type="text/javascript"></script>
+<!--日期插件 end -->
+
+
+    {% block script_block %}
+    {% endblock %}
+</body>
+</html>

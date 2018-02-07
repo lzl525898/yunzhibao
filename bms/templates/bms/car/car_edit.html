@@ -1,0 +1,583 @@
+{% extends 'bms/car/base_car.html' %}
+{% load static %}					{#%static'%识别#}
+{% load legoo_tag %}    		{#认证状态转换#}
+{% block car_list %}class='active'{% endblock %}
+{% block title %} 车辆信息编辑{% endblock %}
+
+{% block page_top %}
+	        <div class="row">
+	            <div class="col-lg-10">
+	                        <div class="panel panel-default">
+					                <div class="panel-body">
+					                    <i class="fa fa-plus fa-3x pull-right"></i>
+							                <div class="page-header">
+							                    <h2 class="text-center">编辑车辆信息</h2>
+							                    {% if message and message != '' %}
+									                <div class="row">
+									                    <div class="col-sm-12">
+									                        <div class="alert alert-warning text-center">{{ message }}</div>
+									                    </div>
+									                </div>
+									            {% endif %}
+							                </div>
+						
+							                {#<form id="defaultForm" method="post" class="form-horizontal" action="target.php">#}
+							                <form id="defaultForm" method="post" class="form-horizontal" >{% csrf_token %}
+							                    <div class="panel-group" id="steps">
+							                        <!-- Step 1 -->
+							                        <div class="panel panel-default">
+							                            <div class="panel-heading">
+							                                <h4 class="panel-title"><a data-toggle="collapse" data-parent="#steps" href="#stepOne"><i class="fa fa-road"></i>行驶证<small>(以下全为必填项)</small></a></h4>
+							                            </div>
+							                            <div id="stepOne" class="panel-collapse collapse in">
+							                                <div class="panel-body">
+							                                	<div class="form-group">
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">行驶证照片</label>
+											                            {% for plate_image_left in car.plate_image_left%}
+											                            <div class="col-sm-4">
+														                        <a href="{% static '' %}{{ plate_image_left }}"target="_blank">
+														                        	<img class="img-responsive" src="{% static '' %}{{ plate_image_left }}" style="max-width: 200px;max-height: 150px;word-break:break-all">
+														                        </a>
+														                        <a id="edit_{{ plate_image_left }}" name="" href="#"  onclick="edit_car_pic('{{ plate_image_left }}','plate')" ><i class="fa fa-cloud-upload"></i></a>
+											                            </div>
+											                             {% endfor %}
+											                        </div>
+											                    </div>
+							                                     <div class="form-group">
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">车牌号</label>
+											                            <div class="col-sm-4">
+											                            	<select class="" name="short_number" id ="">
+												                                    {% for short in short_detail %}
+												                                      <option value="{{short}}" {% if short_number|toString ==  short   %} selected ="selected" {% endif %}> {{short}} </option>
+												                                    {% endfor %}
+											                                    </select>
+											                                    <select class="" name="mid_number" id ="">
+													                                    {% for mid in mid_detail %}
+													                                      <option value="{{mid}}" {% if mid_number|toString ==  mid   %} selected ="selected" {% endif %}> {{mid}} </option>
+													                                    {% endfor %}
+													                            </select>    
+													                            <input type="text" style="width: 120px"class="" name="plate_number"value="{{ end_number|default_if_none:'' }}"maxlength="5" >
+											                                <!-- <input type="text" class="form-control" name="plate_number" value="{{ car.plate_number|default_if_none:'' }}"/> -->
+											                            </div>
+											                        </div>
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">车辆类型</label>
+											                            <div class="col-sm-4">
+											                                <input type="text" class="form-control" name="car_type" data-fv-row=".rowContainer" value="{{ car.car_type|default_if_none:'' }}"/>
+											                            </div>
+											                        </div>
+											                    </div>
+											                    <div class="form-group">
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">所有人</label>
+											                            <div class="col-sm-4">
+											                                <input type="text" class="form-control" name="holder"value="{{ car.holder|default_if_none:'' }}" />
+											                            </div>
+											                        </div>
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">使用性质</label>
+											                            <div class="col-sm-4">
+											                                <input type="text" class="form-control" name="use_property" data-fv-row=".rowContainer" value="{{ car.use_property|default_if_none:'' }}"/>
+											                            </div>
+											                        </div>
+											                    </div>
+											                    <div class="form-group">
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">品牌型号</label>
+											                            <div class="col-sm-4">
+											                                <input type="text" class="form-control" name="brand_digging" value="{{ car.brand_digging|default_if_none:'' }}"/>
+											                            </div>
+											                        </div>
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">车辆识别代码</label>
+											                            <div class="col-sm-4">
+											                                <input type="text" class="form-control" name="car_number" data-fv-row=".rowContainer" value="{{ car.car_number|default_if_none:'' }}"/>
+											                            </div>
+											                        </div>
+											                    </div>
+											                    <div class="form-group">
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">发动机号</label>
+											                            <div class="col-sm-4">
+											                                <input type="text" class="form-control" name="engine_number" value="{{ car.engine_number|default_if_none:'' }}"/>
+											                            </div>
+											                        </div>
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">注册日期</label>
+											                            <div class="col-sm-4">
+											                               <div class="input-group date" id="datetimePicker">
+											                                    <input type="text" class="form-control" name="issue_date" data-fv-row=".rowContainer" value="{{ car.issue_date|date:'Y-m-d'}}"
+											                                    onFocus="WdatePicker({isShowClear:false,readOnly:true,dateFmt: 'yyyy-MM-dd'})" />
+											                                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+											                                </div>
+											                            </div>
+											                        </div>
+											                    </div>
+											                     <div class="form-group">
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">核载人数(位)</label>
+											                            <div class="col-sm-4">
+											                                <input type="text" class="form-control" name="people_number"value="{{ car.people_number|default_if_none:'' }}" />
+											                            </div>
+											                        </div>
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">核载质量(Kg)</label>
+											                            <div class="col-sm-4">
+											                                <input type="text" class="form-control" name="load_weight" data-fv-row=".rowContainer" value="{{ car.load_weight|default_if_none:'' }}"/>
+											                            </div>
+											                        </div>
+											                    </div>
+											                   <div class="form-group">
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">检验有效期至</label>
+											                            <div class="col-sm-4">
+											                                <div class="input-group date" id="datetimePicker">
+											                                    <input type="text" class="form-control" name="plate_expiration_periods" data-fv-row=".rowContainer" 
+											                                    value="{{ car.plate_expiration_periods}}	"onFocus="WdatePicker({isShowClear:false,readOnly:true,dateFmt: 'yyyy-MM'})" />
+											                                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+											                                </div>
+											                            </div>
+											                        </div>
+											                    </div>
+							                                </div>
+							                            </div>
+							                        </div>
+						
+							                        <!-- Step 2 -->
+							                        <div class="panel panel-default control-show">
+							                            <div class="panel-heading">
+							                                <h4 class="panel-title"><a data-toggle="collapse" data-parent="#steps" href="#stepTwo"><i class="fa fa-road"></i>交强险保单信息</a></h4>
+							                            </div>
+							                            <div id="stepTwo" class="panel-collapse collapse">
+							                                <div class="panel-body">
+							                                 	<div class="form-group">
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">交强险保单照片</label>
+											                            <div class="col-sm-4">
+														                        <a href="{% static '' %}{{ car.liability_image }}"target="_blank">
+														                        	<img class="img-responsive" src="{% static '' %}{{ car.liability_image }}" style="max-width: 200px;max-height: 150px;word-break:break-all">
+														                        </a>
+														                        <a id="edit_{{ car.liability_image }}" name="" href="#"  onclick="edit_car_pic('{{ car.liability_image }}','liability')" ><i class="fa fa-cloud-upload"></i></a>
+											                            </div>
+											                        </div>
+											                    </div>
+							                      				<div class="form-group">
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">交强险保单号</label>
+											                            <div class="col-sm-4">
+											                                <input type="text" class="form-control" name="liability_number" value="{{ car.liability_number|default_if_none:'' }}"/>
+											                            </div>
+											                        </div>
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">保费(元)</label>
+											                            <div class="col-sm-4">
+											                                <input type="text" class="form-control" name="liability_price" data-fv-row=".rowContainer" value="{{ car.liability_price|FenToYuan }}"/>
+											                            </div>
+											                        </div>
+											                        
+											                    </div>
+											                    <div class="form-group">
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">承保公司</label>
+											                            <div class="col-sm-4">
+											                                <input type="text" class="form-control" name="liability_company" value="{{ car.liability_company|default_if_none:'' }}"/>
+											                            </div>
+											                        </div>
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">报案电话</label>
+											                            <div class="col-sm-4">
+											                                <input type="text" class="form-control" name="liability_phone_num" data-fv-row=".rowContainer" value="{{ car.liability_phone_num|default_if_none:'' }}"/>
+											                            </div>
+											                        </div>
+											                    </div>
+											                    <div class="form-group">
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">车船税(元)</label>
+											                            <div class="col-sm-2">
+											                                <input type="text" class="form-control" name="liability_tax" value="{{ car.liability_tax|FenToYuan }}"/>
+											                            </div>
+											                        </div>
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">保险期限</label>
+											                            <div class="col-sm-3">
+											                            	<div class="input-group date" id="datetimePicker">
+											                                    <input type="text" class="form-control" name="liability_date_start" data-fv-row=".rowContainer" value="{{ car.liability_date_start|date:'Y-m-d' }}"
+											                                    onFocus="WdatePicker({isShowClear:false,readOnly:true,dateFmt: 'yyyy-MM-dd'})" />
+											                                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+											                                </div>
+											                            </div>
+											                            <div class="col-sm-3">
+											                              <div class="input-group date" id="datetimePicker">
+											                                    <input type="text" class="form-control" name="liability_date_stop" data-fv-row=".rowContainer" value="{{ car.liability_date_stop|date:'Y-m-d'}}"
+											                                    onFocus="WdatePicker({isShowClear:false,readOnly:true,dateFmt: 'yyyy-MM-dd'})" />
+											                                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+											                                </div>
+											                            </div>
+											                        </div>
+											                    </div>
+							                                </div>
+							                            </div>
+							                        </div>
+						
+							                        <!-- Step 3 -->
+							                        <div class="panel panel-default control-show">
+							                            <div class="panel-heading">
+							                                <h4 class="panel-title"><a data-toggle="collapse" data-parent="#steps" href="#stepThree"><i class="fa fa-road"></i>商业险保单信息</a></h4>
+							                            </div>
+							                            <div id="stepThree" class="panel-collapse collapse">
+							                  				 <div class="panel-body">
+							                  				 	<div class="form-group">
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">商业险保单照片</label>
+											                            <div class="col-sm-4">
+														                        <a href="{% static '' %}{{ car.commercial_image }}"target="_blank">
+														                        	<img class="img-responsive" src="{% static '' %}{{ car.commercial_image }}" style="max-width: 200px;max-height: 150px;word-break:break-all">
+														                        </a>
+														                        <a id="edit_{{ car.commercial_image }}" name="" href="#"  onclick="edit_car_pic('{{ car.commercial_image }}','commercial')" ><i class="fa fa-cloud-upload"></i></a>
+											                            </div>
+											                        </div>
+											                    </div>
+							                      				<div class="form-group">
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">商业险保单号</label>
+											                            <div class="col-sm-4">
+											                                <input type="text" class="form-control" name="commercial_num" value="{{ car.commercial_num|default_if_none:'' }}"/>
+											                            </div>
+											                        </div>
+																	<div class="rowContainer">
+											                            <label class="col-sm-2 control-label">保费总计(元)</label>
+											                            <div class="col-sm-4">
+											                                <input type="text" class="form-control" name="commercial_price" data-fv-row=".rowContainer" value="{{ car.commercial_price|FenToYuan }}"/>
+											                            </div>
+											                        </div>
+											                    </div>
+											                    <div class="form-group">
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">承保公司</label>
+											                            <div class="col-sm-4">
+											                                <input type="text" class="form-control" name="commercial_company" value="{{ car.commercial_company|default_if_none:'' }}"/>
+											                            </div>
+											                        </div>
+											                        <div class="rowContainer">
+											                            <label class="col-sm-2 control-label">报案电话</label>
+											                            <div class="col-sm-4">
+											                                <input type="text" class="form-control" name="commercial_phone_num" data-fv-row=".rowContainer" value="{{ car.commercial_phone_num|default_if_none:'' }}"/>
+											                            </div>
+											                        </div>
+											                    </div>
+											                    <div class="form-group">
+																		<div class="rowContainer">
+												                            <label class="col-sm-2 control-label">险种/保费</label>
+												                            <div class="col-sm-8">
+														           					<table class="table table-bordered" id="id_batch_list">
+														                                <tr id="id_properties_title" class="info">
+														                                    <td class="text-center">险种</td>
+														                                    <td class="text-center">保费(元)</td>
+														                                    <td class="text-center">操作</td>
+														                                </tr>
+														                                {% for tax in car.commercial_tax%}
+														                                <tr id="id_tax_item_{{forloop.counter0}}" name="tax_item">
+														                                    <input type="hidden" name="position" value="{{forloop.counter0}}"/>
+														                                    <td style="width: 200px">
+														                                    		<select class="from-control "  style="width: 150px"id="xz_{{forloop.counter0}}" name="xz_{{forloop.counter0}}">
+														                                    			<option selected="selected" value="">  </option>
+														                                    			{% for kind in car.COMMERCIAL_KIND %}
+														                                    			<option value="{{ kind.1 }}"{% if tax.com_kind|toString == kind.1|toString %} selected {% endif %}>{{kind.1}}</option>
+														                                    			{% endfor %}
+													                                    			</select>
+											                                    			</td>
+														                                    <!-- <td><div   name="xz_{{forloop.counter0}}" type="text-align:center;" value="{{tax.com_kind}}" >{{tax.com_kind}}:</td> -->
+														                                    <td><input class="form-control"  name="je_{{forloop.counter0}}" type="text" value="{{ tax.com_price|FenToYuan }}" ></td>
+														                                    <td><a id="id_tax_item_delete_{{forloop.counter0}}" class="btn btn-default" onclick="$('#id_tax_item_{{forloop.counter0}}').remove()">删除</a></td>
+														                                </tr>
+														                                {% endfor %}
+														                                <tr id="id_tax_bottom">
+														                                    <td colspan="6">
+														                                    <a class="pointer" id="id_tax_add" onclick="add_tax_line()">添加险种</a>
+														                                    <p><small ><i class="fa fa-heart"style="color:red"></i><font color="red">小贴士：1.提交前请删除空白表单；2.保费精确到分，若输入3.333则保存3.33；</font></small></p>
+														                                    </td>
+														                                </tr>
+														                            </table>
+												                            </div>
+												                    </div>
+											                    </div>
+											                    <div class="form-group">
+																	<div class="rowContainer">
+											                            <label class="col-sm-2 control-label">保险期限</label>
+											                            <div class="col-sm-4">
+											                                <div class="input-group date" id="datetimePicker">
+											                                    <input type="text" class="form-control" name="commercial_date_start" data-fv-row=".rowContainer" value="{{ car.commercial_date_start|date:'Y-m-d' }}"
+											                                    onFocus="WdatePicker({isShowClear:false,readOnly:true,dateFmt: 'yyyy-MM-dd'})" />
+											                                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+											                                </div>
+											                            </div>
+											                            <div class="col-sm-4">
+											                               	<div class="input-group date" id="datetimePicker">
+											                                    <input type="text" class="form-control" name="commercial_date_stop" data-fv-row=".rowContainer" value="{{ car.commercial_date_stop |date:'Y-m-d' }}"
+											                                    onFocus="WdatePicker({isShowClear:false,readOnly:true,dateFmt: 'yyyy-MM-dd'})" />
+											                                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+											                                </div>
+											                            </div>
+											                        </div>
+											                    </div>
+							                                </div>
+							                            </div>
+							                        </div>
+							                       <div class="panel panel-default">
+							                  				 <div class="panel-body">
+									 								<div class="form-group">
+											                            <div class="col-lg-6 col-lg-offset-6">
+											                                <button type="submit" class="btn btn-primary">提交</button>
+											                            </div>
+										                        	</div>
+
+							                                </div>
+							                        </div>
+							                    </div>
+							                </form>
+							            </div>
+							        </div>
+	            </div>
+	        </div>
+	        
+	        
+          {#编辑保单图片模态框#}
+     <div class="modal fade" id="edit_car_pic_modal" tabindex="-1" role="dialog" >
+        <div class="modal-dialog">
+            <form id="edit_car_form" class="form" method="post" action="{% url 'bms:edit_car_pic' car.id %}"  enctype="multipart/form-data">  {% csrf_token %}
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title"><i class="fa fa-cloud-upload"></i> 编辑证件图片</h4>
+                  </div>
+                  <div class="modal-body">
+                    <div class="form-group" >
+                        <label class="control-label" for="car_image_edit"><i class="fa fa-picture-o"></i> 图片<small>（gif、png、jpeg或icon;）</small>: </label>
+                        <input class="filestyle" type="file" id="car_image_edit" name="car_image_edit" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                        <input  type="hidden" name="image_url_edit" id="image_url_edit" value="">
+                        <input  type="hidden" name="image_type" id="image_type" value="">
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 保 存 </button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> 退 出</button>
+                  </div>
+                </div>
+            </form>
+        </div>
+     </div>
+{% endblock %}
+{% block script_block %}
+	<script type="text/javascript">
+    function edit_car_pic(car_image,type){
+        $('#edit_car_pic_modal').modal('show');
+        var image_url_edit = document.getElementById("image_url_edit");
+        image_url_edit.value = car_image;
+        var image_type = document.getElementById("image_type");
+        image_type.value = type;
+    }
+	
+	
+	function add_tax_line(){
+        var count = $('tr[name="tax_item"]').length;
+        var position = count;
+        if($("#id_tax_item_" + position).length > 0){
+            for(var i=0;i<count;i++){
+                if($("#id_tax_item_" + i).length <= 0){
+                    position = i;
+                    break;
+                }
+            }
+        }
+        var a
+        a='<tr id="id_tax_item_' + position + '" name="tax_item">' +
+		'<input type="hidden" name="position" value="' + position + '"/>' +
+		'<td><select class="from-control "  style="width: 150px"id="xz_'+position+'" name="xz_'+position+'">'+
+			'<option selected="selected" value=""></option>'+
+			'{% for kind in car.COMMERCIAL_KIND %}<option value="{{ kind.1 }}">{{kind.1}}</option>{% endfor %}</select></td>' +
+        '<td><input class="form-control"  name="je_' + position + '" type="text" value="" required ></td>' +
+        '<td><a id="id_tax_item_delete_' + position + '" class="btn btn-default" onclick="$(\'#id_tax_item_' + position + '\').remove()">删除</a></td>' +
+       '</tr>';
+		
+ 		$('#id_tax_bottom').before(a); 
+
+/*         $('#id_tax_bottom').before('<tr id="id_tax_item_' + position + '" name="tax_item">' +
+                '<input type="hidden" name="position" value="' + position + '"/>' +
+                '<td><input class="form-control"  name="xz_' + position + '" type="text" value="" required></td>' +
+                '<td><input class="form-control"  name="je_' + position + '" type="text" value="" required ></td>' +
+                '<td><a id="id_tax_item_delete_' + position + '" class="btn btn-default" onclick="$(\'#id_tax_item_' + position + '\').remove()">删除</a></td>' +
+                '</tr>'); */
+    }
+	
+	
+	$(document).ready(function() {
+	    $('#defaultForm').formValidation({
+	        message: 'This value is not valid',
+	        excluded: ':disabled',
+	        icon: {
+	            valid: 'glyphicon glyphicon-ok',
+	            invalid: 'glyphicon glyphicon-remove',
+	            validating: 'glyphicon glyphicon-refresh'
+	        },
+	        fields: {
+	        	plate_number: {
+	                validators: {
+	                    notEmpty: {
+	                        message: '车牌号为必填项不能为空'
+	                    },
+	                    regexp: {
+	                        regexp: /^[A-Z_0-9]{5}$/,
+	                        message: '车牌号尾部如：XXX45,必须大写字母+数字组成'
+	                    }
+	                }
+	            },
+	            car_type: {
+	                validators: {
+	                    notEmpty: {
+	                        message: '车辆类型为必填项且为中文'
+	                    }
+	                }
+	            },
+	            holder: {
+	                message: 'The username is not valid',
+	                validators: {
+	                    notEmpty: {
+	                        message: '所有人为必填项不能为空'
+	                    }
+	                }
+	            },
+	            use_property: {
+	                validators: {
+	                	notEmpty: {
+	                        message: '使用性质为必填项不能为空'
+	                    }
+	                }
+	            },
+	            brand_digging: {
+	                validators: {
+	                	notEmpty: {
+	                        message: '品牌型号为必填项不能为空'
+	                    }
+	                }
+	            },
+	            car_number: {
+	                validators: {
+	                    notEmpty: {
+	                        message: '车辆识别代码为必填项不能为空'
+	                    }
+	                }
+	            },
+	            engine_number: {
+	                validators: {
+	                    notEmpty: {
+	                        message: '发动机号为必填项不能为空'
+	                    }
+	                }
+	            },
+	            car_number: {
+	                validators: {
+	                    notEmpty: {
+	                        message: '车辆识别代码为必填项不能为空'
+	                    }
+	                }
+	            },
+	            issue_date: {
+	            	 validators: {
+		                    notEmpty: {
+		                        message: '注册日期为必填项不能为空'
+		                    }
+		                }
+	            },
+	            people_number: {
+	                validators: {
+/* 	                    notEmpty: {
+	                        message: '核定载人数为必填项不能为空'
+	                    }, */
+	                    digits: {
+	                        message: '核定载人数为数字'
+	                    }
+	                }
+	            },
+	            load_weight: {
+	                validators: {
+/* 	                    notEmpty: {
+	                        message: '核定载质量为必填项不能为空'
+	                    }, */
+			            digits: {
+		                    message: '核定载质量为数字'
+		                }
+	                }
+	            },
+	            plate_expiration_periods: {
+	                validators: {
+	                    notEmpty: {
+	                        message: '检验有效期至为必填项不能为空'
+	                    }
+	                }
+	            },
+	       /*      liability_number: {
+	                validators: {
+	                    notEmpty: {
+	                        message: '交强险保单号为必填项不能为空'
+	                    }
+	                }
+	            },
+	            liability_price: {
+	                validators: {
+	                    notEmpty: {
+	                        message: '保费为必填项不能为空'
+	                    }
+	                }
+	            },
+	            liability_tax: {
+	                validators: {
+	                    notEmpty: {
+	                        message: '车船税为必填项不能为空'
+	                    }
+	                }
+	            },
+	            liability_date_start: {
+	                validators: {
+	                    notEmpty: {
+	                        message: '保险期限起始日期为必填项不能为空'
+	                    }
+	                }
+	            },
+	            liability_date_stop: {
+	                validators: {
+	                    notEmpty: {
+	                        message: '保险期限终止日期为必填项不能为空'
+	                    }
+	                }
+	            },
+	            liability_company: {
+	                validators: {
+	                    notEmpty: {
+	                        message: '承保公司为必填项不能为空'
+	                    }
+	                }
+	            },
+	            liability_phone_num: {
+	                validators: {
+	                    notEmpty: {
+	                        message: '报案电话为必填项不能为空'
+	                    }
+	                }
+	            } */
+	        }
+	    }).on('err.form.fv', function(e) {
+	      /*   console.log('error');
+
+	        // Active the panel element containing the first invalid element
+	        var $form         = $(e.target),
+	            validator     = $form.data('formValidation'),
+	            $invalidField = validator.getInvalidFields().eq(0),
+	            $collapse     = $invalidField.parents('.collapse');
+
+	        $collapse.collapse('show'); */
+	    });
+	});
+	</script>
+{% endblock %}

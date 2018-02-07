@@ -1,0 +1,230 @@
+{% extends 'bms/mall/base_mall.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block mall_goods_list %}class='active'{% endblock %}
+{% block title %} 创建二手商品 {% endblock %}
+
+{% block page_top %}
+<div class="row">
+        <div class="col-sm-10">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <i class="fa fa-plus fa-3x pull-right"></i>
+                    <form role="form" id="create_insurance_product_form" method="post" action="{% url 'bms:mall_goods_create' %}"  enctype="multipart/form-data">  {% csrf_token %}
+						<input class="form-control"  id="" name="mall_goods_state" type="hidden"value="create" >
+						<input id="bms_order_type" name="order_state" type="hidden" value="111">{# 为解决js报错 #}
+                        <div class="page-tailer">
+                          <h1 class="text-center">创建二手商品</h1>
+                        </div>
+                        {% if message and message != '' %}
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="alert alert-warning">{{ message }}</div>
+                                </div>
+                            </div>
+                        {% endif %}
+						<div class="form-group" >
+                            <label for="id_client"><i class="fa fa-film"></i> *商品所有人： </label>
+                            <select class="form-control chosen-select input-group-addon" id="id_client" name="client_id"style='width:780px'onchange="find_user(this.value)">
+                            <option selected="selected" value="">  </option>
+                                <option value="">请选择</option>
+                                  {% for certificate in certificate_set %}
+                                    <option value="{{ certificate.client.id }}" {% if posted_data.client_id|toString ==  certificate.client.id|toString %} selected {% endif %}>{{ certificate.client.profile.phone  }}--{% if certificate.client.company_name %}{{ certificate.client.company_name }}{% else %}{{ certificate.client.name }}{% endif %}</option>
+                                  {% endfor %}
+                            </select>
+                        </div>
+						<div class="form-group" >
+							<label for="id_name"><i class="fa fa-user"></i> *名称  </label>
+							<input class="form-control"  id="goods_name" name="goods_name" type="text"
+								   value="{{ posted_data.goods_name|default_if_none:'' }}" required >
+						</div>
+						<div class="form-group"style="display: block;" id="id_product_priority_id1">
+							<label for="id_priority"><i class="fa fa-road"></i> *品牌型号  </label>
+							<input class="form-control"  id="goods_brand_digging" name="goods_brand_digging"  value="{{ posted_data.goods_brand_digging}}" >
+						</div>
+						<div class="form-group">
+                            <label for="id_product_type"><i class="fa fa-globe"></i> *商品分类 </label>
+                            <select class="form-control" id="goods_type" name="goods_type">
+                                  {% for goods_type in goods_type_list %}
+                                    <option value="{{ goods_type.id }}" {% if posted_data.goods_type|toString == goods_type.id|toString  %} selected="selected"  {% endif %}>{{goods_type.name}}</option>
+                                  {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group"style="display: block;" id="id_product_priority_id1">
+							<label for="id_priority"><i class="fa fa-road"></i> *原价  </label>
+							<input class="form-control"  id="original_cost" name="original_cost"  value="{{ posted_data.original_cost}}" >
+						</div>
+						<div class="form-group">
+                            <label for="id_product_type"><i class="fa fa-globe"></i> *商品状态 </label>
+                            <select class="form-control" id="present_situation" name="present_situation"onchange="change_present_situation(this.value)">
+                                  {% for present_situation in present_situations %}
+                                    <option value="{{ present_situation.0 }}" {% if posted_data.present_situation|toString == present_situation.0|toString  %} selected="selected"  {% endif %}>{{present_situation.1}}</option>
+                                  {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group"{% if posted_data.present_situation|toString == 'other'   %}style="display: block;"{% else %}style="display: none;"{% endif %} id="id_other_notes_url">
+							<label for="id_priority"><i class="fa fa-road"></i> *商品状态补充信息  </label>
+							<input class="form-control"  id="other_notes" name="other_notes"  value="{{ posted_data.other_notes}}" >
+						</div>
+						<div class="form-group"style="display: block;" id="id_product_priority_id1">
+							<label for="id_priority"><i class="fa fa-road"></i> *折扣价  </label>
+							<input class="form-control"  id="unit_price" name="unit_price"  value="{{ posted_data.unit_price}}" >
+						</div>
+                        <div class="form-group"style="display: block;" id="id_product_priority_id1">
+							<label for="id_priority"><i class="fa fa-road"></i> *数量  </label>
+							<input class="form-control"  id="goods_count" name="goods_count"  value="{{ posted_data.goods_count }}" >
+						</div>
+                        <div class="form-group"style="display: block;" id="id_product_priority_id1">
+							<label for="id_priority"><i class="fa fa-road"></i> *商品地址  </label>
+							<div class="rowContainer"id="insured_address" style="display: block;">
+									<div class="col-sm-12">
+		                                <select class="" name="startSiteName_prov" id ="startSiteName_prov"onchange="change_prov('2')"style="width: 130px;height: 34px">
+			                                    {% for pro_area  in pro_area_list%}
+			                            				<option value="{{ pro_area.code }}" {% if pro_area.code|toString == '11' %} selected{% endif %}>{{ pro_area.name }}</option>
+			                            	    {% endfor%}
+			                                    </select>
+			                                    <select class="" name="startSiteName_city" id ="startSiteName_city"style="width: 130px;height: 34px"onchange="change_city('startSiteName_')">
+			                                    {% for city_area  in city_area_list%}
+		                                    	   {% if city_area.parentcode ==  '11'  %}
+			                            				<option value="{{ city_area.code }}" {% if city_area.code|toString == '1101' %} selected{% endif %}>{{ city_area.name }}</option>
+			                            				{% endif %}
+			                            	    {% endfor%}
+			                                    </select>
+			                                    <select class=""name="startSiteName_dist"id ="startSiteName_dist" style="width: 130px;height: 34px">
+			                                    {% for dist_area  in dist_area_list%}
+		                                    	   {% if dist_area.parentcode ==  '1101'  %}
+			                            				<option value="{{ dist_area.code }}" >{{ dist_area.name }}</option>
+			                            				{% endif %}
+			                            	    {% endfor%}
+			                            	    </select> 
+			                                    <input type="text" class="" name="policy_address" maxlength="50"style="width: 23pc;height: 34px"
+			                                    {% if posted_data.policy_address %} value="{{ posted_data.policy_address}}" {%else %} value = ""{% endif %}/>
+		                                
+		                            </div>
+		                       </div>
+						</div>
+						<div class="form-group"style="display: block;" id="id_product_priority_id1">
+							<label for="id_priority"><i class="fa fa-road"></i> *联系人  </label>
+							<input class="form-control"  id="contact_people" name="contact_people"  value="{{ posted_data.contact_people}}" >
+						</div>
+						<div class="form-group"style="display: block;" id="id_product_priority_id1">
+							<label for="id_priority"><i class="fa fa-road"></i> *联系方式-手机  </label>
+							<input class="form-control"  id="contact_phone" name="contact_phone"  value="{{ posted_data.contact_phone}}" >
+						</div>
+						<div class="form-group"style="display: block;" id="id_product_priority_id1">
+							<label for="id_priority"><i class="fa fa-road"></i> *联系方式-座机  </label>
+							<input class="form-control"  id="contact_landline" name="contact_landline"  value="{{ posted_data.contact_landline}}" >
+						</div>
+						<div class="form-group"style="display: block;" id="id_product_priority_id1">
+							<label for="id_priority"><i class="fa fa-road"></i> *联系方式-QQ号码  </label>
+							<input class="form-control"  id="contact_qq" name="contact_qq"  value="{{ posted_data.contact_qq}}" >
+						</div>
+						<div class="form-group"style="display: block;" id="id_product_priority_id1">
+							<label for="id_priority"><i class="fa fa-road"></i> *联系方式-微信号  </label>
+							<input class="form-control"  id="contact_wx" name="contact_wx"  value="{{ posted_data.contact_wx}}" >
+						</div>
+						<div class="form-group"style="display: block;" id="id_product_priority_id1">
+							<label for="id_priority"><i class="fa fa-road"></i> *商品描述  </label>
+							<input class="form-control"  id="goods_describe" name="goods_describe"  value="{{ posted_data.goods_describe}}" >
+						</div>
+						
+						
+						<div class="form-group" >
+                            <label class="control-label" for="id_batch_image"><i class="fa fa-picture-o"></i>上传商品照片<small>（gif、png、jpeg或icon;）</small>: </label>
+                            <input class="filestyle" type="file" id="picture" name="picture" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox" multiple>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_product_type"><i class="fa fa-globe"></i> *证明商品价值方式 </label>
+                            <select class="form-control" id="certificate_type" name="certificate_type"onchange="change_certificate_type(this.value)">
+                                  {% for certificate_type in certificate_types %}
+                                    <option value="{{ certificate_type.0 }}" {% if not posted_data and certificate_type.0 == 'picture' %}  selected="selected" {% elif posted_data.certificate_type|toString == certificate_type.0     %} selected="selected"  {% endif %}>{{certificate_type.1}}</option>
+                                  {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group"{% if posted_data.certificate_type|toString == 'web_url'   %}style="display: block;"{% else %}style="display: none;"{% endif %} id="id_certificate_web_url">
+							<label for="id_priority"><i class="fa fa-road"></i> *商品原网站地址  </label>
+							<input class="form-control"  id="contact" name="certificate_url"  value="{{ posted_data.certificate_url}}" >
+						</div>
+                        <div class="form-group" {% if posted_data.certificate_type|toString == 'picture'  or not posted_data %}style="display: block;"{% else %}style="display: none;"{% endif %} id="id_certificate_picture">
+                            <label class="control-label" for="id_batch_image"><i class="fa fa-picture-o"></i>上传商品价值照片<small>（gif、png、jpeg或icon;）</small>: </label>
+                            <input class="filestyle" type="file" name="certificate_image" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox" multiple>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_product_type"><i class="fa fa-globe"></i> *上架状态 </label>
+                            <select class="form-control" id="publish_state" name="publish_state">
+                                  {% for state_set in state_list %}
+                                    <option value="{{ state_set.0 }}" {% if posted_data.publish_state|toString == state_set.0|toString  %} selected="selected"  {% endif %}>{{state_set.1}}</option>
+                                  {% endfor %}
+                            </select>
+                        </div>
+
+ 					  <div class="form-group"style="display: block;" id="id_state_id">
+                            <label for="id_channel"><i class="fa fa-life-bouy"></i> 是否显示  </label>
+                            <div class="">
+                                <label class="radio-inline">
+                                  <input type="radio" name="active" id="id_show" value="show" {% if posted_data.active == 'show'  or not posted_data %}checked{% endif %}> 显示
+                                </label>
+                                <label class="radio-inline">
+                                  <input type="radio" name="active" id="id_hidden" value="hidden"{% if posted_data.active == 'hidden'    %}checked{% endif %}> 隐藏
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 保 存</button>
+                        <a class="btn btn-default" href="{% url 'bms:mall_goods_list' '1' %}"><i class="fa fa-times"></i> 返 回</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2"></div>
+</div>
+
+
+
+
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+    //######################################用户信息联动#################
+    function find_user(id) {
+    	var id = id;
+    	var id_client = document.getElementById("id_client");
+    	if (id==''){
+    		alert("请选择商品所属用户")
+    	}
+    	else{
+    		var text = id_client.options[id_client.selectedIndex].innerText;
+        	var phone =text.split("--")[0];
+    		//alert(phone)
+        	document.getElementById("contact_phone").value=phone;
+    	}
+    }
+//################################商品价值证明联动#########
+function change_certificate_type(type){
+	var type = type
+	var type_url = $('#id_certificate_web_url');
+	var type_picture = $('#id_certificate_picture');
+	if (type == 'picture'){
+		type_url.hide();
+		type_picture.show();
+	}
+	else{
+		type_url.show();
+		type_picture.hide();
+	}
+}
+
+//##################################商品现状联动########
+function change_present_situation(value){
+	var value = value;
+	var other_notes = $('#id_other_notes_url');
+	if (value == 'other'){
+		other_notes.show()
+	}
+	else{
+		other_notes.hide()
+	}
+}
+    </script>
+{% endblock %}

@@ -1,0 +1,149 @@
+{% extends 'bms/product/base_product.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block insurance_document %}class='active'{% endblock %}
+{% block title %} 创建保险文档 {% endblock %}
+
+{% block page_top %}
+<div class="row">
+        <div class="col-sm-10">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <i class="fa fa-plus fa-3x pull-right"></i>
+                    <form role="form" id="create_insurance_document_form" method="post" action="{% url 'bms:insurance_document_create' %}"  enctype="multipart/form-data">  {% csrf_token %}
+
+                        <div class="page-header">
+                          <h1 class="text-center">添加保险文档</h1>
+                        </div>
+                        {% if message and message != '' %}
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="alert alert-warning">{{ message }}</div>
+                                </div>
+                            </div>
+                        {% endif %}
+						<div class="form-group" >
+							<label for="id_name"><i class="fa fa-user"></i> *文档名称： </label>
+							<input class="form-control"  id="id_name" name="name" type="text"
+								   value="{{ posted_data.name|default_if_none:'' }}" required >
+						</div>
+						<div class="form-group" >
+							<label for="id_simple_name"><i class="fa fa-road"></i> *文档名简称： </label>
+							<input class="form-control"  id="id_simple_name" name="simple_name" type="text"
+								   value="{{ posted_data.simple_name }}"  required >
+						</div>
+                        <div class="form-group" >
+                            <label for="id_company_id"><i class="fa fa-film"></i> *保险公司： </label>
+                            <select class="form-control" id="id_company_id" name="company_id"required>
+                                <option value="">请选择</option>
+                                  {% for company in companys %}
+                                    <option value="{{ company.id }}" {% if posted_data.company_id == company.id %} selected {% endif %}>{{ company.simple_name }}</option>
+                                  {% endfor %}
+                            </select>
+                        </div>
+{#                        <div class="form-group" >#}
+{#                            <label for="id_product_id"><i class="fa fa-film"></i> 产品： </label>#}
+{#                            {% if insurance_products %}#}
+{#                                <div class="checkbox">#}
+{#                                  {% for insurance_product in insurance_products %}#}
+{#                                    <label><input type="checkbox" name="insurance_product" value="{{ insurance_product.id }}" {% if insurance_product.id in posted_date %} checked {% endif %}>{{ insurance_product.name }}</label>#}
+{#                                  {% endfor %}#}
+{#                                </div>#}
+{#                            {% else %}#}
+{#                                <div>暂无产品</div>#}
+{#                            {% endif %}#}
+{#                        </div>#}
+                        <div class="form-group" >
+                            <label class="control-label" for="id_document_file"><i class="fa fa-picture-o"></i>上传文档文件<small>（word,excel,PDF）</small>: </label>
+                            <input class="filestyle" type="file" id="id_document_file" name="document_file" multiple="multiple" data-icon="true" data-input="true" data-buttonText="选择文件" data-iconName="glyphicon-inbox"required>
+                        </div>
+						<div class="form-group">
+							<label for="id_note"><i class="fa fa-road"></i> *备注： </label>
+							<input class="form-control"  id="id_note" name="note" type="text"
+								   value="{{ posted_data.note|default_if_none:'' }}">
+						</div>
+						<div class="form-group">
+							<label for="id_content"><i class="fa fa-road"></i> *文档内容： </label>
+                            <textarea id="id_content" name="content" class="form-control" style="min-height: 200px" maxlength="15000">{{ posted_data.content|default_if_none:'' }}</textarea>
+						</div>
+
+                        <div class="form-group">
+                            <label for="id_channel"><i class="fa fa-life-bouy"></i> 是否激活： </label>
+                            <div class="">
+                                <label class="radio-inline">
+                                  <input type="radio" name="active" id="id_show" value="show" checked> 显示
+                                </label>
+                                <label class="radio-inline">
+                                  <input type="radio" name="active" id="id_hidden" value="hidden"> 隐藏
+                                </label>
+                            </div>
+                        </div>
+
+{#                        <table class="table table-bordered">#}
+{#                            <tr>#}
+{#                              <pre class="pre-scrollable prettyprint" style="min-height: 200px;">{{ setting.user_protocol }}</pre>#}
+{#                            </tr>#}
+{#                        </table>#}
+                        <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 保 存</button>
+                        <a class="btn btn-default" href="{% url 'bms:insurance_document_list' '1' %}"><i class="fa fa-times"></i> 返 回</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2"></div>
+</div>
+
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+       $(function(){
+
+            $('#create_insurance_document_form').formValidation({
+                // I am validating Bootstrap form
+                framework: 'bootstrap',
+                locale : 'zh_CN',
+                // Feedback icons
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+
+                // List of fields and their validation rules
+                fields: {
+                    name: {
+                        validators: {
+                            notEmpty: {
+                                message: '保险文档名称不可为空'
+                            },
+                            stringLength: {
+                                min: 2,
+                                max: 50,
+                                message: '请输入2～20个字符'
+                            }
+                        }
+                    },
+                    simple_name: {
+                        validators: {
+                            stringLength: {
+                                max: 10,
+                                message: '简称不能超过10个字符'
+                            }
+                        }
+                    },
+                    note: {
+                        validators: {
+                            stringLength: {
+                                max: 50,
+                                message: '最多可输入50字符'
+                            }
+                        }
+                    }
+                }
+            });
+
+
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,238 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}投保{% endblock %}
+
+{% block container_block %}
+<link href="{% static 'css/validate.css' %}" rel="stylesheet">
+<style>
+#item-ifo #ico {
+width: 16px;
+height: 16px;
+position: absolute;
+top: 10px;
+left: 75%;
+z-index: 3;
+color:#fff;
+font-size:16px;
+}  
+</style>
+{% if message %}
+    <div class="weui_dialog_alert">
+        <div class="weui_mask"></div>
+        <div class="weui_dialog">
+            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+            <div class="weui_dialog_bd">{{ message }}</div>
+            <div class="weui_dialog_ft">
+                <a onclick="close_dialog();" class="weui_btn_dialog primary">确定</a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{#    首页所在位置，进入页面后的默认页面#}
+<div class="top">
+	<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+		<tbody>
+			<tr>
+					<td width="20%" valign="middle">
+							<a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a>
+					</td>
+					<td class="wz" width="60%" valign="middle" align="center">
+							<span id="toptitle">
+									<i class="fa   fa-file-text"></i>&nbsp;<strong>机动车辆保险</strong>
+							</span>
+					</td>
+					<td width="20%" valign="middle" align="right">
+					<a id="aso" href="#"></a>
+					</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<div class="weui_cells" style="height:100%;background:#F3F3F3;padding-top:20px;">
+<div class="swiper-container" >
+      <div class="swiper-wrapper">
+        <!-- Slides -->
+        <div class="swiper-slide"><img src="{% static 'pic/auto_insurance/chexin_1.png' %}" /></div>
+        <div class="swiper-slide"><img src="{% static 'pic/auto_insurance/chexin_2.png' %}" /></div>
+        <div class="swiper-slide"><img src="{% static 'pic/auto_insurance/chexin_3.png' %}" /></div>
+      </div>
+      <!-- If we need pagination -->
+      <div class="swiper-pagination"></div>
+ </div>     
+      <div class="weui_cells" style="background:#F3F3F3;font-size:15px;">
+             <form id="wss_jdcbx_form" method="POST" action="/wss/insure/enquiry/">{% csrf_token %}
+                  <div class="weui_cells_tips">选择城市：</div>
+                      <div class="weui_cell weui_vcode" >
+                          <div class="weui_cell_bd weui_cell_primary">
+                              <input class="weui_input" id="wx_home_city" name="wx_home_city" type="text" 
+                              value="{% if posted_data.wx_home_city%}{{ posted_data.wx_home_city }}{% else %}北京市 北京市{% endif %}" style="height: 37px; width:95%;" 
+                              data-required="true" onchange="pro_plate_relevance('',this.value)">
+                         </div>
+                      </div> 
+              <!--     <div class="weui_cells_tips">选择车牌号：</div> -->
+                  <div class="weui_cell" style=" width:95%;">
+			              <div class="weui_cell_hd" id="item-ifo"  style="background-color:#5172D5;width:20%;" >
+								<input class="weui_input"  style="height: 39px;color:#FFF;border:0px;text-align:center;" id="short" type="text" name="short" 
+								value="{% if posted_data.short %}{{ posted_data.short }}{% else %}京 A{% endif %}"
+								onchange="pro_plate_relevance(this.value,'')"><i class="fa fa-sort-desc" id="ico" ></i>
+                		  </div>
+                          <div class="weui_cell_bd weui_cell_primary">
+                              	<input class="weui_input" id="wx_plate_number" name="wx_plate_number" type="text" style="height: 37px; width:95%;border-left:0px;border-radius:0px 10px 10px 0;"
+                              	value="{% if posted_data.wx_plate_number %}{{ posted_data.wx_plate_number}}{% endif %}" data-required="true"  placeholder="请输入车牌号" data-descriptions="wx_plate_number"  data-pattern="^[0-9A-Za-z]{5}$">
+
+                         </div>
+                 </div>
+      		<!-- 	<div class="weui_cells_tips">选择车辆类型：</div> -->
+				     <div class="weui_cell weui_vcode" style=" width:95%;">
+                        <div class="weui_cell_bd weui_cell_primary">
+                            <input class="weui_input" type="text" id="car_type" name="car_type" style="height: 37px;" data-required="true"  placeholder="请选择车辆类型" 
+                            value="{% if posted_data.car_type %}{{ posted_data.car_type }}{% else %}货车{% endif %}"data-descriptions="car_type"  >
+                       </div>
+                      <div class="weui_cell_ft" style="width: 40%;">
+                            <button type="submit"  id="asksubmit" name="asksubmit"   style="height: 39px;border-radius: 0;margin-right: 14px;width:95%;	background:#5172D5;color:#FFF;border:0px;">立即询价</button>
+                      </div>
+                   </div>
+             </form>
+</div>
+<div style="height:150px;"></div>
+<div style=" width: 100%; position: fixed;  bottom: 0px;z-index: 1; ">
+        <div class="weui_cells  wss_btn" style="background-color:#cccc98;color:#FFF; opacity: 0.8;" >
+		        <a class="weui_cells_access weui_cell wss_btn" href="tel:15910731868"  >
+		            <div class="weui_cell_bd weui_cell_primary">
+		                <p><i class="fa  fa-phone-square"></i>运之宝客服电话</p>
+		            </div>
+		            <div class="weui_cell_ft wss_btn" >15910731868</div>
+		        </a>
+    </div>
+    
+</div>
+
+      
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+ <script src="{% static 'js/jquery-2.1.4.js' %}"></script>
+ <script src="{% static 'js/fastclick.js' %}"></script>
+ <script>
+  $(function() {
+    FastClick.attach(document.body);
+  });
+ </script>
+ <script src="{% static 'js/jquery-weui.js' %}"></script>
+ <script src="{% static 'js/swiper.js' %}"></script>
+ <script src="{% static 'js/city-picker.js' %}"></script>
+  <script src="{% static 'js/jquery-mvalidate.js' %}"></script>
+ <script type="text/javascript">
+      $(".swiper-container").swiper({
+        loop: true,
+        autoplay: 3000
+      });
+      $("#car_type").select({
+        title: "选择车辆类型",
+        items: ["货车", "九座以下客车"],
+        onChange: function(d) {
+          console.log(this, d);
+        },
+        onClose: function() {
+          console.log("close");
+        },
+        onOpen: function() {
+          console.log("open");
+        },
+      });
+      
+      $("#wx_home_city").cityPicker({
+          title: "选择目的地",
+          showDistrict: false,
+          onChange: function (picker, values, displayValues) {
+            console.log(values, displayValues);
+          }
+        });
+      
+      $("#short").picker({
+          title: "选择省份代码",
+          cols: [
+             {
+              textAlign: 'center',
+              values:  ["京", "津" ,"冀" ,"晋","蒙","辽","吉","黑","沪","苏","浙","皖","闽","赣","鲁","豫","鄂","湘","粤","桂","琼","川","贵","云","渝","藏","陕","甘","青","宁","新","港","澳","台"]
+            }, 
+            {
+              textAlign: 'center',
+              values:["A", "B", "C", "D","E", "F","G", "H", "I", "J", "K","L", "M", "N", "O","P", "Q", "R","S", "T", "U", "V","W","x","Y","Z"]
+            }
+          ]
+        });
+    </script>
+    <script type="text/javascript">
+    $(function() {
+        $("#wss_jdcbx_form").mvalidate({
+            type: 1,
+            onKeyup: true,
+            sendForm: true,
+            firstInvalidFocus: false,
+            valid: function(event, options) {
+                //点击提交按钮时,表单通过验证触发函数
+                $("#wss_jdcbx_form").submit();
+                event.preventDefault();
+            },
+            descriptions: {
+               wx_plate_number:{
+                    required : '请输入车牌号',
+                    pattern : '车牌号由5位的数字字母组合'
+               },
+               car_type: {
+                required: '请选择车辆类型'
+              }
+            }
+        });
+    });
+    
+    
+  //######################################地址页面联动#################
+    function pro_plate_relevance(plate_number , pro_city){
+    	//alert('state===='+plate_number+'\n'+'value===='+pro_city)
+    	var plate_number =plate_number;
+    	var plate_short_list=plate_number.split(" ");
+    	var plate_short = plate_short_list[0];
+		var pro_city =pro_city;
+		var pro_name_list=pro_city.split(" ");
+		var pro_name = pro_name_list[0];
+		
+		var pro_list=new Array()
+		pro_list=[
+		          ["京","北京市",'11',"北京市"],["津","天津市",'12',"天津市"],["冀","河北省",'13',"石家庄市"],["晋","山西省",'14',"太原市"],["蒙","内蒙古自治区",'15',"呼和浩特市"],
+		          ["辽",'辽宁省','21',"沈阳市"],["吉","吉林省",'22',"吉林市"],["黑","黑龙江省",'23',"哈尔滨市"],
+		          ["沪","上海市",'31',"上海市"],["苏","江苏省",'32',"南京市"],["浙","浙江省",'33',"杭州市"],["皖","安徽省",'34',"合肥市"],
+		          ["闽","福建省",'35',"福州市"],["赣","江西省",'36',"南昌市"],["鲁","山东省",'37',"济南市"],
+		          ["豫","河南省",'41',"郑州市"], ["鄂","湖北省",'42',"武汉市"],["湘","湖南省",'43',"长沙市"],["粤","广东省",'44',"广州市"],["桂","广西壮族自治区",'45',"南宁市"],["琼","海南省",'46',"海口市"],
+		          ["渝","重庆市",'50',"重庆市"],["川","四川省",'51',"成都市"],["贵","贵州省",'52',"贵阳市"],["云","云南省",'53',"昆明市"],["藏","西藏自治区",'54',"拉萨市"],
+		          ["陕","陕西省",'61',"西安市"],["甘","甘肃省",'62',"兰州市"],["青","青海省",'63',"西宁市"],["宁","宁夏回族自治区",'64',"银川市"],["新","新疆维吾尔自治区",'65',"乌鲁木齐市"],
+		          ];
+		for(detail in pro_list){
+			//省-车-牌联动
+			if (pro_name != ''){
+				if (pro_name == pro_list[detail][1] ){
+					var plate_short = pro_list[detail][0]+ ' '+'A'
+					$("#short").val(plate_short);
+					break;
+				}
+			}
+			if (plate_short != ''){
+				if (plate_short == pro_list[detail][0] ){
+					var pro_name_detail = pro_list[detail][1]+ ' '+pro_list[detail][3]
+					$("#wx_home_city").val(pro_name_detail);
+					break;
+				}
+			}
+			
+		}
+    	
+    }
+    </script>
+
+{% endblock %}

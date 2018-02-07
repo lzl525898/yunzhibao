@@ -1,0 +1,140 @@
+{% extends 'bms/user/base_user.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block user_claim %}class='active'{% endblock %}
+{% block title %} 司机详情 {% endblock %}
+
+{% block page_top %}
+
+<div class="row">
+        <div class="col-sm-12">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+{#                        <i class="fa fa-edit fa-3x pull-right"></i>#}
+                        <h1>{{ claim.name }}</h1>
+                            <p>创建时间：{{ claim.create_time|date:'Y年m月d日 H:i:s'  }}</p>
+{#                        <hr/>#}
+{#                            <p>姓名：{{ claim.name }}</p>#}
+{#                            <p class="pull-left">身份证：{{ claim.national_id }}</p>#}
+{#                            <div class="pull-left">&nbsp;&nbsp;&nbsp;&nbsp;</div>#}
+{#                            <a onclick="look_photo('{{ claim.national_image }}')" class="pull-left pointer"><i class="fa fa-eye"></i>查看照片</a>#}
+{#                            <div class="clearfix"></div>#}
+{#                            <p class="pull-left">驾驶证号：{{ claim.claim_id }}</p>#}
+{#                            <div class="pull-left">&nbsp;&nbsp;&nbsp;&nbsp;</div>#}
+{#                            <a onclick="look_photo('{{ claim.claim_image }}')" class="pull-left pointer"><i class="fa fa-eye"></i>查看照片</a>#}
+{#                            <div class="clearfix"></div>#}
+{#                            <p class="pull-left">车牌号：{{ claim.plate_number }}</p>#}
+{#                            <div class="pull-left">&nbsp;&nbsp;&nbsp;&nbsp;</div>#}
+{#                            <a onclick="look_photo('{{ claim.plate_image }}')" class="pull-left pointer"><i class="fa fa-eye"></i>查看照片</a>#}
+{#                            <div class="clearfix"></div>#}
+{#                            <p class="pull-left">营运许可证：{{ claim.transportation_license_id }}</p>#}
+{#                            <div class="pull-left">&nbsp;&nbsp;&nbsp;&nbsp;</div>#}
+{#                            <a onclick="look_photo('{{ claim.transportation_image }}')" class="pull-left pointer"><i class="fa fa-eye"></i>查看照片</a>#}
+{#                            <div class="clearfix"></div>#}
+                        <hr/>
+
+                        {% if message %}
+                            <div class="alert alert-warning">
+                                <p class="text-center">{{ message }}</p>
+                            </div>
+                        {% endif %}
+
+                        <form id="claim_edit_form" method="post" action="{% url 'bms:claim_edit' claim.id %}"  enctype="multipart/form-data">{% csrf_token %}
+{#                            <input type="text" hidden name="page_index" value="{{ page_index }}"/>#}
+                            <div class="form-group" >
+                                <label for="id_name" ><i class="fa fa-leaf"></i> *姓名： </label>
+                                <input class="form-control"  id="id_name" name="name" type="text" value="{{ claim.name }}" maxlength="16">
+                            </div>
+                            <div class="form-group">
+                                <label for="phone_number" ><i class="fa fa-phone"></i> *手机号码：</label>
+                                <input class="form-control" id="phone_number" name="phone" value="{{ claim.profile.phone|default_if_none:'' }}" type="text"  maxlength="16">
+                            </div>
+
+                            <div class="form-group" >
+                                <label for="id_company_id"><i class="fa fa-film"></i> *归属于保险公司： </label>
+                                <select class="form-control" id="id_company_id" name="company_id">
+                                      {% for company in companys %}
+                                        <option value="{{ company.id }}" {% if claim.company.id|toString == company.id|toString %} selected {% endif %}>{{ company.simple_name }}</option>
+                                      {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="password" ><i class="fa fa-lock"></i> 更改密码：</label>
+                                <input class="form-control" id="password" name="password"  type="password" maxlength="20"value="" >
+                            </div>
+                            <div class="form-group" >
+                                <label for="id_password"><i class="fa fa-lock"></i> *确认密码： </label>
+                                <input class="form-control" id="id_re_password" name="re_password"  type="password" maxlength="20"  >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="id_channel"><i class="fa fa-life-bouy"></i> 是否激活： </label>
+                                <div class="">
+                                    <label class="radio-inline">
+                                      <input type="radio" name="active" id="id_show" value="show" {% if claim.user.is_active %}checked {% endif %}> 激活
+                                    </label>
+                                    <label class="radio-inline">
+                                      <input type="radio" name="active" id="id_hidden" value="hidden" {% if not claim.user.is_active %}checked {% endif %}> 不激活
+                                    </label>
+                                </div>
+                            </div>
+
+{#                            <a class="btn btn-danger" data-toggle="modal" data-target="#delete_registered_modal"><i class="fa fa-trash"></i> 删 除</a>#}
+                            <button type="submit" class="btn btn-success"><i class="fa fa-floppy-o"></i> 保 存</button>
+                            <button class="btn btn-default" onclick="history.back()" ><i class="fa fa-times"></i> 返 回</button>
+                        </form>
+
+
+                    </div>
+                </div>
+
+       </div>
+    </div>
+
+
+
+
+{#照片模态框#}
+{#<div class="modal fade" id="look_photo_modal" data-backdrop="static" tabindex="-1" role="dialog">#}
+{#	<div class="modal-dialog">#}
+{#		<form id="" class="form" method="post" action="">{% csrf_token %}#}
+{#			<div class="modal-content">#}
+{#				<div class="modal-header">#}
+{#					<button type="button" class="close" data-dismiss="modal">#}
+{#						<span aria-hidden="true">&times;</span>#}
+{#						<span class="sr-only">#}
+{#							Close#}
+{#						</span>#}
+{#					</button>#}
+{#					<h4 class="modal-title">#}
+{#						<i class="fa fa-save">#}
+{#						</i>#}
+{#						照片#}
+{#					</h4>#}
+{#				</div>#}
+{#				<div class="modal-body">#}
+{#					<div class="">#}
+{#                        <img class="img-responsive center-block" id="id_image" src="">#}
+{#					</div>#}
+{#				</div>#}
+{#				<div class="modal-footer">#}
+{#					<button type="button" class="btn btn-default" data-dismiss="modal">#}
+{#						<i class="fa fa-times">#}
+{#						</i>#}
+{#						退 出#}
+{#					</button>#}
+{#				</div>#}
+{#			</div>#}
+{#    	</form>#}
+{#	</div>#}
+{#</div>#}
+
+
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+
+    </script>
+{% endblock %}

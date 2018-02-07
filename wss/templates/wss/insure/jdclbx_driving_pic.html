@@ -1,0 +1,153 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}我的{% endblock %}
+
+{% block container_block %}
+{#    首页所在位置，进入页面后的默认页面#}
+<!--  <div class="wss_title" ><i class="fa   fa-picture-o"></i> &nbsp; <strong>车次清单图片</strong></div> -->
+<div class="top">
+		<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+			<tbody>
+				<tr>
+						<td width="23%" valign="middle">
+							   <a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a> 
+						</td>
+						<td class="wz" width="53%" valign="middle" align="center">
+								<span id="toptitle">
+										<i class="fa    fa-picture-o"></i>&nbsp;
+										<strong>
+											{% if picture_type  == 'plate' %}
+											行驶证正页和附页
+											{% elif picture_type  == 'tbr_id_card' %}
+											投保人身份证
+											{% elif picture_type  == 'tbr_license_image' %}
+											投保人营业执照
+											{% elif picture_type  == 'bbr_id_card' %}
+											被保人身份证
+											{% elif picture_type  == 'bbr_license_image' %}
+											被保人营业执照
+											{% elif picture_type  == 'syx_picture' %}
+											商业险保单详情
+											{% elif picture_type  == 'jqx_picture' %}
+											交强险保单详情
+											{% endif %}
+										</strong>
+								</span>
+						</td>
+						<td width="23%" valign="middle" align="right">
+						<a id="aso" href="#"></a>
+						</td>
+				</tr>
+			</tbody>
+		</table>
+ </div>
+ <div class="weui_cells" style="padding-top:20px;"></div>
+ <!--*******************************行驶证  *********************************************************************************-->
+{% if picture_type  == 'plate' %}
+     {% if  order.plate_image_left %}
+		     <div class="" style="margin-top: 10px;height:100%;">
+		             <div class="weui_cells_title" style="text-align: center;">行驶证正页图片</div>
+				      <div class="weui_cell">   
+				        <img src="{% static '' %}{{ order.plate_image_left }}" style="max-width: 350px;max-height: 300px;display:block;text-align:center;margin-right: auto;margin-left: auto;">
+				      </div>
+				    </div>
+ 	  {% endif %}
+      {% if  order.plate_image_right %}   
+           <div class="" style="margin-top: 10px;height:100%;">
+                <div class="weui_cells_title"style="text-align: center;">行驶证附页图片</div>
+			    <div class="weui_cell">
+			        <img src="{% static '' %}{{ order.plate_image_right}}" style="max-width: 350px;max-height: 300px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+			    </div>
+           </div>
+      {% endif %}
+{% endif %}
+<!--*******************************************************投保人身份证*********************************************************  --> 
+{% if   picture_type|toString  ==  'tbr_id_card'|toString  %} 
+		     <div class="" style="margin-top: 10px;height:100%;">
+		             <div class="weui_cells_title" style="text-align: center;">投保人身份证正面图片</div>
+				      <div class="weui_cell">   
+				        <img src="{% static '' %}{{ order.id_card_up }}" style="max-width: 350px;max-height: 300px;display:block;text-align:center;margin-right: auto;margin-left: auto;">
+				      </div>
+				    </div>
+           <div class="" style="margin-top: 10px;height:100%;">
+                <div class="weui_cells_title"style="text-align: center;">投保人身份证背面图片</div>
+			    <div class="weui_cell">
+			        <img src="{% static '' %}{{ order.id_card_down}}" style="max-width: 350px;max-height: 300px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+			    </div>
+           </div>
+{% endif %}
+<!--******************************************************投保人营业执照*************************************************************  -->  
+{% if   picture_type == 'tbr_license_image' %} 
+	      <div class="" style="margin-top: 10px;height:100%;">
+	            <div class="weui_cells_title" style="text-align: center;">投保人营业执照图片</div>
+			      <div class="weui_cell">   
+			        <img src="{% static '' %}{{ order.business_license_image }}" style="max-width: 350px;max-height: 300px;display:block;text-align:center;margin-right: auto;margin-left: auto;">
+			      </div>
+		  </div>
+{% endif %}
+<!--********************************************************被保人身份证*****************************************************************  -->   
+{% if   picture_type == 'bbr_id_card' %} 
+		  <div class="" style="margin-top: 10px;height:100%;">
+		             <div class="weui_cells_title" style="text-align: center;">被保人身份证正面图片</div>
+				      <div class="weui_cell">   
+				        <img src="{% static '' %}{{ order.insured_card_up }}" style="max-width: 350px;max-height: 300px;display:block;text-align:center;margin-right: auto;margin-left: auto;">
+				      </div>
+				    </div>
+           <div class="" style="margin-top: 10px;height:100%;">
+                <div class="weui_cells_title"style="text-align: center;">被保人身份证背面图片</div>
+			    <div class="weui_cell">
+			        <img src="{% static '' %}{{ order.insured_card_down}}" style="max-width: 350px;max-height: 300px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+			    </div>
+           </div>
+{% endif %}
+<!--****************************************************被保人营业执照 ************************************************* -->  
+{% if   picture_type == 'bbr_license_image' %} 
+	      <div class="" style="margin-top: 10px;height:100%;">
+	            <div class="weui_cells_title" style="text-align: center;">被保人营业执照图片</div>
+			      <div class="weui_cell">   
+			        <img src="{% static '' %}{{ order.insured_license_image }}" style="max-width: 350px;max-height: 300px;display:block;text-align:center;margin-right: auto;margin-left: auto;">
+			      </div>
+		  </div>
+{% endif %}	  
+	  
+<!--****************************************************商业险保单详情 ************************************************* -->  
+{% if   picture_type == 'syx_picture' %} 
+		{% if order.commercial_up_state == 'picture' %}
+			{% for image_detail in order.commercial_image_list %}
+		      <div class="" style="margin-top: 10px;height:100%;">
+		            <div class="weui_cells_title" style="text-align: center;">商业险保单图片</div>
+				      <div class="weui_cell">   
+				        <img src="{% static '' %}{{ image_detail }}" style="max-width: 350px;max-height: 300px;display:block;text-align:center;margin-right: auto;margin-left: auto;">
+				      </div>
+			  </div>
+			  {% endfor %}
+		{% endif %}
+{% endif %}			
+<!--****************************************************交强险保单详情 ************************************************* -->  
+{% if   picture_type == 'jqx_picture' %} 
+		{% if order.liability_up_state == 'picture' %}
+			{% for image_detail in order.liability_image_list %}
+		      <div class="" style="margin-top: 10px;height:100%;">
+		            <div class="weui_cells_title" style="text-align: center;">交强险保单图片</div>
+				      <div class="weui_cell">   
+				        <img src="{% static '' %}{{ image_detail }}" style="max-width: 350px;max-height: 300px;display:block;text-align:center;margin-right: auto;margin-left: auto;">
+				      </div>
+			  </div>
+			  {% endfor %}
+		{% endif %}
+{% endif %}	 	  
+
+
+      
+
+  
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+{% endblock %}

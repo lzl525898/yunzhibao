@@ -1,0 +1,205 @@
+{% extends 'bms/user/base_user.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block user_certificate %}class='active'{% endblock %}
+{% block title %} 认证列表 {% endblock %}
+
+{% block page_top %}
+    <div class="row">
+        <div class="col-sm-12">
+            <form id="certificate_search_form" class="form-inline" role="form" method="post" action="{% url 'bms:certificate_list' '1' %}"> {% csrf_token %}
+                <div class="input-group">
+                    <label class="sr-only" for="management_reverse_search">management_reverse_search</label>
+                    <input type="text" class="form-control" id="search_keyword" placeholder="请输入搜索关键字" name="search_keyword" value="{{ search_keyword }}" maxlength="30">
+                </div>
+                <div class="input-group">
+                    <span class="input-group-btn">
+                        <button type="submit" class="btn btn-default"><i class="fa fa-search"></i> 搜索</button>
+                        <button id="cancel_search" type="button" class="btn btn-default"><i class="fa fa-times"></i> 取消</button>
+                    </span>
+                </div>
+                <div class="input-group">
+                    <label for="id_certification_goal" class="input-group-addon">认证目标：</label>
+                    <select id="id_certification_goal" name="certification_goal" class="input-group-addon" onchange="change_state()">
+                        <option value="" >全部</option>
+                        <option value="transport" {% if get_data.certification_goal == "transport" %} selected {% endif %}>物流公司</option>
+                        <option value="driver" {% if get_data.certification_goal == "driver" %} selected {% endif %} >司机</option>
+                        <option value="boss" {% if get_data.certification_goal == "boss" %} selected {% endif %} >货主</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="id_state" class="input-group-addon">状态：</label>
+                    <select id="id_state" name="state" class="input-group-addon" onchange="change_state()">
+                        <option value="" >全部</option>
+                        <option value="init" {% if get_data.state == "init" %} selected {% endif %}>待审核</option>
+                        <option value="success" {% if get_data.state == "success" %} selected {% endif %}>已审核</option>
+                        <option value="fail" {% if get_data.state == "fail" %} selected {% endif %}>已退回</option>
+{#                        <option value="done" {% if get_data.state == "done" %} selected {% endif %}>已完成</option>#}
+{#                        <option value="cancel" {% if get_data.state == "cancel" %} selected {% endif %}>已取消</option>#}
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-sm-12">
+            {% if search_keyword %}
+            <p></p>
+            <div class="alert alert-warning">
+                <p>关键字： “{{ search_keyword }}”， 搜索结果：{{ paging.item_count }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-8">
+        {% if paging.total_pages_count > 0 %}
+            <ul class="pagination">
+                <li><a href="javascript:;" onclick='$("#choose_prev_page").submit();'>&laquo;</a></li>
+                {% for page in paging.pages %}
+                    <li {% if page == paging.page_index %}class="active"{% endif %}><a href="javascript:;" onclick='$("#choose_page_{{page}}").submit();'>{{ page }}</a></li>
+                    <form id="choose_page_{{page}}" class="hidden" role="" method="post" action="{% url 'bms:certificate_list' page %}"> {% csrf_token %}
+		                <input type="hidden"  name="search_keyword"{% if search_keyword %} value="{{search_keyword}}"{% else %}value=""{% endif %}>
+		                <input type="hidden"  name="certification_goal"{% if get_data.certification_goal %} value="{{get_data.certification_goal }}"{% else %}value=""{% endif %}>
+		                <input type="hidden"  name="state"{% if get_data.state %} value="{{get_data.state}}"{% else %}value=""{% endif %}>
+		                <input type="submit" name="argsubmit" style="display:none"/>
+	         </form>  
+                {% endfor %}
+                <li><a href="javascript:;" onclick='$("#choose_next_page").submit();'>&raquo;</a></li>
+                <div class="clearfix"></div>
+                <p>
+                    第{{ paging.page_index }}页/共{{ paging.total_pages_count }}页 &nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <a href="javascript:;" onclick='$("#first_page").submit();'>首页</a> / <a href="javascript:;" onclick='$("#last_page").submit();'>尾页</a>
+                </p>
+            </ul>
+                    {#*****************************上一页搜索表单******************#}
+			<form id="choose_prev_page" class="hidden" role="" method="post" action="{% url 'bms:certificate_list' paging.prev_page %}"> {% csrf_token %}
+		                <input type="hidden"  name="search_keyword"{% if search_keyword %} value="{{search_keyword}}"{% else %}value=""{% endif %}>
+		                <input type="hidden"  name="certification_goal"{% if get_data.certification_goal %} value="{{get_data.certification_goal }}"{% else %}value=""{% endif %}>
+		                <input type="hidden"  name="state"{% if get_data.state %} value="{{get_data.state}}"{% else %}value=""{% endif %}>
+		                <input type="submit" name="argsubmit" style="display:none"/>
+	         </form>   
+            {#*****************************下一页搜索表单******************#}
+			<form id="choose_next_page" class="hidden" role="" method="post" action="{% url 'bms:certificate_list' paging.next_page %}"> {% csrf_token %}
+		                <input type="hidden"  name="search_keyword"{% if search_keyword %} value="{{search_keyword}}"{% else %}value=""{% endif %}>
+		                <input type="hidden"  name="certification_goal"{% if get_data.certification_goal %} value="{{get_data.certification_goal }}"{% else %}value=""{% endif %}>
+		                <input type="hidden"  name="state"{% if get_data.state %} value="{{get_data.state}}"{% else %}value=""{% endif %}>
+		                <input type="submit" name="argsubmit" style="display:none"/>
+	         </form> 
+            {#*****************************首页搜索表单******************#}
+			<form id="first_page" class="hidden" role="" method="post" action="{% url 'bms:certificate_list' 1 %}"> {% csrf_token %}
+		               <input type="hidden"  name="search_keyword"{% if search_keyword %} value="{{search_keyword}}"{% else %}value=""{% endif %}>
+		                <input type="hidden"  name="certification_goal"{% if get_data.certification_goal %} value="{{get_data.certification_goal }}"{% else %}value=""{% endif %}>
+		                <input type="hidden"  name="state"{% if get_data.state %} value="{{get_data.state}}"{% else %}value=""{% endif %}>
+		                <input type="submit" name="argsubmit" style="display:none"/>
+	         </form> 
+            {#*****************************尾页搜索表单******************#}
+			<form id="last_page" class="hidden" role="" method="post" action="{% url 'bms:certificate_list' paging.total_pages_count %}"> {% csrf_token %}
+		                <input type="hidden"  name="search_keyword"{% if search_keyword %} value="{{search_keyword}}"{% else %}value=""{% endif %}>
+		                <input type="hidden"  name="certification_goal"{% if get_data.certification_goal %} value="{{get_data.certification_goal }}"{% else %}value=""{% endif %}>
+		                <input type="hidden"  name="state"{% if get_data.state %} value="{{get_data.state}}"{% else %}value=""{% endif %}>
+		                <input type="submit" name="argsubmit" style="display:none"/>
+	         </form> 
+            
+            
+        {% endif %}
+        </div>
+        <div class="col-sm-4">
+            <br/><br/>
+{#            <a class="btn btn-primary pull-right" href="{% url 'bms:certificate_create' %}"><i class="fa fa-plus"></i> 创建客户</a>#}
+        </div>
+
+    </div>
+{% endblock %}
+
+
+{% block page_middle %}
+    {% if message and message != '' %}
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="alert alert-warning">{{ message }}</div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="list-group" id="notice_group">
+                <input type="hidden" id="page_index" name="page_index" value="{{ page_index }}"/>
+                    <div class="list-group-item">
+                        <div class="row" >
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text">认证目标</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text">公司名称</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text">姓名</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text">手机号</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text">提交时间</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text">认证状态</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% for certificate in certificates %}
+                        <a href="{% url 'bms:certificate_detail' certificate.id %}" class="list-group-item">
+                            <div class="row">
+                                <div class="col-sm-2">
+                                    <p class="list-group-item-text"><strong>{{ certificate|displayName:'user_type' }}</strong></p>
+                                </div>
+                                <div class="col-sm-2">
+                                    <p class="list-group-item-text"><strong>{{ certificate.company_name|DefaultIfNull:'暂无' }}</strong></p>
+                                </div>
+                                <div class="col-sm-2">
+                                    <p class="list-group-item-text"><strong>{{ certificate.name|DefaultIfNull:'未认证' }}</strong></p>
+                                </div>
+                                <div class="col-sm-2">
+                                    <p class="list-group-item-text"><strong>{{ certificate.client.profile.phone }}</strong></p>
+                                </div>
+                                <div class="col-sm-2">
+                                    <p class="list-group-item-text">{{ certificate.create_time|date:'Y年m月d日 H:i:s' }}</p>
+                                </div>
+                                <div class="col-sm-2">
+                                    <p class="list-group-item-text">{{ certificate|displayName:'state' }}</p>
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+       </div>
+    </div>
+{% endblock %}
+
+{% block page_bottom %}
+
+
+
+{% endblock %}
+
+
+{% block script_block %}
+    <script type="text/javascript">
+
+        //“全部”按钮的响应事件，清空搜索关键字，然后提交搜索
+        $('#cancel_search').click(function(event) {
+            console.log("click cancel_search");
+            $('#search_keyword').val('');
+            $('#certificate_search_form').submit();
+          });
+
+        function change_state(){
+            $('#certificate_search_form').submit();
+        }
+    </script>
+{% endblock %}

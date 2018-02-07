@@ -1,0 +1,32 @@
+{% extends 'bms/settings/base_settings.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block level_2 %} in {% endblock %}
+{% block debug_base %}class='active'{% endblock %}
+
+
+{% block page_middle %}
+<div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+            <h2 class="text-center">调试模式</h2>
+            <table class="table table-bordered">
+                 <tr>
+                    <td class="info text-center"><label id="id_label_DEBUG">调试模式</label></td>
+                    <td class="text-center">
+                        <div class="row">
+                           <div class="col-sm-10">
+                                <label id="id_DEBUG" >{{ DEBUG|showValue }}</label>
+                           </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-sm-2"></div>
+</div>
+{% endblock %}
+
+{% block script_block %}
+
+{% endblock %}

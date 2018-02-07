@@ -1,0 +1,167 @@
+{% extends 'bms/product/base_product.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block insurance_coupon %}class='active'{% endblock %}
+{% block title %} 编辑优惠券 {% endblock %}
+
+{% block page_top %}
+<div class="row">
+        <div class="col-sm-10">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <i class="fa fa-plus fa-3x pull-right"></i>
+                    <form role="form" id="edit_coupon_form" method="post" action="{% url 'bms:coupon_edit' coupon.id %}"  enctype="multipart/form-data">  {% csrf_token %}
+
+                        <div class="page-tailer">
+                          <h1 class="text-center">编辑优惠券</h1>
+                        </div>
+                        {% if message and message != '' %}
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="alert alert-warning">{{ message }}</div>
+                                </div>
+                            </div>
+                        {% endif %}
+						<div class="form-group" >
+							<label for="id_name"><i class="fa fa-user"></i> *优惠卷名称： </label>
+							<input class="form-control"  id="id_name" name="name" type="text"
+								   value="{{ coupon.name }}" required >
+						</div>
+						<div class="form-group" >
+							<label for="id_describe"><i class="fa fa-user"></i> *描述： </label>
+							<input class="form-control"  id="id_describe" name="describe" type="text"
+								   value="{{ coupon.describe }}" maxlength="100" required >
+						</div>
+                        <div class="form-group" >
+                            <label for="id_product_id"><i class="fa fa-film"></i> *产品： </label>
+                            <select class="form-control" id="id_product_id" name="product_id">
+                                <option value="">请选择</option>
+                                  {% for product in products %}
+                                    <option value="{{ product.id }}" {% if coupon.product == product %} selected {% endif %}>{{ product.name }}</option>
+                                  {% endfor %}
+                            </select>
+                        </div>
+						<div class="form-group" >
+							<label for="id_end_date"><i class="fa fa-user"></i> *截止日期： </label>
+							<input class="form-control"  id="id_end_date" name="end_date" type="date"
+								   value="{{ coupon.end_date|date:'Y-m-d' }}" maxlength="100" required >
+						</div>
+{#						<div class="form-group" >#}
+{#							<label for="id_max_count"><i class="fa fa-user"></i> *优惠卷使用次数上限<small>(默认-1，若为负数则表示不限制使用次数)</small>： </label>#}
+{#							<input class="form-control"  id="id_max_count" name="max_count" type="text"#}
+{#								   value="{{ coupon.max_count }}" maxlength="100" required >#}
+{#						</div>#}
+{#						<div class="form-group" >#}
+{#							<label for="id_min_price"><i class="fa fa-user"></i> *最低消费<small>(负数则表示不限制)</small>： </label>#}
+{#							<input class="form-control"  id="id_min_price" name="min_price" type="text"#}
+{#								   value="{{ coupon.min_price }}" maxlength="100" required >#}
+{#						</div>#}
+{#						<div class="form-group" >#}
+{#							<label for="id_max_price"><i class="fa fa-user"></i> *最大优惠金额<small>(默认-1，若为负数则表示不限制)</small>： </label>#}
+{#							<input class="form-control"  id="id_max_price" name="max_price" type="text"#}
+{#								   value="{{ coupon.max_price }}" maxlength="100" required >#}
+{#						</div>#}
+						<div class="form-group" >
+							<label for="id_rate"><i class="fa fa-user"></i> *优惠比例<small>(如8折，此处为0.2)</small>： </label>
+							<input class="form-control"  id="id_rate" name="rate" type="text"
+								   value="{{ coupon.rate }}" maxlength="100" required >
+						</div>
+
+                        <div class="form-group">
+                            <label for="id_channel"><i class="fa fa-life-bouy"></i> 是否显示： </label>
+                            <div class="">
+                                <label class="radio-inline">
+                                  <input type="radio" name="active" id="id_show" value="show" {% if coupon.active == 'show' or not coupon.is_hidden %}checked{% endif %}> 显示
+                                </label>
+                                <label class="radio-inline">
+                                  <input type="radio" name="active" id="id_hidden" value="hidden" {% if coupon.active == 'hidden' or coupon.is_hidden %}checked{% endif %}> 隐藏
+                                </label>
+                            </div>
+                        </div>
+                        <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 保 存</button>
+                        <a class="btn btn-default" href="{% url 'bms:coupon_list' '1' %}"><i class="fa fa-times"></i> 返 回</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2"></div>
+</div>
+
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+       $(function(){
+
+            $('#edit_coupon_form').formValidation({
+                // I am validating Bootstrap form
+                framework: 'bootstrap',
+                locale : 'zh_CN',
+                // Feedback icons
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+
+                // List of fields and their validation rules
+                fields: {
+                    name: {
+                        validators: {
+                            notEmpty: {
+                                message: '优惠券名称不可为空'
+                            },
+                            stringLength: {
+                                min: 2,
+                                max: 50,
+                                message: '请输入2～50个字符'
+                            }
+                        }
+                    },
+                    describe: {
+                        validators: {
+                            stringLength: {
+                                max: 500,
+                                message: '最多可输入500字符'
+                            }
+                        }
+                    },
+                    max_count: {
+                        validators: {
+                            regexp: {
+                                regexp: /^-?[1-9]\d*$/,
+                                message: '请填写整数'
+                            }
+                        }
+                    },
+                    min_price: {
+                        validators: {
+                            regexp: {
+                                regexp: /^-?[1-9]\d*$/,
+                                message: '请填写整数'
+                            }
+                        }
+                    },
+                    max_price: {
+                        validators: {
+                            regexp: {
+                                regexp: /^-?[1-9]\d*$/,
+                                message: '请填写整数'
+                            }
+                        }
+                    },
+                    rate: {
+                        validators: {
+                            regexp: {
+                                regexp: /0.[0-9]*[1-9]/,
+                                message: '请填写0-1之间的小数'
+                            }
+                        }
+                    }
+                }
+            });
+
+
+        });
+    </script>
+{% endblock %}

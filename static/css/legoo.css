@@ -1,0 +1,52 @@
+/*使pre能够自动换行*/
+pre {
+ white-space: pre-wrap;
+ word-wrap: break-word;
+}
+/*使table中的info不会换行*/
+table td.info{
+    white-space: nowrap;
+}
+
+/*不会换行*/
+.no-wrap
+{
+    white-space: nowrap;
+}
+
+/*使table中的label自动换行*/
+table tr td label{
+    word-break:break-all;
+}
+/* 使Lable中的内容使用省略号*/
+label.text-ellipsis{
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+/*隐藏*/
+.control-show{
+    display: none;
+}
+.control-hidden{
+    display: none;
+}
+/*小手指*/
+.pointer{
+    cursor: pointer;
+}
+.center{
+  display: block;
+  margin-right: auto;
+  margin-left: auto;
+}
+.sent_code{
+    background: #ffffff;
+}
+.sent_code:hover
+{
+    background: #fb9f32;
+}
+.huise{
+background-color: #f5f5f5;
+}

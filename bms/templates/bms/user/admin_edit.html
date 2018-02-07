@@ -1,0 +1,135 @@
+{% extends 'bms/user/base_user.html' %}
+{% load static %}
+{% if admin.is_superuser %}
+{% block user_admin %}class='active'{% endblock %}
+{% endif %}
+
+{% block title %} 编辑管理员 {% endblock %}
+
+
+
+{% block page_top %}
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <i class="fa fa-edit fa-3x pull-right"></i>
+                    <h1>{{ admin.username }}</h1>
+                        <p>上次登录：{{ admin.last_login|date:'Y年m月d日 H:i:s' }}</p>
+                        <p>创建时间：{{ admin.date_joined|date:'Y年m月d日 H:i:s'  }}</p>
+                    <hr/>
+
+                    {% if alert %}
+                        <div class="alert alert-warning">
+                            <p class="text-center">{{ alert }}</p>
+                        </div>
+                    {% endif %}
+
+                    <form id="admin_edit_form" method="post" action="{% url 'bms:admin_save' admin.id %}">{% csrf_token %}
+                        <div class="form-group" >
+                            <label for="email" ><i class="fa fa-envelope-o"></i> 电子邮件: </label>
+                            <input class="form-control"  id="email" name="email" type="email" value="{{ admin.email|default_if_none:'' }}" maxlength="50">
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class="fa fa-lock"></i> 更改密码：</label>
+                            <input class="form-control" id="password" name="password"  type="password" maxlength="20">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fa fa-lock"></i> 确认密码：</label>
+                            <input class="form-control" id="re_password" name="re_password"  type="password" maxlength="20">
+                        </div>
+                        <div class="form-group" >
+                            <label for="auth" ><i class="fa fa-key"></i> 管理权限： </label>
+                            <input class="form-control"  id="auth" name="auth" type="text"
+                            {% if admin.is_superuser %}value="超级管理员"{% else %}value="管理员"{% endif %} disabled >
+{#                            <p class="text-danger"> {{ alert }}</p>#}
+                        </div>
+
+                        {% if admin.is_superuser == False %}
+                        <div class="form-group">
+                            <label for="id_channel"><i class="fa fa-life-bouy"></i> 是否激活： </label>
+                            <div class="checkbox">
+                                <label><input type="checkbox" name="active" value="true"  {% if admin.is_active %} checked{% endif %}> 激活</label>
+                            </div>
+                        </div>
+                        {% endif %}
+
+{#                        {% if not admin.is_superuser %}#}
+{#                            <a class="btn btn-danger"  data-toggle="modal" data-target="#delete_admin_modal"><i class="fa fa-trash"></i> 删 除</a>#}
+{#                        {% endif %}#}
+                        <button type="submit" class="btn btn-success"><i class="fa fa-floppy-o"></i> 保 存</button>
+            <button class="btn btn-default" onclick="history.back()" ><i class="fa fa-times"></i> 返 回</button>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+     {#删除管理员确认模态框#}
+{#     <div class="modal fade" id="delete_admin_modal" tabindex="-1" role="dialog" >#}
+{#        <div class="modal-dialog">#}
+{#            <form id="delete_comment_form" class="form" method="post" action="#"  >  {% csrf_token %}#}
+{#                <div class="modal-content">#}
+{#                  <div class="modal-header">#}
+{#                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>#}
+{#                    <h4 class="modal-title"><i class="fa fa-trash-o"></i> 删除管理员</h4>#}
+{#                  </div>#}
+{#                  <div class="modal-body">#}
+{#                    <div class="form-group" >#}
+{#                        <label class="control-label">管理员用户删除后不可恢复，是否确认删除？</label>#}
+{#                    </div>#}
+{#                  </div>#}
+{#                  <div class="modal-footer">#}
+{#                    <a class="btn btn-danger" href="{% url 'bms:admin_delete' admin.id %}" onclick="func();this.disabled='disabled'"><i class="fa fa-trash-o"></i> 删 除</a>#}
+{#                    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> 退 出</button>#}
+{#                  </div>#}
+{#                </div>#}
+{#            </form>#}
+{#        </div>#}
+{#     </div>#}
+
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+       $(function(){
+            $('#admin_edit_form').formValidation({
+                // I am validating Bootstrap form
+                framework: 'bootstrap',
+                locale : 'zh_CN',
+                // Feedback icons
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+
+                // List of fields and their validation rules
+                fields: {
+                    password: {
+                        validators: {
+                            stringLength: {
+                                min: 5,
+                                max: 20,
+                                message: '请输入5～20个字符'
+                            }
+                        }
+                    },
+                   email: {
+                        validators: {
+                            stringLength: {
+                                max: 50,
+                                message: '最多输入50个字符'
+                            }
+                        }
+                    }
+                }
+            });
+
+
+        });
+    </script>
+{% endblock %}

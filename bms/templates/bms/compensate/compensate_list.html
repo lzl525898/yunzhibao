@@ -1,0 +1,159 @@
+{% extends 'bms/compensate/base_compensate.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block compensate_compensate %}class='active'{% endblock %}
+{% block title %} 订单列表 {% endblock %}
+
+{% block page_top %}
+    <div class="row">
+        <div class="col-sm-12">
+            <form id="compensate_search_form" class="form-inline" role="form" method="post" action="{% url 'bms:compensate_list' '1' %}"> {% csrf_token %}
+                <div class="input-group">
+                    <input type="text" class="form-control" id="search_keyword" placeholder="请输入关键字" name="search_keyword" value="{{ search_keyword}}" maxlength="30">
+                     <span class="input-group-btn">
+                        <button type="submit" class="btn btn-default"><i class="fa fa-search"></i> 搜索</button>
+                        <button id="cancel_search" type="button" class="btn btn-default"><i class="fa fa-times"></i> 取消</button>
+                    </span>
+                </div>
+                <div class="input-group">
+                    <label for="id_state" class="input-group-addon">显示状态：</label>
+                    <select id="id_state" name="state" class="input-group-addon" onchange="change_state();">
+                        <option value="all">全部</option>
+                        <option value="active" {% if get_data.state == "active" or not get_data %} selected {% endif %}>显示</option>
+                        <option value="hidden" {% if get_data.state == "hidden" %} selected {% endif %}>隐藏</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="id_compensate" class="input-group-addon">受理状态：</label>
+                    <select id="id_compensate" name="compensate_state" class="input-group-addon" onchange="change_state();">
+                        <option value="all_compensate">全部</option>
+                        <option value="init" {% if get_data.pay_state == "init" or not get_data %} selected {% endif %}>已发起</option>
+                        <option value="accept" {% if get_data.pay_state == "accept" %} selected {% endif %}>已受理</option>
+                        <option value="done" {% if get_data.pay_state == "done" %} selected {% endif %}>已结束</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            {% if search_keyword %}
+            <p></p>
+            <div class="alert alert-warning">
+                <p>关键字： “{{ search_keyword }}”， 搜索结果：{{ paging.item_count }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-8">
+        {% if paging.total_pages_count > 0 %}
+            <ul class="pagination">
+                <li><a href="{% url 'bms:compensate_list' paging.prev_page %}">&laquo;</a></li>
+                {% for page in paging.pages %}
+                    <li {% if page == paging.page_index %}class="active"{% endif %}><a href="{% url 'bms:compensate_list' page %}">{{ page }}</a></li>
+                {% endfor %}
+                <li><a href="{% url 'bms:compensate_list' paging.next_page %}">&raquo;</a></li>
+                <div class="clearfix"></div>
+                <p>
+                    第{{ paging.page_index }}页/共{{ paging.total_pages_count }}页 &nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <a href="{% url 'bms:compensate_list' '1' %}">首页</a> / <a href="{% url 'bms:compensate_list' paging.total_pages_count %}">尾页</a>
+                </p>
+            </ul>
+        {% endif %}
+        </div>
+        <div class="col-sm-4">
+            <br/><br/>
+{#            <a class="btn btn-primary pull-right" href="{% url 'bms:compensate_create' %}"><i class="fa fa-plus"></i> 创建订单</a>#}
+        </div>
+
+    </div>
+{% endblock %}
+
+
+{% block page_middle %}
+    {% if message and message != '' %}
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="alert alert-warning">{{ message }}</div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row" style="margin-top: 10px">
+        <div class="col-sm-12">
+            <div class="list-group" id="notice_group">
+                <input type="hidden" id="page_index" name="page_index" value="{{ page_index }}"/>
+                    <div class="list-group-item">
+                        <div class="row" >
+{#                            <div class="col-sm-1">#}
+{#                            </div>#}
+{#                            <div class="col-sm-2">#}
+{#                                <p class="list-group-item-text">认证目标</p>#}
+{#                            </div>#}
+                            <div class="col-sm-3">
+                                <p class="list-group-item-text text-center">保单号</p>
+                            </div>
+                            <div class="col-sm-3">
+                                <p class="list-group-item-text text-center">赔案状态</p>
+                            </div>
+                            <div class="col-sm-3">
+                                <p class="list-group-item-text text-center">显示与隐藏</p>
+                            </div>
+                            <div class="col-sm-3">
+                                <p class="list-group-item-text text-center">创建时间</p>
+                            </div>
+{#                            <div class="col-sm-2">#}
+{#                                <p class="list-group-item-text">认证状态</p>#}
+{#                            </div>#}
+                        </div>
+                    </div>
+                    {% for compensate in compensates %}
+{#                        <a href="" class="list-group-item">#}
+                        <a href="{% url 'bms:compensate_detail' compensate.id %}" class="list-group-item {% if compensate.is_hidden %}list-group-item-danger{% endif %}">
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <p class="list-group-item-text text-center"><strong>{{ compensate.policy.paper_id }}</strong></p>
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="list-group-item-text text-center"><strong>{{ compensate|displayName:'state' }}</strong></p>
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="list-group-item-text text-center">{% if not compensate.is_hidden %}<i class="fa fa-check text-success"></i>{% else %}<i class="fa fa-times text-danger"></i>{% endif %}</p>
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="list-group-item-text text-center">{{ compensate.create_time|date:'Y年m月d日 H:i:s' }}</p>
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+       </div>
+    </div>
+{% endblock %}
+
+{% block page_bottom %}
+
+
+
+{% endblock %}
+
+
+{% block script_block %}
+    <script type="text/javascript">
+
+        //“全部”按钮的响应事件，清空搜索关键字，然后提交搜索
+        $('#cancel_search').click(function(event) {
+            console.log("click cancel_search");
+            $('#search_keyword').val('');
+            $('#compensate_search_form').submit();
+          });
+        function change_state(){
+            $('#compensate_search_form').submit();
+        }
+
+    </script>
+{% endblock %}

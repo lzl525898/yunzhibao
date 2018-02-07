@@ -1,0 +1,75 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}投保{% endblock %}
+
+{% block container_block %}
+{#    首页所在位置，进入页面后的默认页面#}
+
+
+<script  type="text/javascript">
+wx.ready(function () {
+	  // 2.1 监听“分享给朋友”，按钮点击、自定义分享内容及分享结果接口
+	  wx.onMenuShareAppMessage({
+	      title: '物流保险产品超市',
+	      desc: '运之宝”物流服务一站式平台，8种物流相关保险产品供您选择。',
+	      link: '{{main_url}}wss/insure/product_list?referee_id={{ mine_id }}',
+	      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5UZha8Y5GQHtuDY2SkYLSn4zQTo1zJyq0ZZUZib7lI0KyJicxk9qkWAAAePr75jPGu3w4zWMicibsaw7MA/0?wx_fmt=png',
+	    });
+	  
+	 //  2.2 监听“分享到朋友圈”按钮点击、自定义分享内容及分享结果接口
+	 wx.onMenuShareTimeline({
+	      title: '物流保险产品超市',
+	      link:'{{main_url}}wss/insure/product_list?referee_id={{ mine_id }}',
+	      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5UZha8Y5GQHtuDY2SkYLSn4zQTo1zJyq0ZZUZib7lI0KyJicxk9qkWAAAePr75jPGu3w4zWMicibsaw7MA/0?wx_fmt=png',
+	    });  
+});
+</script>
+   <!--  <div class="weui_cells_title hd" style="text-align: center;">产品</div>
+        <div class="weui_cells_title">产品列表</div> -->
+        <!-- <div class="wss_title" ><i class="fa   fa-navicon"></i> &nbsp; <strong>{{product_type_name}}产品</strong></div> -->
+        <div class="top">
+			<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+				<tbody>
+					<tr>
+							<td width="23%" valign="middle">
+									<a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a>
+							</td>
+							<td class="wz" width="53%" valign="middle" align="center">
+									<span id="toptitle">
+											<i class="fa   fa-navicon"></i>&nbsp;<strong>{{product_type_name}}产品</strong>
+									</span>
+							</td>
+							<td width="23%" valign="middle" align="right">
+							<a id="aso" href="#"></a>
+							</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+        <div class="weui_cells weui_cells_access" style="padding-top:30px;">
+        {% if not insurance_product_set%}
+        <div>
+        <h1>未找到对应产品</h1>
+        </div>
+        {% endif %}
+            {% for insurance_product in insurance_product_set%}
+            <a class="weui_cell"  href="{% url 'wss:product_detial'  insurance_product.id %}">
+            	 <div class="weui_cell_hd" style="color:#c7e4b0;"><i class="fa fa-sign-out"></i></div>
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p class="wss_p">{{insurance_product.name}}</p>
+                </div>
+                <div class="weui_cell_ft"></div>
+            </a>
+            <div  class="wss_dashed" style="border-top: 0px dashed #CACACA;"></div>
+            {% endfor %}
+        </div>
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+{% endblock %}

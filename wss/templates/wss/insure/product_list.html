@@ -1,0 +1,73 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}风控产品{% endblock %}
+
+{% block container_block %}
+{#    首页所在位置，进入页面后的默认页面#}
+
+
+<script  type="text/javascript">
+wx.ready(function () {
+	  // 2.1 监听“分享给朋友”，按钮点击、自定义分享内容及分享结果接口
+	  wx.onMenuShareAppMessage({
+	      title: '物流保险产品超市',
+	      desc: '运之宝”物流服务一站式平台，8种物流相关保险产品供您选择。',
+	      link: '{{main_url}}wss/insure/product_list?referee_id={{ mine_id }}',
+	      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5UZha8Y5GQHtuDY2SkYLSn4zQTo1zJyq0ZZUZib7lI0KyJicxk9qkWAAAePr75jPGu3w4zWMicibsaw7MA/0?wx_fmt=png',
+	    });
+	  
+	 //  2.2 监听“分享到朋友圈”按钮点击、自定义分享内容及分享结果接口
+	 wx.onMenuShareTimeline({
+	      title: '物流保险产品超市',
+	      link:'{{main_url}}wss/insure/product_list?referee_id={{ mine_id }}',
+	      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5UZha8Y5GQHtuDY2SkYLSn4zQTo1zJyq0ZZUZib7lI0KyJicxk9qkWAAAePr75jPGu3w4zWMicibsaw7MA/0?wx_fmt=png',
+	    });  
+});
+
+
+</script>
+  <div class="wss_title" ><i class="fa   fa-navicon"></i> &nbsp; <strong>风控产品列表</strong></div>
+  <div class="bd">
+    <div class="weui_grids">
+    {% for product in product_kinds_list %}
+     {% if product.0 == "ywx" %}
+     	  	    <a href="{% url 'wss:product_ywx_list'    %}?referee_id={{ referee_id }}" class="weui_grid">
+	            <div class="weui_grid_icon" style="height:50px;width:50px;background:url(/static/pic/default/background.png) no-repeat;background-size:100% 100%;background-position: center;  ">
+	             <img class="img-responsive center-block" src="{% static '' %}{{ product.1 }}" />
+	            </div>
+	           <p class="weui_grid_label">{{product.0 |WXProductType }}</p>
+	        </a>
+	  {% elif product.0 == "jdclbx" %}
+	  	   <a href="{% url 'wss:auto_insurance_first' %}?referee_id={{ referee_id }}" class="weui_grid">
+	            <div class="weui_grid_icon" style="height:50px;width:50px;background:url(/static/pic/default/background.png) no-repeat;background-size:100% 100%;background-position: center;  ">
+	             <img class="img-responsive center-block" src="{% static '' %}{{ product.1 }}" />
+	            </div>
+	           <p class="weui_grid_label">{{product.0 |WXProductType }}</p>
+	        </a>
+	  {% else %}
+	    <a href="{% url 'wss:introduce_product'  product.0  %}?referee_id={{ referee_id }}" class="weui_grid">
+	            <div class="weui_grid_icon" style="height:50px;width:50px;background:url(/static/pic/default/background.png) no-repeat;background-size:100% 100%;background-position: center;  ">
+	            <img class="img-responsive center-block" src="{% static '' %}{{ product.1 }}" />
+	            </div>
+	           <p class="weui_grid_label">{{product.0 |WXProductType}}</p>
+	        </a>
+	  {% endif %}
+	  
+    {% endfor %}
+    </div>
+</div>
+
+<!-- ************************************ 申请分期**************************************-->
+<!--     <div style=" width: 100%; position: fixed;  bottom: 0px;z-index: 1024;">
+    	  <a href="{% url 'wss:test_apply' %}?referee_id={{ referee_id }}" class="weui_btn weui_btn_primary" style="margin-top: 20px">申请分期</a>
+    </div> -->
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+{% endblock %}

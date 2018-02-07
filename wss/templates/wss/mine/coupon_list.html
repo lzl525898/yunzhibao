@@ -1,0 +1,57 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}我的{% endblock %}
+
+{% block container_block %}
+{#    首页所在位置，进入页面后的默认页面#}
+<!-- <div class="weui_cells_title hd" style="text-align: center;">我的优惠券</div> -->
+    <div class="top">
+		<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+			<tbody>
+				<tr>
+						<td width="23%" valign="middle">
+							   <a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a> 
+						</td>
+						<td class="wz" width="53%" valign="middle" align="center">
+								<span id="toptitle">
+										<i class="fa  fa-file-text"></i>&nbsp;<strong>我的优惠券</strong>
+								</span>
+						</td>
+						<td width="23%" valign="middle" align="right">
+						<a id="aso" href="#"></a>
+						</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+    {% if client_coupons %}
+        <div class="weui_cells weui_cells_access" style="padding-top:30px;">
+            {% for usecoupon in client_coupons %}
+                    <a class="weui_cell wss_p" href="{% url 'wss:coupon_detail' usecoupon.coupon.id %}">
+                        <div class="weui_cell_hd">
+                            <p style="color:#CACACA">【{{forloop.counter }}】</p>
+                        </div>
+                        <div class="weui_cell_bd weui_cell_primary">
+                            <p>{{ usecoupon.coupon.describe }}</p>
+                            <p>{{ usecoupon.coupon.end_date|date:'Y年m月d日' }}</p>
+                        </div>
+                        <div class="weui_cell_ft">{{ usecoupon.coupon|getEffective }}
+                        </div>
+                    </a>
+                    <div class="wss_dashed_bottom"></div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="margin-top:150px;text-align: center;font-size: 18px;font-weight: bold;"><img  src="/static/pic/default/201305122026542520.gif" alt="icon"  style="max-width: 180px;max-height: 180px;word-break:break-all;" ></div>
+       <div  class="thumbBox"  style="padding-top: 5%;"><p>抱歉，您还没有优惠卷</p></div>
+    {% endif %}
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+{% endblock %}

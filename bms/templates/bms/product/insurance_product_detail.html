@@ -1,0 +1,465 @@
+{% extends 'bms/product/base_product.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block insurance_product %}class='active'{% endblock %}
+{% block title %} 产品详情 {% endblock %}
+
+{% block page_top %}
+
+    <div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+
+            <h2 class="text-center">产品详情</h2>
+            {% if message and message != '' %}
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="alert alert-warning text-center">{{ message }}</div>
+                    </div>
+                </div>
+            {% endif %}
+            <table class="table table-bordered" >
+                <tr>
+                  <td class="info text-center">产品名称</td>
+                  <td class="text-center">{{ insurance_product.name }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">产品类型</td>
+                  <td class="text-center">{{ insurance_product|displayName:'product_type' }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">险种类型</td>
+                  <td class="text-center">{{ insurance_product|displayName:'insurance_type' }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">编号</td>
+                  <td class="text-center">{{ insurance_product.paper_id }} </td>
+                </tr>
+<!--****************** 2017/6/30添加字段*********************** -->
+                <tr>
+                  <td class="info text-center">免赔</td>
+                  <td class="text-center">{{insurance_product.deductible}} </td>
+                </tr>
+<!--****************** 2017/7/3添加字段*********************** -->
+                <tr>
+                  <td class="info text-center">险别</td>
+                  <td class="text-center">{{insurance_product.risks}} </td>
+                </tr>            
+<!--****************** 2017/5/22添加字段*********************** -->
+                <tr>
+                  <td class="info text-center">产品来源</td>
+                  <td class="text-center">{{insurance_product|displayName:'create_way'  }} </td>
+                </tr>
+                {% if insurance_product.third_product_number %}
+                <tr>
+                  <td class="info text-center">第三方产品编号</td>
+                  <td class="text-center">{{ insurance_product.third_product_number }} </td>
+                </tr>
+                {% endif %}
+                {% if insurance_product.merchant_number %}
+                <tr>
+                  <td class="info text-center">第三方渠道商户编码</td>
+                  <td class="text-center">{{ insurance_product.merchant_number }} </td>
+                </tr>
+                {% endif %}
+                {% if insurance_product.third_party_url %}
+                <tr>
+                  <td class="info text-center">第三方接口地址</td>
+                  <td class="text-center">{{ insurance_product.third_party_url }} </td>
+                </tr>
+                {% endif %}
+<!--****************** 2017/5/22添加字段*********************** -->
+<!-- *****************2017/6/6添加字段*************************************** -->
+				<tr>
+                  <td class="info text-center">保险公司最低保费</td>
+                  <td class="text-center">{{ insurance_product.insurance_lowest_price |FenToYuan }}元</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">运之宝最低保费</td>
+                  <td class="text-center">{{ insurance_product.lowest_price|FenToYuan }}元 </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">可承包被保人身份</td>
+                  <td class="text-center">
+	                  {% for  user_type in insurance_product.user_type_list%}
+	                 	 {% if user_type == 'person'%}货主{%elif user_type == 'company'%}物流公司{% endif %}
+	                   {% endfor %}
+                   </td>
+                </tr>
+<!-- *********************2017/6/6end******************************************************* -->
+                {% if insurance_product.product_type == "jdclbx"  %}
+                <tr>
+                  <td class="info text-center">中介渠道</td>
+                  <td class="text-center">
+						{% for intermediary in insurance_product.intermediarys %}
+                              <div class="col-sm-6"><a href="{% url 'bms:intermediary_detail' intermediary.id %}" target="_blank">{{ intermediary.intermediary_name }}</a></div>  
+                      {% endfor %}
+				  </td>
+                </tr>
+                {% else  %}
+                <tr>
+                  <td class="info text-center">优先级</td>
+                  <td class="text-center">{{ insurance_product.priority }} </td>
+                </tr>
+                {% if insurance_product.product_type == 'batch' or  insurance_product.product_type == 'car' %}
+                <tr>
+                  <td class="info text-center">费率</td>
+                  <td class="text-center">{{ insurance_product.rate }} </td>
+                </tr>
+			      {% if user.is_authenticated %}
+			   	 	{% if user.is_superuser %}
+		                <tr>
+		                  <td class="info text-center">手续费比例</td>
+		                  <td class="text-center">{{ insurance_product.commission_ratio }} </td>
+		                </tr>
+		                <tr>
+		                  <td class="info text-center">保险公司费率</td>
+		                  <td class="text-center">{{ insurance_product.insurance_company_rate }} </td>
+		                </tr>
+	                {% endif %}
+	              {% endif %}
+	              {% if insurance_product.product_type == 'batch' %}
+	                 <tr>
+		                  <td class="info text-center">可承保货物价值范围</td>
+		                  <td class="text-center">{{ insurance_product.insurance_price_min|FenToYuan }}元 - {{ insurance_product.insurance_price_max|FenToYuan }}元</td>
+		                </tr>
+	              
+	              {% endif %}
+                {%else%}
+                		<tr>
+		                  <td class="info text-center">可承保货物价值范围</td>
+		                  <td class="text-center">{{ insurance_product.insurance_price_min|FenToYuan }}元 - {{ insurance_product.insurance_price_max|FenToYuan }}元</td>
+		                </tr>
+                		<tr>
+		                  <td class="info text-center">货物类型费率列表</td>
+		                  <td class="text-center">
+		                  
+		                  			<table class="table table-bordered" id="id_batch_list">
+			                                <tr id="id_properties_title" class="info">
+			                                    <td class="text-center">货物类型</td>
+			                                    <td class="text-center">产品费率</td>
+			                                     {% if user.is_authenticated %}{% if user.is_superuser %}
+			                                    <td class="text-center">保险费率</td>
+			                                     <td class="text-center">手续费比例</td>
+			                                     {% endif %} {% endif %}
+			                                    <td class="text-center">货物详情</td>
+			                                </tr>
+			                                {% for product_rate in insurance_product.product_rate_list%}
+			                                <tr >
+			                                    <td>{{product_rate.good_type}}</td>
+			                                    <td>{{product_rate.products_rate |RateFormat}}</td>
+			                                     {% if user.is_authenticated %}{% if user.is_superuser %}
+			                                    <td>{{product_rate.insurance_rate|RateFormat}}</td>
+			                                    <td>{{product_rate.commission_ratio|RateFormat}}</td>
+			                                    {% endif %} {% endif %}
+			                                    <td>
+			                                    {#<a  href=# title="可保货物详情"class="btn btn-xs btn-success" style="width:25px;" data-toggle="modal" data-target="#read_cargo_{{product_rate.good_type}}"><i class="fa fa-search"></i></a>#}
+			                                    <a  href=# title="可保货物详情"class="btn btn-xs btn-success" style="width:25px;" onclick="add_product_cargo('{{insurance_product.id}}','{{product_rate.good_type}}','read');"><i class="fa fa-search"></i></a>           
+			                                    &nbsp;
+			                                    <a  href=# title="编辑可保货物"class="btn btn-xs btn-warning" style="width:25px;" onclick="add_product_cargo('{{insurance_product.id}}','{{product_rate.good_type}}','edit');"><i class="fa fa-edit"></i></a>           
+			                                    {#<a  href=# title="编辑可保货物"class="btn btn-xs btn-warning" style="width:25px;" data-toggle="modal" data-target="#{{product_rate.good_type}}_add_product_cargo"><i class="fa fa-edit"></i></a>#}
+			                                    </td>
+			                                </tr>
+			                                {% endfor %}
+			                            </table>
+		                   </td>
+		                </tr>	      
+		                
+                {%endif%}
+                {% if  insurance_product.product_type == 'batch' or  insurance_product.product_type == 'ticket'  %}
+                	<tr>
+			                  <td class="info text-center">不保物流省份</td>
+			                  <td class="text-center">
+									<table class="table table-bordered" id="id_batch_list">
+			                                <tr id="id_properties_title" class="info">
+			                                    <td class="text-center">不保省份详情</td>
+			                                    <td class="text-center">操作</td>
+			                                </tr>
+			                                <tr >
+			                                    <td>
+					                                    {% for cargo_area  in cargo_area_list%}
+					                                 		{% for code  in insurance_product.no_insurable_route %}
+						                 		 				{% if cargo_area.code ==   code  %} 
+							                                 	    <div class="col-sm-6"> 
+							                                 			{{cargo_area.name}}-{{cargo_area.code}} 
+							                                 		</div>
+							                                  	{% endif %} 
+							                                 {% endfor %} 
+					                                 	{% endfor %} 
+			                                    </td>
+			                                    <td>
+			                                   		 <a  href=# title="编辑不保省份"class="btn btn-xs btn-warning" style="width:25px;" data-toggle="modal" data-target="#add_no_insurable_route"><i class="fa fa-edit"></i></a>
+			                                    </td>
+			                                 </tr>
+									 </table>
+							</td>
+			             </tr>
+                {% endif %}
+                
+                <tr>
+                  <td class="info text-center">保险公司</td>
+                  <td class="text-center"><a href="{% url 'bms:item_detail' insurance_product.company.id %}" target="_blank">{{ insurance_product.company.simple_name }}</a></td>
+                </tr>
+                
+                <tr>
+                  <td class="info text-center">保险文档</td>
+                  <td class="text-center">
+                      <div class="row">
+                          <div class="col-sm-6">保险文档名称</div>
+                          <div class="col-sm-4">保险文档备注</div>
+                          <div class="col-sm-2"><a href="{% url 'bms:insurance_product_create_document' insurance_product.id insurance_product.company.id %}"><i class="fa fa-plus" style="font-size: 20px"></i></a></div>
+                      </div>
+                        <hr style="margin-top: 5px;margin-bottom: 5px"/>
+                      {% for insurance_document in insurance_product.documents %}
+                          <div class="row">
+                              <div class="col-sm-6"><a href="{% url 'bms:item_detail' insurance_document.id %}" target="_blank">{{ insurance_document.name }}</a></div>
+                              <div class="col-sm-4">{{ insurance_document.note }}</div>
+                              <div class="col-sm-2"><a href="{% url 'bms:insurance_product_delete_document' insurance_product.id insurance_document.id %}"><i class="fa fa-times" style="font-size: 20px"></i></a></div>
+                          </div>
+                      {% endfor %}
+                  </td>
+                </tr>
+                {% endif %}
+<!--                 <tr>
+                  <td class="info text-center">产品特点</td>
+                  <td class="text-center"style="max-width: 400px; word-wrap:break-word;">{{ insurance_product.product_characteristic }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">产品介绍</td>
+                  <td class="text-center"style="max-width: 400px; word-wrap:break-word;">{{ insurance_product.product_introduce }}</td>
+                </tr> -->
+                <tr>
+                  <td class="info text-center">是否显示</td>
+                  <td class="text-center">{% if not insurance_product.is_hidden %}是{% else %}否{% endif %}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">创建时间</td>
+                  <td class="text-center">{{ insurance_product.create_time|date:'Y年m月d日 H:i:s' }}</td>
+                </tr>
+            </table>
+      {% if user.is_authenticated %}
+   	 	{% if user.is_superuser %}
+            <a class="btn btn-success" href="{% url 'bms:insurance_product_edit' insurance_product.id %}"><i class="fa fa-edit"></i> 编 辑</a>
+         {% endif %}
+        {% endif %}
+            <a class="btn btn-default" href="{% url 'bms:insurance_product_list' '1' %}"><i class="fa fa-times"></i> 返 回</a>
+        </div>
+        <div class="col-sm-2"></div>
+    </div>
+    
+    
+{#编辑货物信息#}
+<div class="modal fade" id="confirm_add_product_cargo" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<form id="commercial_form" class="form" method="post" action="{% url 'bms:cargo_add_product'  %}?">{% csrf_token %}
+		<input class="" id="product_rate_name" type="hidden" name="product_rate_name" value="">
+		<input class=""  id="product_id" type="hidden" name="product_id" value="{{ insurance_product.id }}">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+                    <input type="hidden" value="on" id="" name="result">
+					<h4 class="modal-title" >
+						<i class="fa fa-save">
+						</i>
+						添加可保货物{% for cargo in cargo_list%}{{cargo.name}}{% endfor %}
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="panel-body">
+	              		<div class="form-group">
+
+	                                <div class="form-group" id ="add_cargo_position">
+
+			                    <!-- 	<div id="add_position"></div> -->
+			                    	</div>
+	
+	                     </div>
+	     		    </div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						编辑
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+{#浏览货物信息#}
+<div class="modal fade"  id="confirm_read_product_cargo" style=" text-align: left;"data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+					<h4 class="modal-title" >
+						<i class="fa fa-save">
+						</i>
+						货物详情
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="panel-body">
+	              		<div class="form-group">
+	                                <div class="form-group"id ="read_cargo_position">
+	                                	
+			                    	</div>
+	                     </div>
+	     		    </div>
+				</div>
+			</div>
+	</div>
+</div>
+{#编辑产品不保省份#}
+<div class="modal fade" id="add_no_insurable_route" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<form id="commercial_form" class="form" method="post" action="{% url 'bms:add_no_insurable_route'  %}?">{% csrf_token %}
+		<input class=""  id="insurable_id" type="hidden" name="insurable_id" value="{{ insurance_product.id }}">
+		
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+                    <input type="hidden" value="on" id="" name="result">
+					<h4 class="modal-title" >
+						<i class="fa fa-save">
+						</i>
+						添加不保货物路线<small>(不保省份)</small>
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="panel-body">
+	              		<div class="form-group">
+	                                <div class="form-group">
+	                                	{% for cargo_area  in cargo_area_list%}
+		                 					{#	{% if cargo_area.level ==  '1'  %}#}
+			                                	    <div class="col-sm-6">
+			                                			<input type="checkbox" value="{{cargo_area.code}}" name="choose_pro"
+					                                		{% for code  in insurance_product.no_insurable_route %}
+						                 						{% if cargo_area.code ==   code  %}
+						                 						checked="checked"
+							                                	{% endif %}
+					                                	{% endfor %}
+			                                			/>{{cargo_area.name}}-{{cargo_area.code}}
+			                                		</div>
+			                                {#	{% endif %} #}
+	                                	{% endfor %}
+			                    	</div>
+	                     </div>
+	     		    </div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						编辑
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+    function add_product_cargo( insurance_product_id , good_type,state ){
+        var product_rate_name=document.getElementById("product_rate_name");
+        var product_id=document.getElementById("product_id");
+        product_rate_name.value=good_type;
+        //编辑页面开始
+        var add_cargo_position=document.getElementById("add_cargo_position");
+        add_cargo_position.innerHTML ='';
+        var div2 = document.createElement("div");
+        div2.id ="add_position";
+        add_cargo_position.appendChild(div2);
+        //结束
+        //查看详请开始
+        var read_cargo_position=document.getElementById("read_cargo_position");
+        read_cargo_position.innerHTML ='';
+        var div3 = document.createElement("div");
+        div3.id ="read_position";
+        read_cargo_position.appendChild(div3);
+        //结束
+        $.ajax({
+                url: "/bms/interface/locations/get_cargo_type_list/",
+                data: {product_id: insurance_product_id,good_type: good_type},
+                type: 'GET',
+                dataType: 'json',
+                timeout: 15000,
+                success: function (data) {
+                     //alert(555555);
+                     data=data['data']
+                     state = state
+                    // alert(typeof state)
+                     if (state == 'read'){
+                    	 $('#confirm_read_product_cargo').modal('show');
+                    	 for (var key1 in data) {
+                    		 if (data[key1][1]=="1" ){
+                    			 var b='<div class="col-sm-6"style="margin-bottom:2px">'+data[key1][0]+'</div>'
+                                 $('#read_position').before(b);
+                    		 }
+                           }
+                     }
+                     else if(state =='edit'){
+                    	 $('#confirm_add_product_cargo').modal('show');
+                    	 for (var key1 in data) {
+                          	var a= add_cargo_detail(key1,data[key1][0],data[key1][0],data[key1][1]);
+                              $('#add_position').before(a);
+                              }
+                     }
+                },
+                error: function (data) {
+                	alert("网络不稳定，货物详情读取失败")
+                    /* $('#id_message').removeClass('control-show');
+                    $('#id_message_id').html(data['message']) */
+                }
+            });
+    }
+    
+    function add_cargo_detail(test,value,description,state){
+    	var cargo_num=value;
+    	var cargo_name = description ;
+    	var cargo_state = state;//0未勾选，1勾选，2禁止勾选
+    	var a='<div class="col-sm-6"><input type="checkbox" value="'+cargo_num+'" name="choose_cargo"'
+    	var b
+    	var c='/>'+test+cargo_name+'</div>'
+    	if (cargo_state =="1"){
+    		b= 'checked="checked"';
+    	}
+    	else if(cargo_state == "2"){
+    		b='readonly="readonly"disabled="disabled"';
+    	}
+    	else{
+    		b='';
+    	}
+    	var d=a+b+c;
+    	//alert(d);
+    	return d
+    }
+    </script>
+{% endblock %}

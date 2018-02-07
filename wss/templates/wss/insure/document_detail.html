@@ -1,0 +1,24 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}保险条款{% endblock %}
+
+{% block container_block %}
+{#    首页所在位置，进入页面后的默认页面#}
+
+{#    <div class="weui_cells_title h1" style="color: red;font-size: 28px">重要提示!!!</div>#}
+    <div class="weui_cell">
+        <div class="weui_cell_bd weui_cell_primary">
+            <p>请联系客服人员，平台将根据您的实际情况，与您的公司系统进行对接，完成在线直接投保，客服电话/微信15910731868。</p>
+        </div>
+        <div class="weui_cell_ft"></div>
+    </div>
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+{% endblock %}

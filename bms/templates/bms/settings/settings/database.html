@@ -1,0 +1,169 @@
+{% extends 'bms/settings/base_settings.html' %}
+{% load static %}
+{% load legoo_tag %}
+
+{% block page_middle %}
+<div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+            <h2 class="text-center">{{ title }}</h2>
+            <table class="table table-bordered">
+            {% if attrs %}
+                {% for attr in attrs %}
+                <tr>
+                    <td class="info text-left"><label id="id_label_{{ attr }}">{{ setting_name|getValue:attr }}</label></td>
+                    <td class="text-left">
+                        <div class="row">
+                           <div class="col-sm-10">
+                               <label id="id_{{ attr }}" >{{ setting|getAttr:attr|showValue }}</label>
+                           </div>
+                           <div class="col-sm-2">
+                                <a href="javascript:server_configure('{{ attr }}', '{{ setting|getType:attr }}')"><i class="fa fa-pencil-square-o"></i></a>
+                           </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td class="info text-danger text-center" colspan="2"><h4>暂无设置项</h4></td>
+                </tr>
+            {% endif %}
+            </table>
+        </div>
+        <div class="col-sm-2"></div>
+</div>
+
+
+<div class="modal fade" id="server_configure_modal" tabindex="-1" role="dialog" >
+    <div class="modal-dialog">
+        <form id="id_manage_shop_form" class="form" method="post" action="#"  >  {% csrf_token %}
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title"><i class="fa fa-edit"></i> 服务器设置</h4>
+              </div>
+              <div class="modal-body">
+                <div class="form-group" >
+                    <div class="form-group" >
+                        <label for="id_manage_shop_value" id="id_server_configure_label">请输入</label>
+
+                        <div id="id_server_check_div">
+                        	<div  id ="id_test1">
+                        			<input class="form-control checkbox-inline"  id="id_server_configure_value" name="server_configure_value" type="text" required >
+                        	</div>
+                            <div id ="id_test2">
+                            	<select class="form-control" id="id_server_configure_value2" name="server_configure_value2">
+	                                  {% for insurance_product in product_list %}
+	                                    <option value="{{ insurance_product.paper_id }}" >{{ insurance_product.paper_id }}:{{ insurance_product.name }}</option>
+	                                  {% endfor %}
+	                            </select>
+                            </div>
+                            
+                            <label class="checkbox-inline" id="id_server_check_label"> 是 </label>
+                        </div>
+                    </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <a class="btn btn-success" href="#" id="id_btn_server_submit"><i class="fa fa-save"></i> 提 交</a>
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> 退 出</button>
+              </div>
+            </div>
+        </form>
+    </div>
+</div>
+  {% endblock %}
+
+
+{% block script_block %}
+<script>
+function initLevel(level, type){
+    if(level == 1){
+        $("#collapseOne").addClass("in");
+        $("#id_settings_" + type).addClass("active");
+    }else if(level == 2){
+        $("#collapseTwo").addClass("in");
+        $("#id_debug_" + type).addClass("active");
+    }
+}
+{% if debug %}
+    initLevel(2, "{{ settings_type }}");
+{% else %}
+    initLevel(1, "{{ settings_type }}");
+{% endif %}
+function server_configure(value, type){
+{#    标题相关#}
+    var item_label = document.getElementById("id_label_" + value);
+    var configure_label = document.getElementById("id_server_configure_label");
+    configure_label.innerHTML = item_label.innerHTML;
+{#    值相关#}
+    var item_value = document.getElementById("id_" + value);
+    var server_value = document.getElementById('id_server_configure_value');
+    var server_value2 = document.getElementById('id_server_configure_value2');
+    server_value.value  = item_value.innerText;
+    server_value.type = type;
+    var get_value = function(){
+    	//2017/11/14添加筛选产品部分
+        if (value== 'product_code'){
+        	return server_value2.value;
+        }
+        else{
+        	return server_value.value;
+        }
+    };
+    var checkbox_label = document.getElementById("id_server_check_label");
+    var checkbox_div = document.getElementById("id_server_check_div");
+    if(type=='checkbox'){
+        checkbox_div.style.position = "absolute";
+        server_value.checked = item_value.innerText == '是';
+        server_value.className = "";
+        checkbox_label.style.visibility = 'visible';
+        get_value = function(){
+            return server_value.checked;
+        }
+    }else{
+        checkbox_div.style.position = "static";
+        server_value.className = "form-control";
+        checkbox_label.style.visibility = 'hidden';
+    }
+    //2017/11/14添加筛选产品部分
+    if (value== 'product_code'){
+    	$("#id_test2").show();
+    	$("#id_test1").hide();
+    	server_value2.value=item_value.innerText;
+    	
+    }
+    else{
+    	$("#id_test1").show();
+    	$("#id_test2").hide();
+    }
+    
+{#    submit button#}
+    var server_submit = document.getElementById("id_btn_server_submit");
+    server_submit.onclick = function(){
+         $.ajax({
+            url:"/bms/settings/database/save/",
+            data:{value:get_value(), attr:value, type:type},
+            type:'POST',
+            dataType:'json',
+            timeout:{{ "HTTP_CONNECTION_TIME_OUT"|settings_value }},
+            success:function(data){
+                if(data['code'] == 0){
+                    item_value.innerText = data['data']['value'];
+                }else{
+                    alert(data['message']);
+                }
+                $('#server_configure_modal').modal('hide');
+            },
+            error:function(){
+                $('#alerts').html("网络超时，用户操作失败");
+            }
+        });
+    };
+{#    show modal#}
+    $('#server_configure_modal').modal('show');
+}
+</script>
+
+{% endblock %}

@@ -1,0 +1,946 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}创建订单{% endblock %}
+
+{% block container_block %}
+<style>
+.weui_input {
+  width: 100%;
+  border:0px solid #C8C8CD;  
+  border-radius: 3px !important;
+  outline: 0;
+  -webkit-appearance: none; 
+  background-color: transparent;
+  font-size: 14px;
+  color: inherit;
+  height: 2em;
+  line-height: 2em;
+}
+ #item-ifo {
+position: relative;
+}
+#item-ifo #ico {
+width: 16px;
+height: 16px;
+position: absolute;
+top: 5px;
+left: 40px;
+z-index: 3;
+}  
+.weui_uploader_input_wrp {
+  float: left;
+  position: relative;
+  margin-right: 9px;
+  margin-bottom: 9px;
+  width: 98%;
+  height: 120px;
+  border: 1px solid #D9D9D9;
+  margin:0 auto;
+}
+.weui_uploader_file {
+  float: left;
+  margin-right: 9px;
+  margin-bottom: 9px;
+  width: 98%;
+  height: 120px;
+  background: no-repeat center center;
+  background-size: cover;
+}
+</style>
+{% if message %}
+    <div class="weui_dialog_alert">
+        <div class="weui_mask" style="z-index: 4;"></div>
+        <div class="weui_dialog">
+            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+            <div class="weui_dialog_bd">{{ message }}</div>
+            <div class="weui_dialog_ft">
+                <a onclick="close_dialog();" class="weui_btn_dialog primary">确定</a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+<div class="top">
+	<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+		<tbody>
+			<tr>
+					<td width="20%" valign="middle">
+							<!-- <a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a> -->
+					</td>
+					<td class="wz" width="60%" valign="middle" align="center">
+							<span id="toptitle">
+									<i class="fa    fa-th-list"></i>&nbsp;<strong>创建订单</strong>
+							</span>
+					</td>
+					<td width="20%" valign="middle" align="right">
+					<a id="aso" href="#"></a>
+					</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<form id="wss_register_form" method="post" action="{% url 'wss:filter_product' %}" enctype="multipart/form-data" style="padding-top:30px;">{% csrf_token %}
+    <input id="product_type" name="product_type" type="hidden" value="{{ product_type }}">
+<!--     <div class="weui_cells wss_p">
+        <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p class=“wss_p”>【产品类型】</p>
+            </div>
+            <div class="weui_cell_ft wss_p">
+	            {% if product_type == 'batch' %}车次保险
+	            {% elif product_type == 'ticket' %}单票保险
+	            {% elif product_type == 'car' %}运单保险
+	            {% else %}未找到对应保险
+	            {% endif %}
+            </div>
+        </div>
+    </div> -->
+    
+    <div class="weui_cells weui_cells_form wss_p">
+          <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_hd"><label class="weui_label">【产品类型】</label></div>
+            <div class="weui_cell_bd weui_cell_primary">
+	            {% if product_type == 'batch' %}车次保险
+	            {% elif product_type == 'ticket' %}单票保险
+	            {% elif product_type == 'car' %}运单保险
+	            {% else %}未找到对应保险
+	            {% endif %}
+            </div>
+        </div>
+    	<div class="weui_cell ">
+            <div class="weui_cell_hd"><label class="weui_label">【投保人姓名】</label></div>
+            <div class="weui_cell_bd weui_cell_primary">
+                <input class="weui_input" type="text" placeholder="（必填）" name="client_name" value="{% if posted_data.client_name %}{{ posted_data.client_name }}{% elif client.company_name %}{{ client.company_name }}{% else %}{{ client.name }}{% endif %}"/>
+            </div>
+        </div>
+<!--         <div class="weui_cell  wss_dashed_bottom">
+            <div class="weui_cell_hd"><label class="weui_label"style='width:150px'>【投保人证件号】</label></div>
+            <div class="weui_cell_bd weui_cell_primary">
+                <input class="weui_input" type="text" placeholder="（组织机构代码证或身份证号）" name="client_id_card" value="{% if posted_data.client_id_card %}{{ posted_data.client_id_card }}{% elif client.organ %}{{ client.organ }}{% elif client.business_license_id %}{{ client.business_license_id }}{% elif client.national_id %}{{ client.national_id }}{% endif %}"/>
+            </div>
+        </div> -->
+        <!-- ******************************** 汇聚宝添加字段***********************************************************************-->
+        <!-- <div class="weui_cell  ">
+            <div class="weui_cell_hd"><label class="weui_label"style='width:150px'>【投保人身份】</label></div>
+            <div class="weui_cell_bd weui_cell_primary">
+	          		<input class="weui_input" name="wx_client_type" id ="wx_client_type"type="text" value="{% if posted_data.wx_client_type %}{{ posted_data.wx_client_type }}{% else %}货主{% endif %}">
+	        </div>
+        </div> -->
+         <!-- ******************************** 汇聚宝添加字段end************************************************************-->
+        <div class="weui_cell weui_cell_switch wss_bg" style="height:20px;">
+	        <div class="weui_cell_hd ">被保险人是否与投保人相同</div>
+	        <div class="weui_cell_bd weui_cell_primary " ></div>
+	        <div class="weui_cell_ft">
+	          <input class="weui_switch" type="checkbox"  
+	          {% if posted_data.ismatchtbr1 == 'on' or not posted_data %}    checked  {% endif %}id="ismatchtbr1" name="ismatchtbr1">
+	        </div>
+	    </div>
+	     <div {% if posted_data.ismatchtbr1 != 'on' and posted_data %}style="display: block" {% else %}style="display: none" {% endif %}id="notmatchtbr1">
+		        <div class="weui_cell wss_dashed_bottom">
+		            <div class="weui_cell_hd"><label class="weui_label"style='width:130px'>【被保险人姓名】</label></div>
+		            <div class="weui_cell_bd weui_cell_primary">
+		                <input class="weui_input" type="text" placeholder="（必填）" name="insured" value="{% if posted_data.insured %}{{ posted_data.insured }}{% elif client.company_name %}{{ client.company_name }}{% else %}{{ client.name }}{% endif %}"/>
+		            </div>
+		        </div>
+		        
+<!-- 		        <div class="weui_cell wss_dashed_bottom">
+		            <div class="weui_cell_hd"><label class="weui_label"style='width:150px'>【被保险人证件号】</label></div>
+		            <div class="weui_cell_bd weui_cell_primary">
+		                <input class="weui_input" type="text" placeholder="（组织机构代码证或身份证号）" name="insured_id_card" value="{% if posted_data.insured_id_card %}{{ posted_data.insured_id_card }}{% elif client.organ %}{{ client.organ }}{% elif client.business_license_id %}{{ client.business_license_id }}{% elif client.national_id %}{{ client.national_id }}{% endif %}"/>
+		            </div>
+		        </div> -->
+		   </div>
+		  
+		  <div class="weui_cell  wss_dashed_bottom ">
+		            <div class="weui_cell_hd"><label class="weui_label"style='width:150px'>【被保险人身份】</label></div>
+		            <div class="weui_cell_bd weui_cell_primary">
+			          		<input class="weui_input" name="wx_client_type" id ="wx_client_type"type="text" value="{% if posted_data.wx_client_type %}{{ posted_data.wx_client_type }}{% endif %}" placeholder="请选择被保险人身份">
+			        </div>
+		        </div> 
+		   
+         <div class="weui_cell wss_dashed_bottom">
+	        <div class="weui_cell_hd"><label for="name" class="weui_label">【起运地】</label></div>
+	        <div class="weui_cell_bd weui_cell_primary">
+	          		<input class="weui_input" name="startSiteName_prov" id ="wx_startSiteName_prov" type="text" value="{% if posted_data.startSiteName_prov %}{{ posted_data.startSiteName_prov }}{% else %}北京市 北京市 东城区{% endif %}">
+	        </div>
+      	</div>
+      	<div class="weui_cell wss_dashed_bottom">
+	        <div class="weui_cell_hd"><label for="name" class="weui_label">【目的地】</label></div>
+	        <div class="weui_cell_bd weui_cell_primary">
+	          		<input class="weui_input" name="targetSiteName_prov" id ="wx_targetSiteName_prov"type="text" value="{% if posted_data.targetSiteName_prov %}{{ posted_data.targetSiteName_prov }}{% else %}北京市 北京市 东城区{% endif %}">
+	        </div>
+      	</div>
+{% if product_type == 'batch' %}
+        <div class="weui_cell  wss_dashed_bottom">
+            <div class="weui_cell_hd"><label for="" class="weui_label">【货物价值】</label></div>
+                <div class="weui_cell_bd weui_cell_primary ">
+                		<input class="weui_input" type="text" placeholder="请选择货物价值"  id="id_batch_insurance_price" name="batch_insurance_price" value="{{ posted_data.batch_insurance_price }}"/>
+                </div>
+        </div>
+          <!-- <div class="weui_cell wss_dashed_bottom">
+        <div class="weui_cell_hd"><label class="weui_label">【货物件数】</label></div>
+        <div class="weui_cell_bd weui_cell_primary">
+            <input class="weui_input" type="number" placeholder="请输入货物数量" id="batch_commodityCases" name="batch_commodityCases" value="{{ posted_data.batch_commodityCases }}"/>
+        </div>
+       </div> -->
+        <div class="weui_cell ">
+            <div class="weui_cell_hd"><label for="" class="weui_label">【车牌号】</label></div>
+                <div class="weui_cell_bd weui_cell_primary " id="item-ifo">
+							<input class="weui_input" id="short" type="text" name="short" value="{% if posted_data.short %}{{ posted_data.short }}{% else %}京 A{% endif %}"><i class="fa fa-sort-desc" id="ico"></i>
+                </div>
+                <div class="weui_cell_ft"><input class="weui_input" type="text" placeholder="请输入车牌号"  id="id_batch_plate_number" name="batch_plate_number" value="{{ posted_data.batch_plate_number }}"/></div>
+        </div>
+         <div class="weui_tab" style="height: 20px;z-index: 3;">
+            <div class="weui_navbar" >
+                <div onclick="click_1()" id="nav_click_1" class="weui_navbar_item weui_bar_item_on" >
+                    上传清单图片
+                </div>
+                <div onclick="click_3()" id="nav_click_3" class="weui_navbar_item">
+                    手工录入货物清单
+                </div>
+            </div>
+         </div> 
+        <div class="weui_cell" style="margin-top: 18px;">
+            {% if document_id %}
+                <p style="color: red;font-size: 14px">属于<a  href="{% url 'wss:document_detail' document_id %}" >《不保货物清单》</a>范围内的货物的任何损失，保险公司不承担赔偿责任</p>
+            {% endif %}
+        </div>
+
+        <div id="click_1" class="" style="margin-top: 10px">
+            <div class="weui_cells_title">图片格式（gif、png、jpeg或icon;），点击已添加图片可以删除图片</div>
+            <div class="weui_cells weui_cells_form">
+                <div class="weui_cell">
+                    <div class="weui_cell_bd weui_cell_primary">
+                        <div class="weui_uploader">
+                            <div class="weui_uploader_bd">
+                                <ul class="weui_uploader_files ul_batch_image_list">
+                                </ul>
+                                <div class="weui_uploader_input_wrp">
+                                    <input class="weui_uploader_input batch_image_list" id="id_batch_image_list" name="batch_image_list"  type="file" accept="image/jpg,image/jpeg,image/png,image/gif" />
+                                    <input class="weui_uploader_input batch_image_list control-show" id="id_batch_image_list" name="batch_image_list"  type="file" accept="image/jpg,image/jpeg,image/png,image/gif" />
+                                    <input class="weui_uploader_input batch_image_list control-show" id="id_batch_image_list" name="batch_image_list"  type="file" accept="image/jpg,image/jpeg,image/png,image/gif" />
+                                    <input class="weui_uploader_input batch_image_list control-show" id="id_batch_image_list" name="batch_image_list"  type="file" accept="image/jpg,image/jpeg,image/png,image/gif" />
+                                    <input class="weui_uploader_input batch_image_list control-show" id="id_batch_image_list" name="batch_image_list"  type="file" accept="image/jpg,image/jpeg,image/png,image/gif" />
+{#                                                <input type='hidden' id="id_batch_image_list_hidden" name="batch_image_list_hidden">#}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="click_2" class="control-show" style="margin-top: 10px">
+            <div class="weui_cells_title">文档格式（word,excel,PDF）</div>
+            <div class="weui_cell" style="margin-top: 20px;margin-bottom: 20px">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <input class="filestyle" type="file" id="id_batch_file" name="batch_file" data-icon="true" data-input="true" data-buttonText="选择文件" data-iconName="glyphicon-inbox">
+                </div>
+            </div>
+        </div>
+
+        <div id="click_3" class="control-show" style="margin-top: 10px">
+
+            <div id="id_properties_bottom" style="padding-left: 15px;padding-right: 15px;margin-top: 5px">
+                <a href="javascript:;" class="weui_btn weui_btn_mini weui_btn_default" style="height:30px;line-height:30px;;" onclick="add_batch_line()">添加货物清单</a>
+            </div>
+        </div>
+
+{% endif %}
+
+{% if product_type == 'ticket' %}
+<!--       <div class="weui_cell wss_dashed_bottom">
+	        <div class="weui_cell_hd"><label for="home-city" class="weui_label">【货物类型】</label></div>
+	        <div class="weui_cell_bd weui_cell_primary">
+	          		<input class="weui_input" id="wx_cargo_detail_id" type="text" name="wx_cargo_detail" value="{{ posted_data.wx_cargo_detail }}" placeholder="请输入货物类型">
+	        </div>
+      </div>  -->
+      <!-- <div class="weui_cell  wss_p">
+	        <div class="weui_cell_hd"><label for="home-city" class="weui_label">【货物类型】</label></div>
+      </div>  
+      <div class="weui_cell weui_cell_select wss_p">
+	        <div class="weui_cell_bd weui_cell_primary">
+	          		<select class="weui_select "  id="wx_cargo_detail_id" name="wx_cargo_detail"  style="padding-left: 20px;font-size:14px;height:28px;line-height:28px;">
+ 						    {% for cargo in cargo_set%}
+                         	<option value="{{ cargo.cargo_number }}" {% if posted_data.wx_cargo_detail ==  cargo.cargo_name  %} selected{% endif %}>{{ cargo.cargo_name  }}</option>
+                           {% endfor%}
+                </select>
+	        </div>
+      </div>   -->
+      <div class="weui_cell wss_dashed_bottom">
+	        <div class="weui_cell_hd"><label for="home-city" class="weui_label">【货物类型】</label></div>
+	        <div class="weui_cell_bd weui_cell_primary">
+	          		<input class="weui_input" type="text" id="wx_cargo_detail_id" name="wx_cargo_detail" value="{{ posted_data.wx_cargo_detail}}" placeholder="请输入货物类型">
+	        </div>
+      </div>
+    
+     <!--  <div class="weui_cell weui_cell_select wss_dashed_bottom wss_p">
+	        <div class="weui_cell_bd weui_cell_primary">
+	          		<select class="weui_select " id="wx_cargo_detail_id" name="wx_cargo_detail" style="padding-left: 20px;font-size:14px;height:28px;line-height:28px;" ></select>
+	        </div>
+      </div> -->
+<!--       <div class="weui_cell ">
+            <div class="weui_cell_hd"><label for="" class="weui_label">【货物类型】</label></div>
+        </div>
+        <div class="weui_cell  wss_dashed_bottom">
+         		<div class="weui_cell_hd" style="width:30%;"><input class="weui_input" id="wx_cargo_big" type="text" name="wx_cargo_big" value="{% if posted_data.wx_cargo_big  %}{{ posted_data.wx_cargo_big }}{% else %}纺织品、衣被鞋帽类{% endif %}" placeholder="请输入货物类型"></div>
+                <div class="weui_cell_bd weui_cell_primary " id="item-ifo" style="width:70%;">
+					<input class="weui_input" id="wx_cargo_detail_id" type="text" name="wx_cargo_detail" value="{% if posted_data.wx_cargo_detail  %}{{ posted_data.wx_cargo_detail }}{% else %}纺织品，针织品（布、呢绒、绸缎、毯、毡及毡制品），毛线及其它纺线{% endif %}" placeholder="请输入货物类型">
+                </div>
+        </div> -->
+       <div class="weui_cell wss_dashed_bottom">
+	        <div class="weui_cell_hd"><label for="home-city" class="weui_label">【包装方式】</label></div>
+	        <div class="weui_cell_bd weui_cell_primary">
+	          		<input class="weui_input" type="text" id="wx_pack_detail_id" name="wx_pack_detail_id" value="{{ posted_data.wx_pack_detail_id }}" placeholder="请输入包装方式">
+	        </div>
+      </div>
+     <div class="weui_cell wss_dashed_bottom">
+        <div class="weui_cell_hd"><label for="date" class="weui_label">【运输方式】</label></div>
+        <div class="weui_cell_bd weui_cell_primary">
+          <input class="weui_input" type="text"  id="id_transport_type_id" name="transport_type_id" value="{% if posted_data.transport_type_id %}{{ posted_data.transport_type_id }}{% else %}汽运{% endif %}" placeholder="请输入运输方式">
+        </div>
+      </div>
+    <div class="weui_cell wss_dashed_bottom">
+        <div class="weui_cell_hd"><label class="weui_label">【货物价值】</label></div>
+        <div class="weui_cell_bd weui_cell_primary">
+            <input class="weui_input" placeholder="请输入货物价值(元)" name="insurance_price" value="{{ posted_data.insurance_price }}"  type="number"/>
+        </div>
+    </div>
+    <div class="weui_cell wss_dashed_bottom">
+        <div class="weui_cell_hd"><label class="weui_label">【运单号】</label></div>
+        <div class="weui_cell_bd weui_cell_primary">
+            <input class="weui_input" type="text" placeholder="请输入运单号" id="id_ticket_transport_id" name="ticket_transport_id" value="{{ posted_data.ticket_transport_id }}"/>
+        </div>
+    </div>
+{#    <div class="weui_cell">#}
+{#        <div class="weui_cell_hd"><label class="weui_label">【挂车牌号】</label></div>#}
+{#        <div class="weui_cell_bd weui_cell_primary">#}
+{#            <input class="weui_input" type="text" placeholder="请输入挂车牌号（可选填）" id="id_ticket_plate_number_plus" name="ticket_plate_number_plus" value="{{ posted_data.ticket_plate_number_plus }}"/>#}
+{#        </div>#}
+{#    </div>#}
+    <div class="weui_cell wss_dashed_bottom">
+        <div class="weui_cell_hd"><label class="weui_label">【货物名称】</label></div>
+        <div class="weui_cell_bd weui_cell_primary">
+            <input class="weui_input" type="text" placeholder="请输入货物名称" id="id_ticket_commodityName" name="ticket_commodityName" value="{{ posted_data.ticket_commodityName }}"/>
+        </div>
+    </div>
+    {% if document_id %}
+        <div class="weui_cell">
+            <p style="color: red;font-size: 14px">请务必确认您投保的货物不属于
+                <a  href="{% url 'wss:document_detail' document_id %}" >《不保货物清单》</a>
+                范围内，否则保险公司不承担赔偿责任</p>
+        </div>
+    {% endif %}
+    <div class="weui_cell wss_dashed_bottom">
+        <div class="weui_cell_hd"><label class="weui_label">【货物数量】</label></div>
+        <div class="weui_cell_bd weui_cell_primary">
+            <input class="weui_input" type="number" placeholder="请输入货物数量" id="id_ticket_commodityCases" name="ticket_commodityCases" value="{{ posted_data.ticket_commodityCases }}"/>
+        </div>
+    </div>
+    <div class="weui_cell ">
+            <div class="weui_cell_hd"><label for="" class="weui_label">【车牌号】</label></div>
+                <div class="weui_cell_bd weui_cell_primary " id="item-ifo">
+							<input class="weui_input" id="short" type="text" name="short" value="{% if posted_data.short %}{{ posted_data.short }}{% else %}京 A{% endif %}"><i class="fa fa-sort-desc" id="ico"></i>
+                </div>
+                <div class="weui_cell_ft"><i class="fa fa-sort-desc" id="ico"></i><input class="weui_input" type="text" placeholder="请输入车牌号"  id="id_batch_plate_number" name="batch_plate_number" value="{{ posted_data.batch_plate_number }}"/></div>
+        </div>      
+{% endif %}
+
+{% if product_type == 'car' %}
+    <div class="weui_cell">
+        <div class="weui_cell_hd"><label class="weui_label" style="width: 6em">货物价值<small>(元)</small></label></div>
+        <div class="weui_cell_bd weui_cell_primary">
+            <input class="weui_input" type="number"  placeholder="请输入货物价值" name="insurance_price" value="{{ posted_data.insurance_price }}"/>
+        </div>
+    </div>
+    <div class="weui_cell">
+        <div class="weui_cell_hd"><label class="weui_label">运单号</label></div>
+        <div class="weui_cell_bd weui_cell_primary">
+            <input class="weui_input" type="text" placeholder="请输入运单号" id="id_car_transport_id" name="car_transport_id" value="{{ posted_data.car_transport_id}}"/>
+        </div>
+    </div>
+    <div class="weui_cell">
+        <div class="weui_cell_hd"><label class="weui_label">货物名称</label></div>
+        <div class="weui_cell_bd weui_cell_primary">
+            <input class="weui_input" type="text" placeholder="请输入货物名称" id="id_car_commodityName" name="car_commodityName" value="{{ posted_data.car_commodityName }}"/>
+        </div>
+    </div>
+    <div class="weui_cell">
+        <div class="weui_cell_hd"><label class="weui_label">货物数量</label></div>
+        <div class="weui_cell_bd weui_cell_primary">
+            <input class="weui_input" type="number"  placeholder="请输入货物数量" id="id_car_commodityCases" name="car_commodityCases" value="{{ posted_data.car_commodityCases}}"/>
+        </div>
+    </div>
+    
+    
+    
+    
+    
+  </div>
+{% endif %}
+    <div style="height:50px;"></div>
+    <div style=" width: 100%; position: fixed;  bottom: 0px;z-index: 3;">
+    		<button type="submit" class="weui_btn weui_btn_primary"  style="border-radius: 0px;font-size:15px;height:40px;line-height:30px;">立即提交</button>
+    </div>
+ 
+
+
+</form>
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+   <script src="{% static 'js/jquery-2.1.4.js' %}"></script>
+ <script src="{% static 'js/fastclick.js' %}"></script>
+<script>
+//是否同投保人
+$("#ismatchtbr1").change(function(){
+	  if ( $("#ismatchtbr1").is(':checked')){
+	  $("#notmatchtbr1").css("display","none");
+	  return ;
+	  }
+	  $("#notmatchtbr1").css("display","block");
+	});
+	
+  $(function() {
+    FastClick.attach(document.body);
+    /* $.ajax({
+	      type: "get",          
+	      url: "/wss/insure/get_cargos_list/",     
+	      async: false,　　　　　　　　//是否为异步请求，ture为异步请求，false为同步请求
+	      dataType: "json",
+	      success: function(data) {    //当请求之后调用。
+	    	  $('#wx_cargo_detail_id').empty()
+	    	  d = jQuery.parseJSON(data['data']['cargos_list']);
+	          for(var i=0;i<d.length;i++)
+	        	  {
+	        	       $('#wx_cargo_detail_id').append("<option value=' "+d[i].id+" '>" +d[i].name +"</option>")
+	        	  }
+	      },
+  error:function(){
+    alert("网络超时，用户操作失败");
+  }
+	  }); */
+  });
+</script>
+<script src="{% static 'js/jquery-weui.js' %}"></script>
+ <script src="{% static 'js/city-picker.js' %}"></script>
+<script>
+
+/*  20176/9汇聚宝对接参数*/
+     $("#wx_client_type").picker({
+        title: "选择投保人身份",
+        cols: [
+          {
+            textAlign: 'center',
+            values:["货主","物流公司"]
+          }
+        ],
+        onChange: function(p, v, dv) {
+          console.log(p, v, dv);
+        },
+        onClose: function(p, v, d) {
+          console.log("close");
+        }
+      });
+/* end */
+
+
+	$("#wx_cargo_detail_id").select({
+	    title: "请选择货物类型",
+	    items:{{cargo_set |safe }},
+	  });   
+
+    $("#id_batch_insurance_price").picker({
+        title: "选择货物价值",
+        cols: [
+          {
+            textAlign: 'center',
+            values:["10万", "20万", "30万", "40万", "50万", "60万","70万", "80万", "90万", "100万"
+                    , "110万", "120万","130万", "140万", "150万", "160万", "170万", "180万","190万", "200万"
+                    ,"210万","220万","230万", "240万", "250万", "260万", "270万", "280万","290万", "300万"
+                    , "310万", "320万", "330万", "340万","350万", "360万", "370万", "380万", "390万", "400万"
+                    ,"410万","420万","430万", "440万", "450万", "460万", "470万", "480万","490万", "500万" ]
+          }
+        ],
+        onChange: function(p, v, dv) {
+          console.log(p, v, dv);
+        },
+        onClose: function(p, v, d) {
+          console.log("close");
+        }
+      });
+    
+    $("#id_transport_type_id").picker({
+        title: "选择运输方式",
+        cols: [
+          {
+            textAlign: 'center',
+            values:["汽运","水运","联运","空运","铁路"]
+          }
+        ],
+        onChange: function(p, v, dv) {
+          console.log(p, v, dv);
+        },
+        onClose: function(p, v, d) {
+          console.log("close");
+        }
+      });
+    $("#short").picker({
+        title: "选择省份代码",
+        cols: [
+          {
+            textAlign: 'center',
+            values:  ["京", "津", "冀", "蒙","晋", "沪","皖", "苏", "浙", "鲁", "闽","赣", "粤", "桂", "琼","豫", "鄂", "湘","黑", "吉", "辽", "陕","甘","宁","青","新","渝","川","云","贵","藏","港","澳","台"]
+          },
+          {
+            textAlign: 'center',
+            values:["A", "B", "C", "D","E", "F","G", "H", "I", "J", "K","L", "M", "N", "O","P", "Q", "R","S", "T", "U", "V","W","x","Y","Z"]
+          }
+        ]
+      });
+
+      $("#wx_startSiteName_prov").cityPicker({
+        title: "选择起运地",
+        onChange: function (picker, values, displayValues) {
+          console.log(values, displayValues);
+        }
+      });
+      $("#wx_targetSiteName_prov").cityPicker({
+          title: "选择目的地",
+          onChange: function (picker, values, displayValues) {
+            console.log(values, displayValues);
+          }
+        });
+
+          $("#wx_pack_detail_id").packPicker({
+              title: "选择包装方式",
+              showDistrict: false,
+              onChange: function (picker, values, displayValues) {
+                console.log(values, displayValues);
+              }
+            }); 
+    </script>
+    <script type="text/javascript">
+      $(document).ready(function (){
+    		/* wx_change_province(); */
+        	/* change_wx_pack_method(); */
+         //change_wx_cargo_type();  
+/*             $("#start_city").citySelect();
+            $("#end_city").citySelect(); */
+        });
+
+       function add_batch_line(){
+{#                var count = $('tr[name="properties_item"]').length;#}
+                var count = document.getElementsByName("properties_item").length;
+{#           alert('count数量:'+count);#}
+                var position = count;
+                if($("#id_properties_item_" + position).length > 0){
+                    for(var i=0;i<count;i++){
+                        if($("#id_properties_item_" + i).length <= 0){
+                            position = i;
+                            break;
+                        }
+                    }
+                }
+                $('#id_properties_bottom').append(  '<div id="id_properties_item_' + position + '" name="properties_item" style="border:1px solid #5172D5">' +
+                        '<input type="hidden" name="position" value="' + position + '"/>' +
+                        '<div style="padding-left: 15px;"><a id="id_properties_item_delete_' + position + '"  onclick="$(\'#id_properties_item_' + position + '\').remove()" style="float: right;bottom:10px;width:20px; height:20px;font-size:28px;color:#5172D5;"><i class="fa fa-times" style="float: right; "></i></a><div style="clear: both"></div></div>' +
+                        '<div class="weui_cell wss_dashed_bottom"><div class="weui_cell_hd"><label class="weui_label">【运单号】</label></div><div class="weui_cell_bd weui_cell_primary"><input class="weui_input" type="text" placeholder="请输入运单号" name="yd_' + position + '" value="" required/></div></div>' +
+                        '<div class="weui_cell wss_dashed_bottom"><div class="weui_cell_hd"><label class="weui_label">【起运地】</label></div><div class="weui_cell_bd weui_cell_primary"><input class="weui_input" type="text" placeholder="请输入起运地" name="qyd_' + position + '" value="" required/></div></div>' +
+                        '<div class="weui_cell wss_dashed_bottom"><div class="weui_cell_hd"><label class="weui_label">【目的地】</label></div><div class="weui_cell_bd weui_cell_primary"><input class="weui_input" type="text" placeholder="请输入目的地" name="mdd_' + position + '" value="" required/></div></div>' +
+                        '<div class="weui_cell wss_dashed_bottom"><div class="weui_cell_hd"><label class="weui_label">【货物名称】</label></div><div class="weui_cell_bd weui_cell_primary"><input class="weui_input" type="text" placeholder="请输入货物名称" name="hwmc_' + position + '" value="" required/></div></div>' +
+                        '<div class="weui_cell"><div class="weui_cell_hd"><label class="weui_label">【货物数量】</label></div><div class="weui_cell_bd weui_cell_primary"><input class="weui_input" type="number"  placeholder="请输入货物数量" name="hwsl_' + position + '" value="" required/></div></div>' +
+                        '</div>');
+
+            }
+       function change_good_type(){
+    		var good_type_selector =document.getElementById('wx_good_type_id');
+    		if (good_type_selector.value == "普通货物"){
+    			$('#wx_hidden_common_good').removeClass('control-show');
+    		}else{
+    	        $('#wx_hidden_common_good').addClass('control-show');
+    		}
+    		
+    	}
+
+    function click_1(){
+        $('#click_1').removeClass('control-show');
+        $('#click_2').addClass('control-show');
+        $('#click_3').addClass('control-show');
+
+        $('#nav_click_1').addClass('weui_bar_item_on');
+        $('#nav_click_2').removeClass('weui_bar_item_on');
+        $('#nav_click_3').removeClass('weui_bar_item_on');
+    }
+
+    function click_2(){
+        $('#click_1').addClass('control-show');
+        $('#click_2').removeClass('control-show');
+        $('#click_3').addClass('control-show');
+
+        $('#nav_click_1').removeClass('weui_bar_item_on');
+        $('#nav_click_2').addClass('weui_bar_item_on');
+        $('#nav_click_3').removeClass('weui_bar_item_on');
+
+    }
+
+    function click_3(){
+        $('#click_1').addClass('control-show');
+        $('#click_2').addClass('control-show');
+        $('#click_3').removeClass('control-show');
+
+        $('#nav_click_1').removeClass('weui_bar_item_on');
+        $('#nav_click_2').removeClass('weui_bar_item_on');
+        $('#nav_click_3').addClass('weui_bar_item_on');
+    }
+
+
+
+
+
+$.weui = {};
+$.weui.alert = function(options){
+    options = $.extend({title: '警告', text: '警告内容'}, options);
+        var $alert = $('.weui_dialog_alert');
+        $alert.find('.weui_dialog_title').text(options.title);
+        $alert.find('.weui_dialog_bd').text(options.text);
+        $alert.on('touchend click', '.weui_btn_dialog', function(){
+        $alert.hide();
+    });
+    $alert.show();
+};
+
+{#营业执照#}
+$(function () {
+});
+
+
+// 允许上传的图片类型
+var allowTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'];
+// 1024KB，也就是 1MB
+var maxSize = 3072 * 3072;
+// 图片最大宽度
+var maxWidth = 400;
+// 最大上传图片数量
+var maxCount = 5;
+{#$('.batch_image_list').on('change', function (event) {#}
+{##}
+{#$('input[name="batch_image_list"]').on('change', function (event) {#}
+
+{#function onchange_pic(event){#}
+$(".batch_image_list").on('change', function(event) {
+{#alert('aaaaaaaaaaa');#}
+{#$(this).after('<input class="weui_uploader_input batch_image_list" id="id_batch_image_list" name="batch_image_list"  type="file" accept="image/jpg,image/jpeg,image/png,image/gif" multiple="multiple"/>');#}
+
+{#$(this).remove();#}
+    $(this).addClass("control-hidden");
+$('#id_batch_image_list.control-show').eq(0).removeClass('control-show');
+var files = event.target.files;
+
+// 如果没有选中文件，直接返回
+if (files.length === 0) {
+return;
+}
+
+for (var i = 0, len = files.length; i < len; i++) {
+var file = files[i];
+var reader = new FileReader();
+// 如果类型不在允许的类型范围内
+if (allowTypes.indexOf(file.type) === -1) {
+$.weui.alert({text: '该类型不允许上传'});
+continue;
+}
+
+if (file.size > maxSize) {
+$.weui.alert({text: '图片太大，不允许上传'});
+continue;
+}
+
+if ($('.li_batch_image_list').length >= maxCount) {
+$.weui.alert({text: '最多只能上传' + maxCount + '张图片'});
+return;
+}
+reader.onload = function (e) {
+var img = new Image();
+img.onload = function () {
+// 不要超出最大宽度
+var w = Math.min(maxWidth, img.width);
+// 高度按比例计算
+var h = img.height * (w / img.width);
+var canvas = document.createElement('canvas');
+var ctx = canvas.getContext('2d');
+// 设置 canvas 的宽度和高度
+canvas.width = w;
+canvas.height = h;
+ctx.drawImage(img, 0, 0, w, h);
+var base64 = canvas.toDataURL('image/png');
+console.log(base64);
+// 插入到预览区
+var $preview = $('<li class="weui_uploader_file weui_uploader_status li_batch_image_list" style="background-image:url(' + base64 + ')" onclick="deletePic(this);"></li>');
+$('.ul_batch_image_list').append($preview);
+if ($('.li_batch_image_list').length == maxCount){
+	$('.batch_image_list').parent('.weui_uploader_input_wrp').hide();
+}
+{#var num = $('.weui_uploader_file').length;#}
+{#$('.js_counter').text(num + '/' + maxCount);#}
+};
+img.src = e.target.result;
+    $('#id_batch_image_list_hidden').val(img.src);
+};
+reader.readAsDataURL(file);
+}
+});
+
+//包装类型变化
+function change_wx_pack_method(){
+	if ('{{product_type}}' == 'ticket'){
+		var pack_method_selector = document.getElementById('wx_pack_method_id');
+	   	 if(pack_method_selector !=""){
+		    	a=pack_method_selector.value
+		    	wx_getPackDetail(a);
+		    	pack_method_selector.onchange = function () {
+		    		var selectedValue = this[this.selectedIndex].value;
+		    		if(selectedValue !=""){
+		    			wx_getPackDetail(selectedValue);
+		    		}
+		    		else{
+		    		//	alert("包装1方式不能为空");
+		    			var pack_detail_selector = document.getElementById('wx_pack_detail_id');
+		    			pack_detail_selector.innerHTML = '';
+		    		}
+		    	}//endfunction
+		    }//endif
+		    else{
+		    //	alert("包装类型不能为空");
+		    }
+	}
+	else{
+		var pack_method_selector = ""
+	}
+}
+
+//获取包装方式详情
+function wx_getPackDetail (pack_type){
+	var pack_type=pack_type;
+	var pack_detail_selector = document.getElementById('wx_pack_detail_id');
+	
+	$.ajax({
+        url: "/bms/interface/locations/get_pack_detail_list",
+        data: {pack_type: pack_type},
+        type: 'GET',
+        dataType: 'json',
+        timeout: 15000,
+        success: function (data) {
+        	pack_detail_list=data.data.pack_detail
+        	pack_detail_selector.innerHTML = '';
+        	for (var  key in pack_detail_list){
+        		pack_detail=pack_detail_list[key];
+        		value=pack_detail[0];
+        		text=pack_detail[1];
+        		pack_detail_selector.options.add(wx_getOption(text,value));
+        	}
+        	var pack_method_selector1 = document.getElementById('wx_pack_method_id');
+        	var pack_detail_selector1 = document.getElementById('wx_pack_detail_id');
+        	if (pack_method_selector1.value &&  pack_detail_selector1.value ){}
+        	else if(!pack_detail_selector1.value){
+        		pack_detail_selector1.innerHTML = '';
+        		pack_detail_selector.options.add(wx_getOption('无具体包装方式',''));
+        	}	
+        },
+        error: function () {
+          // alert(data);
+         // alert("网络异常请稍后再试");
+        }
+    });
+}
+
+function wx_getOption(text,value){
+    var o = document.createElement('option');
+    o.text = text;
+    o.value = value;
+    return o;
+}
+
+function click_4(){
+    $('#click_4').removeClass('control-show');
+}
+function click_5(){
+    $('#click_4').addClass('control-show');
+}
+
+function checks(){
+	var cargo_number_selector = document.getElementById('id_wx_cargo_number');
+	var radios=document.getElementsByName("radio1");
+    for(var i=0;i<radios.length;i++)
+    {
+        if(radios[i].checked==true)
+        {
+         //   alert("您选择的编码是："+radios[i].value);
+            cargo_number_selector.value=radios[i].value
+        }
+    } 
+	document.getElementById('light').style.display='none';
+	document.getElementById('fade').style.display='none'; 
+}
+
+function wx_change_province(){
+	//alert(333)
+	var target_province_selector = document.getElementById('wx_targetSiteName_prov');
+    var city_selector = document.getElementById('wx_targetSiteName_city');
+    var area_selector = document.getElementById('wx_targetSiteName_dist');
+    var start_province_selector = document.getElementById('wx_startSiteName_prov');
+    if(target_province_selector != null){
+    	change_city_list('wx_targetSiteName_');
+    	target_province_selector.onchange = function () {
+    		change_city_list('wx_targetSiteName_');
+        }
+    }//end first if
+    if(start_province_selector != null){
+    	change_city_list('wx_startSiteName_');
+    	start_province_selector.onchange = function () {
+    		change_city_list('wx_startSiteName_');
+        }
+    }//end first if
+}
+
+function change_city_list(state) {
+	var state=state
+    var province_selector = document.getElementById( state+'prov');
+    var city_selector = document.getElementById(state+'city');
+    $.ajax({
+        url: "/bms/interface/locations/get_city_list/",
+        data: {prov_code: province_selector.value},
+        type: 'GET',
+        dataType: 'json',
+        timeout: 15000,
+        success: function (data) {
+        	var a=1
+        	city_selector.innerHTML = '';
+        	 for (var key1 in data['data']) {
+        		 city_selector.options.add(wx_getOption(data['data'][key1], key1));
+            }
+        	 change_dist_list(state);
+        },
+        error: function (data) {
+            alert("网络不稳定");
+        }
+    });
+    
+    city_selector.onchange = function () {
+    	change_dist_list(state);
+    }
+    
+
+}
+
+function change_dist_list(state) {
+    var province_selector = document.getElementById(state+'prov');
+    var city_selector = document.getElementById(state+'city');
+    var dist_selector = document.getElementById(state+'dist');
+    $.ajax({
+        url: "/bms/interface/locations/get_dist_list/",
+        data: {city_code: city_selector.value},
+        type: 'GET',
+        dataType: 'json',
+        timeout: 15000,
+        success: function (data) {
+        	var a=1
+        	dist_selector.innerHTML = '';
+        	 for (var key1 in data['data']) {
+        		 dist_selector.options.add(wx_getOption(data['data'][key1], key1));
+            }
+        },
+        error: function (data) {
+        	alert("网络不稳定");
+        }
+    });
+}
+
+//获取货物类型参数
+//货物类型变化
+function change_wx_cargo_type(){
+	if ('{{product_type}}' == 'ticket'){
+		var cargo_type_selector = document.getElementById('wx_cargo_type_id');
+	   	 if(cargo_type_selector !=""){
+		    	b=cargo_type_selector.value
+		    	wx_getCargoDetail( b );
+		    	cargo_type_selector.onchange = function () {
+		    		var selectedValue = this[this.selectedIndex].value;
+		    		if(selectedValue !=""){
+		    			wx_getCargoDetail(selectedValue);
+		    		}
+		    		else{
+		    			alert("货物类型大类不能为空");
+		    			var cargo_detail_selector = document.getElementById('wx_cargo_detail');
+		    			cargo_detail_selector.innerHTML = '';
+		    		}
+		    	}//endfunction
+		    }//endif
+		    else{
+		    	alert("包装类型不能为空");
+		    }
+	}
+	else{
+		var pack_method_selector = ""
+	}
+}
+
+//获取货物类型详情
+function wx_getCargoDetail (cargo_type){
+	var cargo_type=cargo_type;
+	var cargo_detail_selector = document.getElementById('wx_cargo_detail_id');
+	
+	$.ajax({
+        url: "/bms/interface/locations/get_cargo_detail_list",
+        data: {cargo_type: cargo_type},
+        type: 'GET',
+        dataType: 'json',
+        timeout: 15000,
+        success: function (data) {
+        	if (data.code == 1){
+        		alert(data.message);
+        	}
+        	cargo_detail_selector.innerHTML = '';
+        	for (var key in data.data){
+        		var value=key;
+         		var text = data.data[key]
+        		cargo_detail_selector.options.add(wx_getOption(text,value)); 	
+        	}
+        	var cargo_detail_selector1 = document.getElementById('wx_cargo_detail_id');
+        	if (cargo_detail_selector1 != ""){}
+        	else{
+        		cargo_detail_selector1.innerHTML = '';
+        		cargo_detail_selector1.options.add(wx_getOption("对应货物详情为空","")); 	
+        	}
+        },
+        error: function (data) {
+          alert("网络延迟，请稍后再试");
+         // alert(data)
+          // alert(data['message']);
+        }
+    });
+}
+function deletePic(obj){
+	if (confirm("确认删除该上传图片吗?")){
+
+		$('#id_batch_image_list.control-hidden').eq($('li').index($(obj))).removeClass('control-hidden');
+		$('#id_batch_image_list').eq($('li').index($(obj))).addClass("control-show");
+		$(obj).remove();
+		var file = $('#id_batch_image_list').eq($('li').index($(obj)));
+		file.after(file.clone().val(""));      
+		file.remove();  
+		if ($('.li_batch_image_list').length <5 ){
+			$('.batch_image_list').parent('.weui_uploader_input_wrp').show();
+		}
+	     
+	}
+}
+    </script>
+{% endblock %}

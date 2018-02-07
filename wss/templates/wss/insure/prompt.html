@@ -1,0 +1,92 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}投保{% endblock %}
+
+{% block container_block %}
+{#    首页所在位置，进入页面后的默认页面#}
+
+    {% if message %}
+    <div class="weui_dialog_alert">
+        <div class="weui_mask"></div>
+        <div class="weui_dialog">
+            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+            <div class="weui_dialog_bd">{{ message }}</div>
+            <div class="weui_dialog_ft">
+                <a onclick="close_dialog();" class="weui_btn_dialog primary">确定</a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+        <div class="weui_cells_title h1" style="color: red;font-size: 28px">重要提示</div>
+        <div class="weui_cells">
+            <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p style="color: red;font-size: 20px">投保前请务必认真阅读以下提示文件</p>
+                </div>
+                <div class="weui_cell_ft"></div>
+            </div>
+        </div>
+
+        <div class="weui_cells weui_cells_checkbox">
+            <label class="weui_cell weui_check_label" for="s11">
+                <div class="weui_cell_hd">
+                    <input type="checkbox" class="weui_check" name="checkbox" id="s11" checked="checked">
+                    <i class="weui_icon_checked"></i>
+                </div>
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p style="font-size: 13px;">我已经认真阅读、理解并同意
+                        {% for document in docuemnts %}
+                            <a class="" href="{% url 'wss:document_detail' document.id %}">《{{ document.name }}》</a>
+                        {% endfor %}全部内容。
+                    </p>
+                </div>
+            </label>
+        </div>
+
+{#         {% if docuemnts %}#}
+{#            <div class="weui_cells">#}
+{#                <div class="weui_cells_title">投保文档下载</div>#}
+{##}
+{#                {% for document in docuemnts %}#}
+{#                    <div class="weui_cell">#}
+{#                        <div class="weui_cell_bd weui_cell_primary">#}
+{#                            <p><a class="" href="{% url 'wss:document_detail' document.id %}">《{{ document.name }}》</a></p>#}
+{#                        </div>#}
+{#                        <div class="weui_cell_ft"><a class="" href="{% static '' %}{{ document.file_url }}">下载</a></div>#}
+{#                    </div>#}
+{#                {% endfor %}#}
+{#            </div>#}
+{#        {% endif %}#}
+
+
+        <form class="" role="form" id="create_prompt_form" method="post" action="{% url 'wss:order_create' %}">{% csrf_token %}
+
+            <input id="id_insure_type" name="insure_type" type="hidden" value="{{ insure_type }}">
+            <div class="weui_opr_area">
+                <p class="weui_btn_area">
+                    <a class="weui_btn weui_btn_primary" onclick="start_prompt();">开始投保</a>
+                </p>
+            </div>
+        </form>
+
+
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+    <script>
+        function start_prompt(){
+             if($("input[name='checkbox']:checked").length>0){
+                document.getElementById("create_prompt_form").submit();
+            }else{
+                alert('投保必须阅读文件并同意文件内容');
+            }
+        }
+    </script>
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+{% endblock %}

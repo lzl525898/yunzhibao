@@ -1,0 +1,155 @@
+{% extends 'bms/campaign/base_campaign.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block campaign_driver %}class='active'{% endblock %}
+{% block title %} 司机详情{% endblock %}
+
+{% block page_top %}
+<style type="text/css">
+.tdstyle{
+	width:25%;
+}
+</style>
+    <div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+
+            <h2 class="text-center">司机详情</h2>
+            {% if message and message != '' %}
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="alert alert-warning text-center">{{ message }}</div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <table class="table table-bordered">
+                <tr>
+                  <td class="info text-center" style="width:20%;">司机信息</td>
+                  <td class="text-center">
+                   <table class="table table-bordered">
+                   <tr>
+                   		<td class="tdstyle">车辆图片</td>
+                   		<td class="tdstyle"> 
+                   		           {% if campaign_trucker.user_image %}
+			                   				<a href="{% static '' %}{{ campaign_trucker.user_image }}" target="_blank"><img class="img-responsive center-block" src="{% static '' %}{{ campaign_trucker.user_image }}" style="max-width: 50px;max-height: 50px;word-break:break-all" /></a>
+			                   		{% else %}
+			                   			  <a href="{% static '' %}pic/default/default_icon.png" target="_blank"> <img class="img-responsive center-block" src="{% static '' %}pic/default/default_icon.png" style="max-width: 50px;max-height: 50px;word-break:break-all" /></a>
+			       					{% endif %}
+                   		</td>
+                   		<td class="tdstyle">姓名</td>
+                   		<td class="tdstyle">{{campaign_trucker.user_name}}</td>
+                   </tr>
+                   <tr>
+                   		<td class="tdstyle">联系电话</td>
+                   		<td class="tdstyle">{{campaign_trucker.user_phone}}</td>
+                   		<td class="tdstyle">年龄</td>
+                   		<td class="tdstyle">{{campaign_trucker.user_age}}岁</td>
+                   </tr>
+                   </table>
+                   </td>
+                </tr>
+                {% if campaign_trucker.insurance_image_list %}
+                    <tr>
+                   		 <td class="info text-center" style="width:20%;">保单照片</td>
+			             <td class=" ">
+			              <table class="table table-bordered" >
+		                            <tr>
+		                                {% for insurance_image  in campaign_trucker.insurance_image_list %}
+		                                    <td>
+		                                        <a href="{% static '' %}{{ insurance_image }}" target="_blank"><img class="img-responsive center-block" src="{% static '' %}{{ insurance_image }}" style="max-width: 50px;max-height: 100px;word-break:break-all" alt="行驶证照片"/></a>
+		                                    </td>
+		                                {% endfor %}
+		                            </tr>
+		                        </table>
+		                </td>
+		               </tr>
+                   {% endif %}
+                  {% if campaign_trucker.plate_image_list %}
+                		<tr>
+                   		 <td class="info text-center" style="width:20%;">行驶证</td>
+			             <td class=" ">
+			              <table class="table table-bordered" >
+		                            <tr>
+		                                {% for plate_image  in campaign_trucker.plate_image_list %}
+		                                    <td>
+		                                        <a href="{% static '' %}{{ plate_image }}" target="_blank"><img class="img-responsive center-block" src="{% static '' %}{{ plate_image }}" style="max-width: 50px;max-height: 100px;word-break:break-all" alt="行驶证照片"/></a>
+		                                    </td>
+		                                {% endfor %}
+		                            </tr>
+		                        </table>
+		                </td>
+                   </tr>
+                   {% endif %}
+                {#  {% if campaign_trucker.car_image_list %}#}
+                	  {#	<tr>#}
+                    {# 		 <td class="info text-center" style="width:20%;">车辆图片</td>#}
+			         {#      <td class=" ">#}
+			         {#       <table class="table table-bordered" >#}
+		         {#                     <tr>#}
+		            {#                      {% for car_image  in campaign_trucker.car_image_list %}#}
+		            {#                          <td>#}
+		              {#                              <a href="{% static '' %}{{ car_image }}" target="_blank"><img class="img-responsive center-block" src="{% static '' %}{{ car_image }}" style="max-width: 50px;max-height: 100px;word-break:break-all" alt="车辆图片"/></a>#}
+		           {#                           </td>#}
+		         {#                         {% endfor %}#}
+		          {#                    </tr>#}
+		          {#                </table>#}
+		          {#        </td>#}
+                 {#    </tr>#}
+                  {#   {% endif %}       #}
+                <tr>
+                  <td class="info text-center" style="width:20%;">车辆信息</td>
+                  <td class="text-center">
+	                   <table class="table table-bordered">
+		                   <tr>
+		                   		<td class="tdstyle">车辆类型</td>
+		                   		<td class="tdstyle">{{car_type_text}}{% if campaign_trucker.car_type == '5' %}-{{campaign_trucker.car_type_other}}{% endif %}</td>
+		                   		<td class="tdstyle">车长</td>
+		                   		<td class="tdstyle">{{car_length_text}}{% if campaign_trucker.car_length == '19' %}-{{campaign_trucker.car_length_other}}{% endif %}</td>
+		                   </tr>
+		                   <tr>
+		                   		<td class="tdstyle">车牌号（头）</td>
+		                   		<td class="tdstyle">{{campaign_trucker.car_num_head}}</td>
+		                   		<td class="tdstyle">车牌号（挂）</td>
+		                   		<td class="tdstyle">{{campaign_trucker.car_num_foot}}</td>
+		                   </tr>
+		                   <tr>
+		                   		初始登记时间:{{campaign_trucker.car_init_date}}
+		                   </tr>
+		                   <tr>
+		                   		<td class="tdstyle">车龄</td>
+		                   		<td class="tdstyle">{{car_age}}</td>
+		                   		<td class="tdstyle">吨位</td>
+		                   		<td class="tdstyle">{{campaign_trucker.car_ton}}</td>
+		                   </tr>
+	                   </table>
+                   </td>
+                </tr>
+                <tr>
+                  <td class="info text-center" style="width:20%;">常走线路</td>
+                  <td class="text-center">
+                      {% for special_line in campaign_trucker.special_line_list %}
+                      {{ special_line.start_line }}<i class="fa  fa-exchange"></i>{{ special_line.end_line }}
+                      {% endfor %}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">自我介绍</td>
+                  <td  class="text-center"style="max-width: 400px; word-wrap:break-word;">{{ campaign_trucker.description|safe }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">优先级</td>
+                  <td class="text-center">{{ campaign_trucker.priority }}</td>
+                </tr>
+
+                <tr>
+                  <td class="info text-center">创建时间</td>
+                  <td class="text-center">{{ campaign_trucker.create_time|date:'Y年m月d日' }}</td>
+                </tr>
+            </table>
+            <a class="btn btn-default" href="{% url 'bms:campaign_driver_list' '1' %}"><i class="fa fa-times"></i> 返 回</a>
+        </div>
+        <div class="col-sm-2"></div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends 'bms/base.html' %}
+{% load static %}
+{% block title %} 产品管理 {% endblock %}
+{% block tab_product %}class='active'{% endblock %}
+
+{% block content_block %}
+
+
+    <div class="row">
+
+        <div class="col-sm-2">
+            <h4 class="visible-xs"></h4>
+            <ul class="nav nav-pills nav-stacked">
+                <li {% block product_head_company %}{% endblock %}><a href="{% url 'bms:head_company_list' '1'%}">保险总公司</a></li>
+                <li {% block product_tail_company %}{% endblock %}><a href="{% url 'bms:tail_company_list' '1'%}">保险分公司</a></li>
+                <li {% block insurance_document %}{% endblock %}><a href="{% url 'bms:insurance_document_list' '1'%}">保险文档</a></li>
+                <li {% block insurance_product %}{% endblock %}><a href="{% url 'bms:insurance_product_list' '1'%}">产品</a></li>
+                <li {% block insurance_coupon %}{% endblock %}><a href="{% url 'bms:coupon_list' '1'%}">折扣券</a></li>
+                <li {% block insurance_coupon_record %}{% endblock %}><a href="{% url 'bms:coupon_send_record' '1'%}">折扣券发放记录</a></li>
+                <li {% block intermediary_list %}{% endblock %}><a href="{% url 'bms:intermediary_list' '1'%}">中介渠道</a></li>
+{#                <li {% block insurance_policy %}{% endblock %}><a href="{% url 'bms:policy_list' '1'%}">保单</a></li>#}
+{#                <li {% block insurance_compensate %}{% endblock %}><a href="{% url 'bms:compensate_list' '1'%}">赔案</a></li>#}
+				<li {% block recommend_product_list %}{% endblock %}><a href="{% url 'bms:recommend_product_list' '1'%}">特推产品</a></li>
+            </ul>
+            <hr class="visible-xs"/>
+        </div>
+
+        <div class="col-sm-10">
+            {% block page_top %}{% endblock %}
+            {% block page_middle %}{% endblock %}
+            {% block page_bottom %}{% endblock %}
+        </div>
+    </div>
+
+{% endblock %}
+
+

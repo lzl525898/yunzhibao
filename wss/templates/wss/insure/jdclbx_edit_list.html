@@ -1,0 +1,118 @@
+ {% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}修改车辆保险信息{% endblock %}
+
+{% block container_block %}
+{% if message %}
+    <div class="weui_dialog_alert">
+        <div class="weui_mask" style="z-index: 4;"></div>
+        <div class="weui_dialog">
+            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+            <div class="weui_dialog_bd">{{ message }}</div>
+            <div class="weui_dialog_ft">
+                <a onclick="close_dialog();" class="weui_btn_dialog primary">确定</a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+<div class="top">
+	<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+		<tbody>
+			<tr>
+					<td width="20%" valign="middle">
+							<a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a>
+					</td>
+					<td class="wz" width="60%" valign="middle" align="center">
+							<span id="toptitle">
+									<i class="fa   fa-file-text"></i>&nbsp;<strong>修改车辆保险信息</strong>
+							</span>
+					</td>
+					<td width="20%" valign="middle" align="right">
+					<a id="aso" href="#"></a>
+					</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<form id="wss_register_form" method="POST" action="{% url 'wss:jdclbx_edit_list' order.id %}" >{% csrf_token %}
+           <div class="weui_cells_title wss_dashed" style="margin-top: -2px;padding-top:45px;"><i class="fa  fa-reorder"></i> &nbsp; 可以修改基本信息和保险信息</div>
+                  <div class="weui_cells weui_cells_access wss_p"  >
+			        <a class="weui_cell wss_cell" href="{% url 'wss:jdclbx_baseinfo_edit' order.id %}?referee_id={{ referee_id }}" style="padding:10px 15px;" >
+			            <div class="weui_cell_bd weui_cell_primary">
+			                 <p>&nbsp;&nbsp;&nbsp;&nbsp;车辆基本信息修改 </p>
+			            </div>
+			             <div class="weui_cell_ft">修改
+			            </div>
+			        </a>
+			        <div  class="wss_dashed_bottom"></div>
+			        <a class="weui_cell wss_cell" href="{% url 'wss:jdclbx_insurance_edit' order.id %}?referee_id={{ referee_id }}" style="padding:10px 15px;" >
+			            <div class="weui_cell_bd weui_cell_primary">
+			                 <p>&nbsp;&nbsp;&nbsp;&nbsp;保险类型信息修改 </p>
+			            </div>
+			             <div class="weui_cell_ft">修改
+			            </div>
+			        </a>
+			        <div  class="wss_dashed_bottom"></div>
+			   
+   		     </div>
+   			   <div style="height:20px;"></div>
+           
+        <div style=" width: 100%; position: fixed;  bottom: 0px;z-index: 1; ">
+         <div class="weui_cell ">
+                <div class="weui_cell_bd weui_cell_primary " >
+								<button type="submit" id="chongxinxunjia"class="weui_btn weui_btn_primary">重新询价</button>
+                </div>
+        </div>
+    </div>
+</form>		       
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+<script src="{% static 'js/jquery-2.1.4.js' %}"></script> 
+<script src="{% static 'js/fastclick.js' %}"></script>
+<script>
+  $(function() {
+    FastClick.attach(document.body);
+    $("#chongxinxunjia").attr("disabled", true);
+  });
+</script>
+<script src="{% static 'js/jquery-weui.js' %}"></script>
+<script src="{% static 'js/swiper.js' %}"></script>
+<script src="{% static 'js/city-picker.js' %}"></script>
+<script type="text/javascript">
+
+    $(document).ready(function (){ 
+		chongxinxunjia_state_type();		
+    });
+    function chongxinxunjia_state_type(){
+		if ('{{chongxinxunjia_state}}'=='change'){
+			  $("#chongxinxunjia").attr("disabled", false);
+		}
+		else{
+			  $("#chongxinxunjia").attr("disabled", true);
+		}
+	}
+    $( "#show-info" ).click(function() {
+    	$("#dialog").dialog();
+       /*  var cover=document.getElementById('dialog');
+        cover.style.display='dialog'; */
+      });
+$("#jiao_start_date").calendar({
+	onChange: function (p, values, displayValues) {
+      console.log(values, displayValues);
+    }
+  });
+$("#shang_start_date").calendar({
+	onChange: function (p, values, displayValues) {
+      console.log(values, displayValues);
+    }
+  });
+</script> 
+{% endblock %}

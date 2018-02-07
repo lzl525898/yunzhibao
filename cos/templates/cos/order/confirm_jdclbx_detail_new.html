@@ -1,0 +1,696 @@
+{% extends 'cos/order/base_jdclbx_list.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block confirm_jdclbx_list %}class='active'{% endblock %}
+{% block title %} 订单列表 {% endblock %}
+
+{% block page_top %}
+<style type="text/css">
+.linear{
+width:100%;
+height:100%;
+FILTER: progid:DXImageTransform.Microsoft.Gradient(gradientType=0,startColorStr=#fafafa,endColorStr=#f5f5f5); /*IE*/
+background:-moz-linear-gradient(top,#fafafa,#f5f5f5);/*火狐*/
+background:-webkit-gradient(linear, 0% 0%, 0% 100%,from(#fafafa), to(#f5f5f5));/*谷歌*/
+background-image: -webkit-gradient(linear,left bottom,left top,color-start(0, #fafafa),color-stop(1, #f5f5f5));/* Safari & Chrome*/
+filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#fafafa', endColorstr='#f5f5f5'); /*IE6 & IE7*/
+-ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#fafafa', endColorstr='#f5f5f5')"; /* IE8 */
+}
+.td_su_width{
+		width:10%;
+}
+.td_active_width{
+		width:15%;
+}
+.td_active_addr{
+		width:40%;
+}
+.div_one{
+		width:12.5%;
+		float:left;
+		background-color: #d9edf7;
+		padding: 8px;
+		border-bottom: 1px solid #ddd;
+		border-right: 1px solid #ddd;
+}
+.div_two{
+		width:12.5%;
+		float:left;
+		background-color: #f5f5f5;
+		padding: 8px;
+		border-bottom: 1px solid #ddd;
+		border-right: 1px solid #ddd;
+}
+</style>
+<!-- <div class="page-header"style="margin: -10px 0 20px;"> -->
+    <!--   <h2 class="text-center">车险订单询价</h2> -->
+            {% if message and message != '' %}
+          <div class="row">
+              <div class="col-sm-12">
+                  <div class="alert alert-warning text-center">{{ message }}</div>
+              </div>
+          </div>
+      {% endif %}
+<!-- </div> -->								   
+<div class="panel-heading" style="background:  #eee">
+      <h4 class="panel-title">订单信息（{{jdclbx_set|displayName:"state" }}）</h4>
+</div>
+</br> 
+
+<div class="panel panel-default">
+   <!-- **************************车辆信息***************************** -->
+      <div class="panel-heading" >
+          <h4 class="panel-title"><i class="fa fa-car"></i>&nbsp;&nbsp;车辆信息<small>({{jdclbx_set.city.name}})</small>
+          <a data-toggle="collapse" data-parent="#steps" href="#stepOne"><i class="fa fa-angle-double-down fa-1.5x" aria-hidden="true"style="float:right;"></i></a></h4>
+      </div>
+      <div id="stepOne" class="panel-collapse collapse in " style="color:#333;font-weight:500;">
+                  <!--*******************动态显示车辆信息  ********************************************************************-->
+		      <div class="panel-body"style='padding: 0px;background-color: #f5f5f5;border-bottom: 1px solid #ddd;'>
+		      		<div class=' div_one 'style="height: 240px;">行驶证正页</div>
+		     		<div class=' div_two 'style="height: 240px;float:left;width:37.5%;">
+		     			<div align="center">
+			     			<a  href="{% static '' %}{{ jdclbx_set.plate_image_left }}" target="_blank">
+		      						<img class="img-responsive" src="{% static '' %}{{ jdclbx_set.plate_image_left }}" style="max-width: 400px;max-height: 200px;">
+		      					</a>
+			     			 <a href="{% static '' %}{{ jdclbx_set.plate_image_left }}" download="{{jdclbx_set.paper_id}}行驶证正页.png"style="float: right;width: 50px;cursor: pointer;"title="下载行驶证正页">
+	        							<i class="fa fa-cloud-download" aria-hidden="true"></i>
+							</a> 
+		     			</div>
+		             </div>
+		             <div class=' div_one 'style="height: 240px;">行驶证附页</div>
+		     		<div class=' div_two 'style="height: 240px;float:left;width:37.5%;">
+		     			<div align="center">
+  			      					<a href="{% static '' %}{{ jdclbx_set.plate_image_right }}" target="_blank">
+  			      						<img class="img-responsive" src="{% static '' %}{{ jdclbx_set.plate_image_right}}" style="max-width: 400px;max-height: 200px;">
+  			      					</a>
+  			      					<a href="{% static '' %}{{ jdclbx_set.plate_image_right }}" download="{{jdclbx_set.paper_id}}行驶证附页.png"style="float: right;width: 50px;cursor: pointer;"title="下载行驶证附页">
+            							<i class="fa fa-cloud-download" aria-hidden="true"></i>
+									</a>
+						</div>	
+		             </div>
+		     		{% if jdclbx_set.order_car_type %}
+		     		<div class=' div_one 'style="">投保车辆类型</div>
+		     		<div class=' div_two '>
+		     				{% if jdclbx_set.order_car_type == 'passenger_car' %}九座以下客车 
+		                    {% elif jdclbx_set.order_car_type == 'truck' %}货车 
+		                    {% else %}{{ jdclbx_set.order_car_type}}未找到对应货物大类
+		                    {% endif %}
+		             </div>
+		     		{% endif %}
+		     		<div class=' div_one 'style="">车牌号</div>
+		     		<div class=' div_two 'style="float:left">{{jdclbx_set.plate_number}}</div>
+		     		{% if jdclbx_set.car_type %}
+		     		<div class=' div_one 'style="">车辆类型</div>
+		     		<div class=' div_two 'style="float:left">{{jdclbx_set.car_type |CX_CarType}}</div>
+		     		{% endif %}
+		     		{% if jdclbx_set.issue_date %}
+		     		<div class=' div_one 'style="">注册日期</div>
+		     		<div class=' div_two 'style="float:left">{{ jdclbx_set.issue_date|date:'Y-m-d'}}</div>
+		     		{% endif %}
+		     		{% if jdclbx_set.holder %}
+		     		<div class=' div_one 'style="">所有人</div>
+		     		<div class=' div_two 'style="float:left">
+		     		  	<a title='{{ jdclbx_set.holder }}' onclick='alert("{{ jdclbx_set.holder }}")'style='cursor: pointer'>{{  jdclbx_set.holder |String_Interception }}</a>
+		     		</div>
+		     		{% endif %}
+		     		{% if jdclbx_set.use_property %}
+		     		<div class=' div_one 'style="">使用性质</div>
+		     		<div class=' div_two 'style="float:left">{{jdclbx_set.use_property |CX_UseProperty}}</div>
+		     		{% endif %}
+		     		{% if jdclbx_set.brand_digging %}
+		     		<div class=' div_one 'style="">品牌型号</div>
+		     		<div class=' div_two 'style="float:left">
+		     			<a title='{{ jdclbx_set.brand_digging }}' onclick='alert("{{ jdclbx_set.brand_digging }}")'style='cursor: pointer'>{{  jdclbx_set.brand_digging |String_Interception }}</a>
+		     		</div>
+		     		{% endif %}
+		     		{% if jdclbx_set.car_number %}
+		     		<div class=' div_one 'style="">车辆识别代码</div>
+		     		<div class=' div_two 'style="float:left">
+		     			<a title='车辆识别代码详情：{{ jdclbx_set.car_number}}' onclick='alert("{{jdclbx_set.car_number}}")'style='cursor: pointer'>{{ jdclbx_set.car_number|String_Interception }}</a>
+		     		</div>
+		     		{% endif %}
+		     		{% if jdclbx_set.engine_number %}
+		     		<div class=' div_one 'style="">发动机号</div>
+		     		<div class=' div_two 'style="float:left">
+		     			<a title='{{ jdclbx_set.engine_number }}' onclick='alert("{{ jdclbx_set.engine_number }}")'style='cursor: pointer'>{{  jdclbx_set.engine_number |String_Interception }}</a>
+		     		</div>
+		     		{% endif %}
+		     		{% if jdclbx_set.people_number %}
+		     		<div class=' div_one 'style="">核载人数(位)</div>
+		     		<div class=' div_two 'style="float:left">{{ jdclbx_set.people_number }}</div>
+		     		{% endif %}
+		     		{% if jdclbx_set.load_weight %}
+		     		<div class=' div_one 'style="">核载质量(Kg)</div>
+		     		<div class=' div_two 'style="float:left">{{ jdclbx_set.load_weight }}</div>
+		     		{% endif %}
+		      </div>
+		      <!--*******************动态显示车辆信息end  ********************************************************************-->
+<!--            <div class="panel-body"> -->
+          		<!-- <table class="table table-bordered table-hover">
+                        <tbody>
+                        	<tr>
+                          		<td colspan="1" class="info td_su_width" >行驶证正页</td>
+  			      				<td colspan="3" class="active" style="width:15%;"align="center" valign="middle">
+  			      					<a href="{% static '' %}{{ jdclbx_set.plate_image_left }}" target="_blank">
+  			      						<img class="img-responsive" src="{% static '' %}{{ jdclbx_set.plate_image_left }}" style="max-width: 400px;max-height: 200px;">
+  			      					</a>
+  			      					<a href="{% static '' %}{{ jdclbx_set.plate_image_left }}" download="{{jdclbx_set.paper_id}}行驶证正页.png"style="float: right;width: 50px;cursor: pointer;"title="下载行驶证正页">
+            							<i class="fa fa-cloud-download" aria-hidden="true"></i>
+									</a>
+  			      				</td>
+  			      				<td colspan="1" class="info td_su_width" >行驶证附页</td>
+  			      				<td colspan="3" class="active" style="width:15%;"align="center" valign="middle">
+  			      					<a href="{% static '' %}{{ jdclbx_set.plate_image_right }}" target="_blank">
+  			      						<img class="img-responsive" src="{% static '' %}{{ jdclbx_set.plate_image_right}}" style="max-width: 400px;max-height: 200px;">
+  			      					</a>
+  			      					<a href="{% static '' %}{{ jdclbx_set.plate_image_right }}" download="{{jdclbx_set.paper_id}}行驶证附页.png"style="float: right;width: 50px;cursor: pointer;"title="下载行驶证附页">
+            							<i class="fa fa-cloud-download" aria-hidden="true"></i>
+									</a>
+  			      				</td>
+  			      				
+                           </tr>
+                           <tr>
+                           		<td colspan="2" class="text-center"><font  style="font-size: 15px">行驶证信息</font></td>
+                          		<td colspan="1" class="info td_su_width" >投保车辆类型</td>
+  			      				<td class="active" style="width:15%;">
+  			      					{% if jdclbx_set.order_car_type == 'passenger_car' %}九座以下客车 
+                               		 {% elif jdclbx_set.order_car_type == 'truck' %}货车 
+                               		 {% else %}{{ jdclbx_set.order_car_type}}未找到对应货物大类
+                               		 {% endif %}
+  			      				</td>
+                              	<td class="success">车辆所在城市</td>
+  			      				<td class="active">{{jdclbx_set.city.name}}</td>
+  			      				<td class="info  td_su_width"  >车牌号</td>
+  			      				<td class="active td_active_width" >{{jdclbx_set.plate_number}}</td>
+  			      				<td class="info  td_su_width">车辆类型</td>
+  			      				<td class="active td_active_width" >{{jdclbx_set.car_type |CX_CarType}}</td>
+  			      				<td class="info  td_su_width" >注册日期</td>
+  			      				<td class="active td_active_width">{{ jdclbx_set.issue_date|date:'Y-m-d'}}</td>
+  			      				
+                           </tr>
+                           <tr>
+                                <td class="info  td_su_width">所有人</td>
+  			      				<td class="active td_active_width">{{jdclbx_set.holder}}</td>
+  			      				<td class="info  td_su_width">使用性质</td>
+  			      				<td class="active td_active_width">{{jdclbx_set.use_property |CX_UseProperty}}</td>
+  			      				<td class="info  td_su_width">品牌型号</td>
+  			      				<td class="active td_active_width">{{jdclbx_set.brand_digging}}</td>
+  			      				<td class="info  td_su_width">车辆识别代码</td>
+  			      				<td class="active td_active_width">{{jdclbx_set.car_number}}</td>
+                           </tr>
+                           <tr>
+                                <td class="info  td_su_width">发动机号</td>
+  			      				<td class="active td_active_width">{{jdclbx_set.engine_number}}</td>
+  			      				<td class="info  td_su_width">核载人数(位)</td>
+  			      				<td class="active td_active_width">{% if jdclbx_set.people_number %}{{jdclbx_set.people_number}}{%else%}未填{%endif%}</td>
+  			       				<td class="info  td_su_width">核载质量(Kg)</td>
+  			      				<td class="active td_active_width" colspan="3" >{% if jdclbx_set.load_weight %}{{jdclbx_set.load_weight}}{%else%}未填{%endif%}</td> 
+                           </tr>
+                      </tbody>
+                </table> -->
+<!-- 	        </div> -->
+	  </div>
+	 <!-- **************************车辆信息end***************************** -->
+                 
+     <!-- **************************投保人信息***************************** -->
+     <div class="panel-heading" >
+         <h4 class="panel-title"><i class="fa fa-user"></i>&nbsp;&nbsp;投保及被保人{#style="color: #fff"#}
+         <a data-toggle="collapse" data-parent="#steps" href="#stepOne1"><i class="fa fa-angle-double-down fa-1.5x" aria-hidden="true"style="float:right;"></i></a></h4>
+     </div>
+     <div id="stepOne1" class="panel-collapse collapse in " style="color:#333;font-weight:500;">
+        <!--  <div class="panel-body"> -->
+         	 <table class="table table-bordered table-hover">
+                   <tbody>
+                   			{% if jdclbx_set.user_classify == 'personal'%}
+                   			<tr>
+                           		<!-- <td colspan="2" class="text-center"><font  style="font-size: 15px">行驶证信息</font></td> -->
+                          		<td colspan="1" class="info td_su_width" >身份证正面</td>
+  			      				<td colspan="3" class="active" style="width:15%;"align="center" valign="middle">
+  			       					<a href="{% static '' %}{{ jdclbx_set.id_card_up }}" target="_blank">
+  			      						<img class="img-responsive" src="{% static '' %}{{ jdclbx_set.id_card_up }}" style="max-width: 400px;max-height: 200px;">
+  			      					</a> 
+  			      					<a href="{% static '' %}{{ jdclbx_set.id_card_up }}" download="{{jdclbx_set.paper_id}}身份证正面.png"style="float: right;width: 50px;cursor: pointer;"title="下载身份证正面">
+            							<i class="fa fa-cloud-download" aria-hidden="true"></i>
+									</a>
+  			      				</td>
+  			      				<td colspan="1" class="info td_su_width" >身份证背面</td>
+  			      				<td colspan="3" class="active" style="width:15%;"align="center" valign="middle">
+  			      					 <a href="{% static '' %}{{ jdclbx_set.id_card_down }}" target="_blank">
+  			      						<img class="img-responsive" src="{% static '' %}{{ jdclbx_set.id_card_down }}" style="max-width: 400px;max-height: 200px;">
+  			      					</a> 
+  			      					<a href="{% static '' %}{{ jdclbx_set.id_card_down }}" download="{{jdclbx_set.paper_id}}身份证背面.png"style="float: right;width: 50px;cursor: pointer;"title="下载身份证背面">
+            							<i class="fa fa-cloud-download" aria-hidden="true"></i>
+									</a>
+  			      				</td>
+                           </tr>
+                           {% else %}
+                           <tr>
+                          		<td colspan="1" class="info td_su_width" >营业执照</td>
+  			      				<td colspan="5" class="active" style="width:15%;"align="center" valign="middle">
+  			      					<a href="{% static '' %}{{ jdclbx_set.business_license_image }}" target="_blank">
+  			      						<img class="img-responsive" src="{% static '' %}{{ jdclbx_set.business_license_image }}" style="max-width: 400px;max-height: 200px;">
+  			      					</a>
+  			      					<a href="{% static '' %}{{ jdclbx_set.business_license_image }}" download="{{jdclbx_set.paper_id}}营业执照.png"style="float: right;width: 50px;cursor: pointer;"title="下载营业执照">
+            							<i class="fa fa-cloud-download" aria-hidden="true"></i>
+									</a>
+  			      				</td>
+                           </tr>
+                   			{% endif %}
+                   			
+                           <tr>
+                          		<td colspan="1" class="info  td_su_width">投保人名称</td>
+  			      				<td class="active td_active_width" >
+  			      					    {% if jdclbx_set.user_classify == 'personal'%}
+  			      					    	<a title='{{ jdclbx_set.applicant_name }}' onclick='alert("{{ jdclbx_set.applicant_name }}")'style='cursor: pointer'>{{  jdclbx_set.applicant_name |String_Interception }}</a>
+                          				{% elif jdclbx_set.user_classify == 'unit'%}
+                          					<a title='{{ jdclbx_set.applicant_company_name }}' onclick='alert("{{ jdclbx_set.applicant_company_name }}")'style='cursor: pointer'>{{  jdclbx_set.applicant_company_name |String_Interception }}</a>
+                          				{% endif %}
+  			      				</td>
+  			      				<td class="info  td_su_width">投保人手机号</td>
+  			      				<td class="active td_active_width">{% if jdclbx_set.user_classify == 'unit'%}*****{% else %}{{jdclbx_set.applicant_phone}}{% endif %}</td>
+  			      				<td class="info  td_su_width">身份证/组织机构号码</td>
+  			      				<td class="active td_active_addr">
+  			      						{% if jdclbx_set.user_classify == 'personal'%}{{jdclbx_set.certificate_number}}
+                          				{% elif jdclbx_set.user_classify == 'unit'%}{{jdclbx_set.organ}}{% endif %}
+  			      				</td>
+                           </tr>
+                           {% if jdclbx_set.insured_classify == 'personal'%}
+                   			<tr>
+                           		<!-- <td colspan="2" class="text-center"><font  style="font-size: 15px">行驶证信息</font></td> -->
+                          		<td colspan="1" class="info td_su_width" >被保人身份证正面</td>
+  			      				<td colspan="3" class="active" style="width:15%;"align="center" valign="middle">
+  			       					<a href="{% static '' %}{{ jdclbx_set.insured_card_up }}" target="_blank">
+  			      						<img class="img-responsive" src="{% static '' %}{{ jdclbx_set.insured_card_up }}" style="max-width: 400px;max-height: 200px;">
+  			      					</a> 
+  			      					<a href="{% static '' %}{{ jdclbx_set.insured_card_up }}" download="{{jdclbx_set.paper_id}}被保人身份证正面.png"style="float: right;width: 50px;cursor: pointer;"title="下载身份证正面">
+            							<i class="fa fa-cloud-download" aria-hidden="true"></i>
+									</a>
+  			      				</td>
+  			      				<td colspan="1" class="info td_su_width" >被保人身份证背面</td>
+  			      				<td colspan="3" class="active" style="width:15%;"align="center" valign="middle">
+  			      					 <a href="{% static '' %}{{ jdclbx_set.insured_card_down }}" target="_blank">
+  			      						<img class="img-responsive" src="{% static '' %}{{ jdclbx_set.insured_card_down }}" style="max-width: 400px;max-height: 200px;">
+  			      					</a> 
+  			      					<a href="{% static '' %}{{ jdclbx_set.insured_card_down }}" download="{{jdclbx_set.paper_id}}被保人身份证背面.png"style="float: right;width: 50px;cursor: pointer;"title="下载身份证背面">
+            							<i class="fa fa-cloud-download" aria-hidden="true"></i>
+									</a>
+  			      				</td>
+                           </tr>
+                           {% else %}
+                           <tr>
+                          		<td colspan="1" class="info td_su_width" >被保人营业执照</td>
+  			      				<td colspan="5" class="active" style="width:15%;"align="center" valign="middle">
+  			      					<a href="{% static '' %}{{ jdclbx_set.insured_license_image }}" target="_blank">
+  			      						<img class="img-responsive" src="{% static '' %}{{ jdclbx_set.insured_license_image }}" style="max-width: 400px;max-height: 200px;">
+  			      					</a>
+  			      					<a href="{% static '' %}{{ jdclbx_set.insured_license_image }}" download="{{jdclbx_set.paper_id}}被保人营业执照.png"style="float: right;width: 50px;cursor: pointer;"title="下载营业执照">
+            							<i class="fa fa-cloud-download" aria-hidden="true"></i>
+									</a>
+  			      				</td>
+                           </tr>
+                   			{% endif %}
+                           <tr>
+                           		<td class="info  td_su_width">被保人姓名</td>
+  			      				<td class="active td_active_width">
+  			      					<a title='{{jdclbx_set.insured_name }}' onclick='alert("{{ jdclbx_set.insured_name }}")'style='cursor: pointer'>{{ jdclbx_set.insured_name|String_Interception }}</a>
+  			      				</td>
+                           		<td class="info  td_su_width">被保人手机号</td>
+  			      				<td class="active td_active_width">{% if jdclbx_set.insured_classify == 'unit'%}*****{% else %}{{jdclbx_set.insured_phone}}{% endif %}</td>
+  			      				<td class="info  td_su_width">身份证/组织机构号码</td>
+  			      				<td class="active td_active_width">{{jdclbx_set.insured_number}}</td>
+                           </tr>
+                           {% if jdclbx_set.city.code != '1101' %}
+                           <tr>
+                           		<td class="info  td_su_width">保单邮寄地址</td>
+  			      				<td class="active td_active_width "colspan="5" >{{jdclbx_set.mail_address}}{{jdclbx_set.policy_address}}</td>
+                           </tr>
+                           {% endif %}
+                    </tbody>
+                </table>   	
+       <!--     </div> -->
+      </div>
+                       <!-- **************************投保人信息end***************************** -->
+                       
+                       <!-- **************************投保险种信息***************************** -->
+     <div class="panel-heading" >
+         <h4 class="panel-title"><i class="fa fa-bars"></i>&nbsp;&nbsp;投保险种
+         <a data-toggle="collapse" data-parent="#steps" href="#stepOne2"><i class="fa fa-angle-double-down fa-1.5x" aria-hidden="true"style="float:right;"></i></a></h4>
+     </div>
+     <div id="stepOne2" class="panel-collapse collapse in" style="color:#333;font-weight:500;">
+     	<div class="panel-body"style='padding: 0px;background-color: #f5f5f5;border-bottom: 1px solid #ddd;'>
+     		{% if jdclbx_set.special_agreement %}
+     		<div class=' div_one 'style="">特别约定</div>
+     		<div class=' div_two 'style="float:left;width:87.5%;word-wrap:break-word;word-break:break-all;">{{special_agreement}}&nbsp;
+     		<a title='查看约定详情' style=";width: 50px;cursor: pointer;"onclick='alert("{{jdclbx_set.special_agreement}}")'><i class="fa fa-search"></i></a></div>
+     		{% endif %}
+         	 {% if jdclbx_set.liability_state == True %}
+     		<div class=' div_one 'style="">交强险</div>
+     		<div class=' div_two 'style="float:left">投保</div>
+     		{% endif %}
+     		{% if jdclbx_set.vehicle_vessel_tax_state == True %}
+     		<div class=' div_one 'style="">车船税</div>
+     		<div class=' div_two 'style="float:left">投保</div>
+     		{% endif %}
+     		{% if jdclbx_set.third_insurance != 0 %}
+     		<div class=' div_one 'style="">三者险</div>
+     		<div class=' div_two 'style="float:left">{{jdclbx_set.third_insurance|Coverage_Price }}</div>
+     		{% endif %}
+     		{% if jdclbx_set.damage_insurance == True %}
+     		<div class=' div_one 'style="">车损险</div>
+     		<div class=' div_two 'style="float:left">投保</div>
+     		{% endif %}
+     		
+     		{% if jdclbx_set.glass_insurance != 'no' %}
+     		<div class=' div_one 'style="">玻璃险</div>
+     		<div class=' div_two 'style="float:left">
+   				 	{% if jdclbx_set.glass_insurance == "china" %} 国产
+   				 	{% elif jdclbx_set.glass_insurance == "import" %} 进口
+   				 	 {% else %}{{ jdclbx_set.glass_insurance}}状态错误
+   				 	 {% endif %}
+			</div>
+     		{% endif %}
+     		{% if jdclbx_set.driver_insurance != 0 %}
+     		<div class=' div_one 'style="">司机险</div>
+     		<div class=' div_two 'style="float:left">{{jdclbx_set.driver_insurance|Coverage_Price }}</div>
+     		{% endif %}
+     		{% if jdclbx_set.theft_insurance == True %}
+     		<div class=' div_one 'style="">盗抢险</div>
+     		<div class=' div_two 'style="float:left">投保</div>
+     		{% endif %}
+     		{% if  jdclbx_set.passenger_insurance != 0 %}
+     		<div class=' div_one 'style="">乘客险</div>
+     		<div class=' div_two 'style="float:left">{{jdclbx_set.passenger_insurance|Coverage_Price }}</div>
+     		{% endif %}
+     		
+     		{% if jdclbx_set.iop_insurance == True %}
+     		<div class=' div_one 'style="">不计免赔险</div>
+     		<div class=' div_two 'style="float:left">投保</div>
+     		{% endif %}
+     		{% if jdclbx_set.autoignition_insurance == True %}
+     		<div class=' div_one 'style="">自燃损失</div>
+     		<div class=' div_two 'style="float:left">投保</div>
+     		{% endif %}
+     		{% if jdclbx_set.wading_insurance == True %}
+     		<div class=' div_one 'style="">涉水险</div>
+     		<div class=' div_two 'style="float:left">投保</div>
+     		{% endif %}
+     		{% if jdclbx_set.scratch_insurance != 0 %}
+     		<div class=' div_one 'style="">划痕险</div>
+     		<div class=' div_two 'style="float:left">{{jdclbx_set.scratch_insurance|Coverage_Price }}</div>
+     		{% endif %}
+     		{% if jdclbx_set.liability_state == True %}
+     		<div class=' div_one 'style="">交强险起期</div>
+     		<div class=' div_two 'style="float:left">{{jdclbx_set.liability_expectStartTime| default_if_none:'' |date:'Y-m-d' }}</div>
+     		{% endif %}
+     		{% if jdclbx_set.commercial_expectStartTime %}
+     		<div class=' div_one 'style="">商业险起期</div>
+     		<div class=' div_two 'style="float:left">{{jdclbx_set.commercial_expectStartTime| default_if_none:'' |date:'Y-m-d' }}</div>
+     		{% endif %}
+     	</div>
+      </div>
+                       <!-- **************************投保人信息end***************************** -->
+                       
+<!-- **************************保险公司报价信息***************************** -->
+     <div class="panel-heading" >
+         <h4 class="panel-title"><i class="fa fa-bar-chart"></i>&nbsp;&nbsp;保险公司报价信息（{{jdclbx_set.company.simple_name }}）
+         <a data-toggle="collapse" data-parent="#steps" href="#stepOne3"><i class="fa fa-angle-double-down fa-1.5x" aria-hidden="true"style="float:right;"></i></a></h4>
+     </div>
+     <div id="stepOne3" class="panel-collapse collapse in " style="color:#333;font-weight:500;">
+         	 <table class="table table-bordered table-hover">
+                   <tbody>
+                           <tr>
+                          		<td colspan="1" class="info  td_su_width">交强险报价</td>
+  			      				<td class="active td_active_width" >{{ intermediary_price_detail.liability_price |FenToYuan}}元</td>
+  			      				<td class="info  td_su_width">车船税报价</td>
+  			      				<td class="active td_active_width">{{intermediary_price_detail.vehicle_vessel_price |FenToYuan}}元</td>
+  			      				 <td class="info  td_su_width">商业险报价</td>
+  			      				<td class="active td_active_width "colspan="1" >{{intermediary_price_detail.commercial_price |FenToYuan}}元
+  			      					<a  href=# title="查看商业险报价详情"style="float:right"data-toggle="modal" data-target="#oil_card_modal"><i class="fa fa-search"></i></a>
+  			      				</td>
+                           </tr>
+                            <tr>
+                          		<td class="info  td_su_width">中介总报价</td>
+  			      				<td class="active td_active_width">{{intermediary_price_detail.order_price_all|FenToYuan}}元</td>
+  			      				<td class="info  td_su_width">净费</td>
+  			      				<td class="active td_active_width">{{intermediary_price_detail.order_price_no_process|FenToYuan}}元</td>
+  			      				 <td class="info  td_su_width">付费时间</td>
+  			      				<td class="active td_active_width"colspan="" >{{jdclbx_set.pay_time|default_if_none:'' |date:'Y-m-d' }}</td>
+                           </tr>
+ 					<!-- *****************************填写保单信息**************************************************************************** -->
+                           {% if jdclbx_set.state != 'done' %}
+                           <tr>
+                           <form id="insurance_form" class="form" method="post" action="{% url 'cos:add_jdclbx_pic' jdclbx_set.id %}" enctype="multipart/form-data">{% csrf_token %}
+                            {% if jdclbx_set.liability_state == True %}
+	                           <tr>
+	                                <td class="info  td_su_width">交强险保单号：</td>
+	  			      				<td class="active td_active_width"colspan="" ><input style="width: "  name="liability_id"value=""placeholder="交强险保单号"/></td>
+	  			      				<td class="info  td_su_width">交强险保单</td>
+	  			      				<td class="active td_active_width"colspan="3" >
+	  			      				<div class="col-sm-4">
+	  			      					<select class="" name="liability_type" id ="id_liability_type" onchange = 'change_liability("liability",this.value)'>
+	  			      						 <option value="pdf" > 上传保单pdf文件 </option>
+		                                      <option value="picture" > 上传保单图片 </option>
+		                                      <option value="web_url" > 上传保单下载链接 </option>
+	                                    </select>
+	  			      				</div>
+	  			      				{% if posted_data.liability_type == 'pricture'  %}
+	  			      				<div class="col-sm-6" id ='liability_pic_up' style="display: block;">
+	  			      				{% else %}
+	  			      				<div class="col-sm-6" id ='liability_pic_up' style="display: none;">
+	  			      				{% endif %}
+			  			      				<input class="filestyle" type="file" id="liability_image" name="liability_image" data-icon="true" data-input="true" 
+														data-buttonText="选择图片" data-iconName="glyphicon-inbox"multiple  accept="image/*">
+										<small><font color='red' >(按住“CTRL”按键，可选择多张图片)</font></small>
+			  			      		</div>
+			  			      		{% if posted_data.liability_type == 'pdf' or not posted_data  %}
+	  			      				<div class="col-sm-6" id ='liability_pdf_up' style="display: block;">
+	  			      				{% else %}
+	  			      				<div class="col-sm-6" id ='liability_pdf_up' style="display: none;">
+	  			      				{% endif %}
+			  			      				<input class="filestyle" type="file" id="id_document_file" name="liability_image" data-icon="true" 
+			  			      				data-input="true" data-buttonText="选择文件" data-iconName="glyphicon-inbox"accept="application/pdf">
+			  			      		</div>
+			  			      		{% if posted_data.liability_type == 'web_url' %}
+			  			      		<div class="col-sm-6" id ='liability_web_url_up' style="display: block;">
+			  			      		{% else %}
+	  			      				<div class="col-sm-6" id ='liability_web_url_up' style="display: none;">
+	  			      				{% endif %}
+			  			      				<input class="text"  id="liability_image" name="liability_image" >
+			  			      		</div>
+	  			      				
+	  			      					
+								    </td>
+							  </tr>
+							{% endif %}
+							{% if intermediary_price_detail.commercial_price != 0 %}
+						      <tr>
+	                              	<td class="info  td_su_width">商业险保单号</td>
+	  			      				<td class="active td_active_width"colspan="1" ><input style="width: "  name="commercial_id"value=""placeholder="商业险保单号"/></td>
+	  			      				<td class="info  td_su_width">商业险保单图片</td>
+	  			      				<td class="active td_active_width"colspan="3" >
+	  			      				<!-- <input class="filestyle" type="file" id="commercial_image" name="commercial_image" data-icon="true" data-input="true" 
+											data-buttonText="选择图片" data-iconName="glyphicon-inbox"multiple> -->
+											<div class="col-sm-4">
+			  			      					<select class="" name="commercial_type" id ="id_commercial_type" onchange = 'change_liability("commercial",this.value)'>
+				                                      <option value="pdf" > 上传保单pdf文件 </option>
+				                                      <option value="picture" > 上传保单图片 </option>
+				                                      <option value="web_url" > 上传保单下载链接 </option>
+			                                    </select>
+			  			      				</div>
+			  			      				{% if posted_data.commercial_type == 'pricture'  %}
+			  			      				<div class="col-sm-6" id ='commercial_pic_up' style="display: block;">
+			  			      				{% else %}
+			  			      				<div class="col-sm-6" id ='commercial_pic_up' style="display: none;">
+			  			      				{% endif %}
+					  			      				<input class="filestyle" type="file" id="commercial_image" name="commercial_image" data-icon="true" data-input="true" 
+																data-buttonText="选择图片" data-iconName="glyphicon-inbox"multiple accept="image/*">
+													<small><font color='red' >(按住“CTRL”按键，可选择多张图片)</font></small>
+					  			      		</div>
+					  			      		{% if posted_data.commercial_type == 'pdf'  or not posted_data  %}
+			  			      				<div class="col-sm-6" id ='commercial_pdf_up' style="display: block;">
+			  			      				{% else %}
+			  			      				<div class="col-sm-6" id ='commercial_pdf_up' style="display: none;">
+			  			      				{% endif %}
+					  			      				<input class="filestyle" type="file" id="id_document_file" name="commercial_image"  data-icon="true" 
+					  			      				data-input="true" data-buttonText="选择文件" data-iconName="glyphicon-inbox"accept="application/pdf">
+					  			      		</div>
+					  			      		{% if posted_data.commercial_type == 'web_url' %}
+					  			      		<div class="col-sm-6" id ='commercial_web_url_up' style="display: block;">
+					  			      		{% else %}
+			  			      				<div class="col-sm-6" id ='commercial_web_url_up' style="display: none;">
+			  			      				{% endif %}
+					  			      				<input class="text"  id="commercial_image" name="commercial_image" >
+					  			      		</div>
+	  			      				</td> 
+	                           </tr>
+	                         {% endif %}
+	                           <tr>
+	  			      				<td class="active td_active_width"colspan="8" style="text-align: center;">
+	  			      					<button type="submit" class="btn btn-primary">提交保单信息</button>
+	  			      				</td>
+	                           </tr>
+                           </from> 
+                          {% else %}
+						 {#-----------------------------------------------------------------------------交强险保单号--------------------------------------------------------------------------------------------------------------#}
+							{%  if jdclbx_set.liability_state == True %}
+                          	<tr>
+	                                <td class="info  td_su_width">交强险保单号</td>
+	  			      				<td class="active td_active_width"colspan="1" >{{jdclbx_set.liability_id}}</td>
+	  			      				<td class="info  td_su_width">交强险保单</td>
+	  			      				<td class="active td_active_width"colspan="3" >
+	  			      					<table class="table table-bordered" >
+					                         <tr>
+					                             {% for insurance_image in jdclbx_set.liability_image_list %}
+						                              {% if jdclbx_set.liability_up_state == 'picture' %}
+						                                <td>
+						                                    <a href="{% static '' %}{{ insurance_image }}" target="_blank">
+						                                    	<img class="img-responsive center-block" src="{% static '' %}{{ insurance_image }}" style="max-width: 50px;max-height: 50px;word-break:break-all" alt="商品图片"/>
+						                                    </a>
+						                                    <a class="pull-right" href="{% static '' %}{{ insurance_image }}" download="{{ jdclbx_set.paper_id }}交强险保单"><i class="fa fa-download">下载</i></a>
+						                                </td>
+						                               {% elif jdclbx_set.liability_up_state == 'pdf'  %}
+						                               <td style="text-align: center;">{{ insurance_image }} 
+					                            			<a class="pull-right" href="{% static '' %}{{ insurance_image }}" download="{{ jdclbx_set.paper_id }}交强险保单下载.pdf"><i class="fa fa-download">下载</i></a>
+					                            		</td>
+					                            		{% elif jdclbx_set.liability_up_state == 'web_url'  %}
+					                            		<td class="active td_active_width"style="text-align: center;"><a href="{{ insurance_image }}" target="_blank" >{{ insurance_image }}</a> </td>
+					                            		{% endif %}
+					                            {% endfor %}  
+					                        </tr> 
+					                    </table>
+								    </td>
+							  </tr>
+							  {% endif %}
+							{#-----------------------------------------------------------------------------商业险保单号--------------------------------------------------------------------------------------------------------------#}
+							{%  if intermediary_price_detail.commercial_price  > 0 %}
+						      <tr>
+	                              	<td class="info  td_su_width">商业险保单号</td>
+	  			      				<td class="active td_active_width"colspan="1" >{{jdclbx_set.commercial_id}}</td>
+	  			      				<td class="info  td_su_width">商业险保单</td>
+	  			      				<td class="active td_active_width"colspan="3" >
+		  			      				<table class="table table-bordered" >
+						                         <tr>
+						                            {% for insurance_image in jdclbx_set.commercial_image_list %}
+						                                 {% if jdclbx_set.commercial_up_state == 'picture' %}
+							                                <td>
+							                                    <a href="{% static '' %}{{ insurance_image }}" target="_blank">
+							                                    	<img class="img-responsive center-block" src="{% static '' %}{{ insurance_image }}" style="max-width: 50px;max-height: 50px;word-break:break-all" alt="商品图片"/>
+							                                    </a>
+							                                    <a class="pull-right" href="{% static '' %}{{ insurance_image }}" download="{{ jdclbx_set.paper_id }}商业险保单"><i class="fa fa-download">下载</i></a>
+							                                </td>
+							                               {% elif jdclbx_set.commercial_up_state == 'pdf'  %}
+							                               <td style="text-align: center;">{{ insurance_image }} 
+						                            			<a class="pull-right" href="{% static '' %}{{ insurance_image }}" download="{{ jdclbx_set.paper_id }}商业险保单下载.pdf"><i class="fa fa-download">下载</i></a>
+						                            		</td>
+						                            		{% elif jdclbx_set.commercial_up_state == 'web_url'  %}
+						                            		<td class="active td_active_width"style="text-align: center;"><a href="{{ insurance_image }}" target="_blank" >{{ insurance_image }}</a> </td>
+						                            		{% endif %}
+					                            {% endfor %}    
+						                        </tr> 
+						                    </table>
+	  			      				</td> 
+	                           </tr>
+                             {% endif %}
+                          {% endif %}
+                          <!-- *****************************填写保单信息end**************************************************************************** -->
+
+                    </tbody>
+                </table>   	
+      </div>
+                       <!-- **************************保险公司报价信息end***************************** -->
+                 
+</div>
+<!-- *******************************************************订单信息end***************************************************************************************** -->
+
+{#商业险详情模态框#}
+<div class="modal fade" id="oil_card_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-lg"style="width:700px">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						商业险详情
+					</h4>
+				</div>
+				<div class="modal-body"style="height: 180px">
+					<div class="col-sm-12">
+						<div class="form-group">
+		                         <table class="table table-bordered table-hover">
+                   					<tbody>
+                   						 <tr>
+			  			      				<td class="info  td_su_width">车损险</td>
+			  			      				<td class="active">{{ intermediary_price_detail.damage_insurance_price |FenToYuan}}元</td>
+			  			      				<td class="info  td_su_width">玻璃险</td>
+			  			      				<td class="active td_active_width">{{ intermediary_price_detail.glass_insurance_price |FenToYuan}}元</td>
+			  			      				<td class="info  td_su_width">不计免赔险</td>
+			  			      				<td class="active td_active_width"colspan="1" >{{ intermediary_price_detail.iop_insurance_price |FenToYuan}}元</td>
+			  			      				<td class="info  td_su_width">三者险</td>
+			  			      				<td class="active td_active_width">{{ intermediary_price_detail.third_insurance_price |FenToYuan}}元</td> 
+			                           </tr>
+			                           <tr>
+			                                <td class="info  td_su_width">司机险</td>
+			  			      				<td class="active td_active_width">{{ intermediary_price_detail.driver_insurance_price |FenToYuan}}元</td>
+			  			      				<td class="info  td_su_width">盗抢险</td>
+			  			      				<td class="active td_active_width">{{ intermediary_price_detail.theft_insurance_price |FenToYuan}}元</td>
+			                              	<td class="info  td_su_width">乘客险</td>
+			  			      				<td class="active td_active_width">{{ intermediary_price_detail.passenger_insurance_price |FenToYuan}}元</td>
+			  			      				<td class="info  td_su_width">自燃损失</td>
+			  			      				<td class="active td_active_width">{{ intermediary_price_detail.autoignition_insurance_price |FenToYuan}}元</td>
+			                           </tr>
+			                           <tr>
+			                              	<td class="info  td_su_width" >涉水险</td>
+			  			      				<td class="active td_active_width">{{ intermediary_price_detail.wading_insurance_price |FenToYuan}}元</td>
+			  			      				<td class="info  td_su_width">划痕险</td>
+			  			      				<td class="active td_active_width">{{ intermediary_price_detail.scratch_insurance_price|FenToYuan }}元</td>	
+			  			      				<td class="info  td_su_width"></td>
+			  			      				<td class="active td_active_width"></td>
+			  			      				<td class="info  td_su_width"></td>
+			  			      				<td class="active td_active_width"></td>
+			  			      				
+			                           </tr>
+                   					</tbody>
+                   				</table>
+	                 	</div>
+	                 </div>
+				</div>
+			</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+function change_liability( type,value){
+	//alert(type+value)
+	var picture_up = $('#'+type+'_pic_up');//上传保单图片
+	var document_up = $('#'+type+'_pdf_up');//上传保单文件
+	var url_up = $('#'+type+'_web_url_up');//上传保单下载链接
+	if (value== 'picture'){
+		picture_up.show();
+		document_up.hide();
+		url_up.hide();
+	}
+	else if (value == 'pdf'){
+		picture_up.hide();
+		document_up.show();
+		url_up.hide();
+	}
+	else if (value == 'web_url'){
+		picture_up.hide();
+		document_up.hide();
+		url_up.show();
+	}
+	else{
+		alert("请选择保单上传方式")
+	}
+	
+}
+    </script>
+{% endblock %}

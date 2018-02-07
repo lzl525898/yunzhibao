@@ -1,0 +1,533 @@
+{% extends 'bms/car/base_car.html' %}
+{% load static %}					{#%static'%识别#}
+{% load legoo_tag %}    		{#认证状态转换#}
+{% block car_list %}class='active'{% endblock %}
+{% block title %} 车辆信息详情{% endblock %}
+
+{% block page_top %}
+
+    <div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+            <h2 class="text-center">车辆信息详情</h2>
+            {% if message and message != '' %}
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="alert alert-warning text-center">{{ message }}</div>
+                    </div>
+                </div>
+            {% endif %}
+
+       
+   <!-- ####################################订单基本信息############################################################### -->         
+            <table class="table table-bordered" id = "id_order_detail"style="display: block;">
+            	<tr>
+                  <td   class="  text-center" onclick="change_car_detail_state('order')"style="background-color:#84cff0">订单基本信息</td>
+                  <td   class=" text-center"onclick="change_car_detail_state('plate')">行驶证信息</td>
+                  <td   class=" text-center"onclick="change_car_detail_state('liability')">交强险信息</td>
+                  <td   class=" text-center"onclick="change_car_detail_state('commercial')">商业险信息</td>
+                </tr>
+                {% if car.client %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">用户</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">
+                  		<a href="{% url 'bms:item_detail' car.client.id %}" target="_blank">{{ car.client.name|DefaultIfNull:'未认证' }}手机:{{ car.client.profile.phone }}</a>
+                   </td>
+                </tr>
+                {% endif %}
+                {% if car.insured_classify %}
+                <tr>
+                  <td class="info text-center" colspan="1"  >被保人身份</td>
+                  <td class="text-center"colspan="3" >{{ car|displayName:'insured_classify'}}</td>
+                </tr>
+                {% endif %}
+                {% if car.insured_name %}
+                <tr>
+                  <td class="info text-center" colspan="1"  >{% if car.insured_classify == 'personal' %}被保人姓名 {% elif car.insured_classify == 'unit' %}单位名称{% endif %}</td>
+                  <td class="text-center"colspan="3" > {{ car.insured_name }}</td>
+                </tr>
+                {% endif %}
+                {% if car.insured_number %}
+                <tr>
+                  <td class="info text-center" colspan="1"  >{% if car.insured_classify == 'personal' %}身份证号码 {% elif car.insured_classify == 'unit' %}组织机构代码证{% endif %}</td>
+                  <td class="text-center"colspan="3" >{{ car.insured_number }}</td>
+                </tr>
+                {% endif %}
+                {% if car.car_state %}
+                <tr>
+                  <td class="info text-center" colspan="1"  >信息来源</td>
+                  <td class="text-center"colspan="3" >{% if car.car_state == '0' %}平台上传{% elif car.car_state == '1' %} 车险自动保存 {% else %}{{ car.car_state }}-未识别 {% endif %}</td>
+                </tr>
+                {% endif %}
+                {% if car.create_time %}
+                <tr>
+                  <td class="info text-center" colspan="1"  >创建时间</td>
+                  <td class="text-center"colspan="3" >{{ car.create_time|date:'Y年m月d日'}}</td>
+                </tr>
+                {% endif %}
+                
+                
+	            <tr>
+	              <td class="text-center"colspan="4" >
+			              保费统计{{total|FenToYuan}}元&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			              返还油卡金额{{car.oil_card_price|FenToYuan}}元&nbsp;&nbsp;
+			              <a  href=# title="设置返还油卡金额"style=""data-toggle="modal" data-target="#oil_card_modal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			              净费{{net_value|FenToYuan}}元
+	              </td>
+	            </tr>
+            </table>
+            
+   <!-- ####################################行驶证基本信息############################################################### -->        
+            
+            <table class="table table-bordered" id = "id_plate_detail"style="display: none;">
+            	<tr>
+                  <td   class="  text-center" onclick="change_car_detail_state('order')">订单基本信息</td>
+                  <td   class="  text-center"onclick="change_car_detail_state('plate')"style="background-color:#84cff0">行驶证信息</td>
+                  <td   class=" text-center"onclick="change_car_detail_state('liability')">交强险信息</td>
+                  <td   class=" text-center"onclick="change_car_detail_state('commercial')">商业险信息</td>
+                </tr>
+                {% if car.plate_number %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">车牌号</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">{{  car.plate_number|DefaultIfNull:'未认证'}}</td>
+                </tr>
+                {% endif %}
+                {% if car.car_type %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">车辆类型</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">{{  car|displayName:'car_type'}}</td>
+                </tr>
+                {% endif %}
+                {% if car.holder %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">所有人</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">{{ car.holder|default_if_none:''}}</td>
+                </tr>
+                {% endif %}
+                {% if car.use_property %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">使用性质</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">{{  car|displayName:'use_property'}}</td>
+                </tr>
+                {% endif %}
+                {% if car.brand_digging %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">品牌型号</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">{{  car.brand_digging|default_if_none:'' }}</td>
+                </tr>
+                {% endif %}
+                {% if car.car_number %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">车辆识别代码</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">{{  car.car_number|default_if_none:'' }}</td>
+                </tr>
+                {% endif %}
+                {% if car.engine_number %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">车辆发动机号</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">{{  car.engine_number|default_if_none:'' }}</td>
+                </tr>
+                {% endif %}
+                {% if car.issue_date %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">注册日期</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">{{  car.issue_date|date:'Y年m月d日' }}</td>
+                </tr>
+                {% endif %}
+                {% if car.people_number %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">核载人数(位)</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">{{  car.people_number|default_if_none:'' }}</td>
+                </tr>
+                {% endif %}
+                {% if car.load_weight %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">核载质量(Kg)</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">{{  car.load_weight|default_if_none:'' }}</td>
+                </tr>
+                {% endif %}
+                {% if car.plate_expiration_periods %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">校验有效期</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">{{  car.plate_expiration_periods|date:'Y年m月d日'  }}</td>
+                </tr>
+                {% endif %}
+                {% if car.license_expiration_time %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">运营证到期时间</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">{{  car.license_expiration_time|date:'Y年m月d日' }}</td>
+                </tr>
+                {% endif %}
+                {% if car.grade_expiration_time %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">等级评定到期时间</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">{{  car.grade_expiration_time|date:'Y年m月d日' }}</td>
+                </tr>
+                {% endif %}
+                {% if car.twolevel_expiration_time %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">二级维护到期时间</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">{{  car.twolevel_expiration_time|date:'Y年m月d日' }}</td>
+                </tr>
+                {% endif %}
+                {% if car.trailer_expiration_time %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">挂车车船稅到期时间</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">{{  car.trailer_expiration_time|date:'Y年m月d日' }}</td>
+                </tr>
+                {% endif %}
+                {% if car.award_date %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">发证日期</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">{{  car.award_date|date:'Y年m月d日' }}</td>
+                </tr>
+                {% endif %}
+                {% if car.plate_image_left %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">行驶证照片</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">
+							<table class="table table-bordered" >
+                            <tr>
+                                {% for plate_image in car.plate_image_left %}
+                                    <td>
+                                        <a href="{% static '' %}{{ plate_image }}" target="_blank"><img class="img-responsive center-block" src="{% static '' %}{{ plate_image }}" style="max-width: 250px;max-height: 60px;word-break:break-all" alt="商品图片"/></a>
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        </table>
+					</td>
+                </tr>
+                {% endif %}
+                
+	            <tr>
+	              <td class="text-center"colspan="4" >
+			              保费统计{{total|FenToYuan}}元&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			              返还油卡金额{{car.oil_card_price|FenToYuan}}元&nbsp;&nbsp;
+			              <a  href=# title="设置返还油卡金额"style=""data-toggle="modal" data-target="#oil_card_modal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			              净费{{net_value|FenToYuan}}元
+	              </td>
+	            </tr>
+            </table>
+            
+  <!-- ####################################交强险基本信息############################################################### -->
+           
+            <table class="table table-bordered" id = "id_liability_detail" style="display: none;">
+            	<tr>
+                  <td   class="  text-center" onclick="change_car_detail_state('order')">订单基本信息</td>
+                  <td   class=" text-center"onclick="change_car_detail_state('plate')">行驶证信息</td>
+                  <td   class="  text-center"onclick="change_car_detail_state('liability')"style="background-color:#84cff0">交强险信息</td>
+                  <td   class=" text-center"onclick="change_car_detail_state('commercial')">商业险信息</td>
+                </tr>
+                {% if car.liability_number %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">交强险保单号</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">{{ car.liability_number}}</td>
+                </tr>
+                {% endif %}
+                {% if car.liability_tax %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">交强险车船稅(元)</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">{{ car.liability_tax|FenToYuan }}元</td>
+                </tr>
+                {% endif %}
+                {% if car.liability_price %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">交强险保费(元)</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">{{ car.liability_price|default_if_none:''|FenToYuan }}元</td>
+                </tr>
+                {% endif %}
+                {% if car.liability_company_new %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">交强险承保公司</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">
+                  	{% if  car.liability_company_new  %}
+			              	{% if user.is_superuser %}<a href="{% url 'bms:item_detail' car.liability_company_new.id %}" target="_blank">{{ car.liability_company_new.simple_name }}</a>{% else %}{{car.liability_company_new.simple_name }}{% endif %} 
+		              	{% elif car.liability_company %}{{ car.liability_company|default_if_none:'' }}
+		              	{% endif %}
+                  </td>
+                </tr>
+                {% endif %}
+                {% if car.liability_company_new.parent.phone  %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">交强险报案电话</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">{{ car.liability_company_new.parent.phone}}</td>
+                </tr>
+                {% endif %}
+                {% if car.liability_date_start and car.liability_date_stop  %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">交强险起止时间</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">{{ car.liability_date_start|date:"Y年m月d日" }}		至	{{ car.liability_date_stop|date:"Y年m月d日" }}</td>
+                </tr>
+                {% endif %}
+                {% if car.liability_image_list %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">交强险保单</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">
+                  	<table class="table table-bordered table-hover">
+		                   <tbody>
+			                  {% for insurance_image in car.liability_image_list %}
+			                  		<!--  细化保单信息-->
+			                  		{% if car.liability_up_state == 'pdf'%}
+			                  		<td class="text-center">{{ insurance_image }}<a class="pull-right" href="{% static '' %}{{ insurance_image }}" download="交强险保单_{{forloop.counter0}}"><i class="fa fa-download">下载</i></a></td>
+			                  		{% elif  car.liability_up_state == 'picture' %}
+			                        <td>
+			                            <a href="{% static '' %}{{ insurance_image }}" target="_blank"><img class="img-responsive center-block" src="{% static '' %}{{ insurance_image }}" style="max-width: 50px;max-height: 50px;word-break:break-all" alt="商品图片"/></a>
+			                        </td>
+			                      {% else %}
+			                      	<td>
+			                            <a href="{{ insurance_image }}" target="_blank">{{ insurance_image }}</a>
+			                        </td>
+			                      {% endif %}
+			                  {% endfor %}  
+			                  </tbody>
+			             </table>
+                  
+                  </td>
+                </tr>
+                {% endif %}
+               
+	            <tr>
+	              <td class="text-center"colspan="4" >
+			              保费统计{{total|FenToYuan}}元&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			              返还油卡金额{{car.oil_card_price|FenToYuan}}元&nbsp;&nbsp;
+			              <a  href=# title="设置返还油卡金额"style=""data-toggle="modal" data-target="#oil_card_modal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			              净费{{net_value|FenToYuan}}元
+	              </td>
+	            </tr>
+            </table>
+            
+            
+    <!-- ####################################商业险基本信息############################################################### -->
+            
+            <table class="table table-bordered" id = "id_commercial_detail" style="display: none;">
+            	<tr>
+                  <td   class="  text-center" onclick="change_car_detail_state('order')">订单基本信息</td>
+                  <td   class=" text-center"onclick="change_car_detail_state('plate')">行驶证信息</td>
+                  <td   class=" text-center"onclick="change_car_detail_state('liability')">交强险信息</td>
+                  <td   class=" text-center"onclick="change_car_detail_state('commercial')"style="background-color:#84cff0">商业险信息</td>
+                </tr>
+                {% if car.commercial_num %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">商业险保单号</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">{{ car.commercial_num|default_if_none:'' }}</td>
+                </tr>
+                {% endif %}
+                {% if car.commercial_price %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">商业险保费(元)</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">{{ car.commercial_price|FenToYuan }}元</td>
+                </tr>
+                {% endif %}
+                {% if car.commercial_tax %}
+		            <tr>
+		              <td class="info text-center"style="width: 150px">商业险险种</td>
+		              <td class="text-center" colspan="3"style="width: 75pc" > 
+		              <div class="row">
+	                          <div class="col-sm-4">险种</div>
+	                          <div class="col-sm-4">险种金额(元)</div>
+	                          <div class="col-sm-4">保额</div>
+	                    </div>
+	                    <hr/>
+	                    {% for tax in car.commercial_tax%}
+	                        <div class="row" style="margin-bottom: 15px">
+	                            <div class="col-sm-4">{{tax.com_kind}}</div>
+	                            <div class="col-sm-4">{{ tax.com_price|FenToYuan }}元</div>
+	                            <div class="col-sm-4">{{tax.com_notice}}</div>
+	                        </div>
+	                      {% endfor %}
+		              </td>
+		            </tr>
+		            {% endif %}
+                {% if car.commercial_company_new  %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">商业险承保公司</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">
+                  	{% if user.is_superuser %}<a href="{% url 'bms:item_detail' car.commercial_company_new.id %}" target="_blank">{{ car.commercial_company_new.simple_name }}</a>{% else %}{{car.commercial_company_new.simple_name }}{% endif %} 
+                  </td>
+                </tr>
+                {% endif %}
+                {% if car.commercial_company_new.parent.phone  %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">商业险报案电话</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">{{ car.commercial_company_new.parent.phone}}</td>
+                </tr>
+                {% endif %}
+                {% if car.commercial_date_start and car.commercial_date_stop  %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">商业险起止时间</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">{{ car.commercial_date_start|date:"Y年m月d日"}}至{{ car.commercial_date_stop|date:"Y年m月d日" }}</td>
+                </tr>
+                {% endif %}
+                {% if car.commercial_company_new.parent.phone  %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">商业险保单照片</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">{{ car.commercial_company_new.parent.phone}}</td>
+                </tr>
+                {% endif %}
+                {% if car.commercial_image_list %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">商业险保单</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">
+                  	<table class="table table-bordered table-hover">
+		                   <tbody>
+			                  {% for insurance_image in car.commercial_image_list %}
+			                  		<!--  细化保单信息-->
+			                  		{% if car.commercial_up_state == 'pdf'%}
+			                  		<td class="text-center">{{ insurance_image }}<a class="pull-right" href="{% static '' %}{{ insurance_image }}" download="商业险保单_{{forloop.counter0}}"><i class="fa fa-download">下载</i></a></td>
+			                  		{% elif  car.commercial_up_state == 'picture' %}
+			                        <td>
+			                            <a href="{% static '' %}{{ insurance_image }}" target="_blank"><img class="img-responsive center-block" src="{% static '' %}{{ insurance_image }}" style="max-width: 50px;max-height: 50px;word-break:break-all" alt="商品图片"/></a>
+			                        </td>
+			                      {% else %}
+			                      	<td>
+			                            <a href="{{ insurance_image }}" target="_blank">{{ insurance_image }}</a>
+			                        </td>
+			                      {% endif %}
+			                  {% endfor %}  
+			                  </tbody>
+			             </table>
+                  
+                  </td>
+                </tr>
+                {% endif %}
+                
+	            <tr>
+	              <td class="text-center"colspan="4" >
+			              保费统计{{total|FenToYuan}}元&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			              返还油卡金额{{car.oil_card_price|FenToYuan}}元&nbsp;&nbsp;
+			              <a  href=# title="设置返还油卡金额"style=""data-toggle="modal" data-target="#oil_card_modal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			              净费{{net_value|FenToYuan}}元
+	              </td>
+	            </tr>
+            </table>
+            
+        </div>
+        <div class="col-sm-2"></div>
+    </div>
+    
+    
+{#返还油卡模态框#}
+<div class="modal fade" id="oil_card_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-lg"style="width:420px">
+		<form id="oil_form" class="form" method="post" action="{% url 'bms:car_oil_card' car.id %}?type=plate">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						返还油卡
+					</h4>
+				</div>
+				<div class="modal-body"style="height: 70px">
+					<div class="col-sm-12">
+						<div class="form-group">
+		                            <label class="control-label">油卡金额:</label>
+		                            <input  name="oil_price"value=""style="width:13pc;height: 40px"placeholder="返还金额最多带两位小数" >
+	                 	</div>
+	                 </div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						返钱
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+
+
+
+
+
+
+{% endblock %}
+{% block script_block %}
+    <script type="text/javascript">
+    //修改页面展示信息
+    function change_car_detail_state(state){
+    	var state=state;
+    	var order_detail = $('#id_order_detail');
+    	var plate_detail = $('#id_plate_detail');
+    	var liability_detail = $('#id_liability_detail');
+    	var commercial_detail = $('#id_commercial_detail');
+    	if (state == "order"){
+    		order_detail.show();
+    		plate_detail.hide();
+    		liability_detail.hide();
+    		commercial_detail.hide();
+    	}
+    	else if (state == "plate"){
+    		order_detail.hide();
+    		plate_detail.show();
+    		liability_detail.hide();
+    		commercial_detail.hide();
+    	}
+    	else if (state == "liability"){
+    		order_detail.hide();
+    		plate_detail.hide();
+    		liability_detail.show();
+    		commercial_detail.hide();
+    	}
+    	else if (state == "commercial"){
+    		order_detail.hide();
+    		plate_detail.hide();
+    		liability_detail.hide();
+    		commercial_detail.show();
+    	}
+    	else{
+    		alert("网络延迟，或您想查看的页面信息不存在")
+    	}
+    }
+    
+    
+    function edit_car_pic(car_image,type){
+        $('#edit_car_pic_modal').modal('show');
+        var image_url_edit = document.getElementById("image_url_edit");
+        image_url_edit.value = car_image;
+        var image_type = document.getElementById("image_type");
+        image_type.value = type;
+    }
+    
+
+
+
+        
+      $('#oil_form').formValidation({
+            framework: 'bootstrap',
+            locale : 'zh_CN',
+            icon: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+            	 oil_price: {
+ 	            	validators: {
+ 	            		notEmpty: {message: '返还油卡金额为必填项不能为空'  },
+                         regexp: {
+                             regexp: /^\d{0,8}\.{0,1}(\d{1,2})?$/,
+                             message: '返还油卡金额必须是数字，最多可输入俩位小数'
+                         },
+                     }
+ 	            },
+	        }
+        });   
+  
+
+
+
+    </script>
+{% endblock %}

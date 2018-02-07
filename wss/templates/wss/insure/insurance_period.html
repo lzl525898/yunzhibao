@@ -1,0 +1,128 @@
+ {% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}保险起期{% endblock %}
+
+{% block container_block %}
+{% if message %}
+    <div class="weui_dialog_alert">
+        <div class="weui_mask"></div>
+        <div class="weui_dialog">
+            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+            <div class="weui_dialog_bd">{{ message }}</div>
+            <div class="weui_dialog_ft">
+                <a onclick="close_dialog();" class="weui_btn_dialog primary">确定</a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+<div class="top">
+	<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+		<tbody>
+			<tr>
+					<td width="20%" valign="middle">
+							<a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a>
+					</td>
+					<td class="wz" width="60%" valign="middle" align="center">
+							<span id="toptitle">
+									<i class="fa   fa-file-text"></i>&nbsp;<strong>保险起期</strong>
+							</span>
+					</td>
+					<td width="20%" valign="middle" align="right">
+					<a id="aso" href="#"></a>
+					</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<form id="wss_register_form" method="POST" action="/wss/insure/start_inquiry/">{% csrf_token %}
+        <input type="hidden" name="paper_id" value="{{ paper_id }}">
+         <input type="hidden" name="shangye_state" value="{{ shangye_state }}">
+          <input type="hidden" name="liability_state_on" value="{{ liability_state }}">
+		<div class="weui_cells" style="height:100%;background:#F3F3F3;padding-top:20px;">
+		              {% if liability_state == 1 %}
+						<div class="weui_cells "style="background:#F3F3F3;font-size:15px;">
+					         <div class="weui_cells_tips">交强险保险起期：</div>
+					           <div class="weui_cell weui_vcode">
+					               <div class="weui_cell_bd weui_cell_primary">
+					                <input class="weui_input" data-descriptions="liability_expectStartTime1" data-required="true"   id="jiao_start_date" type="text" name="liability_expectStartTime" placeholder="请输入保险起期时间" value="{{ posted_data.jiao_start_date }}"  style="height: 37px; width:95%;">
+					            </div>
+					          </div>
+					      </div>
+					      {% endif %}
+					       {% if shangye_state == 1 %}
+					      <div class="weui_cells "style="background:#F3F3F3;font-size:15px;">
+					         <div class="weui_cells_tips">商业险保险起期：</div>
+					           <div class="weui_cell weui_vcode">
+					               <div class="weui_cell_bd weui_cell_primary">
+					                <input class="weui_input"  data-descriptions="commercial_expectStartTime1"  data-required="true"  id="shang_start_date" type="text" name="commercial_expectStartTime" placeholder="请输入保险起期时间" value="{{ posted_data.shang_start_date }}"  style="height: 37px; width:95%;">
+					            </div>
+					          </div>
+					      </div>
+					       {% endif %}
+						
+						<div style="height:55px;"></div>
+                        <div style=" width: 100%; position: fixed;  bottom: 0px; ">
+		                        <button type="submit" class="weui_btn weui_btn_primary">开始询价</button>
+                        </div>
+             </div>
+</div>
+
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+<script src="{% static 'js/jquery-2.1.4.js' %}"></script> 
+<script src="{% static 'js/fastclick.js' %}"></script>
+<script>
+  $(function() {
+    FastClick.attach(document.body);
+  });
+</script>
+<script src="{% static 'js/jquery-weui.js' %}"></script> 
+<script>
+$("#jiao_start_date").calendar({
+	onChange: function (p, values, displayValues) {
+      console.log(values, displayValues);
+    }
+  });
+$("#shang_start_date").calendar({
+	onChange: function (p, values, displayValues) {
+      console.log(values, displayValues);
+    }
+  });
+
+</script> 
+
+<script src="{% static 'js/jquery-mvalidate.js' %}"></script>
+<script src="{% static 'js/formValidation.min.js' %}"></script>
+<script type="text/javascript">
+     $(function(){
+    	  $("#wss_register_form").mvalidate({
+              type: 1,
+              onKeyup: true,
+              sendForm: true,
+              firstInvalidFocus: false,
+              valid: function(event, options) {
+                  //点击提交按钮时,表单通过验证触发函数
+                  //alert("验证通过！接下来可以做你想做的事情啦！");
+                  $("#wss_register_form").submit();
+                  event.preventDefault();
+              },
+              descriptions: {
+            	  liability_expectStartTime1: {
+                      required: '请输入交强险的起期！'
+                  },
+                  commercial_expectStartTime1: {
+                      required: '请输入商业保险的起期！'
+                  }
+              }
+         });
+     });
+</script> 
+{% endblock %}

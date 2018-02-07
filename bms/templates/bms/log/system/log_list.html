@@ -1,0 +1,131 @@
+{% extends 'bms/log/base_log.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block level_1 %}in{% endblock %}
+{% block bms_log %}active{% endblock %}
+{% block page_top %}
+    <div class="row">
+        <div class="col-sm-12">
+            <form id="log_search_form" class="form-inline" role="form" method="post" action="{% url 'bms:log_list' '1' %}"> {% csrf_token %}
+                <div class="input-group">
+                    <label class="sr-only" for="management_log_search">management_log_search</label>
+                    <input type="text" class="form-control" id="search_keyword" placeholder="请输入搜索关键字" name="search_keyword" value="{{ search_keyword }}" maxlength="30">
+                    <span class="input-group-btn">
+                        <button type="submit" class="btn btn-default"><i class="fa fa-search"></i> 搜索</button>
+                        <button id="cancel_search" type="button" class="btn btn-default"><i class="fa fa-times"></i> 取消</button>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            {% if search_keyword and search_keyword != ''%}
+            <p></p>
+            <div class="alert alert-warning">
+                <p>关键字： “{{ search_keyword }}”， 搜索结果：{{ paging.item_count }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-8">
+            {% if paging.total_pages_count > 0 %}
+            <ul class="pagination">
+                <li><a href="{% url 'bms:log_list' paging.prev_page %}">&laquo;</a></li>
+                {% for page in paging.pages %}
+                    <li {% if page == paging.page_index %}class="active"{% endif %}><a href="{% url 'bms:log_list' page %}">{{ page }}</a></li>
+                {% endfor %}
+                <li><a href="{% url 'bms:log_list' paging.next_page %}">&raquo;</a></li>
+                <div class="clearfix"></div>
+                <p>
+                    第{{ paging.page_index }}页/共{{ paging.total_pages_count }}页 &nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <a href="{% url 'bms:log_list' '1' %}">首页</a> / <a href="{% url 'bms:log_list' paging.total_pages_count %}">尾页</a>
+                </p>
+            </ul>
+            {% endif %}
+        </div>
+        <div class="col-sm-4">
+            <br/><br/>
+            <button class="btn btn-danger pull-right" type="button" data-toggle="modal" data-target="#delete_log_modal"><i class="fa fa-trash-o"></i> 删除所有</button>
+        </div>
+
+    </div>
+{% endblock %}
+
+
+{% block page_middle %}
+    {% if message and message != '' %}
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="alert alert-warning">{{ message }}</div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="list-group" id="notice_group">
+                <input type="hidden" id="page_index" name="page_index" value="{{ page_index }}"/>
+                    {% for log in logs %}
+                        <a href="{% url 'bms:log_detail' log.id %}" class="list-group-item">
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <h3 class="list-group-item-heading"><strong>{{ log.user.username }}</strong></h3>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h4 class="list-group-item-heading"><strong>{{ log.path }}</strong></h4>
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="list-group-item-text">创建日期：{{ log.create_time|date:'Y年m月d日 H:i:s' }}</p>
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+       </div>
+    </div>
+{% endblock %}
+
+
+{% block page_bottom %}
+ <div class="modal fade" id="delete_log_modal" tabindex="-1" role="dialog" >
+    <div class="modal-dialog">
+        <form id="delete_log_form" class="form" method="post" action="#"  >  {% csrf_token %}
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title"><i class="fa fa-trash-o"></i> 删除所有日志</h4>
+              </div>
+              <div class="modal-body">
+                <div class="form-group" >
+                    <label class="control-label">删除后不可恢复，是否确认删除？</label>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <a class="btn btn-danger" href="{% url 'bms:log_delete_all' %}" ><i class="fa fa-trash-o"></i> 删 除</a>
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> 退 出</button>
+              </div>
+            </div>
+        </form>
+    </div>
+ </div>
+
+{% endblock %}
+
+
+{% block script_block %}
+    <script type="text/javascript">
+
+        //“全部”按钮的响应事件，清空搜索关键字，然后提交搜索
+        $('#cancel_search').click(function(event) {
+            console.log("click cancel_search");
+            $('#search_keyword').val('');
+            $('#log_search_form').submit();
+          })
+
+    </script>
+{% endblock %}

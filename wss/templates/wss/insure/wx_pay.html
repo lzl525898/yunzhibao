@@ -1,0 +1,222 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}我的{% endblock %}
+
+{% block container_block %}
+{% if message %}
+    <div class="weui_dialog_alert">
+        <div class="weui_mask"></div>
+        <div class="weui_dialog">
+            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+            <div class="weui_dialog_bd">{{ message }}</div>
+            <div class="weui_dialog_ft">
+                <a onclick="close_dialog();" class="weui_btn_dialog primary">确定</a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<!--   测试关闭页面  -->
+<script src="{% static 'js/ajax-wx.js' %}"></script>
+    <div id="detail_model" class="row control-show"style=" z-index: 9999999;">
+		<div class="weui_dialog_alert">
+		        <div class="weui_mask"></div>
+		        <div class="weui_dialog">
+		            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+		            <div class="weui_dialog_bd"><font id="id_message_id"></font></div>
+		            <div class="weui_dialog_ft">
+		            	<a href="javascript:;" class="weui_btn_dialog primary" onclick="close_window()">确定</a>
+		            </div>
+		        </div>
+		    </div>
+    </div>
+
+{#    首页所在位置，进入页面后的默认页面#}
+     <div class="top">
+		<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+			<tbody>
+				<tr>
+						<td width="20%" valign="middle">
+							  <!--  <a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a>  -->
+						</td>
+						<td class="wz" width="60%" valign="middle" align="center">
+								<span id="toptitle">
+										<i class="fa    fa-file-text"></i>&nbsp;<strong>收银台</strong>
+								</span>
+						</td>
+						<td width="20%" valign="middle" align="right">
+						<a id="aso" href="#"></a>
+						</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+<script type="text/javascript">
+pushHistory(); 
+window.addEventListener("popstate", function(e) { 
+    //alert("我监听到了浏览器的返回按钮事件啦");//根据自己的需求实现自己的功能 
+    close_window()
+}, false); 
+
+function pushHistory() { 
+    var state = { 
+        title: "title", 
+        url: "#"
+    }; 
+    window.history.pushState(state, "title", "#"); 
+}
+</script>
+<form id="wss_register_form" method="post" action="{% url 'wss:pay_user_balance' %}" enctype="multipart/form-data">{% csrf_token %}
+<input id="order_id" type="hidden" value="{{ order.id }}">
+<input id="order_state"  value="{{ order.state }}"   type="hidden">
+    <div class="weui_cells wss_p"  style="padding-top:30px;">
+       <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary"> 
+                <p>订单号</p>
+            </div>
+            <div class="weui_cell_ft">{{ order.paper_id }}</div>
+        </div>
+	    <div class="weui_cell wss_dashed_bottom">
+	          <div class="weui_cell_bd weui_cell_primary">
+	            <p>产品名称</p>
+	          </div>
+	          <div class="weui_cell_ft">{{ order.insurance_product.name }}</div>
+	    </div>
+        <div class="weui_cell ">
+          <div class="weui_cell_bd weui_cell_primary">
+            <p>支付金额</p>
+          </div>
+          <div class="weui_cell_ft"><font color="red">{{ order.price|FenToYuan }}元</font></div>
+        </div>
+
+    </div>
+    <div class="wss_line"></div>
+    <div class="weui_cells_title">选择支付方式</div>
+    <div class="wss_line"></div>
+	<nav>
+		<ul>
+		    <li><a href="javascript:;"  onclick="alipay_pc_direct()"><img src="{% static 'pic/default/img05.png' %}" /></a></li>
+	        <li><a href="{% url 'wss:order_pay_update' order.id %}" onclick="#"><img src="{% static 'pic/default/img04.png' %}" /></a></li>
+	      
+		</ul>
+	</nav>
+	<div class="weui_cell ">
+	  <div class="weui_cell_bd weui_cell_primary">
+            <p style="color:red;"><small>注意：平台支持两种支付方式，微信支付和余额支付。使用余额支付的用户，请到我的账户-预存费用中充值。</small></p>
+      </div>
+	</div>
+	<!--banner-->
+    <div class="" style="text-align: justify;margin-top: 30px">
+{#        <a href="javascript:;" class="weui_btn  weui_btn_primary" onclick="alipay_pc_direct()">支付宝支付</a>#}
+<!--         <a href="javascript:;" class="weui_btn weui_btn_primary " onclick="alipay_pc_direct()">微信支付</a> -->
+    </div>
+</form>
+
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+<script src="{% static 'js/pingpp.js' %}"></script>
+    <script type="text/javascript">
+    function test_ajax(){
+/*     	var order_id ="{{order.id}}"; */
+        var order_id =  document.getElementById("order_id").value;
+       $.ajax({
+           url: "/wss/insure/post_order_detail/",
+           data: {order_id: order_id},
+           type: 'GET',
+           dataType: 'json',
+           timeout: 15000,
+           success: function (data) {
+		          var code = data['code'];
+		          var message = data['message'];
+		          $('#detail_model').removeClass('control-show');
+		          if (code=='1'){
+		          	document.getElementById('id_message_id').innerText=message;
+		          	$('#detail_model').removeClass('control-show');
+		          }
+		          else if  (code=='0'){
+		          	document.getElementById('id_message_id').innerText='订单已经支付请在订单列表中查看详情';
+		          	$('#detail_model').removeClass('control-show');
+		          }
+		          else{
+		          	document.getElementById('id_message_id').innerText='网络延迟，请稍后再试';
+		          	$('#detail_model').removeClass('control-show');
+		          }
+           },
+           error: function (data) {
+           	document.getElementById('id_message_id').innerText='网络延迟，请稍后再试~';
+        	$('#detail_model').removeClass('control-show');
+           }
+       }); 
+    }
+    
+        function alipay_pc_direct() {
+            var stored_permium = {{ order.price|FenToYuan }};   
+	       //var stored_permium = 0.01;   
+	         if(!stored_permium){
+	                alert("请输入支付金额");
+	                return
+	          }
+	         var order_id =  document.getElementById("order_id").value;
+	         if(!order_id){
+	             alert("订单号不能为空！");
+	             return
+	           }
+	         var order_state =  document.getElementById("order_state").value;
+	         if(order_state != 'init'){
+	             alert("订单状态不正确请返回订单列表查看详情");
+	             return
+	           }
+            var channel = 'wx_pub';
+            var state_flag = 'wx_pay';
+            $.ajax({
+                url:'/wss/mine/pay/user_balance/',
+                data:{channel:channel,stored_permium:stored_permium,state_flag:state_flag,order_id:order_id},
+                type:'POST',
+                dataType:'json',
+                timeout:15000,
+                success:function(data){
+                    //alert(JSON.stringify(data['data']['ch']));
+                    if (data['code'] == 0){
+                        pingpp.createPayment(data['data']['ch'], function(result, err) {
+                            if (result == "success") {
+                                // 微信公众账号支付的结果会在这里返回
+                                //alert("success1");
+                                test_ajax();
+                                //$('#detail_model').removeClass('control-show');
+                                //window.location.close();
+                               //window.location.href= "/wss/insure/order_detail_update/"+order_id;
+                            } else if (result == "fail") {
+                                // charge 不正确或者微信公众账号支付失败时会在此处返回
+                                $('#transaction_result').text('支付取消');
+                                  alert(err.extra);
+                            } else if (result == "cancel") {
+                                // 微信公众账号支付取消支付
+                                $('#transaction_result').text('支付取消');
+{#                                alert('取消支付！！！');#}
+                            }
+                            $('#transaction_result_modal').modal('show');
+
+                        });
+
+                    }else{
+                        alert(data['message']);
+                    }
+
+                },
+                error:function(){
+                    $('#ticket_info_alert').html("网络超时，操作失败");
+                }
+            });
+        }
+        function clearNoNum(obj){
+        	obj.value = obj.value.replace(/^(\-)*(\d+)\.(\d\d).*$/,'$1$2.$3'); //只能输入两个小数
+        }
+    </script>
+{% endblock %}

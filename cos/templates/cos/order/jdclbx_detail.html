@@ -1,0 +1,391 @@
+{% extends 'cos/order/base_jdclbx_list.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block cos_jdclbx_list %}class='active'{% endblock %}
+{% block title %} 询价订单详情 {% endblock %}
+
+{% block page_top %}
+<style type="text/css">
+.linear{
+width:100%;
+height:100%;
+FILTER: progid:DXImageTransform.Microsoft.Gradient(gradientType=0,startColorStr=#fafafa,endColorStr=#f5f5f5); /*IE*/
+background:-moz-linear-gradient(top,#fafafa,#f5f5f5);/*火狐*/
+background:-webkit-gradient(linear, 0% 0%, 0% 100%,from(#fafafa), to(#f5f5f5));/*谷歌*/
+background-image: -webkit-gradient(linear,left bottom,left top,color-start(0, #fafafa),color-stop(1, #f5f5f5));/* Safari & Chrome*/
+filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#fafafa', endColorstr='#f5f5f5'); /*IE6 & IE7*/
+-ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#fafafa', endColorstr='#f5f5f5')"; /* IE8 */
+}
+</style>
+	        <div class="row">
+	            	<div class="col-lg-12">
+	                        <div class="panel panel-default">
+					               <div class="panel-body">
+					                    
+					                    
+							                <div class="page-header"style="margin: -10px 0 20px;">
+							                    <h2 class="text-center">车险订单询价</h2>
+							                    {% if message and message != '' %}
+									                <div class="row">
+									                    <div class="col-sm-12">
+									                        <div class="alert alert-warning text-center">{{ message }}</div>
+									                    </div>
+									                </div>
+									            {% endif %}
+							                </div>
+						
+	
+									
+					
+							              <div class="panel-group" id="steps">
+							                        <!-- Step 1 -->
+							                        <div class="panel panel-default">
+							                            <div class="panel-heading">
+							                                <h4 class="panel-title"><a data-toggle="collapse" data-parent="#steps" href="#stepOne"><i class="fa fa-road"></i>订单信息</h4>
+							                            </div>
+							                            <div id="stepOne" class="panel-collapse collapse in" style="color:#333;font-weight:500;">
+							                                <div class="panel-body">
+							                                
+							                                		<div class="form-group"style="height: 16px;text-align:center;font-size: 16.5px;margin: -8px 0 10px;">车辆信息</div>
+							                                		
+									                                <div class="form-group"style="height: 18px">
+									                                		<div class="col-sm-4 ">车牌号：{{jdclbx_set.plate_number}}</div>
+													                       	<div class="col-sm-4 ">车辆类型：{{jdclbx_set.car_type |CX_CarType}}</div>
+													                       	<div class="col-sm-4 ">所有人：{{jdclbx_set.holder}}</div>
+											                    	</div>
+											                    	<div class="form-group"style="height: 18px">
+									                                		<div class="col-sm-4 ">使用性质：{{jdclbx_set.use_property |CX_UseProperty}}</div>
+													                       	<div class="col-sm-4 ">品牌型号：{{jdclbx_set.brand_digging}}</div>
+													                       	<div class="col-sm-4 ">车辆识别代码：{{jdclbx_set.car_number}}</div>
+											                    	</div>
+											                    	<div class="form-group"style="height: 18px">
+									                                		<div class="col-sm-4 ">发动机号：{{jdclbx_set.engine_number}}</div>
+									                                		<div class="col-sm-4 ">车辆所在城市：{{jdclbx_set.city.name}}</div>
+													                       	<div class="col-sm-4 ">注册日期：{{ jdclbx_set.issue_date|date:'Y-m-d'}}</div>
+											                    	</div>
+											                    	<div class="form-group"style="height: 18px">
+									                                		<div class="col-sm-4 ">投保车辆大类：
+									                                		{% if jdclbx_set.order_car_type == 'passenger_car' %}九座以下客车 
+									                                		 {% elif jdclbx_set.order_car_type == 'truck' %}货车 
+									                                		 {% else %}{{ jdclbx_set.order_car_type}}未找到对应货物大类
+									                                		 {% endif %}
+																			</div>
+									                                		{% if jdclbx_set.people_number %}
+													                       	<div class="col-sm-4 ">核载人数(位)：{{jdclbx_set.people_number}}</div>
+													                       	{% elif jdclbx_set.load_weight %}
+													                       	<div class="col-sm-4 ">核载质量(Kg)：{{jdclbx_set.load_weight}}</div>
+													                       	{% endif %}
+											                    	</div>
+											                    	<div style="height: 5px;margin: -8px 0 8px;"><hr width="100%"  /></div>
+											                    	<div class="form-group"style="height: 16px;text-align:center;font-size: 16.5px;margin: -3px 0 10px;">投保人信息</div>
+							                                		
+							                                		<div class="form-group"style="height: 18px">
+									                                	{% if jdclbx_set.user_classify == 'personal'%}
+									                                		<div class="col-sm-4 ">投保人姓名：{{jdclbx_set.load_weight}}</div>
+													                       	<div class="col-sm-4 ">身份证号：{{jdclbx_set.certificate_number}}</div>
+													                     {% elif jdclbx_set.user_classify == 'unit'%}
+													                       	<div class="col-sm-4 ">单位名称：{{jdclbx_set.applicant_company_name}}</div>
+													                       	<div class="col-sm-4 ">组织机构号：{{jdclbx_set.organ}}</div>
+													                     {% endif %}
+													                     <div class="col-sm-4 ">投保人手机号：{{jdclbx_set.applicant_phone}}</div>
+											                    	</div>
+											                    	<div class="form-group"style="height: 18px">
+									                                		<div class="col-sm-4 ">被保人姓名：{{jdclbx_set.insured_name}}</div>
+													                       	<div class="col-sm-4 ">被保人手机号：{{jdclbx_set.insured_phone}}</div>
+											                    	</div>
+											                    	<div class="form-group"style="height: 18px">
+									                                		<div class="col-sm-12 ">保单邮寄地址：{{jdclbx_set.policy_address}}</div>
+											                    	</div>
+											                    	
+											                    	<div style="height: 5px;margin: -8px 0 8px;"><hr width="100%"  /></div>
+											                    	<div class="form-group"style="height: 16px;text-align:center;font-size: 16.5px;margin: -3px 0 10px;">投保信息</div>
+											                    	<div class="form-group"style="height: 18px">
+									                                		<div class="col-sm-4 ">交强险：{% if jdclbx_set.liability_state == True %}投保 {% else %} 不投保 {% endif %}</div>
+													                       	<div class="col-sm-4 ">车船税：{% if jdclbx_set.vehicle_vessel_tax_state == True %}投保 {% else %} 不投保 {% endif %}</div>
+													                       	<div class="col-sm-4 ">三者险：{% if jdclbx_set.third_insurance == 0 %}不投保 {% else %} {{jdclbx_set.third_insurance|FenToYuan }} 元 {% endif %}</div>
+											                    	</div>
+											                    	<div class="form-group"style="height: 18px">
+									                                		<div class="col-sm-4 ">车损险：{% if jdclbx_set.damage_insurance == True %}投保 {% else %} 不投保 {% endif %}</div>
+													                       	<div class="col-sm-4 ">玻璃险：{% if jdclbx_set.glass_insurance == 'no' %} 不投保 {% elif jdclbx_set.glass_insurance == "china" %} 国产{% elif jdclbx_set.glass_insurance == "import" %} 进口 {% else %}{{ jdclbx_set.glass_insurance}}状态错误{% endif %}</div>
+													                       	<div class="col-sm-4 ">司机险：{% if jdclbx_set.driver_insurance == 0 %}不投保 {% else %} {{jdclbx_set.driver_insurance|FenToYuan }} 元 {% endif %}</div>
+											                    	</div>
+											                    	<div class="form-group"style="height: 18px">
+									                                		<div class="col-sm-4 ">盗抢险：{% if jdclbx_set.theft_insurance == True %}投保 {% else %} 不投保 {% endif %}</div>
+													                       	<div class="col-sm-4 ">乘客险：{% if jdclbx_set.passenger_insurance == 0 %}不投保 {% else %} {{jdclbx_set.passenger_insurance|FenToYuan }} 元 {% endif %}</div>
+													                       	<div class="col-sm-4 ">不计免赔险：{% if jdclbx_set.iop_insurance == True %}投保 {% else %} 不投保 {% endif %}</div>
+											                    	</div>
+											                    	<div class="form-group"style="height: 18px">
+									                                		<div class="col-sm-4 ">自燃损失：{% if jdclbx_set.autoignition_insurance == True %}投保 {% else %} 不投保 {% endif %}</div>
+													                       	<div class="col-sm-4 ">涉水险：{% if jdclbx_set.wading_insurance == True %}投保 {% else %} 不投保 {% endif %}</div>
+													                       	<div class="col-sm-4 ">划痕险：{% if jdclbx_set.scratch_insurance == 0 %}不投保 {% else %} {{jdclbx_set.scratch_insurance|FenToYuan }} 元 {% endif %}</div>
+											                    	</div>
+											                    	
+							                                </div>
+							                            </div>
+							                        </div>
+							                        
+							                        </br>
+							                        <!-- Step 2 -->
+							                        <div class="panel panel-default">
+							                            <div class="panel-heading">
+							                                <h4 class="panel-title"><a data-toggle="collapse" data-parent="#steps" href="#stepTwo"><i class="fa fa-road"></i>报价</a></h4>
+							                            </div>
+							                            
+							                            <div id="stepTwo" class="panel-collapse collapse in" style="color:#333;font-weight:500;">
+							                                <div class="panel-body">
+							                                	{% for company in company_list %}
+							                                	<form id="defaultForm" method="post" class="form-horizontal" enctype="multipart/form-data"action="{% url 'cos:cos_intermediary_price' jdclbx_set.id %}">{% csrf_token %}  
+																	<input type="hidden" class="" name="bj_company_id" value = "{{company.id}}"/>
+																	<div class="panel-group" id="accordion_{{company.id}}">
+																				<div class="panel ">
+																				
+																						<div class="panel-heading linear">
+																								<h4 class="panel-title">
+																								<a data-toggle="collapse" data-parent="#accordion_{{company.id}}" href="#collapseOne_{{company.id}}">
+																								{{company.simple_name}}&nbsp;&nbsp;报价
+																								{% for intermediary_price_detail  in intermediary_price_list%}
+																			                     {% if intermediary_price_detail.company == company %}
+																			                      <small><font color='black'>(已报价)</font> </small> 	
+																			                      {% endif %}
+																			                      {%endfor %}
+																								</a>
+																								</h4>
+																						</div>
+																						
+																						<div id="collapseOne_{{company.id}}" class="panel-collapse collapse ">
+																								<div class="panel-body">
+																										<div class="form-group"style="height: 18px">
+																										
+																		                                		<div class="col-sm-4">交强险：
+																		                                			<input style="width: 60px" class="" name="liability_price"
+																		                                			{% if jdclbx_set.liability_state == True %}
+																			                                			{% for intermediary_price_detail  in intermediary_price_list%}
+																			                                				{% if intermediary_price_detail.company == company %}
+																			                                					 value="{{ intermediary_price_detail.liability_price |FenToYuan}}"
+																			                                			{% endif %}{%endfor %}placeholder="报价(元)"
+																			                                		{% else%}
+																			                                		value = "0"disabled="disabled" {%endif %}/>
+																		                                			
+																		                                			<input style="width: 50px"type="" class="" name="liability_process_price"
+																		                                			{% if jdclbx_set.liability_state == True %}
+																			                                			{% for intermediary_price_detail  in intermediary_price_list%}
+																			                                				{% if intermediary_price_detail.company == company %}
+																			                                					 value="{{ intermediary_price_detail.liability_process_price }}"
+																			                                			{% endif %}{%endfor %}placeholder="手续费"
+																			                                		 {% else %}value = "0"disabled="disabled"{% endif %}/>%
+																		                                		</div>
+																		                                		
+																						                       	<div class="col-sm-4">车船稅：
+																						                       	
+																							                       	<input style="width: 60px" class="" name="vehicle_vessel_price"
+																							                       	{% if jdclbx_set.vehicle_vessel_tax_state == True %}
+																								                       	{% for intermediary_price_detail  in intermediary_price_list%}
+																			                                				{% if intermediary_price_detail.company == company %}
+																			                                					 value="{{ intermediary_price_detail.vehicle_vessel_price |FenToYuan}}"
+																			                                			{% endif %}{%endfor %}placeholder="报价(元)"
+																			                                		{% else%}value = "0"disabled="disabled"{% endif %}/>
+						
+																			                                		<input style="width: 50px"type="" class="" name="vehicle_vessel_process_price"
+																			                                		{% if jdclbx_set.vehicle_vessel_tax_state == True %}
+																				                                		{% for intermediary_price_detail  in intermediary_price_list%}
+																			                                				{% if intermediary_price_detail.company == company %}
+																			                                					 value="{{ intermediary_price_detail.vehicle_vessel_process_price }}"
+																			                                			{% endif %}{%endfor %}placeholder="手续费"
+																		                                			{%else %} value = "0"disabled="disabled"{% endif %}/>%
+																		                                		</div>	
+																		                                		
+																		                                		<div class="col-sm-4 ">商业险：
+																		                                		{% if jdclbx_set.third_insurance != 0 or  jdclbx_set.damage_insurance == True or jdclbx_set.glass_insurance != 'no' or jdclbx_set.driver_insurance != 0 or jdclbx_set.theft_insurance == True %}
+																		                                			<input style="width: 50px"type="" class="" name="commercial_process_price"
+																		                                			 	{% for intermediary_price_detail  in intermediary_price_list%}
+																			                                				{% if intermediary_price_detail.company == company %}
+																			                                					 value="{{ intermediary_price_detail.commercial_process_price}}"
+																			                                			{% endif %}{%endfor %}placeholder="手续费"/>%
+																		                                		{% elif jdclbx_set.passenger_insurance != 0 or jdclbx_set.iop_insurance == True or jdclbx_set.autoignition_insurance == True or jdclbx_set.wading_insurance == True or jdclbx_set.scratch_insurance != 0  %}
+																		                                			<input style="width: 50px"type="" class="" name="commercial_process_price"
+																		                                				{% for intermediary_price_detail  in intermediary_price_list%}
+																			                                				{% if intermediary_price_detail.company == company %}
+																			                                					 value="{{ intermediary_price_detail.commercial_process_price}}"
+																			                                			{% endif %}{%endfor %}placeholder="手续费"/>%
+																		                                		{% else %}
+																		                                			<input style="width: 50px"type="" class="" name="commercial_process_price" value = "0"disabled="disabled"/>%
+																		                                		{% endif %}
+																		                                		</div>
+																				                    	</div>
+																				                    	
+																				                    	<div class="form-group"style="height: 18px">
+																		                                	 {% if jdclbx_set.third_insurance != 0 %}
+																		                                	 	<div class="col-sm-4 " style="padding-bottom:1px">三者险：
+																		                                			<input style="width: 60px"type="" class="" name="third_insurance_price"  
+																		                                			   {% for intermediary_price_detail  in intermediary_price_list%}
+																			                                				{% if intermediary_price_detail.company == company %}
+																			                                					 value="{{ intermediary_price_detail.third_insurance_price |FenToYuan}}"
+																			                                			{% endif %}{%endfor %}placeholder="报价"/>
+																		                                		</div>	
+																		                                	{% endif %}
+																		                                	{% if jdclbx_set.damage_insurance == True %}
+																		                                	 	<div class="col-sm-4 "style="padding-bottom:1px">车损险：
+																		                                			<input style="width: 60px"type="" class="" name="damage_insurance_price"
+																		                                				{% for intermediary_price_detail  in intermediary_price_list%}
+																			                                				{% if intermediary_price_detail.company == company %}
+																			                                					 value="{{ intermediary_price_detail.damage_insurance_price |FenToYuan}}"
+																			                                			{% endif %}{%endfor %}placeholder="报价"/>
+																		                                		</div>	
+																		                                	{% endif %}
+																		                                	{% if jdclbx_set.glass_insurance != 'no' %}
+																		                                	 	<div class="col-sm-4 "style="padding-bottom:1px">玻璃险：
+																		                                			<input style="width: 60px"type="" class="" name="glass_insurance_price"
+																		                                			 {% for intermediary_price_detail  in intermediary_price_list%}
+																			                                				{% if intermediary_price_detail.company == company %}
+																			                                					 value="{{ intermediary_price_detail.glass_insurance_price |FenToYuan}}"
+																			                                		 {% endif %}{%endfor %}placeholder="报价"/>
+																		                                		</div>	
+																		                                	{% endif %}
+																		                                	{% if jdclbx_set.driver_insurance != 0 %}
+																		                                	 	<div class="col-sm-4 "style="padding-bottom:1px">司机险：
+																		                                			<input style="width: 60px"type="" class="" name="driver_insurance_price"
+																		                                			 {% for intermediary_price_detail  in intermediary_price_list%}
+																			                                				{% if intermediary_price_detail.company == company %}
+																			                                					 value="{{ intermediary_price_detail.driver_insurance_price |FenToYuan}}"
+																			                                		 {% endif %}{%endfor %}placeholder="报价"/>
+																		                                		</div>	
+																		                                	{% endif %}
+																		                                	{% if jdclbx_set.theft_insurance == True %}
+																		                                	 	<div class="col-sm-4 "style="padding-bottom:1px">盗抢险：
+																		                                			<input style="width: 60px"type="" class="" name="theft_insurance_price"
+																		                                			 {% for intermediary_price_detail  in intermediary_price_list%}
+																			                                				{% if intermediary_price_detail.company == company %}
+																			                                					 value="{{ intermediary_price_detail.theft_insurance_price |FenToYuan}}"
+																			                                		 {% endif %}{%endfor %}placeholder="报价"/>
+																		                                		</div>	
+																		                                	{% endif %}
+																		                                	{% if jdclbx_set.passenger_insurance != 0 %}
+																		                                	 	<div class="col-sm-4 "style="padding-bottom:1px">乘客险：
+																		                                			<input style="width: 60px"type="" class="" name="passenger_insurance_price"
+																		                                			{% for intermediary_price_detail  in intermediary_price_list%}
+																			                                				{% if intermediary_price_detail.company == company %}
+																			                                					 value="{{ intermediary_price_detail.passenger_insurance_price |FenToYuan}}"
+																			                                		 {% endif %}{%endfor %}placeholder="报价"/>
+																		                                		</div>	
+																		                                	{% endif %}
+																		                                	{% if jdclbx_set.iop_insurance == True %}
+																		                                	 	<div class="col-sm-4 "style="padding-bottom:1px">不计免赔险：
+																		                                			<input style="width: 60px"type="" class="" name="iop_insurance_price"
+																		                                			{% for intermediary_price_detail  in intermediary_price_list%}
+																			                                				{% if intermediary_price_detail.company == company %}
+																			                                					 value="{{ intermediary_price_detail.iop_insurance_price |FenToYuan}}"
+																			                                		 {% endif %}{%endfor %}placeholder="报价"/>
+																		                                		</div>	
+																		                                	{% endif %}
+																		                                	{% if jdclbx_set.autoignition_insurance == True %}
+																		                                	 	<div class="col-sm-4 "style="padding-bottom:1px">自燃损失：
+																		                                			<input style="width: 60px"type="" class="" name="autoignition_insurance_price"
+																		                                			{% for intermediary_price_detail  in intermediary_price_list%}
+																			                                				{% if intermediary_price_detail.company == company %}
+																			                                					 value="{{ intermediary_price_detail.autoignition_insurance_price |FenToYuan}}"
+																			                                		 {% endif %}{%endfor %}placeholder="报价"/>
+																		                                		</div>	
+																		                                	{% endif %}
+																		                                	{% if jdclbx_set.wading_insurance == True %}
+																		                                	 	<div class="col-sm-4 "style="padding-bottom:1px">涉水险：
+																		                                			<input style="width: 60px"type="" class="" name="wading_insurance_price"
+																		                                			{% for intermediary_price_detail  in intermediary_price_list%}
+																			                                				{% if intermediary_price_detail.company == company %}
+																			                                					 value="{{ intermediary_price_detail.wading_insurance_price |FenToYuan}}"
+																			                                		 {% endif %}{%endfor %}placeholder="报价"/>
+																		                                		</div>	
+																		                                	{% endif %}
+																		                                	{% if jdclbx_set.scratch_insurance != 0 %}
+																		                                	 	<div class="col-sm-4 "style="padding-bottom:1px">划痕险：
+																		                                			<input style="width: 60px"type="" class="" name="scratch_insurance_price"
+																		                                			  {% for intermediary_price_detail  in intermediary_price_list%}
+																			                                				{% if intermediary_price_detail.company == company %}
+																			                                					 value="{{ intermediary_price_detail.scratch_insurance_price|FenToYuan }}"
+																			                                		 {% endif %}{%endfor %}placeholder="报价"/>
+																		                                		</div>	
+																		                                	{% endif %}
+																		                                	
+																		                                	{% for intermediary_price_detail  in intermediary_price_list%}
+																			                                	{% if intermediary_price_detail.company == company %}
+																			                                			<div class="col-sm-4 "style="padding-bottom:1px">商业险总报价：{{intermediary_price_detail.commercial_price |FenToYuan}}元</div>		
+																			                                			<div class="col-sm-4 "style="padding-bottom:1px">报价状态：{{jdclbx_set|displayName:'state'}}</div>	 
+																			                                	{% endif %}{%endfor %}
+																		                                	
+																		                                
+																		                                	  		<div class="col-sm-4 "style="padding-bottom:1px">
+																		                                				<button type="submit" class="btn btn-primary"
+																		                                				{% for intermediary_price_detail  in intermediary_price_list%}
+																			                                				{% if intermediary_price_detail.company == company and intermediary_price_detail.state == 'done'  %}disabled="disabled" 
+																		                                				{% endif %}{%endfor %}>提交</button>
+																		                                		    </div>
+																		                                	 
+																				                    	</div>
+																								</div>
+																						</div>
+																				
+																	  </div>
+																</div>
+																</form>
+											              {% endfor %}
+											              
+												              <form id="defaultForm" method="post" class="form-horizontal" enctype="multipart/form-data"action="{% url 'cos:confirm_intermediary_price' jdclbx_set.id %}">{% csrf_token %}  
+												                     <!--   <div class="panel panel-default">
+												                  				 <div class="panel-body"> -->
+														 								<div class="form-group">
+																                            <div class="" style = "text-align:center">
+																                                <button type="submit" class="btn btn-primary"
+																                                {% if order_state != 'verify' %}disabled="disabled"  {% endif %}>确认报价</button>
+																                            </div>
+																                            <div style = "text-align:center">
+																                                <p><small><font color=red>注意：确认报价后，各个公司报价不可修改。</font></small></p>
+																                            </div>
+																                            
+															                        	</div>
+												                     <!--            </div>
+												                        </div> -->
+												                </form> 
+					
+							                                </div><!-- class="panel-body" -->
+							                            </div><!--id="stepTwo"结束  -->
+							                        </div>
+							                      {#---------------------------------------------------step2-结束----------------------------------------------------------------#}  	
+							                      
+							                 </div>
+	{#-------------------------------------------------------------------------------------------------折叠页内容结束--------------------------------------------------------------------------------------------------------------------------------#}  					
+				
+
+							                        
+							                        
+
+<!-- 
+							                      <form id="defaultForm" method="post" class="form-horizontal" enctype="multipart/form-data"action="{% url 'cos:confirm_intermediary_price' jdclbx_set.id %}">{% csrf_token %}  
+							                       <div class="panel panel-default">
+							                  				 <div class="panel-body">
+									 								<div class="form-group">
+											                            <div class="" style = "text-align:center">
+											                                <button type="submit" class="btn btn-primary">确认报价</button>
+											                            </div>
+											                            <div style = "text-align:center">
+											                                <p><small><font color=red>注意：确认报价后，各个公司报价不可修改。</font></small></p>
+											                            </div>
+											                            
+										                        	</div>
+							                                </div>
+							                        </div>
+							                </form> -->
+							                
+							                
+							       </div>
+							</div>
+	            	</div>
+	        </div>
+	        
+	        
+
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+
+    </script>
+{% endblock %}

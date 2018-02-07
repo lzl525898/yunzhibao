@@ -1,0 +1,82 @@
+{% extends 'bms/product/base_product.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block insurance_coupon %}class='active'{% endblock %}
+{% block title %} 优惠券详情 {% endblock %}
+
+{% block page_top %}
+
+    <div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+
+            <h2 class="text-center">优惠券详情</h2>
+            {% if message and message != '' %}
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="alert alert-warning text-center">{{ message }}</div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <table class="table table-bordered">
+                <tr>
+                  <td class="info text-center">优惠卷名称</td>
+                  <td class="text-center">{{ coupon.name }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">描述</td>
+                  <td class="text-center">{{ coupon.describe }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">产品名称</td>
+                  <td class="text-center"><a href="{% url 'bms:item_detail' coupon.product.id %}" target="_blank">{{ coupon.product.name }}</a></td>
+                </tr>
+                <tr>
+                  <td class="info text-center">保险公司名称</td>
+                  <td class="text-center"><a href="{% url 'bms:item_detail' coupon.product.company.id %}" target="_blank">{{ coupon.product.company.simple_name }}</a></td>
+                </tr>
+{#                <tr>#}
+{#                  <td class="info text-center">使用次数上限</td>#}
+{#                  <td class="text-center">{{ coupon.max_count }} </td>#}
+{#                </tr>#}
+{#                <tr>#}
+{#                  <td class="info text-center">最低消费</td>#}
+{#                  <td class="text-center">{{ coupon.min_price }} </td>#}
+{#                </tr>#}
+{#                <tr>#}
+{#                  <td class="info text-center">最大优惠金额</td>#}
+{#                  <td class="text-center">{{ coupon.max_price }} </td>#}
+{#                </tr>#}
+                <tr>
+                  <td class="info text-center">优惠比例</td>
+                  <td class="text-center">{{ coupon.rate }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">截止日期</td>
+                  <td class="text-center">{{ coupon.end_date|date:'Y年m月d日' }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">是否显示</td>
+                  <td class="text-center">{% if not coupon.is_hidden %}是{% else %}否{% endif %}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">创建时间</td>
+                  <td class="text-center">{{ coupon.create_time|date:'Y年m月d日 H:i:s' }}</td>
+                </tr>
+            </table>
+            <a class="btn btn-success" href="{% url 'bms:coupon_edit' coupon.id %}"><i class="fa fa-edit"></i> 编 辑</a>
+            <a class="btn btn-success" href="{% url 'bms:coupon_send_list' coupon.id '1' %}"><i class="fa fa-edit"></i> 发 送 优 惠 券</a>
+            <a class="btn btn-default" href="{% url 'bms:coupon_list' '1' %}"><i class="fa fa-times"></i> 返 回</a>
+        </div>
+        <div class="col-sm-2"></div>
+    </div>
+
+
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+
+    </script>
+{% endblock %}

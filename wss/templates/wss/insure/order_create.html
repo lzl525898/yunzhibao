@@ -1,0 +1,563 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}投保{% endblock %}
+
+{% block container_block %}
+
+{% if message %}
+    <div class="weui_dialog_alert">
+        <div class="weui_mask"></div>
+        <div class="weui_dialog">
+            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+            <div class="weui_dialog_bd">{{ message }}</div>
+            <div class="weui_dialog_ft">
+                <a onclick="close_dialog();" class="weui_btn_dialog primary">确定</a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+<form id="wss_register_form" method="post" action="{% url 'wss:order_submit' %}" enctype="multipart/form-data">{% csrf_token %}
+    <input id="id_insure_type" name="insure_type" type="hidden" value="{{ insure_type }}">
+    <div class="weui_cells_title hd" style="text-align: center;">投保</div>
+    <div class="weui_cells">
+        <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>产品名称：</p>
+            </div>
+            <div class="weui_cell_ft">{% if insure_type == 'batch' %}车次保险{% endif %}{% if insure_type == 'ticket' %}单票保险{% endif %}</div>
+        </div>
+    </div>
+    <div class="weui_cells">
+        <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>产品费率：</p>
+            </div>
+            <div class="weui_cell_ft">{% if insure_type == 'batch' %}{{ client.product_batch|GetRateIsCheap:client }}{% endif %}{% if insure_type == 'ticket' %}{{ client.product_ticket|GetRateIsCheap:client }}{% endif %}</div>
+        </div>
+    </div>
+    <div class="weui_cells weui_cells_form">
+        <div class="weui_cell">
+            <div class="weui_cell_hd"><label class="weui_label">被保险人</label></div>
+            <div class="weui_cell_bd weui_cell_primary">
+                <input class="weui_input" type="text" placeholder="默认保险人（可选填）" name="insured" value="{% if client.company_name %}{{ client.company_name }}{% else %}{{ client.name }}{% endif %}"/>
+            </div>
+        </div>
+
+        <div class="weui_cell weui_cell_select weui_select_after">
+            <div class="weui_cell_hd">
+                起运地
+            </div>
+            <div id="start_city">
+                <div class="weui_cell_bd weui_cell_primary " style="float: left">
+                        <select class="weui_select prov" name="startSiteName_prov">
+                        </select>
+                </div>
+                <div class="weui_cell_bd weui_cell_primary" style="float: right">
+                        <select class="weui_select city" name="startSiteName_city" disabled>
+                        </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="weui_cell weui_cell_select weui_select_after">
+            <div class="weui_cell_hd">
+                目的地
+            </div>
+            <div id="end_city">
+                <div class="weui_cell_bd weui_cell_primary " style="float: left">
+                        <select class="weui_select prov" name="targetSiteName_prov">
+                        </select>
+                </div>
+                <div class="weui_cell_bd weui_cell_primary" style="float: right">
+                        <select class="weui_select city" name="targetSiteName_city" disabled>
+                        </select>
+                </div>
+            </div>
+        </div>
+
+{% if insure_type == 'batch' %}
+
+        <div class="weui_cell weui_cell_select weui_select_after">
+            <div class="weui_cell_hd">
+                货物价值
+            </div>
+            <div id="insurance_price">
+                <div class="weui_cell_bd weui_cell_primary ">
+                       <select class="weui_select" id="id_batch_insurance_price" name="batch_insurance_price">
+                            <option value="">请选择</option>
+                           <option value="100000" {% if posted_data.batch_insurance_price == '100000' %} selected {% endif %}>10万元</option>
+                            <option value="200000" {% if posted_data.batch_insurance_price == '200000' %} selected {% endif %}>20万元</option>
+                            <option value="300000" {% if posted_data.batch_insurance_price == '300000' %} selected {% endif %}>30万元</option>
+                            <option value="400000" {% if posted_data.batch_insurance_price == '400000' %} selected {% endif %}>40万元</option>
+                            <option value="500000" {% if posted_data.batch_insurance_price == '500000' %} selected {% endif %}>50万元</option>
+                            <option value="600000" {% if posted_data.batch_insurance_price == '600000' %} selected {% endif %}>60万元</option>
+                            <option value="700000" {% if posted_data.batch_insurance_price == '700000' %} selected {% endif %}>70万元</option>
+                            <option value="800000" {% if posted_data.batch_insurance_price == '800000' %} selected {% endif %}>80万元</option>
+                            <option value="900000" {% if posted_data.batch_insurance_price == '900000' %} selected {% endif %}>90万元</option>
+                            <option value="1000000" {% if posted_data.batch_insurance_price == '1000000' %} selected {% endif %}>100万元</option>
+                            <option value="1100000" {% if posted_data.batch_insurance_price == '1100000' %} selected {% endif %}>110万元</option>
+                            <option value="1200000" {% if posted_data.batch_insurance_price == '1200000' %} selected {% endif %}>120万元</option>
+                            <option value="1300000" {% if posted_data.batch_insurance_price == '1300000' %} selected {% endif %}>130万元</option>
+                            <option value="1400000" {% if posted_data.batch_insurance_price == '1400000' %} selected {% endif %}>140万元</option>
+                            <option value="1500000" {% if posted_data.batch_insurance_price == '1500000' %} selected {% endif %}>150万元</option>
+                            <option value="1600000" {% if posted_data.batch_insurance_price == '1600000' %} selected {% endif %}>160万元</option>
+                            <option value="1700000" {% if posted_data.batch_insurance_price == '1700000' %} selected {% endif %}>170万元</option>
+                            <option value="1800000" {% if posted_data.batch_insurance_price == '1800000' %} selected {% endif %}>180万元</option>
+                            <option value="1900000" {% if posted_data.batch_insurance_price == '1900000' %} selected {% endif %}>190万元</option>
+                            <option value="2000000" {% if posted_data.batch_insurance_price == '2000000' %} selected {% endif %}>200万元</option>
+                        </select>
+                </div>
+            </div>
+        </div>
+{#        <div class="weui_cell">#}
+{#            <div class="weui_cell_hd"><label class="weui_label">车牌号</label></div>#}
+{#            <div class="weui_cell_bd weui_cell_primary">#}
+{#                <input class="weui_input" type="text" placeholder="请输入车牌号"  id="id_batch_plate_number" name="batch_plate_number" value="{{ posted_data.batch_plate_number }}"/>#}
+{#            </div>#}
+{#        </div>#}
+
+
+
+
+        <div class="weui_cell weui_cell_select weui_select_before" style="">
+            <div class="weui_cell">
+                车牌号
+            </div>
+            <div class="weui_cell_hd">
+                <select class="weui_select" name="short">
+                    <option value="京">京</option>
+                    <option value="津">津</option>
+                    <option value="冀">冀</option>
+                    <option value="蒙">蒙</option>
+                    <option value="晋">晋</option>
+                    <option value="沪">沪</option>
+                    <option value="皖">皖</option>
+                    <option value="苏">苏</option>
+                    <option value="浙">浙</option>
+                    <option value="鲁">鲁</option>
+                    <option value="闽">闽</option>
+                    <option value="赣">赣</option>
+                    <option value="粤">粤</option>
+                    <option value="桂">桂</option>
+                    <option value="琼">琼</option>
+                    <option value="豫">豫</option>
+                    <option value="鄂">鄂</option>
+                    <option value="湘">湘</option>
+                    <option value="黑">黑</option>
+                    <option value="吉">吉</option>
+                    <option value="辽">辽</option>
+                    <option value="陕">陕</option>
+                    <option value="甘">甘</option>
+                    <option value="宁">宁</option>
+                    <option value="青">青</option>
+                    <option value="新">新</option>
+                    <option value="渝">渝</option>
+                    <option value="川">川</option>
+                    <option value="云">云</option>
+                    <option value="贵">贵</option>
+                    <option value="藏">藏</option>
+                    <option value="港">港</option>
+                    <option value="澳">澳</option>
+                    <option value="台">台</option>
+                </select>
+            </div>
+            <div class="weui_cell_hd">
+                <select class="weui_select" name="letter">
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                    <option value="E">E</option>
+                    <option value="F">F</option>
+                    <option value="G">G</option>
+                    <option value="H">H</option>
+                    <option value="I">I</option>
+                    <option value="J">J</option>
+                    <option value="K">K</option>
+                    <option value="L">L</option>
+                    <option value="M">M</option>
+                    <option value="N">N</option>
+                    <option value="O">O</option>
+                    <option value="P">P</option>
+                    <option value="Q">Q</option>
+                    <option value="R">R</option>
+                    <option value="S">S</option>
+                    <option value="T">T</option>
+                    <option value="U">U</option>
+                    <option value="V">V</option>
+                    <option value="W">W</option>
+                    <option value="X">X</option>
+                    <option value="Y">Y</option>
+                    <option value="Z">Z</option>
+                </select>
+            </div>
+            <div class="weui_cell_bd weui_cell_primary">
+                <input class="weui_input" type="text" placeholder="请输入车牌号"  id="id_batch_plate_number" name="batch_plate_number" value="{{ posted_data.batch_plate_number }}"/>
+            </div>
+        </div>
+        <div class="weui_cell"></div>
+
+         <div class="weui_tab" style="position: relative;height: 30px;">
+            <div class="weui_navbar" style="display: -webkit-box;display: -webkit-flex;display: -ms-flexbox;display: flex;position: absolute;top: 0;width: 100%;background-color: #fafafa;">
+                <div onclick="click_1()" id="nav_click_1" class="weui_navbar_item huise" style="border-right: 1px solid #cccccc;position: relative;display: block;-webkit-box-flex: 1;-webkit-flex: 1;-ms-flex: 1;flex: 1;padding: 13px 0;text-align: center;font-size: 15px;-webkit-tap-highlight-color: transparent;">
+                    上传清单图片
+                </div>
+{#                <div onclick="click_2()" id="nav_click_2" class="weui_navbar_item" style="border-right: 1px solid #cccccc;position: relative;display: block;-webkit-box-flex: 1;-webkit-flex: 1;-ms-flex: 1;flex: 1;padding: 13px 0;text-align: center;font-size: 15px;-webkit-tap-highlight-color: transparent;">#}
+{#                    上传清单文档#}
+{#                </div>#}
+                <div onclick="click_3()" id="nav_click_3" class="weui_navbar_item" style="border-right: 1px solid #cccccc;position: relative;display: block;-webkit-box-flex: 1;-webkit-flex: 1;-ms-flex: 1;flex: 1;padding: 13px 0;text-align: center;font-size: 15px;-webkit-tap-highlight-color: transparent;">
+                    手工录入货物清单
+                </div>
+            </div>
+         </div>
+        <div class="weui_cell" style="margin-top: 18px;">
+            {% if document_batch_id %}
+                <p style="color: red;font-size: 14px">属于
+                        <a  href="{% url 'wss:document_detail' document_batch_id %}" >《不保货物清单》</a>
+                    范围内的货物的任何损失，保险公司不承担赔偿责任</p>
+            {% endif %}
+        </div>
+
+
+{#        <div class="weui_cell">#}
+{#            <div class="weui_cell_hd"><label class="weui_label">挂车牌号</label></div>#}
+{#            <div class="weui_cell_bd weui_cell_primary">#}
+{#                <input class="weui_input" type="text" placeholder="请输入挂车牌号（可选填）" id="id_batch_plate_number_plus" name="batch_plate_number_plus" value="{{ posted_data.batch_plate_number_plus }}"/>#}
+{#            </div>#}
+{#        </div>#}
+
+
+{#        <div class="weui_cells_title">货物清单</div>#}
+        <div id="click_1" class="" style="margin-top: 10px">
+            <div class="weui_cells_title">图片格式（gif、png、jpeg或icon;）</div>
+            <div class="weui_cells weui_cells_form">
+                <div class="weui_cell">
+                    <div class="weui_cell_bd weui_cell_primary">
+                        <div class="weui_uploader">
+                            <div class="weui_uploader_bd">
+                                <ul class="weui_uploader_files ul_batch_image_list">
+                                </ul>
+                                <div class="weui_uploader_input_wrp">
+                                    <input class="weui_uploader_input batch_image_list" id="id_batch_image_list" name="batch_image_list"  type="file" accept="image/jpg,image/jpeg,image/png,image/gif" multiple="multiple"/>
+                                    <input class="weui_uploader_input batch_image_list control-show" id="id_batch_image_list" name="batch_image_list"  type="file" accept="image/jpg,image/jpeg,image/png,image/gif" multiple="multiple"/>
+                                    <input class="weui_uploader_input batch_image_list control-show" id="id_batch_image_list" name="batch_image_list"  type="file" accept="image/jpg,image/jpeg,image/png,image/gif" multiple="multiple"/>
+                                    <input class="weui_uploader_input batch_image_list control-show" id="id_batch_image_list" name="batch_image_list"  type="file" accept="image/jpg,image/jpeg,image/png,image/gif" multiple="multiple"/>
+                                    <input class="weui_uploader_input batch_image_list control-show" id="id_batch_image_list" name="batch_image_list"  type="file" accept="image/jpg,image/jpeg,image/png,image/gif" multiple="multiple"/>
+{#                                                <input type='hidden' id="id_batch_image_list_hidden" name="batch_image_list_hidden">#}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="click_2" class="control-show" style="margin-top: 10px">
+            <div class="weui_cells_title">文档格式（word,excel,PDF）</div>
+            <div class="weui_cell" style="margin-top: 20px;margin-bottom: 20px">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <input class="filestyle" type="file" id="id_batch_file" name="batch_file" data-icon="true" data-input="true" data-buttonText="选择文件" data-iconName="glyphicon-inbox">
+                </div>
+            </div>
+        </div>
+
+        <div id="click_3" class="control-show" style="margin-top: 10px">
+
+            <div id="id_properties_bottom" style="padding-left: 15px;padding-right: 15px;margin-top: 20px">
+                <a href="javascript:;" class="weui_btn weui_btn_mini weui_btn_default" id="" onclick="add_batch_line()">添加货物清单</a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+{% if insure_type == 'ticket' %}
+    <div class="weui_cell">
+        <div class="weui_cell_hd"><label class="weui_label" style="width: 6em">货物价值<small>(元)</small></label></div>
+        <div class="weui_cell_bd weui_cell_primary">
+            <input class="weui_input" type="text" placeholder="请输入货物价值" name="insurance_price" value="{{ posted_data.insurance_price }}"/>
+        </div>
+    </div>
+    <div class="weui_cell">
+        <div class="weui_cell_hd"><label class="weui_label">运单号</label></div>
+        <div class="weui_cell_bd weui_cell_primary">
+            <input class="weui_input" type="text" placeholder="请输入运单号" id="id_ticket_transport_id" name="ticket_transport_id" value="{{ posted_data.ticket_transport_id }}"/>
+        </div>
+    </div>
+{#    <div class="weui_cell">#}
+{#        <div class="weui_cell_hd"><label class="weui_label">挂车牌号</label></div>#}
+{#        <div class="weui_cell_bd weui_cell_primary">#}
+{#            <input class="weui_input" type="text" placeholder="请输入挂车牌号（可选填）" id="id_ticket_plate_number_plus" name="ticket_plate_number_plus" value="{{ posted_data.ticket_plate_number_plus }}"/>#}
+{#        </div>#}
+{#    </div>#}
+    <div class="weui_cell">
+        <div class="weui_cell_hd"><label class="weui_label">货物名称</label></div>
+        <div class="weui_cell_bd weui_cell_primary">
+            <input class="weui_input" type="text" placeholder="请输入货物名称" id="id_ticket_commodityName" name="ticket_commodityName" value="{{ posted_data.ticket_commodityName }}"/>
+        </div>
+    </div>
+    {% if document_ticket_id %}
+        <div class="weui_cell">
+            <p style="color: red;font-size: 14px">请务必确认您投保的货物不属于
+                <a  href="{% url 'wss:document_detail' document_batch_id %}" >《不保货物清单》</a>
+                范围内，否则保险公司不承担赔偿责任</p>
+        </div>
+    {% endif %}
+    <div class="weui_cell">
+        <div class="weui_cell_hd"><label class="weui_label">货物数量</label></div>
+        <div class="weui_cell_bd weui_cell_primary">
+            <input class="weui_input" type="text" placeholder="请输入货物数量" id="id_ticket_commodityCases" name="ticket_commodityCases" value="{{ posted_data.ticket_commodityCases }}"/>
+        </div>
+    </div><div class="weui_cell weui_cell_select weui_select_before">
+        <div class="weui_cell">
+            车牌号
+        </div>
+        <div class="weui_cell_hd">
+            <select class="weui_select" name="short">
+                <option value="京">京</option>
+                <option value="津">津</option>
+                <option value="冀">冀</option>
+                <option value="蒙">蒙</option>
+                <option value="晋">晋</option>
+                <option value="沪">沪</option>
+                <option value="皖">皖</option>
+                <option value="苏">苏</option>
+                <option value="浙">浙</option>
+                <option value="鲁">鲁</option>
+                <option value="闽">闽</option>
+                <option value="赣">赣</option>
+                <option value="粤">粤</option>
+                <option value="桂">桂</option>
+                <option value="琼">琼</option>
+                <option value="豫">豫</option>
+                <option value="鄂">鄂</option>
+                <option value="湘">湘</option>
+                <option value="黑">黑</option>
+                <option value="吉">吉</option>
+                <option value="辽">辽</option>
+                <option value="陕">陕</option>
+                <option value="甘">甘</option>
+                <option value="宁">宁</option>
+                <option value="青">青</option>
+                <option value="新">新</option>
+                <option value="渝">渝</option>
+                <option value="川">川</option>
+                <option value="云">云</option>
+                <option value="贵">贵</option>
+                <option value="藏">藏</option>
+                <option value="港">港</option>
+                <option value="澳">澳</option>
+                <option value="台">台</option>
+            </select>
+        </div>
+        <div class="weui_cell_hd">
+            <select class="weui_select" name="letter">
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+                <option value="D">D</option>
+                <option value="E">E</option>
+                <option value="F">F</option>
+                <option value="G">G</option>
+                <option value="H">H</option>
+                <option value="I">I</option>
+                <option value="J">J</option>
+                <option value="K">K</option>
+                <option value="L">L</option>
+                <option value="M">M</option>
+                <option value="N">N</option>
+                <option value="O">O</option>
+                <option value="P">P</option>
+                <option value="Q">Q</option>
+                <option value="R">R</option>
+                <option value="S">S</option>
+                <option value="T">T</option>
+                <option value="U">U</option>
+                <option value="V">V</option>
+                <option value="W">W</option>
+                <option value="X">X</option>
+                <option value="Y">Y</option>
+                <option value="Z">Z</option>
+            </select>
+        </div>
+        <div class="weui_cell_bd weui_cell_primary">
+            <input class="weui_input" type="text" placeholder="选填"  id="id_batch_plate_number" name="batch_plate_number" value="{{ posted_data.batch_plate_number }}"/>
+        </div>
+    </div>
+{% endif %}
+
+
+    <button type="submit" class="weui_btn weui_btn_primary">投保</button>
+
+
+</form>
+
+
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+    <script type="text/javascript">
+        $(document).ready(function (){
+
+            $("#start_city").citySelect();
+            $("#end_city").citySelect();
+        });
+
+
+       function add_batch_line(){
+{#                var count = $('tr[name="properties_item"]').length;#}
+                var count = document.getElementsByName("properties_item").length;
+{#           alert('count数量:'+count);#}
+                var position = count;
+                if($("#id_properties_item_" + position).length > 0){
+                    for(var i=0;i<count;i++){
+                        if($("#id_properties_item_" + i).length <= 0){
+                            position = i;
+                            break;
+                        }
+                    }
+                }
+                $('#id_properties_bottom').before(  '<div id="id_properties_item_' + position + '" name="properties_item">' +
+                        '<input type="hidden" name="position" value="' + position + '"/>' +
+                        '<div class="weui_cell"><div class="weui_cell_hd"><label class="weui_label">运单号</label></div><div class="weui_cell_bd weui_cell_primary"><input class="weui_input" type="text" placeholder="请输入运单号" name="yd_' + position + '" value="" required/></div></div>' +
+                        '<div class="weui_cell"><div class="weui_cell_hd"><label class="weui_label">起运地</label></div><div class="weui_cell_bd weui_cell_primary"><input class="weui_input" type="text" placeholder="请输入起运地" name="qyd_' + position + '" value="" required/></div></div>' +
+                        '<div class="weui_cell"><div class="weui_cell_hd"><label class="weui_label">目的地</label></div><div class="weui_cell_bd weui_cell_primary"><input class="weui_input" type="text" placeholder="请输入目的地" name="mdd_' + position + '" value="" required/></div></div>' +
+                        '<div class="weui_cell"><div class="weui_cell_hd"><label class="weui_label">货物名称</label></div><div class="weui_cell_bd weui_cell_primary"><input class="weui_input" type="text" placeholder="请输入货物名称" name="hwmc_' + position + '" value="" required/></div></div>' +
+                        '<div class="weui_cell"><div class="weui_cell_hd"><label class="weui_label">货物数量</label></div><div class="weui_cell_bd weui_cell_primary"><input class="weui_input" type="text" placeholder="请输入货物数量" name="hwsl_' + position + '" value="" required/></div></div>' +
+                        '<div style="padding-left: 15px;padding-right: 15px;"><a id="id_properties_item_delete_' + position + '" class="weui_btn weui_btn_mini weui_btn_default" onclick="$(\'#id_properties_item_' + position + '\').remove()" style="float: right;bottom:10px;margin-top: 15px;">删除货物清单</a><div style="clear: both"></div></div>' +
+                        '</div>');
+
+            }
+
+    function click_1(){
+        $('#click_1').removeClass('control-show');
+        $('#click_2').addClass('control-show');
+        $('#click_3').addClass('control-show');
+
+        $('#nav_click_1').addClass('huise');
+        $('#nav_click_2').removeClass('huise');
+        $('#nav_click_3').removeClass('huise');
+    }
+
+    function click_2(){
+        $('#click_1').addClass('control-show');
+        $('#click_2').removeClass('control-show');
+        $('#click_3').addClass('control-show');
+
+        $('#nav_click_1').removeClass('huise');
+        $('#nav_click_2').addClass('huise');
+        $('#nav_click_3').removeClass('huise');
+
+    }
+
+    function click_3(){
+        $('#click_1').addClass('control-show');
+        $('#click_2').addClass('control-show');
+        $('#click_3').removeClass('control-show');
+
+        $('#nav_click_1').removeClass('huise');
+        $('#nav_click_2').removeClass('huise');
+        $('#nav_click_3').addClass('huise');
+    }
+
+
+
+
+
+$.weui = {};
+$.weui.alert = function(options){
+    options = $.extend({title: '警告', text: '警告内容'}, options);
+        var $alert = $('.weui_dialog_alert');
+        $alert.find('.weui_dialog_title').text(options.title);
+        $alert.find('.weui_dialog_bd').text(options.text);
+        $alert.on('touchend click', '.weui_btn_dialog', function(){
+        $alert.hide();
+    });
+    $alert.show();
+};
+
+{#营业执照#}
+$(function () {
+});
+
+
+// 允许上传的图片类型
+var allowTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'];
+// 1024KB，也就是 1MB
+var maxSize = 3072 * 3072;
+// 图片最大宽度
+var maxWidth = 400;
+// 最大上传图片数量
+var maxCount = 5;
+{#$('.batch_image_list').on('change', function (event) {#}
+{##}
+{#$('input[name="batch_image_list"]').on('change', function (event) {#}
+
+{#function onchange_pic(event){#}
+$(".batch_image_list").on('change', function(event) {
+{#alert('aaaaaaaaaaa');#}
+{#$(this).after('<input class="weui_uploader_input batch_image_list" id="id_batch_image_list" name="batch_image_list"  type="file" accept="image/jpg,image/jpeg,image/png,image/gif" multiple="multiple"/>');#}
+
+{#$(this).remove();#}
+    $(this).addClass("control-hidden");
+$('#id_batch_image_list.control-show').eq(0).removeClass('control-show');
+var files = event.target.files;
+
+// 如果没有选中文件，直接返回
+if (files.length === 0) {
+return;
+}
+
+for (var i = 0, len = files.length; i < len; i++) {
+var file = files[i];
+var reader = new FileReader();
+// 如果类型不在允许的类型范围内
+if (allowTypes.indexOf(file.type) === -1) {
+$.weui.alert({text: '该类型不允许上传'});
+continue;
+}
+
+if (file.size > maxSize) {
+$.weui.alert({text: '图片太大，不允许上传'});
+continue;
+}
+
+if ($('.li_batch_image_list').length >= maxCount) {
+$.weui.alert({text: '最多只能上传' + maxCount + '张图片'});
+return;
+}
+reader.onload = function (e) {
+var img = new Image();
+img.onload = function () {
+// 不要超出最大宽度
+var w = Math.min(maxWidth, img.width);
+// 高度按比例计算
+var h = img.height * (w / img.width);
+var canvas = document.createElement('canvas');
+var ctx = canvas.getContext('2d');
+// 设置 canvas 的宽度和高度
+canvas.width = w;
+canvas.height = h;
+ctx.drawImage(img, 0, 0, w, h);
+var base64 = canvas.toDataURL('image/png');
+console.log(base64);
+// 插入到预览区
+var $preview = $('<li class="weui_uploader_file weui_uploader_status li_batch_image_list" style="background-image:url(' + base64 + ')"></li>');
+$('.ul_batch_image_list').append($preview);
+{#var num = $('.weui_uploader_file').length;#}
+{#$('.js_counter').text(num + '/' + maxCount);#}
+};
+img.src = e.target.result;
+    $('#id_batch_image_list_hidden').val(img.src);
+};
+reader.readAsDataURL(file);
+}
+});
+
+    </script>
+{% endblock %}

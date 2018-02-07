@@ -1,0 +1,35 @@
+{% extends 'bms/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+
+{% block title %} 首页 {% endblock %}
+{% block tab_index %}class="active"{% endblock %}
+{% block content_block %}
+  <div class="row">
+    <div class="col-sm-3">
+         <div class="panel panel-warning">
+            <div class="panel-heading">
+                <i class="fa fa-info-circle"></i> 信息汇总
+            </div>
+            <div class="panel-body">
+                <p>管理员数：{{ admin_count }}</p>
+                <p>注册用户数：{{ client_count }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-8 col-xs-12">
+        <h1 class="text-center">{{ "APP_NAME"|settings_value }}</h1>
+        <h2 class="text-center"><small>--仅限管理员使用</small></h2>
+        <hr/>
+        <h4>注意事项：</h4>
+        <p>（1）请严格遵循密码管理策略，定期更换密码，并保证密码的复杂度。</p>
+        <p>（2）管理员可以对基本后台功能和用户进行管理。</p>
+        <p>（3）超级管理员除了具备管理员的权限外，还可以创建、删除管理员，以及修改管理员用户资料。</p>
+
+    </div>
+    <div class="col-sm-1">
+
+    </div>
+
+</div>  <!-- /container -->
+{% endblock %}

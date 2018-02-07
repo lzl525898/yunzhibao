@@ -1,0 +1,51 @@
+{% extends 'bms/product/base_product.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block insurance_product %}class='active'{% endblock %}
+{% block title %} 创建产品文档 {% endblock %}
+
+{% block page_top %}
+<div class="row">
+        <div class="col-sm-10">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <i class="fa fa-plus fa-3x pull-right"></i>
+                    <form role="form" id="create_insurance_product_form" method="post" action="{% url 'bms:insurance_product_create_document' insurance_product_id company_id %}"  enctype="multipart/form-data">  {% csrf_token %}
+
+                        <div class="page-tailer">
+                          <h1 class="text-center">为产品添加文档</h1>
+                        </div>
+                        {% if message and message != '' %}
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="alert alert-warning">{{ message }}</div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        <div class="form-group" >
+                            <label for="id_product_id"><i class="fa fa-film"></i> 保险文档： </label>
+                            {% if documents %}
+                                  {% for document in documents %}
+                                    <div class="checkbox">
+                                        <label><input type="checkbox" name="documents" value="{{ document.id }}" {% if document in insurance_product.documents %} checked {% endif %}>{{ document.name }}----{{ document.note }}</label>
+                                    </div>
+                                  {% endfor %}
+                            {% else %}
+                                <div>暂无保险文档</div>
+                            {% endif %}
+                        </div>
+                        <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 保 存</button>
+                        <a class="btn btn-default" href="{% url 'bms:insurance_product_detail' insurance_product_id %}"><i class="fa fa-times"></i> 返 回</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2"></div>
+</div>
+
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+    </script>
+{% endblock %}

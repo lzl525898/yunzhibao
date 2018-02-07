@@ -1,0 +1,152 @@
+{% extends 'bms/compensate/base_compensate.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block compensate_compensate %}class='active'{% endblock %}
+{% block title %} 订单列表 {% endblock %}
+
+{% block page_top %}
+
+    <div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+
+            <h2 class="text-center">保单详情</h2>
+            {% if message and message_compensate and message != '' %}
+                <div class="row">
+                    <div class="col-sm-12">
+                        {% if message_compensate %}
+                            <div class="alert alert-warning text-center">{{ message_compensate }}</div>
+                        {% else %}
+                            <div class="alert alert-warning text-center">{{ message }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <table class="table table-bordered">
+                <tr>
+                  <td class="info text-center">保单号</td>
+                  <td class="text-center">{{ compensate.policy.paper_id }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">赔单状态</td>
+                  <td class="text-center"><a href="{% url 'bms:company_detail' compensate.company.id %}">{{ compensate.company.name }}</a></td>
+                </tr>
+                <tr>
+                  <td class="info text-center">用户名称</td>
+                  <td class="text-center"></td>
+                </tr>
+                <tr>
+                  <td class="info text-center">是否显示</td>
+                  <td class="text-center">{% if not compensate.is_hidden %}是{% else %}否{% endif %}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">创建时间</td>
+                  <td class="text-center">{{ compensate.create_time|date:'Y年m月d日 H:i:s' }}</td>
+                </tr>
+            </table>
+{#            <a class="btn btn-danger" type="button" data-toggle="modal" data-target="#delete_compensate_modal"><i class="fa fa-trash-o"></i>#}
+{#                {% if not compensate.is_hidden %}#}
+{#                   屏 蔽#}
+{#                {% else %}#}
+{#                   取消屏蔽#}
+{#                {% endif %}#}
+{#            </a>#}
+            <a class="btn btn-default" href="{% url 'bms:compensate_list' '1' %}"><i class="fa fa-times"></i> 返 回</a>
+        </div>
+        <div class="col-sm-2"></div>
+    </div>
+{#          添加投保模态框         #}
+<div class="modal fade" id="save_insurance_compensate_modal" tabindex="-1" role="dialog" >
+    <div class="modal-dialog">
+        <form id="id_user_protocol_form" class="form" method="post" action="{% url 'bms:compensate_detail' compensate.id %}"  >  {% csrf_token %}
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title"><i class="fa fa-edit"></i> 投保文档</h4>
+              </div>
+              <input id="id_document_type" name="document_type" type="hidden" value="">
+              <div class="modal-body">
+                  {% for insurance_document in insurance_documents  %}
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" class="insurance_document" id="modal_{{ insurance_document.id }}" name="{{ insurance_document.id }}" value="{{ insurance_document.id }}">
+                            {{ insurance_document.name }}
+                        </label>
+                    </div>
+                  {% endfor %}
+              </div>
+              <div class="modal-footer">
+                <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 提 交</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> 退 出</button>
+              </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+{#删除保单确认模态框#}
+<div class="modal fade" id="delete_compensate_modal" tabindex="-1" role="dialog" >
+    <div class="modal-dialog">
+        <form id="delete_compensate_form" class="form" method="post" action="#"  >  {% csrf_token %}
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title"><i class="fa fa-trash-o"></i> 屏蔽保单</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group" >
+                        <label class="control-label">你确定要
+                            {% if compensate.is_hidden %}
+                                取消屏蔽
+                            {% else %}
+                                屏蔽保单
+                            {% endif %}么？
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a class="btn btn-danger" href="{% url 'bms:compensate_hidden' compensate.id %}" ><i class="fa fa-trash-o"></i> 确 定 </a>
+                    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> 退 出</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block script_block %}
+       <script type="text/javascript">
+       $(function(){
+           console.log("formvalidations running");
+            $('#pay_compensate_form').formValidation({
+                // I am validating Bootstrap form
+                framework: 'bootstrap',
+                locale : 'zh_CN',
+                // Feedback icons
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+                fields: {
+                    pay_compensate:{
+                        validators:{
+                            notEmpty: {
+                                message: '货物价值不可为空'
+                            },
+                            regexp:{
+                                regexp: /^\d+$/,
+                                message: '请输入正整数'
+                            }
+                        }
+
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}

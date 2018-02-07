@@ -1,0 +1,75 @@
+{% extends 'bms/product/base_product.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block recommend_product_list %}class='active'{% endblock %}
+{% block title %} 特推产品详情{% endblock %}
+
+{% block page_top %}
+<div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+        <h2 class="text-center">特推产品详情</h2>
+        {% if message and message != '' %}
+             <div class="row">
+                 <div class="col-sm-12">
+                     <div class="alert alert-warning text-center">{{ message }}</div>
+                 </div>
+             </div>
+         {% endif %}
+        <table class="table table-bordered">
+                <tr>
+                  <td class="info text-center">产品名称</td>
+                  <td class="text-center">{{ recommend_product.name }} </td>
+                </tr>
+                {% if recommend_product.product_image_list %}
+                <tr>
+                  <td class="info text-center">产品图片</td>
+                  <td class="text-center">
+	                  <table class="table table-bordered" >
+		                  	<tr>
+		                  		{% for product_image in recommend_product.product_image_list %}
+			                  		<td>
+	                                   <a href="{% static '' %}{{ product_image }}" target="_blank"><img class="img-responsive center-block" src="{% static '' %}{{ product_image }}" style="max-width: 50px;max-height: 50px;word-break:break-all" alt="商品图片"/></a>
+	                               </td>
+                  				{% endfor %}
+		                  	</tr>
+	                  </table>
+	              </td>
+                </tr>
+                {% endif %}
+                <tr>
+                  <td class="info text-center">联系电话</td>
+                  <td class="text-center">{{ recommend_product.phone }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">产品分类</td>
+                  <td class="text-center">{{ recommend_product|displayName:'product_type' }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">产品描述</td>
+                  <td class="text-center">{{ recommend_product.description }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">状态</td>
+                  <td class="text-center">{% if recommend_product.is_hidden %}隐藏 {% else %}显示 {% endif %} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">创建时间</td>
+                  <td class="text-center">{{ recommend_product.create_time }} </td>
+                </tr>
+       </table>
+        <a class="btn btn-success" href="{% url 'bms:recommend_product_edit' recommend_product.id %}"><i class="fa fa-edit"></i> 编 辑</a>
+        <a class="btn btn-default" href="{% url 'bms:recommend_product_list' '1' %}"><i class="fa fa-times"></i> 返 回</a>
+        
+        
+        
+        </div>
+        <div class="col-sm-2"></div>
+  </div>
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+
+    </script>
+{% endblock %}

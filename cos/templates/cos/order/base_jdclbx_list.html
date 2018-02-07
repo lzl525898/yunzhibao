@@ -1,0 +1,27 @@
+{% extends 'bms/base.html' %}
+{% load static %}
+{% block title %} 询价订单管理 {% endblock %}
+{% block tab_jdclbx_list %}class='active'{% endblock %}
+
+{% block content_claim_block %}
+    <div class="row">
+
+        <div class="col-sm-2">
+            <h4 class="visible-xs"></h4>
+            <ul class="nav nav-pills nav-stacked">
+                <li {% block cos_jdclbx_list %}{% endblock %}><a href="{% url 'cos:cos_jdclbx_list' '1'%}">询价订单</a></li>
+                <li {% block confirm_jdclbx_list %}{% endblock %}><a href="{% url 'cos:confirm_jdclbx_list' '1'%}">已投保订单</a></li>
+            </ul>
+            <hr class="visible-xs"/>
+        </div>
+
+        <div class="col-sm-10">
+            {% block page_top %}{% endblock %}
+            {% block page_middle %}{% endblock %}
+            {% block page_bottom %}{% endblock %}
+        </div>
+    </div>
+
+{% endblock %}
+
+

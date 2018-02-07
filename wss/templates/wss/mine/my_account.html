@@ -1,0 +1,178 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}我的{% endblock %}
+
+{% block container_block %}
+{#    首页所在位置，进入页面后的默认页面#}
+
+
+<!-- 二维码展示 -->
+
+<div id="id_message"  class="row control-show" style="z-index:999;">
+	<div class="weui_dialog_alert">
+	        <div class="weui_mask"></div>
+	        <div class="weui_dialog"style="z-index:999;">
+	            <div class="weui_dialog_hd"><strong class="weui_dialog_title">我的二维码</strong></div>
+	            <div class="weui_dialog_bd"id="id_message_id">
+	            <img src="{{client.QR_code_image }}" style="max-width: 180px;max-height: 180px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+	            </div>
+	            <div class="weui_dialog_ft">
+	                <a onclick="$('#id_message').addClass('control-show');" class="weui_btn_dialog primary">确定</a>
+	            </div>
+	        </div>
+	    </div>
+    </div>
+<!--二维码展示结束  -->
+
+<div class="wss_title"><i class="fa   fa-list"></i> &nbsp; <strong>我的账户</strong></div>
+    <div class="weui_cells text-center" style="position:relative;">
+        <div class="weui_cell" style="display:block;text-align: center;margin-right: auto;margin-left: auto;padding:1px 15px;">
+            {# {% if  client.profile.icon  %}#}
+              {#  <img class="" src="{% static '' %}{{ client.profile.icon }}" style="width: 91px;height: 91px;border-radius: 45px;">#}
+            {% if  mine_headimgurl   %}  
+            <img src="{{mine_headimgurl}}" style="width: 91px;height: 91px;border-radius: 45px;">
+            {% else %}
+                <img src="{% static 'pic/default/default_icon.png' %}" style="width: 91px;height: 91px;border-radius: 45px;">
+            {% endif %}
+           {# <img src="{{mine_headimgurl}}" style="width: 91px;height: 91px;border-radius: 45px;">#}
+            <!--  <a href="{% url 'wss:stored_premium' %}" class="weui_btn weui_btn_plain_default" style="position:absolute;bottom: 10px;z-index: 100000;right: 10px">预存保费</a> -->
+        </div>
+    </div>
+     <div class="weui_cells_title wss_dashed"><i class="fa   fa-user"></i>&nbsp;&nbsp;用户信息</div>
+    <div class="weui_cells wss_p">
+    {% if client.name %}
+        <div class="weui_cell ">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>姓名</p>
+            </div>
+            <div class="weui_cell_ft">{{ client.name|DefaultIfNull:'注册账户' }}</div>
+        </div>
+        <div class="wss_dashed_bottom"></div>
+        {% endif %}
+        
+           {% if client.QR_code_image %}
+           <a class="weui_cell" onclick="$('#id_message').removeClass('control-show');">
+	            <div class="weui_cell_bd weui_cell_primary">
+	                <p>我的二维码</p>
+	            </div>
+	            <div class="weui_cell_ft"><img src="{{client.QR_code_image }}" style="max-width: 20px;max-height: 20px;display:block;text-align: center;margin-right: auto;margin-left: auto;"></div>
+        	</a>
+	        {% else%}
+	        <a class="weui_cell" href="{% url 'wss:wx_build_code_pic'  %}" style="color:black">
+	            <div class="weui_cell_bd weui_cell_primary">
+	                <p>我的二维码</p>
+	            </div>
+	            <div class="weui_cell_ft">查看二维码</div>
+        	</a>
+	      {%endif%}
+        
+        <div class="wss_dashed_bottom"></div>
+        <div class="weui_cell " >
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>手机号</p>
+            </div>
+            <div class="weui_cell_ft">{{ client.profile.phone }}</div>
+        </div>
+        {% if client.user_type != 'registered' %}
+        <div class="wss_dashed_bottom"></div>
+        <div class="weui_cell ">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p>用户类型</p>
+                </div>
+                <div class="weui_cell_ft">{{ client|displayName:'user_type' }}</div>
+        </div>
+        {% endif %}
+       {% if client.company_name %}
+       			 <div class="wss_dashed_bottom"></div>
+               <div class="weui_cell ">
+                   <div class="weui_cell_bd weui_cell_primary">
+                       <p>单位名称</p>
+                   </div>
+                   <div class="weui_cell_ft">{{ client.company_name }}</div>
+               </div>
+       {% endif %}
+    
+
+    
+    
+     <div class=" weui_cells_access wss_p" >
+        <div class="wss_dashed_bottom"style='padding:-15px'></div>
+        <a class="weui_cell" href="{% url 'wss:certificate_test'  client.id %}">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>申请认证</p>
+            </div>
+            <div class="weui_cell_ft"><small><font color = 'red'>认证后投保信息可自动带出</font></small>
+            </div>
+        </a>
+    </div>
+    
+
+   <div class="weui_cells_title wss_dashed"><i class="fa   fa-money"></i>&nbsp;&nbsp;预存</div>
+    <div class="weui_cells weui_cells_access wss_p">
+        <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>预存余额</p>
+            </div>
+            <!-- <div class="weui_cell_ft">{{ client.balance|FenToYuan }}元</div> -->
+            <div class="weui_cell_hd weui_cell_primary">
+                <p>{{ client.balance|FenToYuan }}元</p>
+            </div>
+            <div class="weui_cell_ft"> <a href="{% url 'wss:stored_premium' %}" class="weui_btn weui_btn_mini wss_btn" style="position:absolute;bottom: 10px;right: 10px">预存费用</a></div>
+        </div>
+        <div class="wss_dashed_bottom"></div>
+        <a class="weui_cell" href="{% url 'wss:pay_detail' %}">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>预存记录</p>
+            </div>
+            <div class="weui_cell_ft">
+            </div>
+        </a>
+    </div> 
+     <div class="weui_cells_title wss_dashed" ><i class="fa  fa-sign-out"></i>&nbsp;&nbsp;订单费用</div>
+    <div class="weui_cells weui_cells_access wss_p">
+        <a class="weui_cell" href="{% url 'wss:order_list' %}?state=year">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>当年订单费用</p>
+            </div>
+            <div class="weui_cell_ft">{{ pay_price_year|FenToYuan }}元</div>
+        </a>
+        <div class="wss_dashed_bottom"></div>
+        <a class="weui_cell" href="{% url 'wss:order_list' %}?state=month">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>当月订单费用</p>
+            </div>
+            <div class="weui_cell_ft">{{ pay_price_month|FenToYuan }}元</div>
+        </a>
+    </div>
+        <div class="wss_dashed_bottom"></div>
+       <div class="weui_cells weui_cells_access wss_p">
+        <a class="weui_cell wss_cell" href="{% url 'wss:coupon_list' %}">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p><i class="fa   fa-ticket"></i>&nbsp;&nbsp;优惠券</p>
+            </div>
+            <div class="weui_cell_ft">{{ coupon_count|DefaultIfNull:'0' }}张可用
+            </div>
+        </a>
+   </div>
+    <div class="wss_dashed_bottom"></div>
+    <div class="weui_cells weui_cells_access wss_p">
+        <a class="weui_cell wss_cell" href="{% url 'wss:update_my_password' %}">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p><i class="fa fa-edit"></i>&nbsp;&nbsp;修改密码</p>
+            </div>
+            <div class="weui_cell_ft">
+            </div>
+        </a>
+    </div>
+
+    <a href="{% url 'wss:unbind' %}" class="weui_btn weui_btn_primary" style="margin-top: 10px">退出登录</a>
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+{% endblock %}

@@ -1,0 +1,182 @@
+{% extends 'bms/mall/base_mall.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block mall_goods_list %}class='active'{% endblock %}
+{% block title %} 商品详情 {% endblock %}
+
+{% block page_top %}
+<div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+        <h2 class="text-center">商品详情</h2>
+        {% if message and message != '' %}
+             <div class="row">
+                 <div class="col-sm-12">
+                     <div class="alert alert-warning text-center">{{ message }}</div>
+                 </div>
+             </div>
+         {% endif %}
+        <table class="table table-bordered">
+                <tr>
+                  <td class="info text-center">商品名称</td>
+                  <td class="text-center">{{ mall_goods.goods_name }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">品牌型号</td>
+                  <td class="text-center">{{ mall_goods.goods_brand_digging }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">商品类别</td>
+                  <td class="text-center">{{ mall_goods.goods_type.name }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">商品原价</td>
+                  <td class="text-center">{{ mall_goods.original_cost |FenToYuan}} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">商品状态</td>
+                  <td class="text-center">{{ mall_goods|displayName:'goods_present_situation' }} </td>
+                </tr>
+                {% if mall_goods.other_notes %}
+                <tr>
+                  <td class="info text-center">备注</td>
+                  <td class="text-center">{{ mall_goods.other_notes }} </td>
+                </tr>
+                {% endif %}
+                <tr>
+                  <td class="info text-center">商品折扣价</td>
+                  <td class="text-center">{{ mall_goods.unit_price |FenToYuan}} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">商品数量</td>
+                  <td class="text-center">{{ mall_goods.goods_count }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">商品所在地址</td>
+                  <td class="text-center">{{mall_goods.mail_address |CityName}}{{mall_goods.policy_address}} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">联系人</td>
+                  <td class="text-center">{{ mall_goods.contact_people }} </td>
+                </tr>
+                {% if mall_goods.contact_phone %}
+                <tr>
+                  <td class="info text-center">联系方式-手机</td>
+                  <td class="text-center">{{ mall_goods.contact_phone }} </td>
+                </tr>
+                {% endif %}
+                {% if mall_goods.contact_landline %}
+                <tr>
+                  <td class="info text-center">联系方式-座机</td>
+                  <td class="text-center">{{ mall_goods.contact_landline }} </td>
+                </tr>
+                {% endif %}
+                {% if mall_goods.contact_qq %}
+                <tr>
+                  <td class="info text-center">联系方式-QQ</td>
+                  <td class="text-center">{{ mall_goods.contact_qq }} </td>
+                </tr>
+                {% endif %}
+                {% if mall_goods.contact_wx %}
+                <tr>
+                  <td class="info text-center">联系方式-微信</td>
+                  <td class="text-center">{{ mall_goods.contact_wx }} </td>
+                </tr>
+                {% endif %}
+                <tr>
+                  <td class="info text-center">商品描述</td>
+                  <td class="text-center">{{ mall_goods.goods_describe }} </td>
+                </tr>
+                {% if mall_goods.video %}
+                <tr>
+                  <td class="info text-center">商品视频</td>
+                  <td class="text-center">{{ mall_goods.video }}
+                  
+                  <video width="320" height="240" controls="controls" >
+					  <source src="{% static '' %}{{ mall_goods.video }}" type="video/ogg" />
+					  <source src="{% static '' %}{{ mall_goods.video }}" type="video/quicktime" />
+					  <source src="{% static '' %}{{ mall_goods.video }}"type="video/mp4" />
+					  <source src="{% static '' %}{{ mall_goods.video }}"type="video/webm" />
+					  <object data="{% static '' %}{{ mall_goods.video }}"width="320" height="240">
+					    <embed width="320" height="240" src="{% static '' %}{{ mall_goods.video }}" />
+					  </object>
+					</video>
+                  
+                  
+                   </td>
+                </tr>
+                {% endif %}
+                {% if mall_goods.goods_image_list %}
+                <tr>
+                  <td class="info text-center">商品图片</td>
+                  <td class="text-center">
+	                  <table class="table table-bordered" >
+	                            <tr>
+	                                {% for batch_image in mall_goods.goods_image_list %}
+	                                    <td>
+	                                        <a href="{% static '' %}{{ batch_image }}" target="_blank"><img class="img-responsive center-block" src="{% static '' %}{{ batch_image }}" style="max-width: 200px;max-height: 200px;word-break:break-all" alt="商品图片"/></a>
+	                                    </td>
+                                {% endfor %}
+                            </tr>
+                        </table>
+                   </td>
+                </tr>
+                {% endif %}
+                {% if mall_goods.certificate_image_list %}
+                <tr>
+                  <td class="info text-center">证明商品价值部分</td>
+                  <td class="text-center">
+	                  <table class="table table-bordered" >
+	                            <tr>
+	                                {% for certificate_image in mall_goods.certificate_image_list %}
+	                                    <td>
+	                                    {% if  mall_goods.certificate_type == 'picture' %}
+	                                        <a href="{% static '' %}{{ certificate_image }}" target="_blank"><img class="img-responsive center-block" src="{% static '' %}{{ certificate_image }}" style="max-width: 200px;max-height: 200px;word-break:break-all" alt="商品图片"/></a>
+	                                    {% elif  mall_goods.certificate_type == 'web_url' %}
+	                                    <a href="{{ certificate_image }}" target="_blank">{{ certificate_image }}</a>
+	                                    {% else %}
+	                                    {{ certificate_image }},&nbsp;&nbsp;&nbsp;
+	                                    {% endif %}
+	                                    </td>
+                                {% endfor %}
+                            </tr>
+                        </table>
+                   </td>
+                </tr>
+                {% endif %}
+                <tr>
+                  <td class="info text-center">用户</td>
+                  <td class="text-center">
+                  		<a href="{% url 'bms:item_detail' mall_goods.client.id %}" target="_blank">
+                 			 {% if mall_goods.client.company_name %}{{ mall_goods.client.company_name }} &nbsp;&nbsp;&nbsp;{% endif %}{{ mall_goods.client.name }} &nbsp;&nbsp;&nbsp; {{ mall_goods.client.profile.phone }}
+                 		</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">本单状态</td>
+                  <td class="text-center">{{ mall_goods|displayName:'state' }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">显示状态</td>
+                  <td class="text-center">{% if mall_goods.is_hidden %}隐藏 {% else %}显示 {% endif %} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">创建时间</td>
+                  <td class="text-center">{{ mall_goods.create_time }} </td>
+                </tr>
+       </table>
+        <a class="btn btn-success" href="{% url 'bms:mall_goods_edit' mall_goods.id %}"><i class="fa fa-edit"></i> 编 辑</a>
+        <a class="btn btn-default" href="{% url 'bms:mall_goods_list' '1' %}"><i class="fa fa-times"></i> 返 回</a>
+        
+        
+        
+        </div>
+        <div class="col-sm-2"></div>
+  </div>
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+
+    </script>
+{% endblock %}

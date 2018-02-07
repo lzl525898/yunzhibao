@@ -1,0 +1,42 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}我的{% endblock %}
+
+{% block container_block %}
+{#    首页所在位置，进入页面后的默认页面#}
+<!--   <div class="weui_cells_title"  style="display:inline"><div style="float:left; padding-left: 15px;">上传行驶证正页及副页正、反面图片</div><div  style="float:right;padding-right: 15px;color:#5172D5;"><i class="fa  fa-exclamation-triangle"></i><a href="{% url 'wss:ref_pic'  '1' %}" style="color:#5172D5;">&nbsp;&nbsp;参考样例&nbsp;&nbsp;<i class="fa  fa-angle-right"></i></a></div> </div>
+ <div class="wss_title"  style="display:inline;"><div style="float:left; padding-left: 15px;"><i class="fa  fa-arrow-circle-o-left"></i></div ><div style="float:right;padding-right: 15px;color:#5172D5;"><i class="fa   fa-picture-o"></i> &nbsp; <strong>样例图片</strong></div></div> -->
+<div class="top">
+	<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+		<tbody>
+			<tr>
+					<td width="23%" valign="middle">
+							<a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a>
+					</td>
+					<td class="wz" width="53%" valign="middle" align="center">
+							<span id="toptitle">
+									<i class="fa   fa-picture-o"></i>&nbsp;<strong>样例图片</strong>
+							</span>
+					</td>
+					<td width="23%" valign="middle" align="right">
+					<a id="aso" href="#"></a>
+					</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+ <div class="weui_cells" style="padding-top:30px;">
+    <div class="weui_cell">
+        <img src="{% static '' %}{{ img_url }}" style="max-width: 380px;max-height: 320px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+    </div>
+ </div>
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+{% endblock %}

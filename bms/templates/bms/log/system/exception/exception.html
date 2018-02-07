@@ -1,0 +1,101 @@
+{% extends 'bms/log/system/exception/base_exception.html' %}
+{% load static %}
+
+{% block page_middle %}
+    <div class="row">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-6">
+            <h2 class="text-center">异常详情 </h2>
+
+            {% if message and message != '' %}
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="alert alert-warning">{{ message }}</div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <table class="table table-bordered">
+                <tr>
+                  <td class="info text-center">基本信息</td>
+                  <td class="text-center">{{ exception.exception }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">发生时间</td>
+                  <td class="text-center">{{ exception.create_time|date:'Y年m月d日 H:i:s ' }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">异常类型</td>
+                  <td class="text-center">{{ exception.type }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">访问路径</td>
+                  <td class="text-center">{{ exception.path }} </td>
+                </tr>
+            </table>
+
+            <table class="table table-bordered">
+                <tr>
+                  <td class="info text-center">追溯信息</td>
+                  <td ><pre class="pre-scrollable prettyprint">{{ exception.traceback }} </pre></td>
+                </tr>
+                <tr>
+                  <td class="info text-center">POST</td>
+                  <td ><pre class="pre-scrollable prettyprint preJson">{{ exception.post }}</pre></td>
+                </tr>
+                <tr>
+                  <td class="info text-center">GET</td>
+                  <td ><pre class="pre-scrollable prettyprint preJson">{{ exception.get }} </pre></td>
+                </tr>
+            </table>
+            <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#delete_exception_modal"><i class="fa fa-trash-o"></i> 删 除</button>
+            <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#delete_exception_similar_modal"><i class="fa fa-trash-o"></i> 删除相似异常</button>
+            <button class="btn btn-default" onclick="history.back()" ><i class="fa fa-times"></i> 返 回</button>
+        </div>
+        <div class="col-sm-3"></div>
+    </div>
+     {#删除确认模态框#}
+     <div class="modal fade" id="delete_exception_modal" tabindex="-1" role="dialog" >
+        <div class="modal-dialog">
+            <form id="delete_exception_form" class="form" method="post" action="#"  >  {% csrf_token %}
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title"><i class="fa fa-trash-o"></i> 删除异常信息</h4>
+                  </div>
+                  <div class="modal-body">
+                    <div class="form-group" >
+                        <label class="control-label">删除后不可恢复，是否确认删除？</label>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <a class="btn btn-danger" href="{% url 'bms:exception_delete' exception.id %}" ><i class="fa fa-trash-o"></i> 删 除</a>
+                    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> 退 出</button>
+                  </div>
+                </div>
+            </form>
+        </div>
+     </div>
+     {#删除确认模态框#}
+     <div class="modal fade" id="delete_exception_similar_modal" tabindex="-1" role="dialog" >
+        <div class="modal-dialog">
+            <form id="delete_exception_similar_form" class="form" method="post" action="#"  >  {% csrf_token %}
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title"><i class="fa fa-trash-o"></i> 删除相似异常信息</h4>
+                  </div>
+                  <div class="modal-body">
+                    <div class="form-group" >
+                        <label class="control-label">所有相似异常信息都会被删除，删除后不可恢复，是否确认删除？</label>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <a class="btn btn-danger" href="{% url 'bms:exception_delete_similar' exception.id %}" ><i class="fa fa-trash-o"></i> 删 除</a>
+                    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> 退 出</button>
+                  </div>
+                </div>
+            </form>
+        </div>
+     </div>
+{% endblock %}

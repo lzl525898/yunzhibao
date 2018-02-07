@@ -1,0 +1,70 @@
+{% extends 'bms/log/base_log.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block level_2 %}in{% endblock %}
+{% block wechat_event %}active{% endblock %}
+
+{% block page_middle %}
+    <div class="row">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-6">
+            <h2 class="text-center">日志详情 </h2>
+
+            {% if message and message != '' %}
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="alert alert-warning">{{ message }}</div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <table class="table table-bordered">
+                <tr>
+                  <td class="info text-center">来源</td>
+                  <td class="text-left">{{ wechat_event.from_user_name }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">目标</td>
+                  <td class="text-left">{{ wechat_event.to_user_name }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">发生时间</td>
+                  <td class="text-left">{{ wechat_event.create_time|intTime }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">消息类型</td>
+                  <td class="text-left">{{ wechat_event|displayName:'msg_type' }}</td>
+                </tr>
+                <tr>
+                  <td class="text-left" colspan="2"><pre class="pre-scrollable">{{ wechat_event.content }} </pre></td>
+                </tr>
+
+            </table>
+            <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#delete_event_modal"><i class="fa fa-trash-o"></i> 删 除</button>
+            <button class="btn btn-default" onclick="history.back()" ><i class="fa fa-times"></i> 返 回</button>
+        </div>
+        <div class="col-sm-3"></div>
+    </div>
+     {#删除确认模态框#}
+     <div class="modal fade" id="delete_event_modal" tabindex="-1" role="dialog" >
+        <div class="modal-dialog">
+            <form id="delete_event_form" class="form" method="post" action="#"  >  {% csrf_token %}
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title"><i class="fa fa-trash-o"></i> 删除异常信息</h4>
+                  </div>
+                  <div class="modal-body">
+                    <div class="form-group" >
+                        <label class="control-label">删除后不可恢复，是否确认删除？</label>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <a class="btn btn-danger" href="{% url 'bms:wechat_event_delete' wechat_event.id %}" ><i class="fa fa-trash-o"></i> 删 除</a>
+                    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> 退 出</button>
+                  </div>
+                </div>
+            </form>
+        </div>
+     </div>
+{% endblock %}

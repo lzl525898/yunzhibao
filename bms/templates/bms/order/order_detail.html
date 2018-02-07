@@ -1,0 +1,1121 @@
+{% extends 'bms/order/base_order.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block order_order %}class='active'{% endblock %}
+{% block title %} 订单详情{% endblock %}
+
+{% block page_top %}
+
+    <div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+
+            <h2 class="text-center">订单详情</h2>
+            {% if message and message != '' %}
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="alert alert-warning text-center">{{ message }}</div>
+                    </div>
+                </div>
+            {% endif %}
+            
+            {% if order.state == 'wait' %}
+            <a class="btn btn-success"data-toggle="modal" data-target="#choose_product_modal"style="cursor: pointer;"title="选择可保产品">选择可保产品</a> 
+            {% endif %}
+
+            <table class="table table-bordered">
+                <tr>
+                  <td class="info text-center">录入订单方式</td>
+                  <td class="text-center">{{ order|displayName:'submit_style' }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">订单状态</td>
+                  <td class="text-center">{{ order|displayName:'state' }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">订单号</td>
+                  <td class="text-center">{{ order.paper_id }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">保单号</td>
+                  <td class="text-center">{{ order.insurance_id }}
+{#                    <a id="" name="" href="#"  onclick="edit_insurance('{{ order.id }}','{{ order.insurance_id }}')" class="pull-right"><i class="fa fa-pencil-square-o"></i>增加/编辑</a>#}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">第三方订单号</td>
+                  <td class="text-center">{{ order.third_paper_id }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">备注信息</td>
+                  <td class="text-center">{{ order.note_detail }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">电子保单图片地址<small>(保单来源{{order.picture_upload_path}})</small></td>
+                  <td class="text-center">
+                    <table class="table table-bordered" >
+                        <tr><a onclick="edit_insurance('{{ order.id }}','{{ order.insurance_id }}') "style = "cursor:pointer;" ><i class="fa fa-plus "></i>&nbsp;&nbsp;添加电子保单图片</a></tr>
+		                      {#-  {% if order.company.paper_id ==  "ZHONGAN_COMPANY_CODE"|settings_value or  order.insurance_product.create_way == 'hjb' %} #}
+		                      {% if order.insurance_product.company.paper_id ==  "ZHONGAN_COMPANY_CODE"|settings_value or  order.picture_upload_path == 'hjb' %}
+		                          {% for insurance_image_set  in insurance_image_list %}
+		                          	<tr>
+		                       		{% for insurance_image in  insurance_image_set  %}
+				                                <td>
+				                                    <a href="{{ insurance_image }}" target="_blank"><img class="img-responsive center-block" src="{{ insurance_image }}" style="max-width: 100px;max-height: 500px;word-break:break-all" alt="电子保单 图片"/></a>
+				                                </td>
+				                    {% endfor %}
+				                   </tr>
+				                  {% endfor %}  
+		                       {% else %} 
+		                        {% for insurance_image_set  in insurance_image_list %}
+		                         <tr>
+		                            {% for insurance_image in insurance_image_set %}
+		                            		<!--  细化保单信息-->
+		                            		{% if order.insurance_up_state == 'pdf'%}
+		                            		<td class="text-center">{{ insurance_image }}<a class="pull-right" href="{% static '' %}{{ insurance_image }}" download="{{ order.paper_id }}"><i class="fa fa-download">下载</i></a></td>
+		                            		{% elif  order.insurance_up_state == 'picture' %}
+				                                <td>
+				                                    <a href="{% static '' %}{{ insurance_image }}" target="_blank"><img class="img-responsive center-block" src="{% static '' %}{{ insurance_image }}" style="max-width: 50px;max-height: 50px;word-break:break-all" alt="商品图片"/></a>
+				                                </td>
+				                                <td colspan="2" >
+				                                    <a id="edit_{{ insurance_image }}" name="" href="#"   onclick="edit_insurance_pic('{{ insurance_image }}')"style = "cursor:pointer;"  class="pull-right"><i class="fa fa-pencil-square-o "></i></a>
+				                                    <br/>
+				                                    <a id="delete_{{ insurance_image }}" name="" href="#"  onclick="delete_insurance_pic('{{ insurance_image }}')" class="pull-right "><i class="fa fa-trash-o"></i></a>
+				                                </td>
+				                              {% else %}
+				                              	<td>
+				                                    <a href="{{ insurance_image }}" target="_blank"><img class="img-responsive center-block" src="{{ insurance_image }}" style="max-width: 100px;max-height: 500px;word-break:break-all" alt="电子保单 图片"/></a>
+				                                </td>
+				                              {% endif %}
+		                            {% endfor %}  
+		                        </tr> 
+		                       {% endfor %} 
+		                    {% endif %} 
+                    </table>
+
+                  </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">产品类型</td>
+                  <td class="text-center">{{ order|displayName:"product_type" }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">险种类型</td>
+                  <td class="text-center">{{ order|displayName:"insurance_type" }} </td>
+                </tr>
+                {% if order.company %}
+                <tr>
+                  <td class="info text-center">保险公司</td>
+                  <td class="text-center">{% if user.is_superuser %}<a href="{% url 'bms:item_detail' order.company.id %}" target="_blank">{{ order.company.simple_name }}</a>{% else %}{{ order.company.simple_name }}{% endif %}</td>
+                </tr>
+                {% endif %}
+                {% if order.insurance_product %}
+                <tr>
+                  <td class="info text-center">产品</td>
+                  <td class="text-center">{% if user.is_superuser %}<a href="{% url 'bms:item_detail' order.insurance_product.id %}" target="_blank">{{ order.insurance_product.name }}</a>{% else %}{{ order.insurance_product.name }}{% endif %}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                  <td class="info text-center">投保人</td>
+                    {% if order.client.company_name %}
+                  <td class="text-center"><a href="{% url 'bms:item_detail' order.client.id %}" target="_blank">{{ order.client.company_name }} &nbsp;&nbsp;&nbsp;{{ order.client.name }} &nbsp;&nbsp;&nbsp; {{ order.client.profile.phone }}</a></td>
+                    {% else %}
+                  <td class="text-center"><a href="{% url 'bms:item_detail' order.client.id %}" target="_blank">{{ order.client.company_name }} &nbsp;&nbsp;&nbsp;{{ order.client.name }} &nbsp;&nbsp;&nbsp;  {{ order.client.profile.phone }}</a></td>
+                    {% endif %}
+                </tr>
+                <!-- <tr>
+                  <td class="info text-center">投保人身份</td>
+                  <td class="text-center">{% if  order.client_type == 'person' %} 货主{% elif order.client_type == 'company' %} 物流公司{% else %} {{order.client_type}}查找失败 {% endif %}</td>
+                </tr> -->
+                <tr>
+                  <td class="info text-center">投保人姓名</td>
+                  <td class="text-center">&nbsp;&nbsp;&nbsp; {{ order.client_name }}</td>
+                </tr>
+<!--                 <tr>
+                  <td class="info text-center">投保人证件号</td>
+                  <td class="text-center">&nbsp;&nbsp;&nbsp; {{ order.client_id_card }}</td>
+                </tr> -->
+                <tr>
+                  <td class="info text-center">被保险人姓名</td>
+                  <td class="text-center">&nbsp;&nbsp;&nbsp; {{ order.insured }}</td>
+                </tr>
+                {% if order.client_type %}
+                <tr>
+                  <td class="info text-center">被保险人身份</td>
+                  <td class="text-center">{% if  order.client_type == 'person' %} 货主{% elif order.client_type == 'company' %} 物流公司{% else %} {{order.client_type}}查找失败 {% endif %}</td>
+                </tr>
+                {% endif %}
+                 {% if "众安"  in order.insurance_product.company.parent.description  %}
+                <tr>
+                  <td class="info text-center">众安保险补充信息</td>
+                  <td class="text-center">
+                  <!-- 添加众安保险补充信息开始 -->
+		          		<table class="table table-bordered table-hover">
+		                   <tbody>
+		                   {%  if order.product_type == "ticket" %}
+		                           <tr>
+		                           		<td colspan="1" class="success text-center"width= "25%" >投保人类型</td>
+		                           		<td class="active text-center"width= "25%" >{% if  order.tb_client_type == 'person' %} 个人{% elif order.tb_client_type == 'company' %} 公司{% else %} {{order.client_type}}查找失败 {% endif %} </td> 
+		                           </tr>
+		                           <tr>
+		                           		<td colspan="1" class="success text-center"width= "25%" >投保人证件号</td>
+		                           		<td class="active text-center"width= "25%" >{% if  order.tb_client_type == 'person' %} {{  order.holderCertNo }}{% elif order.tb_client_type == 'company' %} {{  order.taxpayerRegNum }}{% else %} 查找失败 {% endif %} </td> 
+		                           </tr>		
+		                   {% elif order.product_type == "batch" %}
+		                   			<tr>
+		                           		<td colspan="1" class="success text-center"width= "25%" >投保人类型</td>
+		                           		<td class="active text-center"width= "25%" >{% if  order.tb_client_type == 'person' %} 个人{% elif order.tb_client_type == 'company' %} 公司{% else %} {{order.client_type}}查找失败 {% endif %} </td> 
+		                           </tr>	
+		                           <tr> 	
+		                              	<td class="success text-center"width= "25%" >纳税人识别号</td> 
+		                              	<td class="active text-center"width= "25%" > {{  order.taxpayerRegNum }}</td> 
+		                           </tr>
+		                           <tr>
+		                           		<td colspan="1" class="success text-center"width= "45%" >投保人{% if order.tb_holderCertType == "TY"  %}统一社会信用代码{% elif order.tb_holderCertType == "Z"  %}组织机构代码{% endif %}</td>
+		                           		<td class="active text-center"width= "55%" > {{  order.holderCertNo }} </td> 
+		                           </tr>	
+		                           <tr>
+		                              	<td class="success text-center"width= "45%" >被保人证件{% if order.bb_insureCertType == "TY"  %}统一社会信用代码{% elif order.bb_insureCertType == "Ｚ" %}组织机构代码{% endif %}</td> 
+		                              	<td class="active text-center"width= "55%" > {{  order.bb_insureCertNo }}</td> 
+		                           </tr>
+		                   
+		                   {% endif %}
+		                    </tbody>
+		                </table>
+                  
+                  
+                  </td>
+                </tr>
+                {% endif %}
+<!--                 <tr>
+                  <td class="info text-center">被保险人证件号</td>
+                  <td class="text-center">&nbsp;&nbsp;&nbsp; {{ order.insured_id_card }}</td>
+                </tr> -->
+                {% if order.startSiteName %}
+                <tr>
+                  <td class="info text-center">起运地</td>
+                  <td class="text-center">{{ order.startSiteName |CityName }}</td>
+                </tr>
+                {% endif %}
+                {% if order.targetSiteName %}
+                <tr>
+                  <td class="info text-center">目的地</td>
+                  <td class="text-center">{{ order.targetSiteName |CityName }}</td>
+                </tr>
+                {% endif %}
+                <!--2017/08/03添加砖头对接的字段  -->
+                {% if order.car_startSiteName %}
+                <tr>
+                  <td class="info text-center">起运地</td>
+                  <td class="text-center">{{ order.car_startSiteName }}</td>
+                </tr>
+                {% endif %}
+                {% if order.car_targetSiteName %}
+                <tr>
+                  <td class="info text-center">目的地</td>
+                  <td class="text-center">{{ order.car_targetSiteName }}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                  <td class="info text-center">下单时间</td>
+                  <td class="text-center">{{ order.expectStartTime|date:'Y年m月d日 H:i:s' }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">保额</td>
+                  <td class="text-center">{{ order.insurance_price|FenToYuan }} 元</td>
+                </tr>
+               {% if   order.insurance_product.product_type == 'ticket'  %}
+                 <tr>
+                  <td class="info text-center">保单货物类型</td>
+                  <td class="text-center">{{ order.good_type }}	<small> &nbsp; &nbsp;({{order.cargo.cargo_name  }})</small>
+
+                 {#{% if order.good_type == "普通货物" and  order.common_good_detail != "普通货物" %}#}
+                   {#	<small> &nbsp; &nbsp;({{order.common_good_detail}})</small>#}
+                  {# {% endif %}#}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">包装类型</td>
+                  <td class="text-center">{{ order.pack_method | PackMethod }}</td>
+                </tr>
+               {% endif %}
+                <tr>
+                  <td class="info text-center">货物运输方式</td>
+                  <td class="text-center">{{ order.transport_type |TransportType }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">费率</td>
+                  <td class="text-center">{{ order.insurance_rate|RateFormat }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">不打折前保费</td>
+                  <td class="text-center">{{ order.old_price|FenToYuan }} 元</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">应缴纳保费</td>
+                  <td class="text-center">{{ order.price|FenToYuan }} 元</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">实付保费</td>
+                  <td class="text-center">{{ order.pay_price|FenToYuan }} 元</td>
+                </tr>
+                {% if order.real_profit != 0%}
+                	{% if user.is_authenticated %}
+	                	 {% if user.is_superuser %}
+			                <tr>
+			                  <td class="info text-center">保险公司费率</td>
+			                  <td class="text-center">{{ order.insurance_company_rate|RateFormat }} </td>
+			                </tr>
+			                <tr>
+			                  <td class="info text-center">保险公司保费</td>
+			                  <td class="text-center">{{ order.insurance_company_price |FenToYuan }} 元</td>
+			                </tr>
+			                <tr>
+			                  <td class="info text-center">手续费比例</td>
+			                  <td class="text-center">{{ order.commission_ratio|RateFormat  }} </td>
+			                </tr>
+			                <tr>
+			                  <td class="info text-center">手续费费用</td>
+			                  <td class="text-center">{{ order.commission_price |FenToYuan }} 元</td>
+			                </tr>
+			                <tr>
+			                  <td class="info text-center">利润</td>
+			                  <td class="text-center">{{ order.real_profit |FenToYuan }} 元</td>
+			                </tr>
+			             {% endif %}
+			         {% endif %}
+                {% endif %}
+                <tr>
+                  <td class="info text-center">启运日期</td>
+                  <td class="text-center">{{ order.pay_time|date:'Y年m月d日 H:i:s' }}</td>
+                </tr>
+            {% if order.insurance_product.product_type == 'car' %}
+                <tr>
+                  <td class="info text-center">运单号</td>
+                  <td class="text-center">{{ order.transport_id }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">货物名称</td>
+                  <td class="text-center">{{ order.commodityName }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">货物数量</td>
+                  <td class="text-center">{{ order.commodityCases }}</td>
+                </tr>
+            {% endif %}
+
+            {% if order.product_type == 'batch' %}
+                <tr>
+                  <td class="info text-center">车牌号</td>
+                  <td class="text-center">{{ order.plate_number }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">挂车牌号</td>
+                  <td class="text-center">{{ order.plate_number_plus }}</td>
+                </tr>
+                {% if order.batch_url %}
+                <tr>
+                  <td class="info text-center">车次清单文档</td>
+                  <td class="text-center">{{ order.batch_url }}<a class="pull-right" href="{% static '' %}{{ order.batch_url }}" download="{{ order.paper_id }}"><i class="fa fa-download">下载</i></a></td>
+                </tr>
+                {% endif %}
+                <tr>
+                  <td class="info text-center">货物数量</td>
+                  <td class="text-center">{{ order.commodityCases }}</td>
+                </tr>
+                {% if order.batch_image_list %}
+                <tr>
+                    <td class="info text-center">车次清单图片</td>
+                    <td>
+                        <table class="table table-bordered" >
+                            <tr>
+                                {% for batch_image in order.batch_image_list %}
+                                    <td>
+                                        <a href="{% static '' %}{{ batch_image }}" target="_blank"><img class="img-responsive center-block" src="{% static '' %}{{ batch_image }}" style="max-width: 50px;max-height: 50px;word-break:break-all" alt="商品图片"/></a>
+                                    </td>
+                                    <td colspan="2" >
+                                        <a id="edit_{{ batch_image }}" name="" href="#"  onclick="edit_batch_pic('{{ batch_image }}')" class="pull-right"><i class="fa fa-pencil-square-o"></i></a>
+                                        <br/>
+                                        <a id="delete_{{ batch_image }}" name="" href="#"  onclick="delete_batch_pic('{{ batch_image }}')" class="pull-right "><i class="fa fa-trash-o"></i></a>
+                                    </td>
+                                {% endfor %}
+                    {#                  <td class="info text-center">车次清单图片</td>#}
+                    {#                  <td class="text-center"><img src="{% static '' %}{{ order.batch_image }}" style="max-width: 600px;max-height: 600px"></td>#}
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                {% endif %}
+                {% if order.batch_list %}
+                <tr>
+                  <td class="info text-center">车次清单</td>
+                  <td class="text-center">
+                      <div class="row">
+                          <div class="col-sm-2">运单号</div>
+                          <div class="col-sm-2">起运地</div>
+                          <div class="col-sm-2">目的地</div>
+                          <div class="col-sm-2">货物名称</div>
+                          <div class="col-sm-2">货物数量</div>
+                          <div class="col-sm-2 text-center">操作</div>
+                      </div>
+                      <hr/>
+                      {% for batch in order.batch_list %}
+                          <div class="row" style="margin-bottom: 15px">
+                              <div class="col-sm-2">{{ batch.transport_id }}</div>
+                              <div class="col-sm-2">{{ batch.startSiteName }}</div>
+                              <div class="col-sm-2">{{ batch.targetSiteName }}</div>
+                              <div class="col-sm-2">{{ batch.commodityName }}</div>
+                              <div class="col-sm-2">{{ batch.commodityCases }}</div>
+                              <div class="col-sm-2">
+                                    <a id="" name="" href="#"  onclick="edit_batch('{{ batch.transport_id }}','{{ batch.startSiteName }}','{{ batch.targetSiteName }}','{{ batch.commodityName }}','{{ batch.commodityCases }}')" class=""><i class="fa fa-pencil-square-o"></i></a>
+                                    <a id="" name="" href="#"  onclick="delete_batch('{{ batch.transport_id }}')" class="pull-right "><i class="fa fa-trash-o"></i></a>
+                              </div>
+                          </div>
+
+                      {% endfor %}
+                  </td>
+                </tr>
+                {% endif %}
+            {% endif %}
+
+            {% if order.insurance_product.product_type == 'ticket' %}
+                <tr>
+                  <td class="info text-center">运单号</td>
+                  <td class="text-center">{{ order.transport_id }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">车牌号</td>
+                  <td class="text-center">{{ order.plate_number }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">挂车牌号</td>
+                  <td class="text-center">{{ order.plate_number_plus }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">货物名称</td>
+                  <td class="text-center">{{ order.commodityName }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">货物数量</td>
+                  <td class="text-center">{{ order.commodityCases }}</td>
+                </tr>
+            {% endif %}
+{#                <tr>#}
+{#                  <td class="info text-center">承保日期</td>#}
+{#                  <td class="text-center">{{ order.start_date|date:'Y年m月d日 H:i:s' }}</td>#}
+{#                </tr>#}
+                <tr>
+                  <td class="info text-center">使用的优惠卷</td>
+                  <td class="text-center">{% if order.coupon %}<a href="{% url 'bms:item_detail' order.coupon.id %}" target="_blank">{{ order.coupon.name }}</a>{% else %}未使用{% endif %}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">是否理赔</td>
+                  <td class="text-center">{% if order.is_compensate %}已理赔{% else %}未理赔{% endif %}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">是否显示</td>
+                  <td class="text-center">{% if not order.is_hidden %}显示{% else %}隐藏{% endif %}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">创建时间</td>
+                  <td class="text-center">{{ order.create_time|date:'Y年m月d日 H:i:s' }}</td>
+                </tr>
+            </table>
+            <!-- <a class="btn btn-success" href="{% url 'bms:order_edit' order.id %}"><i class="fa fa-edit"></i> 编 辑</a> -->
+            <a class="btn {% if order.is_hidden %}btn-success{% else %}btn-danger{% endif %}" href="{% url 'bms:order_hidden' order.id %}">
+                {% if order.is_hidden %}
+                    显示
+                {% else %}
+                    隐藏
+                {% endif %}
+            </a>
+            {% if order.state == 'init' %}
+                <a class="btn btn-success" data-toggle="modal" data-target="#pay_order_modal"><i class="fa fa-edit"></i> 付 款</a>
+                <a class="btn btn-success" href="{% url 'bms:order_edit' order.id %}"><i class="fa fa-edit"></i> 编 辑</a>
+                <!-- <a class="btn btn-success" data-toggle="modal" data-target="#edit_insured_modal"><i class="fa fa-edit"></i>修改被保险人名称</a> -->
+            {% endif %}
+{#            {% if order.state == 'paid' %}#}
+{#                <a class="btn btn-success" data-toggle="modal" data-target="#pay_order_modal"><i class="fa fa-edit"></i> 生成保单</a>#}
+{#            {% endif %}#}
+{#            {% if order.product_type == 'batch' %}#}
+{#                <a class="btn btn-success" href="#" onclick="add_batch();"><i class="fa fa-plus"></i> 导入车次清单</a>#}
+{#            {% endif %}#}
+            <a class="btn btn-default" href="{% url 'bms:order_list' '1' %}"><i class="fa fa-times"></i> 返 回</a>
+            {% if  order.insurance_product.create_way == 'hjb' and order.state == 'paid' and not order.third_paper_id %}
+            <a class="btn btn-default" href="{% url 'bms:order_pass' order.id %}"> 汇聚宝传单</a>
+            {% endif %}
+        </div>
+        <div class="col-sm-2"></div>
+    </div>
+
+{# 付款模态框 #}
+<div class="modal fade" id="pay_order_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<form id="pay_order_form" class="form" method="post" action="{% url 'bms:order_pay' order.id %}">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+                    <input type="hidden" value="{{ order.price }}" id="id_order_confirm_id" name="order_confirm_id">
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						付款
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+                        <input id="id_pay_order" value="{{ order.price|FenToYuan }} 元" class="form-control " name="pay_order" disabled="disabled"  >
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						确 认
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+
+
+{# 修改投保人模态框 #}
+<div class="modal fade" id="edit_insured_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<form id="edit_insured_form" class="form" method="post" action="{% url 'bms:edit_insured' order.id %}">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+                    <input type="hidden" value="" id="id_edit_insured" name="edit_insured">
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						修改被投保人姓名
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+                        <input id="id_edit_insured" class="form-control" name="edit_insured"  placeholder="请输入被投保人姓名">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						确 认
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+     {#添加车次清单#}
+{#<div class="modal fade" id="add_batch_list_modal" tabindex="-1" role="dialog" >#}
+{#    <div class="modal-dialog">#}
+{#        <form id="add_batch_list_form" class="form" method="post" action="{% url 'bms:add_batch_list' order.id %}"  enctype="multipart/form-data">  {% csrf_token %}#}
+{#            <div class="modal-content">#}
+{#                <div class="modal-header">#}
+{#                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>#}
+{#                    <h4 class="modal-title"><i class="fa fa-plus"></i> 添加车次清单</h4>#}
+{#                </div>#}
+{#                <div class="modal-body">#}
+{#                    <input id="id_batch_list_id" type="hidden" name="batch_list_id" value="">#}
+{#                    <div class="form-group">#}
+{##}
+{#                        <table class="table table-bordered" id="id_batch_list">#}
+{#                            <tr id="id_properties_title" class="info">#}
+{#                                <td class="text-center">运单号</td>#}
+{#                                <td class="text-center">起运地</td>#}
+{#                                <td class="text-center">目的地</td>#}
+{#                                <td class="text-center">货物名称</td>#}
+{#                                <td class="text-center">货物数量</td>#}
+{#                                <td class="text-center">操作</td>#}
+{#                            </tr>#}
+{#                            <tr id="id_properties_item_0" name="properties_item">#}
+{#                                <input type="hidden" name="position" value="0"/>#}
+{#                                <td><input class="form-control"  name="yd_0" type="text" value="" required></td>#}
+{#                                <td><input class="form-control"  name="qyd_0" type="text" value="" required></td>#}
+{#                                <td><input class="form-control"  name="mdd_0" type="text" value="" required></td>#}
+{#                                <td><input class="form-control"  name="hwmc_0" type="text" value="" required></td>#}
+{#                                <td><input class="form-control"  name="hwsl_0" type="text" value="" required ></td>#}
+{#                                <td><a id="id_properties_item_delete_0" class="btn btn-default" onclick="$('#id_properties_item_0').remove()">删除</a></td>#}
+{#                            </tr>#}
+{#                            <tr id="id_properties_bottom">#}
+{#                                <td colspan="6">#}
+{#                                <a class="pointer" id="id_properties_add" onclick="add_batch_line()">添加车次清单</a>#}
+{#                                </td>#}
+{#                            </tr>#}
+{#                        </table>#}
+{#                    </div>#}
+{#                </div>#}
+{#                <div class="modal-footer">#}
+{#                    <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 保 存 </button>#}
+{#                    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> 退 出</button>#}
+{#                </div>#}
+{#            </div>#}
+{#        </form>#}
+{#    </div>#}
+{#</div>#}
+
+{#编辑车次清单#}
+<div class="modal fade" id="edit_batch_list_modal" tabindex="-1" role="dialog" >
+    <div class="modal-dialog">
+        <form id="add_batch_list_form" class="form" method="post" action="{% url 'bms:edit_batch_list' order.id %}"  enctype="multipart/form-data">  {% csrf_token %}
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title"><i class="fa fa-pencil-square-o"></i> 编辑车次清单</h4>
+              </div>
+              <input id="id_batch_list_edit_id" type="hidden" name="batch_list_edit_id" value="">
+              <div class="modal-body">
+                  <div class="form-group">
+                      <label for="modal_id_yd">运单号:</label>
+                      <input class="form-control"  id="modal_id_yd" type="text" name="modal_yd" value="">
+                  </div>
+                  <div class="form-group">
+                      <label for="modal_id_qyd">起运地:</label>
+                      <input class="form-control"  id="modal_id_qyd" type="text" name="modal_qyd" value="">
+                  </div>
+                  <div class="form-group">
+                      <label for="modal_id_mdd">目的地:</label>
+                      <input class="form-control"  id="modal_id_mdd" type="text" name="modal_mdd" value="">
+                  </div>
+                  <div class="form-group">
+                      <label for="modal_id_hwmc">货物名称:</label>
+                      <input class="form-control"  id="modal_id_hwmc" type="text" name="modal_hwmc" value="">
+                  </div>
+                  <div class="form-group">
+                      <label for="modal_id_hwsl">货物数量:</label>
+                      <input class="form-control"  id="modal_id_hwsl" type="text" name="modal_hwsl" value="">
+                  </div>
+              </div>
+              <div class="modal-footer">
+                <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 保 存 </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> 退 出</button>
+              </div>
+            </div>
+        </form>
+</div>
+</div>
+
+{#删除车次清单#}
+ <div class="modal fade" id="delete_batch_list_modal" tabindex="-1" role="dialog" >
+    <div class="modal-dialog">
+        <form id="delete_goods_form" class="form" method="post" action="{% url 'bms:delete_batch_list' order.id %}"  enctype="multipart/form-data">  {% csrf_token %}
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title"><i class="fa fa-trash-o"></i> 删除车次清单</h4>
+              </div>
+              <input id="id_batch_list_name" type="hidden" name="batch_list_name" value="">
+              <div class="modal-body">
+                <div class="form-group" >
+                    <label class="control-label">删除后不可恢复，是否确认删除？</label>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 删 除 </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> 退 出</button>
+              </div>
+            </div>
+        </form>
+    </div>
+ </div>
+
+
+
+{#增加保单号模态框#}
+<div class="modal fade" id="confirm_insurance_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<form id="insurance_form" class="form" method="post" action="{% url 'bms:add_insurance_pic_new' order.id %}" enctype="multipart/form-data">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+                    <input type="hidden" value="" id="modal_id_order_id" name="order_id">
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						{% if order.insurance_id %}编辑{% else %}增加{% endif %}保单号/保单详情
+					</h4>
+				</div>
+				<div class="modal-body">
+				<!-- 添加三种上传方式 -->
+					<div class="form-group" >
+                        <table class="table table-bordered table-hover">
+			                   <tbody>
+			                           <tr>
+			                                <td class="info  td_su_width">保单号：</td>
+			  			      				<td class="active td_active_width"colspan="" >
+			  			      					<input style="width:300px "  name="insurance_id"{% if order.insurance_id %} value="{{ order.insurance_id }}"{% endif %}placeholder="保单号"/>
+			  			      				</td>
+			  			      		</tr>
+			  			      		<tr>
+			  			      				<td class="info  td_su_width">保单</td>
+			  			      				<td class="active td_active_width"colspan="3" >
+			  			      				<div class="col-sm-4">
+			  			      					<select class="" name="insurance_type" id ="insurance_type" onchange = 'change_liability("insurance",this.value)'>
+			  			      						 <option value="pdf" > 上传保单pdf文件 </option>
+				                                      <option value="picture" > 上传保单图片 </option>
+				                                      <option value="web_url" > 上传保单下载链接 </option>
+			                                    </select>
+			  			      				</div>
+			  			      				
+			  			      				<div class="col-sm-6" id ='insurance_pic_up' {% if posted_data.liability_type == 'pricture'  %}style="display: block;"{% else %}style="display: none;"{% endif %}>
+					  			      				<input class="filestyle" type="file" id="" name="insurance_image" data-icon="true" data-input="true" 
+																data-buttonText="选择图片" data-iconName="glyphicon-inbox"multiple  accept="image/*">
+												<small><font color='red' >(按住“CTRL”按键，可选择多张图片)</font></small>
+					  			      		</div>
+					  			      		
+			  			      				<div class="col-sm-6" id ='insurance_pdf_up' {% if posted_data.liability_type == 'pdf' or not posted_data  %}style="display: block;"{% else %}style="display: none;"{% endif %}>
+					  			      				<input class="filestyle" type="file" id="" name="insurance_image" data-icon="true" 
+					  			      				data-input="true" data-buttonText="选择文件" data-iconName="glyphicon-inbox"accept="application/pdf">
+					  			      		</div>
+					  			      		
+					  			      		<div class="col-sm-6" id ='insurance_web_url_up' {% if posted_data.liability_type == 'web_url' %}style="display: block;"{% else %}style="display: none;"{% endif %}>
+					  			      				<input class="text"  id="" name="insurance_image" >
+					  			      		</div>
+			  			      				
+			  			      					
+										    </td>
+			                           
+			                           </tr>
+			                   </tbody>
+			           </table>
+                    </div>
+				
+<!--  添加三种上传方式结束-->				
+				
+				
+				
+				
+                    <!-- <div class="form-group" >
+                        <label class="control-label" for="id_insurance_image"><i class="fa fa-picture-o"></i>保单照片（可多选）: </label>
+                        <input class="filestyle" type="file" id="id_insurance_image" name="add_insurance_image_pic" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox" multiple>
+                    </div>
+                    <div class="form-group" >
+                        <label for="id_insurance_id"><i class="fa fa-user"></i> *保单号： </label>
+                        <input class="form-control"  id="id_insurance_id" name="insurance_id" type="text"
+                               value="{{ posted_data.insurance_id|default_if_none:'' }}" maxlength="100" required >
+                    </div> -->
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						确定
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+
+
+
+         {#编辑保单图片模态框#}
+     <div class="modal fade" id="edit_insurance_pic_modal" tabindex="-1" role="dialog" >
+        <div class="modal-dialog">
+            <form id="edit_insurance_form" class="form" method="post" action="{% url 'bms:edit_insurance_pic' order.id %}"  enctype="multipart/form-data">  {% csrf_token %}
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title"><i class="fa fa-pencil-square-o"></i> 编辑保单图片</h4>
+                  </div>
+                  <div class="modal-body">
+                    <div class="form-group" >
+                        <label class="control-label" for="id_manage_insurance_image"><i class="fa fa-picture-o"></i> 图片<small>（gif、png、jpeg或icon;）</small>: </label>
+                        <input class="filestyle" type="file" id="id_manage_insurance_image" name="insurance_image_edit" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                        <input  type="hidden" name="image_url_edit" id="image_url_edit" value="">
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 保 存 </button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> 退 出</button>
+                  </div>
+                </div>
+            </form>
+        </div>
+     </div>
+
+
+{#     删除保单图片模态框#}
+     <div class="modal fade" id="delete_insurance_detail_pic_modal" tabindex="-1" role="dialog" >
+        <div class="modal-dialog">
+            <form id="delete_insurance_form" class="form" method="post" action="{% url 'bms:delete_insurance_pic' order.id %}"  enctype="multipart/form-data">  {% csrf_token %}
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title"><i class="fa fa-trash-o"></i> 删除保单图片</h4>
+                  </div>
+                  <div class="modal-body">
+                    <div class="form-group" >
+                        <label class="control-label">删除后不可恢复，是否确认删除？</label>
+                        <input  type="hidden" name="image_detail_url_delete" id="image_detail_url_delete" value="">
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 删 除 </button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> 退 出</button>
+                  </div>
+                </div>
+            </form>
+        </div>
+     </div>
+
+
+
+             {#编辑车次模态框#}
+     <div class="modal fade" id="edit_batch_pic_modal" tabindex="-1" role="dialog" >
+        <div class="modal-dialog">
+            <form id="edit_batch_form" class="form" method="post" action="{% url 'bms:edit_batch_pic' order.id %}"  enctype="multipart/form-data">  {% csrf_token %}
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title"><i class="fa fa-pencil-square-o"></i> 编辑车次</h4>
+                  </div>
+                  <div class="modal-body">
+                    <div class="form-group" >
+                        <label class="control-label" for="id_manage_batch_image"><i class="fa fa-picture-o"></i> 图片<small>（gif、png、jpeg或icon;）</small>: </label>
+                        <input class="filestyle" type="file" id="id_manage_batch_image" name="batch_image_edit" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                        <input  type="hidden" name="image_url_batch_edit" id="image_url_batch_edit" value="">
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 保 存 </button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> 退 出</button>
+                  </div>
+                </div>
+            </form>
+        </div>
+     </div>
+
+
+{#     删除车次图片模态框#}
+     <div class="modal fade" id="delete_batch_detail_pic_modal" tabindex="-1" role="dialog" >
+        <div class="modal-dialog">
+            <form id="delete_batch_form" class="form" method="post" action="{% url 'bms:delete_batch_pic' order.id %}"  enctype="multipart/form-data">  {% csrf_token %}
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title"><i class="fa fa-trash-o"></i> 删除车次图片</h4>
+                  </div>
+                  <div class="modal-body">
+                    <div class="form-group" >
+                        <label class="control-label">删除后不可恢复，是否确认删除？</label>
+                        <input  type="hidden" name="image_batch_url_delete" id="image_batch_url_delete" value="">
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 删 除 </button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> 退 出</button>
+                  </div>
+                </div>
+            </form>
+        </div>
+     </div>
+
+{# 选择投保产品模态框 #}
+{% if order.state == 'wait' %}
+<div class="modal fade" id="choose_product_moda2l" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+	  <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title"><i class="fa fa-trash-o"></i>选择可承保产品<samll style="font-size:70%;">&nbsp;&nbsp;&nbsp;{% if product_detail %}({{product_detail}}){% endif %}</samll></h4>
+                  </div>
+                  <div class="modal-body">
+                  {% if insurable_products_list %}
+	                  {% for insurable_products_detail in insurable_products_list %}
+						   <div  class="  ">
+						       <div class=" ">
+						               <p>产品名称：{{ insurable_products_detail.product.name }}</p>
+						               <p>预估费用：{{insurable_products_detail.price |FenToYuan }}元</p>
+						           	   <p>险别：{{insurable_products_detail.product|displayName:'insurance_type' }}</p>
+						           	   <p>免赔：</p>
+						           	   <p>出单方式：
+						           	   {% if insurable_products_detail.product.create_way == 'hjb' %} 自动出单
+							  		   {% elif  insurable_products_detail.product.create_way == 'yzb' %}手动出单
+							  		  {% else %} 未识别{% endif %}
+						           	   </p>
+						       </div>
+						       <a class=" " href="{% url 'wss:order_choose_product' order.id %}?product_id={{insurable_products_detail.product.id}}&state=bms">
+						        	<div class="">投保</div>
+						       </a>
+						    </div>
+						    <div  class=""></div>
+						 {% endfor %} 
+ 					{% else %}
+ 						<div class="modal-body">
+		                    <div class="form-group" >
+		                        <label class="control-label">未筛选出可保产品</label>
+		                        <input  type="hidden" name="image_batch_url_delete" id="image_batch_url_delete" value="">
+		                    </div>
+		                  </div>
+ 					{% endif %}	
+                  </div>
+
+                </div>
+
+
+
+	</div>
+</div>
+
+         {#填写中介手续费模态框#}
+<div class="modal fade  " id="choose_product_modal" data-backdrop="static" tabindex="-1" role="dialog" >
+	<div class="modal-dialog modal-lg"style="width:700px">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						选择可承保产品<samll style="font-size:70%;">&nbsp;&nbsp;&nbsp;{% if product_detail %}({{product_detail}}){% endif %}</samll>
+					</h4>
+				</div>
+	            <div>
+	            	{% if message and message != '' %}
+		                <div class="row">
+		                    <div class="col-sm-12">
+		                        <div class="alert alert-warning text-center">{{ message }}</div>
+		                    </div>
+		                </div>
+		            {% endif %}
+	            	<div class="panel-body">
+	                {% if insurable_products_list %}
+		          		<table class="table table-bordered table-hover">
+		                   <tbody>
+		                           <tr>
+		                          		<td colspan="1" class="success text-center"width= "20%" >产品名称</td>
+		                              	<td class="success text-center"width= "70%" >详情</td> 
+		                               	<td class="success text-center"width= "10%" >操作</td> 
+		                           </tr>
+		                           {% for insurable_products_detail in insurable_products_list %}
+				                          <tr>
+				                          		<td colspan="1" class="active text-center"width= "20%" >{{ insurable_products_detail.product.name}}</td>
+				                          		<td class="active text-center"width= "70%" >
+				                          		<table style="width:100%">
+		 		                          			<tr style="border-bottom: 1px solid #ddd;width:100pc">
+						  			      				<td class="active text-center"width= "25%" >订单费用 </td> 
+											             <td class="active text-center"width= "30%" >险别</td> 
+											             <td class="active text-center"width= "20%" >免赔</td> 
+											             <td class="active text-center"width= "25%" >出单方式</td> 
+										             </tr> 
+					  			      				<tr >
+					  			      				<td class="active text-center"width= "25%"  style="padding-top:5px;"> {{insurable_products_detail.price |FenToYuan }}元</td> 
+										             <td class="active text-center"width= "30%"  style="padding-top:5px;">{{insurable_products_detail.product.risks}}</td> 
+										             <td class="active text-center"width= "20%"  style="padding-top:5px;">{{ insurable_products_detail.product.deductible }}</td> 
+										             <td class="active text-center"width= "25%"  style="padding-top:5px;">
+											               {% if insurable_products_detail.product.create_way == 'hjb' %} 自动出单
+												  		   {% elif  insurable_products_detail.product.create_way == 'yzb' %}手动出单
+											  		  	   {% else %} 未识别{% endif %}
+										             </td> 
+										             </tr>
+					  			      			</table>
+					  			      		 </td>
+					  			      		<td colspan="1" class="active text-center"width= "10%" >
+					  			      			<a class="btn btn-success"  href="{% url 'wss:order_choose_product' order.id %}?product_id={{insurable_products_detail.product.id}}&state=bms">投保</a>
+					  			      		</td>	
+				                       </tr>
+				                 {% endfor %}
+		                    </tbody>
+		                </table> 
+		                {% endif %}
+			         </div>
+			      </div>
+				<div class="modal-footer">
+<!-- 						<div class="form-group" style="text-align: center;">
+								<p><font color = 'red'>温馨提示：1、填写手续费比例时请逐一提交，提交手续费比例后，信息仍可修改。</font></p>
+			                    <p><font color = 'red'>2、点击保存并提交后，保险公司手续费无法修改，请确认您填写的信息！！！</font></p>
+		                 </div> -->
+						<button type="button" class="btn btn-default" data-dismiss="modal">
+							<i class="fa fa-times">
+							</i>
+							退 出
+						</button>
+			</div>
+		</div>
+    	
+	</div>
+</div>
+
+
+{% endif %}
+
+{% endblock %}
+
+{% block script_block %}
+<!--  添加保单上传方式-->
+    <script type="text/javascript">
+function change_liability( type,value){
+	//alert(type+value)
+	var picture_up = $('#'+type+'_pic_up');//上传保单图片
+	var document_up = $('#'+type+'_pdf_up');//上传保单文件
+	var url_up = $('#'+type+'_web_url_up');//上传保单下载链接
+	if (value== 'picture'){
+		picture_up.show();
+		document_up.hide();
+		url_up.hide();
+	}
+	else if (value == 'pdf'){
+		picture_up.hide();
+		document_up.show();
+		url_up.hide();
+	}
+	else if (value == 'web_url'){
+		picture_up.hide();
+		document_up.hide();
+		url_up.show();
+	}
+	else{
+		alert("请选择保单上传方式")
+	}
+	
+}
+    </script> 
+<!-- 上传方式结束 -->
+
+<script type="text/javascript">
+       $(function(){
+           console.log("formvalidations running");
+            $('#pay_order_form').formValidation({
+                // I am validating Bootstrap form
+                framework: 'bootstrap',
+                locale : 'zh_CN',
+                // Feedback icons
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+                fields: {
+                    pay_order:{
+                        validators:{
+                            notEmpty: {
+                                message: '货物价值不可为空'
+                            },
+                            regexp:{
+                                regexp: /^\d+$/,
+                                message: '请输入正整数'
+                            }
+                        }
+
+                    }
+                }
+            });
+        });
+
+{#        function add_batch(){#}
+{#            $('#add_batch_list_modal').modal('show');#}
+{#        }#}
+{##}
+{#    function add_batch_line(){#}
+{#                var count = $('tr[name="properties_item"]').length;#}
+{#                var position = count;#}
+{#                if($("#id_properties_item_" + position).length > 0){#}
+{#                    for(var i=0;i<count;i++){#}
+{#                        if($("#id_properties_item_" + i).length <= 0){#}
+{#                            position = i;#}
+{#                            break;#}
+{#                        }#}
+{#                    }#}
+{#                }#}
+{##}
+{#                $('#id_properties_bottom').before('<tr id="id_properties_item_' + position + '" name="properties_item">' +#}
+{#                        '<input type="hidden" name="position" value="' + position + '"/>' +#}
+{#                        '<td><input class="form-control"  name="yd_' + position + '" type="text" value="" required></td>' +#}
+{#                        '<td><input class="form-control"  name="qyd_' + position + '" type="text" value="" required ></td>' +#}
+{#                        '<td><input class="form-control"  name="mdd_' + position + '" type="text" value="" required ></td>' +#}
+{#                        '<td><input class="form-control"  name="hwmc_' + position + '" type="text" value="" required ></td>' +#}
+{#                        '<td><input class="form-control"  name="hwsl_' + position + '" type="text" value="" required ></td>' +#}
+{#                        '<td><a id="id_properties_item_delete_' + position + '" class="btn btn-default" onclick="$(\'#id_properties_item_' + position + '\').remove()">删除</a></td>' +#}
+{#                        '</tr>');#}
+{##}
+{#            }#}
+
+    function edit_batch(yd, qyd, mdd, hwmc, hwsl){
+            $('#edit_batch_list_modal').modal('show');
+            $('#modal_id_yd').val(yd);
+            $('#modal_id_qyd').val(qyd);
+            $('#modal_id_mdd').val(mdd);
+            $('#modal_id_hwmc').val(hwmc);
+            $('#modal_id_hwsl').val(hwsl);
+            $('#id_batch_list_edit_id').val(yd);
+        }
+
+    function delete_batch(yd){
+            $('#delete_batch_list_modal').modal('show');
+            $('#id_batch_list_name').val(yd)
+        }
+
+    function edit_insurance(order_id, insurance_id){
+        $('#modal_id_order_id').val(order_id);
+        $('#id_insurance_id').val(insurance_id);
+        $('#confirm_insurance_modal').modal('show');
+    }
+
+{#       删除图片#}
+    function delete_insurance_pic(insurance_image){
+        $('#delete_insurance_detail_pic_modal').modal('show');
+        var image_url_delete = document.getElementById("image_detail_url_delete");
+        image_url_delete.value = insurance_image;
+    }
+    function edit_insurance_pic(insurance_image){
+        $('#edit_insurance_pic_modal').modal('show');
+        var image_url_edit = document.getElementById("image_url_edit");
+        image_url_edit.value = insurance_image;
+    }
+
+
+
+
+{#       删除图片#}
+    function delete_batch_pic(batch_image){
+        $('#delete_batch_detail_pic_modal').modal('show');
+        var image_batch_url_delete = document.getElementById("image_batch_url_delete");
+        image_batch_url_delete.value = batch_image;
+    }
+    function edit_batch_pic(batch_image){
+        $('#edit_batch_pic_modal').modal('show');
+        var image_url_batch_edit = document.getElementById("image_url_batch_edit");
+        image_url_batch_edit.value = batch_image;
+    }
+
+</script>
+
+
+
+{% endblock %}

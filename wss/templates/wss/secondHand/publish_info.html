@@ -1,0 +1,469 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}发布{% endblock %}
+
+{% block container_block %}
+<style>
+.weui_uploader_input_wrp {
+  float: left;
+  position: relative;
+  margin-right: 9px;
+  margin-bottom: 9px;
+  width: 98%;
+  height: 120px;
+  border: 1px solid #D9D9D9;
+  margin:0 auto;
+}
+.weui_uploader_file {
+  float: left;
+  margin-right: 9px;
+  margin-bottom: 9px;
+  width: 98%;
+  height: 120px;
+  background: no-repeat center center;
+  background-size: cover;
+}
+.weui_input {
+  width: 100%;
+  border:0px solid #C8C8CD;  
+  border-radius: 3px !important;
+  outline: 0;
+  -webkit-appearance: none; 
+  background-color: transparent;
+  font-size: 14px;
+  color: inherit;
+  height: 2em;
+  line-height: 2em;
+}
+</style> 
+
+<div class="top">
+	<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+		<tbody>
+			<tr>
+					<td width="23%" valign="middle">
+							<a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a>
+					</td>
+					<td class="wz" width="53%" valign="middle" align="center">
+							<span id="toptitle">
+									<i class="fa fa-edit"></i>&nbsp;<strong>发布</strong>
+							</span>
+					</td>
+					<td width="23%" valign="middle" align="right">
+					<a id="aso" href="#"></a>
+					</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+{% if message %}
+    <div class="weui_dialog_alert">
+        <div class="weui_mask" style="z-index: 4;"></div>
+        <div class="weui_dialog">
+            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+            <div class="weui_dialog_bd">{{ message }}</div>
+            <div class="weui_dialog_ft">
+                <a onclick="close_dialog();" class="weui_btn_dialog primary">确定</a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+<form id="wss_register_form" method="post" action="#" enctype="multipart/form-data" style="padding-top:30px;">{% csrf_token %}
+<input class="form-control"  id="" name="mall_goods_state" type="hidden"value="create" >
+		<div class="weui_cells weui_cells_form wss_p">
+			<div class="weui_cell wss_dashed_bottom">
+	            <div class="weui_cell_bd weui_cell_primary">卖家：
+	                {% if client.company_name %} {{client.company_name}} 
+	                {% elif client.name %} {{client.name}}
+	                {% else %} 未找到
+	                {% endif %}
+	            </div>
+	        </div>
+	        <div class="weui_cell wss_dashed_bottom">
+	            <div class="weui_cell_bd weui_cell_primary">
+	                {#<input class="weui_input" type="text" placeholder="商品名称（必填）" name="goods_name" value="{{ posted_data.goods_name|default_if_none:'' }}"/>#}
+	                <textarea class="weui-textarea" placeholder="商品名称（必填）" rows="2" style="width:100%;"name="goods_name" >{{ posted_data.goods_name }}</textarea>
+	            </div>
+	        </div>
+	        <div class="weui_cell wss_dashed_bottom">
+	            <div class="weui_cell_bd weui_cell_primary">
+	                {#<input class="weui_input" type="text" placeholder="品牌型号（可选填）"  name="goods_brand_digging" value="{{ posted_data.goods_brand_digging}}" >#}
+	                <textarea class="weui-textarea" placeholder="品牌型号（可选填）" rows="1" style="width:100%;"name="goods_brand_digging" >{{ posted_data.goods_brand_digging}}</textarea>
+	            </div>
+	        </div>
+	        <div class="weui_cell wss_dashed_bottom">
+	            <div class="weui_cell_bd weui_cell_primary">
+	                <input class="weui_input" type="text" placeholder="商品分类（必填）" id="goods_type" name="goods_type" value="{{ posted_data.goods_type|default_if_none:'' }}"/>
+	            </div>
+	        </div>
+	        <div class="weui_cell wss_dashed_bottom">
+	            <div class="weui_cell_bd weui_cell_primary">
+	                <input class="weui_input" type="text" placeholder="原价" id="original_cost" name="original_cost" value="{{ posted_data.original_cost|default_if_none:'' }}"/>
+	            </div>
+	        </div>
+	        <div class="weui_cell wss_dashed_bottom">
+	            <div class="weui_cell_bd weui_cell_primary">
+	                <input class="weui_input" type="text" placeholder="商品现状（必填）" name="present_situation" id="state" value="{{ posted_data.present_situation}}" onchange="change_present_situation(this.value)">
+	            </div>
+	        </div>
+	         <div class="weui_cell wss_dashed_bottom"{% if posted_data.present_situation|toString == '其他'   %}style="display: block;"{% else %}style="display: none;"{% endif %} id="id_other_notes_url">
+	            <div class="weui_cell_bd weui_cell_primary">
+	                {#<input class="weui_input" type="text" placeholder="其他信息补充（必填）" name="other_notes" id="other_notes" value="{{ posted_data.other_notes}}" >#}
+	                <textarea class="weui-textarea" placeholder="其他信息补充（必填）" rows="1" style="width:100%;"id="other_notes"name="other_notes" >{{  posted_data.other_notes}}</textarea>
+	            </div>
+	        </div>
+	        <div class="weui_cell wss_dashed_bottom">
+	            <div class="weui_cell_bd weui_cell_primary">
+	                <input class="weui_input" type="text" placeholder="单价（必填）" name="unit_price"  value="{{ posted_data.unit_price}}" >
+	            </div>
+	        </div>
+	        <div class="weui_cell wss_dashed_bottom">
+	            <div class="weui_cell_bd weui_cell_primary">
+	                <input class="weui_input" type="text" placeholder="数量（必填）" name="goods_count"  value="{{ posted_data.goods_count }}" >
+	            </div>
+	        </div>
+	        <div class="weui_cell wss_dashed_bottom">
+		         <div class="weui_cell_bd weui_cell_primary">
+		          		<input class="weui_input" name="startSiteName_prov" placeholder="商品所在位置" id ="wx_startSiteName_prov" type="text" value="{{ posted_data.wx_startSiteName_prov|default_if_none:'' }}">
+		         </div>
+	        </div>
+	        <div class="weui_cell wss_dashed_bottom">
+		         <div class="weui_cell_bd weui_cell_primary">
+		          		{#<input class="weui_input" name="policy_address" placeholder="商品详细地址" id ="policy_address" type="text" value="{{ posted_data.policy_address|default_if_none:'' }}"/>#}
+		          		<textarea class="weui-textarea" placeholder="商品详细地址" rows="2" style="width:100%;"id="policy_address"name="policy_address" >{{  posted_data.policy_address}}</textarea>
+		         </div>
+	        </div>
+	        <div class="weui_cell wss_dashed_bottom">
+		         <div class="weui_cell_bd weui_cell_primary">
+		          		<input class="weui_input" name="contact_phone" placeholder=" 手机" id ="contact_phone" type="text" value="{{ client.profile.phone}}" >
+		         </div>
+	        </div>
+	        <div class="weui_cell wss_dashed_bottom">
+		         <div class="weui_cell_bd weui_cell_primary">
+		          		<input class="weui_input" name="contact_landline" placeholder=" 固定电话" id ="contact_landline" type="text" value="{{ posted_data.contact_landline|default_if_none:'' }}" >
+		         </div>
+	        </div>
+	        <div class="weui_cell wss_dashed_bottom">
+		         <div class="weui_cell_bd weui_cell_primary">
+		          		<input class="weui_input" name="contact_qq" placeholder=" QQ号码" id ="contact_qq" type="text" value="{{ posted_data.contact_qq|default_if_none:'' }}" >
+		         </div>
+	        </div>
+	        <div class="weui_cell wss_dashed_bottom">
+		         <div class="weui_cell_bd weui_cell_primary">
+		          		<input class="weui_input" name="contact_wx" placeholder=" 微信号码" id ="contact_wx" type="text" value="{{ posted_data.contact_wx|default_if_none:'' }}" >
+		         </div>
+	        </div>
+	        <div class="weui_cell wss_dashed_bottom">
+		         <div class="weui_cell_bd weui_cell_primary" >
+		          		<textarea class="weui-textarea" placeholder="商品描述" rows="3" style="width:100%;"id="goods_describe" name="goods_describe" >{{ posted_data.goods_describe|default_if_none:'' }}</textarea>
+          				<div class="weui-textarea-counter"></div>
+		         </div>
+	        </div>
+	        <div class="weui_cells_title">上传商品图片</div>
+	        <div class="weui_cells weui_cells_form">
+                <div class="weui_cell">
+                    <div class="weui_cell_bd weui_cell_primary">
+                        <div class="weui_uploader">
+                            <div class="weui_uploader_bd">
+                                <ul class="weui_uploader_files ul_batch_image_list1">
+                                </ul>
+                                <div class="weui_uploader_input_wrp">
+                                    <input class="weui_uploader_input batch_image_list1" id="id_batch_image_list1" name="picture"  type="file" accept="image/*" />
+                                    <input class="weui_uploader_input batch_image_list1 control-show" id="id_batch_image_list1" name="picture"  type="file" accept="image/*"  />
+                                    <input class="weui_uploader_input batch_image_list1 control-show" id="id_batch_image_list1" name="picture"  type="file" accept="image/*"  />
+                                    <input class="weui_uploader_input batch_image_list1 control-show" id="id_batch_image_list1" name="picture"  type="file" accept="image/*"  />
+                                    <input class="weui_uploader_input batch_image_list1 control-show" id="id_batch_image_list1" name="picture"  type="file" accept="image/*"  />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="weui_cell wss_dashed_bottom">
+		         <div class="weui_cell_bd weui_cell_primary" >
+		          		<input class="weui_input" name="certificate_type"  id ="certificate_type" type="hidden" value="picture" >
+		         </div>
+	        </div>
+            <div class="weui_tab" style="height: 20px;z-index: 3;">
+            <div class="weui_navbar" >
+                <div onclick="click_1()" id="nav_click_1" class="weui_navbar_item weui_bar_item_on" >
+                                            商品价值图片
+                </div>
+                <div onclick="click_2()" id="nav_click_2" class="weui_navbar_item">
+                                            商品价值链接
+                </div>
+            </div>
+         </div> 
+	        <div class="weui_cells weui_cells_form" id="click_1" >
+                <div class="weui_cell">
+                    <div class="weui_cell_bd weui_cell_primary">
+                        <div class="weui_uploader">
+                            <div class="weui_uploader_bd">
+                                <ul class="weui_uploader_files ul_batch_image_list">
+                                </ul>
+                                <div class="weui_uploader_input_wrp">
+                                    <input class="weui_uploader_input batch_image_list" id="id_batch_image_list" name="certificate_image"  type="file" accept="image/*"  />
+                                    <input class="weui_uploader_input batch_image_list control-show" id="id_batch_image_list" name="certificate_image"  type="file" accept="image/*"  />
+                                    <input class="weui_uploader_input batch_image_list control-show" id="id_batch_image_list" name="certificate_image"  type="file" accept="image/*"  />
+                                    <input class="weui_uploader_input batch_image_list control-show" id="id_batch_image_list" name="certificate_image"  type="file" accept="image/*"  />
+                                    <input class="weui_uploader_input batch_image_list control-show" id="id_batch_image_list" name="certificate_image"  type="file" accept="image/*"  />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="weui_cell wss_dashed_bottom control-show"id="click_2">
+		         <div class="weui_cell_bd weui_cell_primary" >
+		         		<textarea class="weui-textarea" placeholder="网站链接" rows="3" style="width:100%;"name="certificate_url" ></textarea>
+          				<div class="weui-textarea-counter"><span></span></div>
+		         </div>
+		         </br> </br>
+	        </div>
+	        
+
+        </div>
+     <div class="weui_cells_title" style="color: red;font-size: 18px"><i class="fa  fa-exclamation-triangle"></i>【重要提示】国家法律法规禁止网络交易的货物不允许发布！</div>
+    <div style="height:40px;"></div>
+    <div style=" width: 100%; position: fixed;  bottom: 0px;z-index: 3;">
+    		<button type="submit" class="weui_btn weui_btn_primary"  style="border-radius: 0px;font-size:15px;height:40px;line-height:30px;">立即发布</button>
+    </div>
+ 
+
+
+</form>
+{% endblock %}
+
+{% block page_block %}
+{% endblock %}
+{% block script_block %}
+<script src="/static/js/jquery-2.1.4.js" type="text/javascript"></script>
+<script src="{% static 'js/fastclick.js' %}"></script>
+<script>
+  $(function() {
+    FastClick.attach(document.body);
+  });
+</script>
+<script src="{% static 'js/jquery-weui.js' %}"></script>
+<script src="{% static 'js/city-picker.js' %}"></script>
+<script>
+$("#state").select({
+    title: "选择",
+    items: {{present_situations |safe}},
+    onChange: function(d) {
+      console.log(this, d);
+    },
+    onClose: function() {
+      console.log("close");
+    },
+    onOpen: function() {
+      console.log("open");
+    },
+  });
+$("#wx_startSiteName_prov").cityPicker({
+    title: "选择货物所在位置",
+    onChange: function (picker, values, displayValues) {
+      console.log(values, displayValues);
+    }
+  });
+ //商品大类列表
+ $("#goods_type").select({
+    title: "选择",
+    items:{{goods_type_detail |safe}},
+    onChange: function(d) {
+      console.log(this, d);
+    },
+    onClose: function() {
+      console.log("close");
+    },
+    onOpen: function() {
+      console.log("open");
+    },
+  });
+  
+  //---证明图片价值方式
+  function click_1(){
+	$('#click_1').removeClass('control-show');
+    $('#click_2').addClass('control-show');
+
+    $('#nav_click_1').addClass('weui_bar_item_on');
+    $('#nav_click_2').removeClass('weui_bar_item_on');
+    
+    document.getElementById("certificate_type").value ='picture';
+}
+  function click_2(){
+	    $('#click_1').addClass('control-show');
+	    $('#click_2').removeClass('control-show');
+	    
+	    $('#nav_click_1').removeClass('weui_bar_item_on');
+	    $('#nav_click_2').addClass('weui_bar_item_on');
+	    
+	    document.getElementById("certificate_type").value ='web_url';
+	}
+  
+//##################################商品现状联动########
+  function change_present_situation(value){
+  	var value = value;
+  	var other_notes = $('#id_other_notes_url');
+  	if (value == '其他'){
+  		other_notes.show()
+  	}
+  	else{
+  		other_notes.hide()
+  	}
+  }
+</script>
+
+<script  type="text/javascript">
+
+function deletePic(obj){
+	if (confirm("确认删除该上传图片吗?")){
+		$(obj).parent('.weui_uploader_files').siblings(".weui_uploader_input_wrp").show();
+		$(obj).remove();
+	}
+}
+
+//----------------------------商品图片-----------------------------------------------------------------------------------------------------------------------
+$(function () {
+	// 允许上传的图片类型
+	var allowTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'];
+	// 1024KB，也就是 1MB
+	var maxSize = 3072 * 3072;
+	// 图片最大宽度
+	var maxWidth = 400;
+	// 最大上传图片数量
+	var maxCount = 5;
+	$(".batch_image_list1").on('change', function(event) {
+	$(this).addClass("control-hidden");
+	$('#id_batch_image_list1.control-show').eq(0).removeClass('control-show');
+	var files = event.target.files;
+	
+	// 如果没有选中文件，直接返回
+	if (files.length === 0) {
+	return;
+	}
+	
+	for (var i = 0, len = files.length; i < len; i++) {
+	var file = files[i];
+	var reader = new FileReader();
+	// 如果类型不在允许的类型范围内
+	if (allowTypes.indexOf(file.type) === -1) {
+	$.weui.alert({text: '该类型不允许上传'});
+	continue;
+	}
+	
+	if (file.size > maxSize) {
+	$.weui.alert({text: '图片太大，不允许上传'});
+	continue;
+	}
+	
+	if ($('.li_batch_image_list1').length >= maxCount) {
+	$.weui.alert({text: '最多只能上传' + maxCount + '张图片'});
+	return;
+	}
+	reader.onload = function (e) {
+	var img = new Image();
+	img.onload = function () {
+	// 不要超出最大宽度
+	var w = Math.min(maxWidth, img.width);
+	// 高度按比例计算
+	var h = img.height * (w / img.width);
+	var canvas = document.createElement('canvas');
+	var ctx = canvas.getContext('2d');
+	// 设置 canvas 的宽度和高度
+	canvas.width = w;
+	canvas.height = h;
+	ctx.drawImage(img, 0, 0, w, h);
+	var base64 = canvas.toDataURL('image/png');
+	console.log(base64);
+	// 插入到预览区
+	var $preview = $('<li class="weui_uploader_file weui_uploader_status li_batch_image_list1" style="background-image:url(' + base64 + ')" onclick="deletePic(this);"></li>');
+	$('.ul_batch_image_list1').append($preview);
+	if ($('.li_batch_image_list1').length == maxCount){
+		$('.batch_image_list1').parent('.weui_uploader_input_wrp').hide();
+	}
+	
+	};
+	img.src = e.target.result;
+	    $('#id_batch_image_list1_hidden').val(img.src);
+	};
+	reader.readAsDataURL(file);
+	}
+	});
+});
+
+
+//----------------------------商品图片-----------------------------------------------------------------------------------------------------------------------
+$(function () {
+	// 允许上传的图片类型
+	var allowTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'];
+	// 1024KB，也就是 1MB
+	var maxSize = 3072 * 3072;
+	// 图片最大宽度
+	var maxWidth = 400;
+	// 最大上传图片数量
+	var maxCount = 5;
+	$(".batch_image_list").on('change', function(event) {
+	$(this).addClass("control-hidden");
+	$('#id_batch_image_list.control-show').eq(0).removeClass('control-show');
+	var files = event.target.files;
+	
+	// 如果没有选中文件，直接返回
+	if (files.length === 0) {
+	return;
+	}
+	
+	for (var i = 0, len = files.length; i < len; i++) {
+	var file = files[i];
+	var reader = new FileReader();
+	// 如果类型不在允许的类型范围内
+	if (allowTypes.indexOf(file.type) === -1) {
+	$.weui.alert({text: '该类型不允许上传'});
+	continue;
+	}
+	
+	if (file.size > maxSize) {
+	$.weui.alert({text: '图片太大，不允许上传'});
+	continue;
+	}
+	
+	if ($('.li_batch_image_list').length >= maxCount) {
+	$.weui.alert({text: '最多只能上传' + maxCount + '张图片'});
+	return;
+	}
+	reader.onload = function (e) {
+	var img = new Image();
+	img.onload = function () {
+	// 不要超出最大宽度
+	var w = Math.min(maxWidth, img.width);
+	// 高度按比例计算
+	var h = img.height * (w / img.width);
+	var canvas = document.createElement('canvas');
+	var ctx = canvas.getContext('2d');
+	// 设置 canvas 的宽度和高度
+	canvas.width = w;
+	canvas.height = h;
+	ctx.drawImage(img, 0, 0, w, h);
+	var base64 = canvas.toDataURL('image/png');
+	console.log(base64);
+	// 插入到预览区
+	var $preview = $('<li class="weui_uploader_file weui_uploader_status li_batch_image_list" style="background-image:url(' + base64 + ')" onclick="deletePic(this);"></li>');
+	$('.ul_batch_image_list').append($preview);
+	if ($('.li_batch_image_list').length == maxCount){
+		$('.batch_image_list').parent('.weui_uploader_input_wrp').hide();
+	}
+	
+	};
+	img.src = e.target.result;
+	    $('#id_batch_image_list_hidden').val(img.src);
+	};
+	reader.readAsDataURL(file);
+	}
+	});
+});
+
+
+</script>
+{% endblock %}

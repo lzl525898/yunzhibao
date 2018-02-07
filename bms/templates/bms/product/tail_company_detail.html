@@ -1,0 +1,68 @@
+{% extends 'bms/product/base_product.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block product_tail_company %}class='active'{% endblock %}
+{% block title %} 保险分公司详情 {% endblock %}
+
+{% block page_top %}
+
+    <div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+
+            <h2 class="text-center">保险分公司详情</h2>
+            {% if message and message != '' %}
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="alert alert-warning text-center">{{ message }}</div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <table class="table table-bordered">
+                <tr>
+                  <td class="info text-center">分公司名称</td>
+                  <td class="text-center">{{ tail_company.name }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">分公司简称</td>
+                  <td class="text-center">{{ tail_company.simple_name }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">所属的总公司</td>
+                  <td class="text-center"><a href="{% url 'bms:item_detail' tail_company.parent.id %}" target="_blank">{{ tail_company.parent.name }}</a></td>
+                </tr>
+                <tr>
+                  <td class="info text-center">公司编号</td>
+                  <td class="text-center">{{ tail_company.paper_id }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">案均处理时效</td>
+                  <td class="text-center">{{ tail_company.avg_project_time|default_if_none:'' }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">案均赔款</td>
+                  <td class="text-center">{{ tail_company.avg_project_pay|default_if_none:'' }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">是否显示</td>
+                  <td class="text-center">{% if not tail_company.is_hidden %}是{% else %}否{% endif %}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">创建时间</td>
+                  <td class="text-center">{{ tail_company.create_time|date:'Y年m月d日 H:i:s' }}</td>
+                </tr>
+            </table>
+            <a class="btn btn-success" href="{% url 'bms:tail_company_edit' tail_company.id %}"><i class="fa fa-edit"></i> 编 辑</a>
+            <a class="btn btn-default" href="{% url 'bms:tail_company_list' '1' %}"><i class="fa fa-times"></i> 返 回</a>
+        </div>
+        <div class="col-sm-2"></div>
+    </div>
+
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+
+    </script>
+{% endblock %}

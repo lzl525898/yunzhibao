@@ -1,0 +1,56 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}退出登录{% endblock %}
+
+{% block container_block %}
+{% if message %}
+    <div class="weui_dialog_alert">
+        <div class="weui_mask"></div>
+        <div class="weui_dialog">
+            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+            <div class="weui_dialog_bd">{{ message }}</div>
+            <div class="weui_dialog_ft">
+                <a onclick="close_dialog();" class="weui_btn_dialog primary">确定</a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{#    首页所在位置，进入页面后的默认页面#}
+    <div class="hd">
+        <form method="post" action="{% url 'wss:unbind' %}">{% csrf_token %}
+            <input type="hidden" name="open_id" value="{{ open_id }}">
+            <input type="hidden" name="next_view" value="{{ next_view }}">
+            <div class="weui_cells weui_cells_form">
+            <h1 class="page_title" style="text-align: center;"><img alt="" src="{% static 'pic/default/logout.png'%}"></h1>
+                <div class="weui_cell">
+                 <!--    <div class="weui_cell_hd"><label class="weui_label">帐号</label></div> -->
+                    <div class="weui_cell_bd weui_cell_primary">
+                        <input class="weui_input" value="{{ client.profile.phone }}" type="text" pattern="[0-9a-zA-Z_]*" readonly  placeholder="请输入您的帐号" name="username" style="height: 37px;"/>
+                    </div>
+                </div>
+                <div class="weui_cell">
+                 <!--    <div class="weui_cell_hd"><label class="weui_label">密码</label></div> -->
+                    <div class="weui_cell_bd weui_cell_primary">
+                        <input class="weui_input" type="password" placeholder="请输入密码" name="password" style="height: 37px;"/>
+                    </div>
+                </div>
+                <div class="weui_opr_area">
+                    <p class="weui_btn_area">
+                        <button class="weui_btn weui_btn_warn" type="submit">退出登录</button>
+                        <a href="javascript:;" onclick="close_window();" class="weui_btn weui_btn_default">取消</a>
+                    </p>
+                </div>
+            </div>
+
+        </form>
+    </div>
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+{% endblock %}

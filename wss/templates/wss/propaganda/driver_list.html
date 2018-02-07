@@ -1,0 +1,238 @@
+ {% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}专线货车大全{% endblock %}
+
+{% block container_block %}
+ <style>
+ .input-icon input {
+    border: 0px solid #6fb3e0;
+    border-radius: 4px !important;
+    color: #666 !important;
+    font-size: 13px;
+    height: 30px !important;
+    transition: width 0.15s ease 0s;
+    width: 100%;
+    z-index: 11;
+    margin-top:5px;
+}  
+.input-icon i{
+    color: #5172D5;
+    display: block !important;
+    font-size: 20px;
+    height: 20px;
+    margin:-22px 2px 5px 5px;
+    text-align: right;
+    z-index: 1;
+}
+.thumbBox { text-align:center; vertical-align:middle; } 
+.weui_cell:before {
+  content: " ";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 1px;
+  border-top: 0px solid #D9D9D9;
+  color: #D9D9D9;
+  -webkit-transform-origin: 0 0;
+          transform-origin: 0 0;
+  -webkit-transform: scaleY(0.5);
+          transform: scaleY(0.5);
+  left: 15px;
+}
+.weui_cells:before {
+  content: " ";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 1px;
+  border-top: 0px solid #D9D9D9;
+  color: #D9D9D9;
+  -webkit-transform-origin: 0 0;
+          transform-origin: 0 0;
+  -webkit-transform: scaleY(0.5);
+          transform: scaleY(0.5);
+}
+.weui_select {
+  -webkit-appearance: none;
+  border: 0;
+  outline: 0;
+  background-color: transparent;
+  width: 100%;
+  font-size: 13px;
+  height: 30px;
+  position: relative;
+  z-index: 1;
+  padding-left: 2px;
+}
+.weui_select_before .weui_cell_bd {
+	padding-left:1px;
+}
+.weui_cells:after {
+  content: " ";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1px;
+  border-bottom: 0px solid #D9D9D9;
+  color: #D9D9D9;
+  -webkit-transform-origin: 0 100%;
+          transform-origin: 0 100%;
+  -webkit-transform: scaleY(0.5);
+          transform: scaleY(0.5);
+}
+</style> 
+{#    首页所在位置，进入页面后的默认页面#}
+
+
+    <script  type="text/javascript">
+		  wx.ready(function () {
+			  wx.onMenuShareAppMessage({
+			      title: '海量专线货车供您选择',
+			      desc: '运之宝为您提供海量专线货车，为您及时调车、稳健经营保驾护航',
+			      link: '{{a.url |safe}}',
+			      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5UZha8Y5GQHtuDY2SkYLSn4z4KUTlx7OjztRDTaYdMPlhvicEjkonVGxsJghXmmGClEtFffH3icv5PyA/0?wx_fmt=png',
+			    });
+			 wx.onMenuShareTimeline({
+			      title: '海量专线货车供您选择',
+			      link:'{{ a.url|safe }}',
+			      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5UZha8Y5GQHtuDY2SkYLSn4z4KUTlx7OjztRDTaYdMPlhvicEjkonVGxsJghXmmGClEtFffH3icv5PyA/0?wx_fmt=png',
+			    });  
+		});
+</script>
+<div class="top">
+	<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+		<tbody>
+			<tr>
+					<td width="20%" valign="middle">
+							<a class="btn1" onclick="#"></a>
+					</td>
+					<td class="wz" width="60%" valign="middle" align="center">
+							<span id="toptitle">
+									<i class="fa   fa-file-text"></i>&nbsp;<strong>司机列表</strong>
+							</span>
+					</td>
+					<td width="20%" valign="middle" align="right">
+					<a id="aso" href="#"></a>
+					</td>
+			</tr>
+		</tbody>
+	</table>
+		<form method="POST" action="{% url 'wss:driver_list' %}"  id="searchFrom" onSubmit="return checkInput();">{% csrf_token %}
+			<div class="form-group" style="backgroud-color:#FFF;">
+				<div class="col-sm-9">
+				    <div class="weui_cell weui_cell_select weui_select_before">
+					        <div class="weui_cell_hd" style="width:35%;">
+					            <select class="weui_select" name="car_type" style="width:100%;" id="car_type">
+					           			 <option selected="selected" value="">车型(全部)</option>
+		                				{% for value,text in car_type %}
+										<option value="{{value}}" >{{text}}</option>
+										{% endfor%}
+					            </select>
+					        </div>
+					         <div class="weui_cell_hd" style="width:30%;">
+					            <select class="weui_select" name="car_length" style="width:100%;" id="car_length">
+												<option selected="selected" value="">车长(全部) </option>
+												{% for value,text in car_length %}
+												<option value="{{value}}" {% if posted_data.car_length == value%} selected {% endif %}>{{text}}</option>
+												{% endfor%}
+					            </select>
+					        </div>
+					        <div class="weui_cell_bd weui_cell_primary">
+					            <span class="input-icon">
+										<input type="text" id="search_keyword"  name="search_keyword"  placeholder=" 姓名/车号" autocomplete="off" maxlength="8" />
+										<a onclick="checkInput();"><i class="fa fa-search"></i></a>
+									</span>
+					        </div>
+					    </div>
+				</div>
+			</div>
+	</form>
+<div  class="wss_line"></div>
+</div>
+<div class="weui_dialog_alert"  id="dialog_alert"style="display:none;">
+    <div class="weui_mask"></div>
+    <div class="weui_dialog">
+        <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示信息</strong></div>
+        <div class="weui_dialog_bd"></div>
+        <div class="weui_dialog_ft">
+            <a href="javascript:close();" class="weui_btn_dialog primary" id="confirm">确定</a>
+        </div>
+    </div>
+</div>
+
+
+	<div class="weui_cells weui_cells_access"  style="padding-top:70px;">
+		{%  if truckers %}
+            {% for trucker in truckers %}
+                <a class="weui_cell" href="{% url 'wss:driver_detail' trucker.id %}"  style="border-top:-20px">
+<!--                    <div class="weui_cell_hd">
+                   {% if trucker.user_image %}
+			            <img src="{% static '' %}{{ trucker.user_image }}" alt="icon" style="width:40px;margin-right:15px;display:block"> 
+			       {% else %}
+			       		<img src="{% static '' %}pic/default/default_icon.png" alt="icon" style="width:40px;margin-right:15px;display:block"> 
+			       {% endif %}
+			        </div> -->
+                    <div class="weui_cell_bd weui_cell_primary">
+                        <p>{{ trucker.user_name }}
+                        </p>
+                        <p style="text-overflow: ellipsis;overflow:hidden;width:280px;white-space:nowrap;font-size:12px;padding-top:3px;">
+                          {% for k,v in car_type %}
+                        		{% if trucker.car_type == k %}{{v}}{% if trucker.car_type == '5' %}-{{trucker.car_type_other}}{% endif %}{% endif %}
+                        	{% endfor %}
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                            {% for k,v in car_length %}
+                        		{% if trucker.car_length == k %}{{v}}{% if trucker.car_length == '19' %}-{{trucker.car_length_other}}米{% endif %}{% endif %}
+                        	{% endfor %}
+                        </p>
+                        <p style="text-overflow: ellipsis;overflow:hidden;width:280px;white-space:nowrap;font-size:12px;padding-top:3px;">
+                            {% for line in trucker.special_line_list %}
+                                 {{ line.start_line }}<i class="fa  fa-exchange"></i>{{ line.end_line }}
+                            {% endfor %}
+                        </p>
+                    </div>
+                    <div class="weui_cell_ft"><img src="{% static '' %}pic/default/1.jpg" alt="icon" style="width:40px;margin-right:15px;display:none"> </div>
+                </a>
+              		<div  class="wss_dashed_bottom"></div>
+            {% endfor %}
+            {% else %}
+            <div  class="thumbBox"  style="padding-top: 25%;"><img  src="/static/pic/default/201305122026542520.gif" alt="icon"  style="max-width: 180px;max-height: 180px;word-break:break-all;" ></div>
+            <div  class="thumbBox"  style="padding-top: 5%;"><p>抱歉，目前还没有货车司机加入！</p></div>
+        {% endif %}
+     </div>
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+    <script type="text/javascript">
+       function checkInput(){
+    	   var search_context = document.getElementById("search_keyword").value;
+    	   
+           var car_type = $("#car_type").val();
+           var car_length = $("#car_length").val();
+/*     	   if(search_context == "" && car_type == "" && car_length == ""){
+    	     	$(".weui_dialog_bd").text("搜索条件不能为空，请至少输入一个搜索条件！");
+    	     	$("#dialog_alert").css("display","block");  
+    	     	return false;
+    	   } */
+    	   if(search_context.length >8){
+	   	     	$(".weui_dialog_bd").text("姓名/车号/常走路线条件不能超过8个字符！");
+	   	     	$("#dialog_alert").css("display","block");  
+	   	     	return false;
+   	  	  }
+    	  document.getElementById("searchFrom").submit();
+
+       }
+       function close(){
+    	   
+    	   $("#dialog_alert").css("display","none");  
+    	   return false;
+       }
+    </script>
+{% endblock %}

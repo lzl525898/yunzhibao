@@ -1,0 +1,94 @@
+{% extends 'bms/statistics/base_statistics.html' %}
+
+{% block insurance_amount %}class='active'{% endblock %}
+{% block title %} 保单金额统计{% endblock %}
+		
+			<meta name = "viewport" content = "initial-scale = 1, user-scalable = no">
+			<style>
+				canvas{
+				}
+		</style>
+{% block page_top %} 
+<div id="barDiv_Day" style="width:1000px;height:300px;margin:1%;border:1px solid #fff"></div>		
+
+<!-- 弹出查看金额详情 -->
+	
+<script type="text/javascript">
+	var barObj_Day = {};
+    barObj_Day.id = "barDiv_Day";
+    barObj_Day.yAxis = [{name: '金额(元)', unit: ""}]
+	barObj_Day.xAxis = [];
+    barObj_Day.xAxis.push('车次保险','单票保险','运单保险','物流公司全年险','单车全年险','雇主责任险','机动车辆险','意外险');
+	 var je = [];
+	 je.push({value: 10});
+	 je.push({value: 20});
+	 je.push({value: 30});
+	 je.push({value: 20});
+	 je.push({value: 5});
+	barObj_Day.data = [{name: '今日金额', type: "bar", data: je}];
+	EcBase.createBarAndLine(barObj_Day, function (data) {});
+</script>
+{% endblock %}
+
+
+{% block page_middle %}
+<div id="barDiv_Week" style="width:1000px;height:300px;margin:1%;border:1px solid #fff"></div>
+<div id="barDiv_Mon" style="width:1000px;height:300px;margin:1%;border:1px solid #fff"></div>
+<script type="text/javascript">
+	var barObj_Week = {};
+	barObj_Week.id = "barDiv_Week";
+    barObj_Week.yAxis = [{name: '金额(元)', unit: ""}]
+	barObj_Week.xAxis = [];
+	 barObj_Week.xAxis.push('车次保险','单票保险','运单保险','物流公司全年险','单车全年险','雇主责任险','机动车辆险','意外险');
+	 var je1 = [];
+	 je1.push({value: 10 ,name:'订单号：大方三地方第三方萨福\n塑料袋客服\nfajfk \ndsafd \nasdfasd \nadf \nadasf \nasdf\n'});
+	 je1.push({value: 20 ,name:222});
+	 je1.push({value: 30});
+	 je1.push({value: 50});
+	 je1.push({value: 5});
+	barObj_Week.data = [{name: '本周金额', type: "bar", data: je1}];
+	EcBase.createBarAndLine(barObj_Week, function (data) {
+		alert(data.name);
+		});
+	var barObj_Mon = {};
+	barObj_Mon.id = "barDiv_Mon";
+    barObj_Mon.yAxis = [{name: '金额(元)', unit: ""}]
+	barObj_Mon.xAxis = [];
+	 barObj_Mon.xAxis.push('车次保险','单票保险','运单保险','物流公司全年险','单车全年险','雇主责任险','机动车辆险','意外险');
+	 var je1 = [];
+	 je1.push({value: 10 ,name:'订单号：大方三地方第三方萨福\n塑料袋客服\nfajfk \ndsafd \nasdfasd \nadf \nadasf \nasdf\n'});
+	 je1.push({value: 20 ,name:222});
+	 je1.push({value: 30,itemStyle:{normal:{color:'#77DDFF'}}});
+	 je1.push({value: 50});
+	 je1.push({value: 5});
+	barObj_Mon.data = [{name: '本月金额', type: "bar", data: je1}];
+	EcBase.createBarAndLine(barObj_Mon, function (data) {
+		alert(data.name);
+});
+</script>
+{% endblock %}
+
+{% block page_bottom %}
+<div id="barDiv_Year" style="width:1000px;height:300px;margin:1%;border:1px solid #fff"></div>
+<script type="text/javascript">
+	var barObj_Year = {};
+	barObj_Year.id = "barDiv_Year";
+    barObj_Year.yAxis = [{name: '金额(元)', unit: ""}]
+	barObj_Year.xAxis = [];
+	 barObj_Year.xAxis.push('车次保险','单票保险','运单保险','物流公司全年险','单车全年险','雇主责任险','机动车辆险','意外险');
+	 var je1 = [];
+	 je1.push({value: 10 ,name:'订单号：大方三地方第三方萨福\n塑料袋客服\nfajfk \ndsafd \nasdfasd \nadf \nadasf \nasdf\n'});
+	 je1.push({value: 20 ,name:222});
+	 je1.push({value: 30});
+	 je1.push({value: 50});
+	 je1.push({value: 5});
+	barObj_Year.data = [{name: '2016年保险金额', type: "bar", data: je1}];
+	EcBase.createBarAndLine(barObj_Year, function (data) {
+		alert(data.name);
+});
+</script>
+{% endblock %}
+
+
+{% block script_block %}
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}我的{% endblock %}
+
+{% block container_block %}
+<link href="{% static 'css/component.css' %}" rel="stylesheet" type="text/css" />
+{% if message %}
+    <div class="weui_dialog_alert">
+        <div class="weui_mask"></div>
+        <div class="weui_dialog">
+            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+            <div class="weui_dialog_bd">{{ message }}</div>
+            <div class="weui_dialog_ft">
+                <a onclick="close_dialog();" class="weui_btn_dialog primary">确定</a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{#    首页所在位置，进入页面后的默认页面#}
+
+<!--     <div class="wss_title" ><i class="fa   fa-calendar-o"></i> &nbsp; <strong>车险订单</strong></div> -->
+    <div class="top">
+	<table class="tabel" border="0" cellspacing="0" cellpadding="0"   >
+		<tbody>
+			<tr>
+					<td width="20%" valign="middle">
+							<a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a>
+					</td>
+					<td class="wz" width="60%" valign="middle" align="center">
+							<span id="toptitle">
+									<i class="fa   fa-file-text"></i>&nbsp;<strong>车险订单</strong>
+							</span>
+					</td>
+					<td width="20%" valign="middle" align="right">
+					<a id="aso" href="#"></a>
+					</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+	<div class="container" id="container" style="padding-top:40px;">
+			<div class="bd">
+			    <div class="weui_search_bar" id="search_bar">
+			        <form class="weui_search_outer"  action="{% url 'wss:car_order_list' 'all'%}" method="POST" >{% csrf_token %}
+			            <div class="weui_search_inner">
+			                <i class="weui_icon_search"></i>
+			                <input type="search" class="weui_search_input" id="search_input" name="search_keyword" placeholder="请按车号/运单号搜索" required
+			                {% if search %} value='{{search}}'{% else %}value='' {% endif %}/>
+			                <a href="javascript:" class="weui_icon_clear" id="search_clear"></a>
+			            </div>
+			            <label for="search_input" class="weui_search_text" id="search_text" >
+			                <i class="weui_icon_search"></i>
+			                <span>{% if search %} {{search}}{% else %}搜索{% endif %}</span>
+			            </label>
+			        </form>
+			        <a href="javascript:" class="weui_search_cancel" id="search_cancel">取消</a>
+			    </div>
+			</div>
+		</div>
+	<div class="weui_dialog_alert"  id="dialog_alert"style="display:none;">
+			    <div class="weui_mask"></div>
+			    <div class="weui_dialog">
+			        <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示信息</strong></div>
+			        <div class="weui_dialog_bd"></div>
+			        <div class="weui_dialog_ft">
+			            <a href="javascript:close();" class="weui_btn_dialog primary" id="confirm">确定</a>
+			        </div>
+			    </div>
+	</div>
+       <header class="header">
+			 <a id="order_state_change" href="#" class="logo"><span style="color:#fff;font-weight:bold;font-size:14px;">{{ order_state }}</span></a> 
+			<div id="dl-menu" class="dl-menuwrapper">
+				<button id="dl-menu-button">Open Menu</button>
+				<ul class="dl-menu" >
+				    <li><a id="quanbu" href="{% url 'wss:car_order_list' 'all' %}" >全部</a></li>
+					<li><a id="daixujia" href="{% url 'wss:car_order_list'  'verify' %}">审核中</a></li>
+					<li><a id="xunjiazhong" href="{% url 'wss:car_order_list' 'price'%}">询价中</a></li>
+					<li><a id="daiqueren" href="{% url 'wss:car_order_list' 'wait'%}">待确认</a></li>
+					<li><a id="daizhifu" href="{% url 'wss:car_order_list' 'init'%}">待支付</a></li>
+					<li><a id="yizhifu" href="{% url 'wss:car_order_list' 'paid'%}">已支付</a></li>
+					<li><a id="yiwancheng" href="{% url 'wss:car_order_list' 'done'%}">已完成</a></li>
+					<li><a id="yiwancheng" href="{% url 'wss:car_order_list' 'fail'%}">已驳回</a></li>
+				</ul>
+			</div>
+		</header>
+		<div class="weui_cells weui_cells_access" style="margin-top:1px;">
+		{% if orders %}
+			{% for order in orders %}
+		        <a class="weui_cell wss_p wss_dashed_bottom" href="{% url 'wss:jdclbx_detail' order.id %}" >
+		            <div class="weui_cell_bd weui_cell_primary">
+		                     <p>【车牌号】{{ order.plate_number }}</p>
+                             <p class="">【下单时间】{{ order.create_time|date:'Y年m月d日' }}</p>
+		            </div>
+ 	            <div class="weui_cell_ft">{{ order|displayName:'state' }}</div> 
+		        </a>
+		      {% endfor %}
+		        {% else %}
+                <div  class="thumbBox"  style="padding-top: 25%;"><img  src="/static/pic/default/201305122026542520.gif" alt="icon"  style="max-width: 180px;max-height: 180px;word-break:break-all;" ></div>
+			    <div  class="thumbBox"  style="padding-top: 5%;"><p>抱歉，您当前还没有车险订单!</p></div>
+		         {% endif %}
+	    </div>
+       
+{% endblock %}
+
+{% block script_block %}
+<script src="{% static 'js/search.js' %}"type="text/javascript"></script>
+<script type="text/javascript" src="{% static 'js/jquery.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/modernizr.custom.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/jquery.dlmenu.js' %}"></script>
+ <script src="{% static 'js/fastclick.js' %}"></script>
+<script type="text/javascript">
+  $(function() {
+    FastClick.attach(document.body);
+    $( '#dl-menu' ).dlmenu();
+  });
+ </script>
+{% endblock %}

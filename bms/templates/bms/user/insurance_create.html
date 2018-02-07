@@ -1,0 +1,131 @@
+{% extends 'bms/user/base_user.html' %}
+{% load static %}
+{% block user_insurance %}class='active'{% endblock %}
+{% block title %} 创建理赔人员 {% endblock %}
+
+{% block page_top %}
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <i class="fa fa-plus fa-3x pull-right"></i>
+                        <form role="form" id="create_user_form" method="post" action="{% url 'bms:insurance_create' %}"  enctype="multipart/form-data">  {% csrf_token %}
+
+                            <div class="page-header">
+                              <h1 class="text-center">创建理赔人员</h1>
+                            </div>
+                            {% if alert %}
+                                <div class="alert alert-warning">
+                                <p>{{ alert }}</p>
+                                </div>
+                            {% endif %}
+
+                            <div class="form-group" >
+                                <label for="id_public_name"><i class="fa fa-leaf"></i> *昵称： </label>
+                                <input class="form-control" id="id_password}" name="nickname"  type="text" value="{{ posted_data.public_name|default_if_none:"" }}" maxlength="16" required >
+                            </div>
+
+
+                            <div class="form-group" >
+                                <label for="id_phone_number"><i class="fa fa-phone"></i> *手机号码： </label>
+                                <input class="form-control"  id="id_phone" name="phone" type="tel"
+                                       value="{{ posted_data.phone_number|default_if_none:"" }}" maxlength="11" required>
+                            </div>
+
+                            <div class="form-group" >
+                                <label for="id_password"><i class="fa fa-lock"></i> *密码： </label>
+                                <input class="form-control" id="id_password}" name="password"  type="text" maxlength="128" required >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="id_channel"><i class="fa fa-life-bouy"></i> 是否激活： </label>
+                                <div class="checkbox">
+                                    <label><input type="checkbox" name="active" value="true"  checked> 激活</label>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 保 存</button>
+            <button class="btn btn-default" onclick="history.back()" ><i class="fa fa-times"></i> 返 回</button>
+                        </form>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+       $(function(){
+
+            $('#create_user_form').formValidation({
+                // I am validating Bootstrap form
+                framework: 'bootstrap',
+                locale : 'zh_CN',
+                // Feedback icons
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+
+                // List of fields and their validation rules
+                fields: {
+                    username: {
+                        validators: {
+                            notEmpty: {
+                                message: '用户名不可为空'
+                            },
+                            stringLength: {
+                                min: 2,
+                                max: 30,
+                                message: '请输入2～30个字符'
+                            },
+                            regexp: {
+                                regexp: /^[a-zA-Z0-9_]+$/,
+                                message: '用户名只能由字母、数字和下划线组成'
+                            }
+                        }
+                    },
+                    password: {
+                        validators: {
+                            notEmpty: {
+                                message: '密码不可以空'
+                            },
+                            stringLength: {
+                                min: 5,
+                                max: 128,
+                                message: '请输入5～128个字符'
+                            }
+                        }
+                    },
+                    nickname: {
+                        validators: {
+                            notEmpty: {
+                                message: '昵称不可为空'
+                            },
+                            stringLength: {
+                                min: 1,
+                                max: 16,
+                                message: '请输入1～16个字符'
+                            }
+                        }
+                    },
+                    phone: {
+                        validators: {
+                            regexp: {
+                                regexp: /^[0-9]+$/,
+                                message: '手机号码只能由数字组成'
+                            }
+                        }
+                    }
+                }
+            });
+
+
+        });
+    </script>
+{% endblock %}

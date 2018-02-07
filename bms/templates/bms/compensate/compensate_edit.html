@@ -1,0 +1,191 @@
+{% extends 'bms/compensate/base_compensate.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block compensate_compensate %}class='active'{% endblock %}
+{% block title %} 订单列表 {% endblock %}
+
+{% block page_top %}
+<div class="row">
+        <div class="col-sm-10">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <i class="fa fa-plus fa-3x pull-right"></i>
+                    <form role="form" id="edit_compensate_form" method="post" action="{% url 'bms:compensate_edit' compensate.id %}"  enctype="multipart/form-data">  {% csrf_token %}
+
+                        <div class="page-tailer">
+                          <h1 class="text-center">编辑订单</h1>
+                        </div>
+                        {% if message and message != '' %}
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="alert alert-warning">{{ message }}</div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        <div id="id_message" class="row control-show">
+                            <div class="col-sm-12">
+                                <div id="id_message_id" class="alert alert-warning">{{ message }}</div>
+                            </div>
+                        </div>
+                        <div class="form-group" >
+                            <label for="id_company_id"><i class="fa fa-film"></i> *保险公司： </label>
+                            <select class="form-control" id="id_company_id" name="company_id">
+                                <option value="">请选择</option>
+                                  {% for company in companys %}
+                                    <option value="{{ company.id }}" {% if company == compensate.company %} selected {% endif %}>{{ company.name }}</option>
+                                  {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_insurance_type"><i class="fa fa-globe"></i> *产品类型： </label>
+                            <select class="form-control" id="id_insurance_type" name="insurance_type">
+                                <option value="">请选择</option>
+                                  {% for x,y in insurance_types %}
+                                    <option value="{{ x }}" {% if compensate.insurance_type == x %} selected {% endif %}>{{ y }}</option>
+                                  {% endfor %}
+                            </select>
+                        </div>
+                        <div id="id_hidden_insurance_product" class="form-group">
+                            <label for="id_insurance_product_id"><i class="fa fa-film"></i> *产品： </label>
+                            <select class="form-control" id="id_insurance_product_id" name="insurance_product_id">
+                                <option value="{{ compensate.insurance_product.id }}">{{ compensate.insurance_product.name }}</option>
+{#                                  {% for insurance_product in insurance_products %}#}
+{#                                    <option value="{{ insurance_product.id }}" {% if posted_data.insurance_product_id|toString == insurance_product.id|toString %} selected {% endif %}>{{ insurance_product.name }}</option>#}
+{#                                  {% endfor %}#}
+                            </select>
+                        </div>
+                        <div class="form-group" >
+                            <label for="id_client"><i class="fa fa-film"></i> *客户： </label>
+                            <select class="form-control" id="id_client" name="client_id">
+                                <option value="">请选择</option>
+                                  {% for client in clients %}
+                                    <option value="{{ client.id }}" {% if client == compensate.client %} selected {% endif %}>{{ client.profile.phone }}</option>
+                                  {% endfor %}
+                            </select>
+                        </div>
+						<div class="form-group">
+							<label for="id_transport_id"><i class="fa fa-road"></i> *运单号： </label>
+							<input class="form-control"  id="id_transport_id" name="transport_id" type="text"
+								   value="{{ compensate.transport_id|default_if_none:'' }}">
+						</div>
+						<div class="form-group">
+							<label for="id_plate_number"><i class="fa fa-road"></i> *车牌号： </label>
+							<input class="form-control"  id="id_plate_number" name="plate_number" type="text"
+								   value="{{ compensate.plate_number|default_if_none:'' }}">
+						</div>
+						<div class="form-group">
+							<label for="id_plate_number_plus"><i class="fa fa-road"></i> *挂车牌号： </label>
+							<input class="form-control"  id="id_plate_number_plus" name="plate_number_plus" type="text"
+								   value="{{ compensate.plate_number_plus|default_if_none:'' }}">
+						</div>
+						<div class="form-group">
+							<label for="id_start_date"><i class="fa fa-road"></i> *承保日期： </label>
+							<input class="form-control"  id="id_start_date" name="start_date" type="date"
+								   value="{{ compensate.start_date|date:'Y-m-d' }}">
+						</div>
+						<div class="form-group">
+							<label for="id_insurance_rate"><i class="fa fa-road"></i> *保险费率： </label>
+							<input class="form-control"  id="id_insurance_rate" name="insurance_rate" type="text"
+								   value="{{ compensate.insurance_rate|default_if_none:'' }}">
+						</div>
+						<div class="form-group">
+							<label for="id_insurance_price"><i class="fa fa-road"></i> *保险赔付最大金额<small> (分)</small>： </label>
+							<input class="form-control"  id="id_insurance_price" name="insurance_price" type="text"
+								   value="{{ compensate.insurance_price|default_if_none:'' }}">
+						</div>
+						<div class="form-group">
+							<label for="id_price"><i class="fa fa-road"></i> *保险需要支付金额<small> (分)</small>： </label>
+							<input class="form-control"  id="id_price" name="price" type="text"
+								   value="{{ compensate.price|default_if_none:'' }}">
+						</div>
+                        <div class="form-group">
+                            <label for="id_channel"><i class="fa fa-life-bouy"></i> 是否激活： </label>
+                            <div class="">
+                                <label class="radio-inline">
+                                  <input type="radio" name="active" id="id_show" value="show" checked> 显示
+                                </label>
+                                <label class="radio-inline">
+                                  <input type="radio" name="active" id="id_hidden" value="hidden"> 隐藏
+                                </label>
+                            </div>
+                        </div>
+                        <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 保 存</button>
+                        <a class="btn btn-default" href="{% url 'bms:compensate_list' '1' %}"><i class="fa fa-times"></i> 返 回</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2"></div>
+</div>
+
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+       $(function(){
+
+            $('#edit_compensate_form').formValidation({
+                // I am validating Bootstrap form
+                framework: 'bootstrap',
+                locale : 'zh_CN',
+                // Feedback icons
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+
+                // List of fields and their validation rules
+                fields: {
+                    transport_id: {
+                        validators: {
+                            notEmpty: {
+                                message: '运单号不可为空'
+                            },
+                            stringLength: {
+                                min: 2,
+                                max: 50,
+                                message: '请输入2～50个字符'
+                            }
+                        }
+                    },
+                    plate_number: {
+                        validators: {
+                            notEmpty: {
+                                message: '车牌号不可为空'
+                            },
+                            stringLength: {
+                                max: 10,
+                                message: '车牌号过长'
+                            }
+                        }
+                    },
+                    insurance_rate: {
+                        validators: {
+                            regexp: {
+                                regexp: /^[0-9]+([.]{1}[0-9]+){0,1}$/,
+                                message: '请填写正确的费率格式'
+                            }
+                        }
+                    },
+                    insurance_price: {
+                        validators: {
+                            regexp: {
+                                regexp: /^\d+$/,
+                                message: '请输入正整数'
+                            }
+                        }
+                    },
+                    price: {
+                        validators: {
+                            regexp: {
+                                regexp: /^\d+$/,
+                                message: '请输入正整数'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}

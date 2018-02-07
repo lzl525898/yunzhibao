@@ -1,0 +1,140 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}雇主责任险{% endblock %}
+
+{% block container_block %}
+{#    首页所在位置，进入页面后的默认页面#}
+<script  type="text/javascript">
+wx.ready(function () {
+	  // 2.1 监听“分享给朋友”，按钮点击、自定义分享内容及分享结果接口
+	  wx.onMenuShareAppMessage({
+	      title: '雇主责任险 规避工伤赔偿利器',
+	      desc: '覆盖大部分工伤保险条例规定的赔偿责任，物流公司领取赔款',
+	      link: '{{main_url}}wss/insure/product_detail6?referee_id={{ mine_id }}',
+	      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5UZha8Y5GQHtuDY2SkYLSn4zqA0lX8we4sptjJ1c7DFeEj83OUp7Sh8LTpG0CgOyyvOaIrj9HSMMDQ/0?wx_fmt=png',
+	    });
+	  
+	 //  2.2 监听“分享到朋友圈”按钮点击、自定义分享内容及分享结果接口
+	 wx.onMenuShareTimeline({
+	      title: '雇主责任险 规避工伤赔偿利器',
+	      link:'{{main_url}}wss/insure/product_detail6?referee_id={{ mine_id }}',
+	      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5UZha8Y5GQHtuDY2SkYLSn4zqA0lX8we4sptjJ1c7DFeEj83OUp7Sh8LTpG0CgOyyvOaIrj9HSMMDQ/0?wx_fmt=png',
+	    });  
+});
+</script>
+
+    <div class="weui_cells_title hd" style="text-align: center;">雇主责任险</div>
+    <div class="weui_cells">
+        <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>产品名称：</p>
+            </div>
+            <div class="weui_cell_ft">雇主责任险</div>
+        </div>
+        <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>产品特点：</p>
+            </div>
+            <div class="weui_cell_ft">规避公司对员工的赔偿责任</div>
+        </div>
+
+        <div class="weui_cells_title">产品简介</div>
+        <div class="weui_cells weui_cells_form">
+            <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <textarea class="weui_textarea" rows="5" disabled="disabled" style="background-color: #ffffff">物流公司单位员工雇主责任保险，各种保障金额应有尽有。
+                    </textarea>
+{#                    <div class="weui_textarea_counter"><span>0</span>/200</div>#}
+                </div>
+            </div>
+        </div>
+        <table border="1" style="margin-top: 10px">
+
+            <th colspan="5">雇主责任险报价（不含长途货车司机）</th>
+            <tr>
+                <td style="text-align: center">死亡、伤残赔偿限额</td>
+                <td style="text-align: center">医疗费赔偿限额</td>
+                <td style="text-align: center">每人保费</td>
+                <td style="text-align: center">免赔</td>
+                <td style="text-align: center">赔偿比例</td>
+            </tr>
+            <tr>
+                <td style="text-align: center">50万元</td>
+                <td style="text-align: center">5万元</td>
+                <td style="text-align: center">580元</td>
+                <td style="text-align: center">100元</td>
+                <td style="text-align: center">90%</td>
+            </tr>
+            <tr>
+                <td style="text-align: center">40万元</td>
+                <td style="text-align: center">4万元</td>
+                <td style="text-align: center">500元</td>
+                <td style="text-align: center">100元</td>
+                <td style="text-align: center">90%</td>
+            </tr>
+            <tr>
+                <td style="text-align: center">30万元</td>
+                <td style="text-align: center">3万元</td>
+                <td style="text-align: center">400元</td>
+                <td style="text-align: center">100元</td>
+                <td style="text-align: center">90%</td>
+            </tr>
+            <tr>
+                <td style="text-align: center">20万元</td>
+                <td style="text-align: center">2万元</td>
+                <td style="text-align: center">300元</td>
+                <td style="text-align: center">100元</td>
+                <td style="text-align: center">90%</td>
+            </tr>
+            <tr>
+                <td style="text-align: center">10万元</td>
+                <td style="text-align: center">1万元</td>
+                <td style="text-align: center">180元</td>
+                <td style="text-align: center">100元</td>
+                <td style="text-align: center">90%</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="weui_cells">
+        <div class="weui_cell">
+            <p>扩展误工费赔偿责任，每天赔付100元，最高180天，免赔5天，每人保险费加收50元。</p>
+        </div>
+    </div>
+    <div class="weui_cells weui_cells_access">
+        <a class="weui_cell" href="tel:15910731868">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>投保请咨询客服：</p>
+            </div>
+            <div class="weui_cell_ft">15910731868</div>
+        </a>
+    </div>
+    <div class="weui_cells">
+        <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>微信：</p>
+            </div>
+            <div class="weui_cell_ft">15910731868</div>
+        </div>
+    </div>
+
+
+{#    <a href="{% url 'wss:prompt' %}" class="weui_btn weui_btn_primary">投保</a>#}
+
+    <div class="weui_cells">
+{#        <img src="{% static 'pic/default/logo.png' %}" style="max-width: 200px;max-height: 200px;display:block;text-align: center;margin-right: auto;margin-left: auto;">#}
+        <img src="{% static 'pic/default/ewm.jpg' %}" style="max-width: 350px;max-height: 200px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+        <div class="weui_cell_bd weui_cell_primary">
+            <p style="text-align: center;margin-right: auto;margin-left: auto;margin-top: 10px">长按上图选择“识别图中二维码”↑↑↑</p>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+{% endblock %}

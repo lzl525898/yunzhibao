@@ -1,0 +1,671 @@
+{% extends 'cos/order/base_order.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block order_order %}class='active'{% endblock %}
+{% block title %} 订单列表 {% endblock %}
+
+{% block page_top %}
+    <div class="row">
+        <div class="col-sm-12">
+            <form id="id_order_search_form" class="form-inline" role="form" method="post" action="{% url 'cos:order_list' '1' %}"> {% csrf_token %}
+             <div class="input-group">
+             	 <input type="hidden"  class="form-control" value="cos_order"name="order_from">
+             </div>
+                <div class="input-group">
+                    <label for="id_user_type" class="input-group-addon">用户类别：</label>
+                    <select id="id_user_type" name="user_type" class="input-group-addon" onchange="change_state();">
+                        <option value="">全部</option>
+                        <option value="registered" {% if get_data.user_type == "registered" %} selected {% endif %}>注册用户</option>
+                        <option value="owner" {% if get_data.user_type == "owner" %} selected {% endif %}>车主</option>
+                        <option value="transport" {% if get_data.user_type == "transport" %} selected {% endif %}>物流公司</option>
+                        <option value="driver" {% if get_data.user_type == "driver" %} selected {% endif %}>司机</option>
+                        <option value="boss" {% if get_data.user_type == "boss" %} selected {% endif %}>货主</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="id_client_sign" class="input-group-addon">投保人：</label>
+                    <select id="id_client_sign" name="client_sign" class="input-group-addon" onchange="change_state();">
+                        <option value="">全部</option>
+                            {% for client in clients %}
+                                <option value="{{ client.id }}" {% if get_data.client_sign == client.id|toString %} selected {% endif %}>{{ client.profile.phone  }}--{% if client.company_name %}{{ client.company_name }}{% else %}{{ client.name }}{% endif %}</option>
+                            {% endfor %}
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="id_product_detail" class="input-group-addon">选择产品：</label>
+                    <select id="id_product_detail_id" name="product_detail_id" class="input-group-addon" onchange="change_state();">
+                        <option value="">全部</option>
+                            {% for insurance_product_detail  in insurance_product_list %}
+                                <option value="{{ insurance_product_detail.id }}" {% if get_data.product_detail_id ==  insurance_product_detail.id|toString  %} selected {% endif %}>{{ insurance_product_detail|displayName:'product_type' }}-{{ insurance_product_detail.name }}</option>
+                            {% endfor %}
+                    </select>
+                </div>
+            <br/>
+                <div class="input-group" style="margin-top: 15px">
+                    <label for="id_client_sign" class="input-group-addon">起始时间：</label>
+                   <!--  <input type="datetime" value="{{ start_time }}" style="height: 32px;" id="id_start_time" name="start_time" placeholder="YYYY-MM-DD HH:II:SS"> -->
+                    <input class="form-control"  id="id_start_time" type="datetime" name="start_time"value="{{ start_time }}"placeholder="起始时间" 
+                            onFocus="WdatePicker({isShowClear:false,readOnly:true,dateFmt: 'yyyy-MM-dd'})" >
+                </div>
+                <div class="input-group" style="margin-top: 15px">
+                    <label for="id_client_sign" class="input-group-addon">截止时间：</label>
+                <!--     <input type="datetime" value="{{ end_time }}"  style="height: 32px;" id="id_end_time" name="end_time" placeholder="YYYY-MM-DD HH:II:SS"> -->
+                    <input class="form-control"  id="id_end_time" type="datetime" name="end_time"value="{{ end_time }}"placeholder="截止时间" 
+                            onFocus="WdatePicker({isShowClear:false,readOnly:true,dateFmt: 'yyyy-MM-dd'})" >
+                </div>
+                <div class="input-group" style="margin-top: 15px">
+                    <input type="text" class="form-control" id="search_keyword" placeholder="订单号/运单号/被保人姓名" name="search_keyword" value="{{ search_keyword}}" maxlength="30">
+                     <span class="input-group-btn">
+                        <button type="submit" class="btn btn-default"><i class="fa fa-search"></i> 搜索</button>
+                        <button id="cancel_search" type="button" class="btn btn-default"><i class="fa fa-times"></i> 取消</button>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            {% if search_keyword %}
+            <p></p>
+            <div class="alert alert-warning">
+                <p>关键字： “{{ search_keyword }}”， 搜索结果：{{ paging.item_count }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+
+        {# --------------------------------更新翻页功能-----------------------------------#}
+        
+
+        <div class="col-sm-8">
+        {% if paging.total_pages_count > 0 %}
+            <ul class="pagination">
+                  <li><a href="javascript:;" onclick='$("#choose_prev_page").submit();'>&laquo;</a></li>
+                {% for page in paging.pages %}
+                   <li {% if page == paging.page_index %}class="active"{% endif %}><a href="javascript:;" onclick='$("#choose_page_{{page}}").submit();'>{{ page }}</a></li>
+                     <form id="choose_page_{{page}}" class="hidden" role="" method="post" action="{% url 'cos:order_list' page %}"> {% csrf_token %}
+                     	<input type="hidden"  name="order_from"value="cos_order">
+		                <input type="hidden" {% if get_data.search_keyword %} value="{{get_data.search_keyword}}"{% else %}value=""{% endif %} name="search_keyword">
+		                <input type="hidden" {% if get_data.start_time %} value="{{get_data.start_time}}"{% else %}value=""{% endif %} name="start_time">
+		                <input type="hidden" {% if get_data.end_time %} value="{{get_data.end_time}}"{% else %}value=""{% endif %} name="end_time">
+		                <input type="hidden" {% if get_data.user_type %} value="{{get_data.user_type}}"{% else %}value=""{% endif %} name="user_type">
+		                <input type="hidden" {% if get_data.client_sign %} value="{{get_data.client_sign}}"{% else %}value=""{% endif %} name="client_sign">
+		                <input type="hidden" {% if get_data.product_detail_id %} value="{{get_data.product_detail_id}}"{% else %}value=""{% endif %} name="product_detail_id">
+		                <input type="submit" name="argsubmit" style="display:none"/>
+	                 </form>  
+                {% endfor %}
+                <li><a href="javascript:;" onclick='$("#choose_next_page").submit();'>&raquo;</a></li>
+                <div class="clearfix"></div>
+                <p>
+                    第{{ paging.page_index }}页/共{{ paging.total_pages_count }}页 &nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <a href="javascript:;" onclick='$("#first_page").submit();'>首页</a> / <a href="javascript:;" onclick='$("#last_page").submit();'>尾页</a>
+                </p>
+            </ul>
+                 {#*****************************上一页搜索表单******************#}
+			<form id="choose_prev_page" class="hidden" role="" method="post" action="{% url 'cos:order_list' paging.prev_page %}"> {% csrf_token %}
+						<input type="hidden"  name="order_from"value="cos_order">
+		                <input type="hidden" {% if get_data.search_keyword %} value="{{get_data.search_keyword}}"{% else %}value=""{% endif %} name="search_keyword">
+		                <input type="hidden" {% if get_data.start_time %} value="{{get_data.start_time}}"{% else %}value=""{% endif %} name="start_time">
+		                <input type="hidden" {% if get_data.end_time %} value="{{get_data.end_time}}"{% else %}value=""{% endif %} name="end_time">
+		                <input type="hidden" {% if get_data.user_type %} value="{{get_data.user_type}}"{% else %}value=""{% endif %} name="user_type">
+		                <input type="hidden" {% if get_data.client_sign %} value="{{get_data.client_sign}}"{% else %}value=""{% endif %} name="client_sign">
+		                <input type="hidden" {% if get_data.product_detail_id %} value="{{get_data.product_detail_id}}"{% else %}value=""{% endif %} name="product_detail_id">
+		                <input type="submit" name="argsubmit" style="display:none"/>
+	         </form>   
+            {#*****************************下一页搜索表单******************#}
+			<form id="choose_next_page" class="hidden" role="" method="post" action="{% url 'cos:order_list' paging.next_page %}"> {% csrf_token %}
+						<input type="hidden"  name="order_from"value="cos_order">
+		                <input type="hidden" {% if get_data.search_keyword %} value="{{get_data.search_keyword}}"{% else %}value=""{% endif %} name="search_keyword">
+		                <input type="hidden" {% if get_data.start_time %} value="{{get_data.start_time}}"{% else %}value=""{% endif %} name="start_time">
+		                <input type="hidden" {% if get_data.end_time %} value="{{get_data.end_time}}"{% else %}value=""{% endif %} name="end_time">
+		                <input type="hidden" {% if get_data.user_type %} value="{{get_data.user_type}}"{% else %}value=""{% endif %} name="user_type">
+		                <input type="hidden" {% if get_data.client_sign %} value="{{get_data.client_sign}}"{% else %}value=""{% endif %} name="client_sign">
+		                <input type="hidden" {% if get_data.product_detail_id %} value="{{get_data.product_detail_id}}"{% else %}value=""{% endif %} name="product_detail_id">
+		                <input type="submit" name="argsubmit" style="display:none"/>
+	         </form> 
+            {#*****************************首页搜索表单******************#}
+			<form id="first_page" class="hidden" role="" method="post" action="{% url 'cos:order_list' 1 %}"> {% csrf_token %}
+		               <input type="hidden" {% if get_data.search_keyword %} value="{{get_data.search_keyword}}"{% else %}value=""{% endif %} name="search_keyword">
+		               <input type="hidden"  name="order_from"value="cos_order">
+		                <input type="hidden" {% if get_data.start_time %} value="{{get_data.start_time}}"{% else %}value=""{% endif %} name="start_time">
+		                <input type="hidden" {% if get_data.end_time %} value="{{get_data.end_time}}"{% else %}value=""{% endif %} name="end_time">
+		                <input type="hidden" {% if get_data.user_type %} value="{{get_data.user_type}}"{% else %}value=""{% endif %} name="user_type">
+		                <input type="hidden" {% if get_data.client_sign %} value="{{get_data.client_sign}}"{% else %}value=""{% endif %} name="client_sign">
+		                <input type="hidden" {% if get_data.product_detail_id %} value="{{get_data.product_detail_id}}"{% else %}value=""{% endif %} name="product_detail_id">
+		                <input type="submit" name="argsubmit" style="display:none"/>
+	         </form> 
+            {#*****************************尾页搜索表单******************#}
+			<form id="last_page" class="hidden" role="" method="post" action="{% url 'cos:order_list' paging.total_pages_count %}"> {% csrf_token %}
+						<input type="hidden"  name="order_from"value="cos_order">
+		                <input type="hidden" {% if get_data.search_keyword %} value="{{get_data.search_keyword}}"{% else %}value=""{% endif %} name="search_keyword">
+		                <input type="hidden" {% if get_data.start_time %} value="{{get_data.start_time}}"{% else %}value=""{% endif %} name="start_time">
+		                <input type="hidden" {% if get_data.end_time %} value="{{get_data.end_time}}"{% else %}value=""{% endif %} name="end_time">
+		                <input type="hidden" {% if get_data.user_type %} value="{{get_data.user_type}}"{% else %}value=""{% endif %} name="user_type">
+		                <input type="hidden" {% if get_data.client_sign %} value="{{get_data.client_sign}}"{% else %}value=""{% endif %} name="client_sign">
+		                <input type="hidden" {% if get_data.product_detail_id %} value="{{get_data.product_detail_id}}"{% else %}value=""{% endif %} name="product_detail_id">
+		                <input type="submit" name="argsubmit" style="display:none"/>
+	         </form> 
+            
+        {% endif %}
+        </div>
+
+        {# --------------------------------更新翻页功能结束-----------------------------------#}
+        <div class="col-sm-4">
+            <br/><br/>
+         <!--    <a class="btn btn-primary pull-right" style="margin-left: 10px" onclick="import_insurance()"><i class="fa fa-plus"></i> 批量录入保单号</a> -->
+            <a class="btn btn-primary pull-right" style="margin-left: 10px" onclick="show_order_state()"><i class="fa fa-plus"></i> 批量录入保单号</a>
+            <a href="javascript:;" onclick="order_export()"class="btn btn-primary pull-right"><i class="fa fa-plus"></i> 批量导出订单</a>
+            {#<button class="btn btn-primary pull-right"  onclick="order_export()"><i class="fa fa-plus"></i> 批量导出订单</button>#}
+
+            <form id="order_export_search_form" class="form-inline" role="form" method="post" action="{% url 'cos:order_export' %}"> {% csrf_token %}
+            	<input type="hidden"  name="order_from"value="cos_order">{# 筛选条件更改#}
+                <input type="hidden" value="" id="export_id_search_keyword" name="search_keyword">
+                <input type="hidden" value="" id="export_id_start_time" name="start_time">
+                <input type="hidden" value="" id="export_id_end_time" name="end_time">
+                <input type="hidden" value="" id="export_id_state" name="state">
+                <input type="hidden" value="" id="export_id_pay_state" name="pay_state">
+                <input type="hidden" value="" id="export_id_user_type" name="user_type">
+                <input type="hidden" value="" id="export_id_client_sign" name="client_sign">
+                <input type="hidden" value="" id="export_id_product_id" name="product_id">
+                <input type="submit" name="argsubmit" style="display:none"/>
+                
+            </form>
+        </div>
+
+    </div>
+{% endblock %}
+
+
+{% block page_middle %}
+    {% if message and message != '' %}
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="alert alert-warning">{{ message }}</div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row" style="margin-top: 10px;display:block ;" id ="input_order_state1">
+        <div class="col-sm-12">
+            <div class="list-group" id="notice_group">
+                <input type="hidden" id="page_index" name="page_index" value="{{ page_index }}"/>
+                    <div class="list-group-item">
+                        <div class="row" >
+{#                            <div class="col-sm-1">#}
+{#                            </div>#}
+{#                            <div class="col-sm-2">#}
+{#                                <p class="list-group-item-text">认证目标</p>#}
+{#                            </div>#}
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">订单号</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">产品名称</p>
+                            </div>
+                            <div class="col-sm-1">
+                                <p class="list-group-item-text text-center">被保险人名称</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">运单号</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">车号</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">启运日期</p>
+                            </div>
+                            <div class="col-sm-1">
+                                <p class="list-group-item-text text-center">订单状态</p>
+                            </div>
+{#                            <div class="col-sm-2">#}
+{#                                <p class="list-group-item-text">认证状态</p>#}
+{#                            </div>#}
+                        </div>
+                    </div>
+                    {% for order in orders %}
+                        <a href="{% url 'cos:order_detail' order.id %}" class="list-group-item {% if order.is_hidden %}list-group-item-danger{% endif %}">
+                            <div class="row">
+                                <div class="col-sm-2">
+                                    <p class="list-group-item-text text-center"><strong>{{ order.paper_id }}</strong></p>
+                                </div>
+                                <div class="col-sm-2">
+                                    <p class="list-group-item-text text-center"><strong>{{ order.insurance_product.name }}</strong></p>
+                                </div>
+                                <div class="col-sm-1">
+                                    <p class="list-group-item-text text-center"><strong>{{ order.insured }}</strong></p>
+                                </div>
+                                <div class="col-sm-2">
+                                    <p class="list-group-item-text text-center"><strong>{{ order.transport_id|DefaultIfNull:"无运单号" }}</strong></p>
+                                </div>
+                                <div class="col-sm-2">
+                                    <p class="list-group-item-text text-center"><strong>{{ order.plate_number|DefaultIfNull:"无车牌号" }}</strong></p>
+                                </div>
+                                <div class="col-sm-2">
+                                    <p class="list-group-item-text text-center">{{ order.pay_time|date:'Y年m月d日' }}</p>
+                                </div>
+                                <div class="col-sm-1">
+                                    <p class="list-group-item-text text-center"><strong>{{ order|displayName:"state" }}</strong></p>
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+       </div>
+    </div>
+
+
+<!-- 批量导入保单 -->
+    <div class="row" style="margin-top: 10px;display:none ;" >
+        <div class="col-sm-12">
+            <div class="list-group" id="notice_group">
+                <input type="hidden" id="page_index" name="page_index" value="{{ page_index }}"/>
+                    <div class="list-group-item">
+                        <div class="row" >
+                            <div class="col-sm-1">
+                                <p class="list-group-item-text text-center">状态</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">订单号</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">产品名称</p>
+                            </div>
+                            <div class="col-sm-1">
+                                <p class="list-group-item-text text-center">被保险人名称</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">运单号</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">车号</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">启运日期</p>
+                            </div>
+                           
+                        </div>
+                    </div>
+                    {% for order in orders %}
+                        <a href="#" class="list-group-item {% if order.is_hidden %}list-group-item-danger{% endif %}">
+                            <div class="row">
+                            	<div class="col-sm-1">
+                                    <p class="list-group-item-text text-center"><input type="checkbox" value="{{order.id}}" name="choose_order"/></p>
+                                </div>
+                                <div class="col-sm-2">
+                                    <p class="list-group-item-text text-center"> <strong>{{ order.paper_id }}</strong></p>
+                                </div>
+                                <div class="col-sm-2">
+                                    <p class="list-group-item-text text-center"><strong>{{ order.insurance_product.name }}</strong></p>
+                                </div>
+                                <div class="col-sm-1">
+                                    <p class="list-group-item-text text-center"><strong>{{ order.insured }}</strong></p>
+                                </div>
+                                <div class="col-sm-2">
+                                    <p class="list-group-item-text text-center"><strong>{{ order.transport_id|DefaultIfNull:"无运单号" }}</strong></p>
+                                </div>
+                                <div class="col-sm-2">
+                                    <p class="list-group-item-text text-center"><strong>{{ order.plate_number|DefaultIfNull:"无车牌号" }}</strong></p>
+                                </div>
+                                <div class="col-sm-2">
+                                    <p class="list-group-item-text text-center">{{ order.expectStartTime|date:'Y年m月d日' }}</p>
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+       </div>
+    </div>
+<div class="modal fade" id="confirm_insurance_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog"style="width: 1000px">>
+		<form id="insurance_form" class="form" method="post" action="{% url 'cos:import_insurance_new' %}" enctype="multipart/form-data">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+                    <input type="hidden" value="" id="modal_id_search_keyword" name="search_keyword">
+                    <input type="hidden" value="" id="modal_id_start_time" name="start_time">
+                    <input type="hidden" value="" id="modal_id_end_time" name="end_time">
+                    <input type="hidden" value="" id="modal_id_state" name="state">
+                    <input type="hidden" value="" id="modal_id_pay_state" name="pay_state">
+                    <input type="hidden" value="" id="modal_id_user_type" name="user_type">
+                    <input type="hidden" value="" id="modal_id_client_sign" name="client_sign">
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						批量导入保单号
+					</h4>
+				</div>
+				<div class="modal-body">
+                    
+                    
+                   <!-- 添加三种上传方式 -->
+					<div class="form-group" >
+                        <table class="table table-bordered table-hover">
+			                   <tbody>
+			                           <tr>
+			                                <td class="info  td_su_width">保单号：</td>
+			  			      				<td class="active td_active_width"colspan="" >
+			  			      					<input style="width:300px "  name="insurance_id"placeholder="保单号"/>
+			  			      				</td>
+			  			      		</tr>
+			  			      		<tr>
+			  			      				<td class="info  td_su_width">保单</td>
+			  			      				<td class="active td_active_width"colspan="3" >
+					  			      				<div class="col-sm-4">
+					  			      					<select class="" name="insurance_type" id ="insurance_type" onchange = 'change_liability("insurance",this.value)'>
+					  			      						 <option value="pdf" > 上传保单pdf文件 </option>
+						                                      <option value="picture" > 上传保单图片 </option>
+						                                      <option value="web_url" > 上传保单下载链接 </option>
+					                                    </select>
+					  			      				</div>
+					  			      				
+					  			      				<div class="col-sm-6" id ='insurance_pic_up' {% if posted_data.liability_type == 'pricture'  %}style="display: block;"{% else %}style="display: none;"{% endif %}>
+							  			      				<input class="filestyle" type="file" id="" name="insurance_image" data-icon="true" data-input="true" 
+																		data-buttonText="选择图片" data-iconName="glyphicon-inbox"multiple  accept="image/*">
+														<small><font color='red' >(按住“CTRL”按键，可选择多张图片)</font></small>
+							  			      		</div>
+							  			      		
+					  			      				<div class="col-sm-6" id ='insurance_pdf_up' {% if posted_data.liability_type == 'pdf' or not posted_data  %}style="display: block;"{% else %}style="display: none;"{% endif %}>
+							  			      				<input class="filestyle" type="file" id="" name="insurance_image" data-icon="true" 
+							  			      				data-input="true" data-buttonText="选择文件" data-iconName="glyphicon-inbox"accept="application/pdf">
+							  			      		</div>
+							  			      		
+							  			      		<div class="col-sm-6" id ='insurance_web_url_up' {% if posted_data.liability_type == 'web_url' %}style="display: block;"{% else %}style="display: none;"{% endif %}>
+							  			      				<input class="text"  id="" name="insurance_image" >
+							  			      		</div>
+										    </td>
+			                           </tr>
+			                           <tr>
+			                                <td class="info  td_su_width">导入订单</td>
+			  			      				<td class="active td_active_width"colspan="" >
+ 			      					                    <div class="col-sm-12">
+											              <div class="list-group" id="notice_group"style="height:400px; overflow-y:scroll; border:1px solid;"><!-- 添加滚动条 -->
+											                <input type="hidden" id="page_index" name="page_index" value="{{ page_index }}"/>
+											                    <div class="list-group-item">
+											                        <div class="row" >
+											                            <div class="col-sm-1">
+											                                <p class=" text-center">
+												                                <a   id ="choose_all" onclick="choose_all_state()" style="display:block;cursor:pointer"> 全选</a>
+												                                <a  id ="cancel_all"onclick="cancel_all_state()" style="display:none;cursor:pointer">取消</a>
+											                                </p>
+											                            </div>
+											                            <div class="col-sm-2">
+											                                <p class=" text-center">订单号</p>
+											                            </div>
+											                            <div class="col-sm-3">
+											                                <p class=" text-center">产品名称</p>
+											                            </div>
+											                            <div class="col-sm-2">
+											                                <p class=" text-center">被保人</p>
+											                            </div>
+											                            <div class="col-sm-2">
+											                                <p class=" text-center">运单号</p>
+											                            </div>
+											                            <div class="col-sm-2">
+											                                <p class=" text-center">车号</p>
+											                            </div>
+											                           
+											                        </div>
+											                    </div>           
+											                    
+											                    {% for order in order_set_list %}
+											                        <a href="#" class="list-group-item {% if order.is_hidden %}list-group-item-danger{% endif %}"style="background-color: #fff;border: 1px solid #ddd;padding: 2px 3px;font-size: 13px;">
+											                            <div class="row">
+											                            	<div class="col-sm-1">
+											                                    <p class=" text-center"><input type="checkbox" value="{{order.id}}" name="choose_order"/></p>
+											                                </div>
+											                                <div class="col-sm-2">
+											                                    <p class=" text-center"> <strong>{{ order.paper_id }}</strong></p>
+											                                </div>
+											                                <div class="col-sm-3">
+											                                    <p class=" text-center"><strong>{{ order.insurance_product.name }}</strong></p>
+											                                </div>
+											                                <div class="col-sm-2">
+											                                    <p class=" text-center"><strong>{{ order.insured }}</strong></p>
+											                                </div>
+											                                <div class="col-sm-2">
+											                                    <p class=" text-center"><strong>{{ order.transport_id|DefaultIfNull:"无运单号" }}</strong></p>
+											                                </div>
+											                                <div class="col-sm-2">
+											                                    <p class=" text-center"><strong>{{ order.plate_number|DefaultIfNull:"无车牌号" }}</strong></p>
+											                                </div>
+											                            </div>
+											                        </a>
+											                    {% endfor %}
+											                </div>
+											           </div>
+			  			      					
+			  			      			  </td>
+			  			      		</tr>
+			                   </tbody>
+			           </table>
+                    </div>
+				
+<!--  添加三种上传方式结束-->				
+                    
+
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						确定
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+    
+    
+    
+<!--  批量导入保单结束-->
+{% endblock %}
+
+{% block page_bottom %}
+        {#批量导入保单号模态框#}
+<div class="modal fade" id="confirm_insurance_modal1" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<form id="insurance_form" class="form" method="post" action="{% url 'cos:import_insurance' %}" enctype="multipart/form-data">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+                    <input type="hidden" value="" id="modal_id_search_keyword" name="search_keyword">
+                    <input type="hidden" value="" id="modal_id_start_time" name="start_time">
+                    <input type="hidden" value="" id="modal_id_end_time" name="end_time">
+                    <input type="hidden" value="" id="modal_id_state" name="state">
+                    <input type="hidden" value="" id="modal_id_pay_state" name="pay_state">
+                    <input type="hidden" value="" id="modal_id_user_type" name="user_type">
+                    <input type="hidden" value="" id="modal_id_client_sign" name="client_sign">
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						批量导入保单号
+					</h4>
+				</div>
+				<div class="modal-body">
+                    <div class="form-group" >
+                        <label class="control-label" for="id_insurance_image"><i class="fa fa-picture-o"></i>保单照片: </label>
+                        <input class="filestyle" type="file" id="id_insurance_image_list" name="insurance_image_list" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox" multiple>
+                    </div>
+                    <div class="form-group" >
+                        <label for="id_insurance_id"><i class="fa fa-user"></i> *保单号： </label>
+                        <input class="form-control"  id="id_insurance_id" name="insurance_id" type="text"
+                               value="{{ posted_data.insurance_id|default_if_none:'' }}" maxlength="100" required >
+                    </div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						确定
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+{% endblock %}
+
+
+{% block script_block %}
+
+<script type="text/javascript">
+    //进入导入保单状态
+    function show_order_state(){
+    	//document.getElementById("input_order_state1").style.display="none";
+    	//document.getElementById("input_order_state2").style.display="block";
+    	$('#confirm_insurance_modal').modal('show');
+    }
+    //全选
+    function choose_all_state(){
+    	document.getElementById("choose_all").style.display = "none";
+    	document.getElementById("cancel_all").style.display = "block";
+    	$("input[name='choose_order']").prop("checked",true); 
+    }
+  //取消
+    function cancel_all_state(){
+    	document.getElementById("cancel_all").style.display = "none";
+    	document.getElementById("choose_all").style.display = "block";
+    	$("input[name='choose_order']").prop("checked",false); 
+    }
+</script>
+<!--  添加保单上传方式-->
+    <script type="text/javascript">
+function change_liability( type,value){
+	//alert(type+value)
+	var picture_up = $('#'+type+'_pic_up');//上传保单图片
+	var document_up = $('#'+type+'_pdf_up');//上传保单文件
+	var url_up = $('#'+type+'_web_url_up');//上传保单下载链接
+	if (value== 'picture'){
+		picture_up.show();
+		document_up.hide();
+		url_up.hide();
+	}
+	else if (value == 'pdf'){
+		picture_up.hide();
+		document_up.show();
+		url_up.hide();
+	}
+	else if (value == 'web_url'){
+		picture_up.hide();
+		document_up.hide();
+		url_up.show();
+	}
+	else{
+		alert("请选择保单上传方式")
+	}
+	
+}
+    </script> 
+<!-- 上传方式结束 -->
+    <script type="text/javascript">
+
+        //“全部”按钮的响应事件，清空搜索关键字，然后提交搜索
+        $('#cancel_search').click(function(event) {
+            console.log("click cancel_search");
+            $('#search_keyword').val('');
+            $('#id_start_time').val('');
+            $('#id_end_time').val('');
+            $('#id_user_type').val('');//用户身份
+            $('#id_client_sign').val('');//投保人清空
+            $('#id_product_detail_id').val('');//产品清空
+            $('#id_order_search_form').submit();
+          });
+        function change_state(){
+            $('#id_order_search_form').submit();
+        }
+        
+        function import_insurance(){
+            var search_keyword = $('#search_keyword').val();
+            var start_time  =  $('#id_start_time').val();
+            var end_time  =  $('#id_end_time').val();
+            var state = $('#id_state').val();
+            var pay_state = $('#id_pay_state').val();
+            var user_type = $('#id_user_type').val();
+            var client_sign = $('#id_client_sign').val();
+{#            alert(state+','+pay_state+','+user_type+','+client_sign);#}
+            $('#modal_id_search_keyword').val(search_keyword);
+            $('#modal_id_start_time').val(start_time);
+            $('#modal_id_end_time').val(end_time);
+            $('#modal_id_state').val(state);
+            $('#modal_id_pay_state').val(pay_state);
+            $('#modal_id_user_type').val(user_type);
+            $('#modal_id_client_sign').val(client_sign);
+            $('#confirm_insurance_modal').modal('show');
+        }
+
+{#      $(function(){#}
+{##}
+{#            $('#id_order_search_form').formValidation({#}
+{#                // I am validating Bootstrap form#}
+{#                framework: 'bootstrap',#}
+{#                locale : 'zh_CN',#}
+{#                // Feedback icons#}
+{#                icon: {#}
+{#                    valid: 'glyphicon glyphicon-ok',#}
+{#                    invalid: 'glyphicon glyphicon-remove',#}
+{#                    validating: 'glyphicon glyphicon-refresh'#}
+{#                },#}
+{##}
+{#                // List of fields and their validation rules#}
+{#                fields: {#}
+{#                    start_time: {#}
+{#                        validators: {#}
+{#                            regexp: {#}
+{#                                regexp:  /^(?:19|20)[0-9][0-9]-(?:(?:0[1-9])|(?:1[0-2]))-(?:(?:[0-2][1-9])|(?:[1-3][0-1])) (?:(?:[0-2][0-3])|(?:[0-1][0-9])):[0-5][0-9]:[0-5][0-9]$/ ,#}
+{#                                message: '请填写正确的时间格式'#}
+{#                            }#}
+{#                        }#}
+{#                    },#}
+{#                    end_time: {#}
+{#                        validators: {#}
+{#                            regexp: {#}
+{#                                regexp:  /^(?:19|20)[0-9][0-9]-(?:(?:0[1-9])|(?:1[0-2]))-(?:(?:[0-2][1-9])|(?:[1-3][0-1])) (?:(?:[0-2][0-3])|(?:[0-1][0-9])):[0-5][0-9]:[0-5][0-9]$/ ,#}
+{#                                message: '请填写正确的时间格式'#}
+{#                            }#}
+{#                        }#}
+{#                    }#}
+{#                }#}
+{#            });#}
+{#        });#}
+
+
+       function order_export(){
+    	  // alert(111);
+        var search_keyword = $('#search_keyword').val();
+        var start_time  =  $('#id_start_time').val();
+        var end_time  =  $('#id_end_time').val();
+        var user_type = $('#id_user_type').val();
+        var client_sign = $('#id_client_sign').val();
+        var product_id = $('#id_product_detail_id').val();
+        //alert(search_keyword+","+start_time+","+end_time+","+user_type+","+client_sign+","+product_id+",")
+        $('#export_id_search_keyword').val(search_keyword);
+        $('#export_id_start_time').val(start_time);
+        $('#export_id_end_time').val(end_time);
+        $('#export_id_user_type').val(user_type);
+        $('#export_id_client_sign').val(client_sign);
+        $('#export_id_product_id').val(product_id);
+        $('#order_export_search_form').submit()
+    }
+    </script>
+{% endblock %}

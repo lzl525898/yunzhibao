@@ -1,0 +1,304 @@
+{% extends 'bms/mall/base_mall.html' %}
+{% load static %}					{#%static'%识别#}
+{% load legoo_tag %}    		{#认证状态转换#}
+{% block mall_goods_list %}class='active'{% endblock %}
+{% block title %}商品类型{% endblock %}
+		
+{% block page_top %}
+    <div class="row">
+        <div class="col-sm-12">
+            <form id="goods_search_form" class="form-inline" role="form" method="post" action="{% url 'bms:mall_goods_list' '1' %}"> {% csrf_token %}
+                <div class="input-group">
+                    <label for="id_state" class="input-group-addon">显示状态：</label>
+                    <select id="search_state" name="search_state" class="input-group-addon" onchange="change_state();">
+                        <option value="">全部</option>
+                        <option value="active" {% if get_data.search_state == "active"  %} selected {% endif %}>显示</option>
+                        <option value="hidden" {% if get_data.search_state == "hidden" %} selected {% endif %}>隐藏</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="id_present_situation" class="input-group-addon">商品状态：</label>
+                    <select id="search_present_situation" name="search_present_situation" class="input-group-addon" onchange="change_state();">
+                        <!-- <option value="">全部</option> -->
+                        {% for present_situation in present_situation_list %}
+                        <option value="{{ present_situation.0 }}" {% if get_data.search_present_situation|toString == present_situation.0|toString  %} selected="selected"  {% endif %}>
+                        {% if present_situation.1 == '无' %} 全部 {% else %} {{present_situation.1}}{% endif %}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="id_goods_type" class="input-group-addon">商品分类：</label>
+                    <select id="search_goods_type" name="search_goods_type" class="input-group-addon" onchange="change_state();">
+                        <option value="">全部</option>
+                        {% for goods_type in goods_type_list %}
+                           <option value="{{ goods_type.id }}" {% if get_data.search_goods_type|toString   == goods_type.id|toString  %} selected="selected"  {% endif %}>{{goods_type.name}}</option>
+                         {% endfor %}
+                    </select>
+                </div>
+               
+                <div class="input-group">
+                    <label for="id_client_sign" class="input-group-addon">所有人：</label>
+                    <select id="client_sign" name="client_sign" class="chosen-select input-group-addon " onchange="change_state();">
+                    <option selected="selected" value="">  </option>
+                        <option value="">全部</option>
+                            {% for certificate in certificate_list %}
+                               <option value="{{ certificate.client.id }}" {% if get_data.client_sign|toString ==  certificate.client.id|toString %} selected {% endif %}>{{ certificate.client.profile.phone  }}--{% if certificate.client.company_name %}{{ certificate.client.company_name }}{% else %}{{ certificate.client.name }}{% endif %}</option>
+                             {% endfor %}
+                    </select>
+                </div>
+            <br/>
+
+                <div class="input-group" style="margin-top: 15px">
+                    <input type="text" class="form-control" id="search_keyword" placeholder="商品名称或品牌型号" name="search_keyword" value="{{ search_keyword}}" maxlength="30">
+                     <span class="input-group-btn">
+                        <button type="submit" class="btn btn-default"><i class="fa fa-search"></i> 搜索</button>
+                        <button id="cancel_search" type="button" class="btn btn-default"><i class="fa fa-times"></i> 取消</button>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            {% if search_keyword %}
+            <p></p>
+            <div class="alert alert-warning">
+                <p>关键字： “{{ search_keyword }}”， 搜索结果：{{ paging.item_count }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+<!--     <div class="row">
+        <div class="col-sm-8">
+        {% if paging.total_pages_count > 0 %}
+            <ul class="pagination">
+                <li><a href="{% url 'bms:mall_goods_list' paging.prev_page %}">&laquo;</a></li>
+                {% for page in paging.pages %}
+                    <li {% if page == paging.page_index %}class="active"{% endif %}><a href="{% url 'bms:mall_goods_list' page %}">{{ page }}</a></li>
+                {% endfor %}
+                <li><a href="{% url 'bms:mall_goods_list' paging.next_page %}">&raquo;</a></li>
+                <div class="clearfix"></div>
+                <p>
+                    第{{ paging.page_index }}页/共{{ paging.total_pages_count }}页 &nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <a href="{% url 'bms:mall_goods_list' '1' %}">首页</a> / <a href="{% url 'bms:mall_goods_list' paging.total_pages_count %}">尾页</a>
+                </p>
+            </ul>
+        {% endif %}
+        </div>
+        <div class="col-sm-4">
+            <br/><br/>
+            <a class="btn btn-primary pull-right" style="margin-left: 10px" href="{% url 'bms:mall_goods_create' %}"><i class="fa fa-plus"></i> 创建商品</a>
+        </div>
+
+    </div> -->
+    
+    
+    
+        <div class="row">
+        <div class="col-sm-8">
+        {% if paging.total_pages_count > 0 %}
+            <ul class="pagination">
+                  {% if  paging.page_index ==  1  %}
+                         <li><a style= "opacity: 0.2" disabled="true">&laquo;</a></li>
+                  {% endif %} 
+                  {% if paging.page_index != 1 %}     
+                         <li><a  href="javascript:;" onclick='$("#prevpage_{{paging.prev_page}}").submit();'>&laquo;</a></li>
+                   {% endif %} 
+                {% for page in paging.pages %}
+                   <li {% if page == paging.page_index %}class="active"{% endif %}><a href="javascript:;" onclick='$("#choosepage_{{page}}").submit();'>{{ page }}</a></li>             
+                {% endfor %}
+                {% if  paging.page_index ==  paging.total_pages_count  %}
+                            <li><a  style= "opacity: 0.2" disabled="true">&raquo;</a></li>
+                 {% endif %} 
+                 {% if paging.page_index != paging.total_pages_count %}  
+                            <li><a href="javascript:;" onclick='$("#nextpage_{{paging.next_page}}").submit();'>&raquo;</a></li>  
+                 {% endif %} 
+                <div class="clearfix"></div>
+                <p>
+                    第{{ paging.page_index }}页/共{{ paging.total_pages_count }}页 &nbsp;&nbsp;&nbsp;&nbsp;
+                 {% if  paging.page_index ==  1  %}
+                    <a disabled="true">首页</a> / 
+                 {% endif %}   
+                 {% if  paging.page_index !=  1  %}
+                    <a href="javascript:;" onclick='$("#first_page").submit();'>首页</a> / 
+                 {% endif %}   
+                  
+                 {% if  paging.page_index ==  paging.total_pages_count  %}
+                          <a disabled="true">尾页</a>
+                 {% endif %} 
+                 {% if paging.page_index != paging.total_pages_count %}  
+                        <a  href="javascript:;" onclick='$("#last_page").submit();'>尾页</a>
+                 {% endif %} 
+                 {#*****************************首页表单******************#}
+          			<form id="first_page" class="hidden" role="" method="post" action="{% url 'bms:mall_goods_list' '1'  %}"> {% csrf_token %}
+          				<input type="hidden"   name="search_state"{% if get_data.search_state %} value="{{get_data.search_state}}"{% else %}value=""{% endif %}>
+          				<input type="hidden"   name="search_present_situation"{% if get_data.search_present_situation %} value="{{get_data.search_present_situation}}"{% else %}value=""{% endif %}>
+          				<input type="hidden"   name="search_goods_type"{% if get_data.search_goods_type %} value="{{get_data.search_goods_type}}"{% else %}value=""{% endif %}>
+          				<input type="hidden"   name="client_sign"{% if get_data.id_client %} value="{{get_data.client_sign}}"{% else %}value=""{% endif %}>
+          				<input type="hidden"   name="search_keyword"{% if get_data.id_client %} value="{{get_data.search_keyword}}"{% else %}value=""{% endif %}>
+		                <input type="submit" name="argsubmit" style="display:none"/>
+	            </form>  
+	          {#*****************************尾页表单******************#}
+	         		 <form id="last_page" class="hidden" role="" method="post" action="{% url 'bms:mall_goods_list' paging.total_pages_count %}"> {% csrf_token %}
+				                <input type="hidden"   name="search_state"{% if get_data.search_state %} value="{{get_data.search_state}}"{% else %}value=""{% endif %}>
+		          				<input type="hidden"   name="search_present_situation"{% if get_data.search_present_situation %} value="{{get_data.search_present_situation}}"{% else %}value=""{% endif %}>
+		          				<input type="hidden"   name="search_goods_type"{% if get_data.search_goods_type %} value="{{get_data.search_goods_type}}"{% else %}value=""{% endif %}>
+		          				<input type="hidden"   name="client_sign"{% if get_data.id_client %} value="{{get_data.client_sign}}"{% else %}value=""{% endif %}>
+		          				<input type="hidden"   name="search_keyword"{% if get_data.id_client %} value="{{get_data.search_keyword}}"{% else %}value=""{% endif %}>
+				                <input type="submit" name="argsubmit" style="display:none"/>
+			            </form> 
+			            
+			            
+			    {#*****************************上一页表单******************#}
+	         		 <form id="prevpage_{{paging.prev_page}}" class="" role="" method="post" action="{% url 'bms:mall_goods_list' paging.prev_page %}"> {% csrf_token %}
+	         		 			<input type="hidden"   name="search_state"{% if get_data.search_state %} value="{{get_data.search_state}}"{% else %}value=""{% endif %}>
+		          				<input type="hidden"   name="search_present_situation"{% if get_data.search_present_situation %} value="{{get_data.search_present_situation}}"{% else %}value=""{% endif %}>
+		          				<input type="hidden"   name="search_goods_type"{% if get_data.search_goods_type %} value="{{get_data.search_goods_type}}"{% else %}value=""{% endif %}>
+		          				<input type="hidden"   name="client_sign"{% if get_data.id_client %} value="{{get_data.client_sign}}"{% else %}value=""{% endif %}>
+		          				<input type="hidden"   name="search_keyword"{% if get_data.id_client %} value="{{get_data.search_keyword}}"{% else %}value=""{% endif %}>
+				                <input type="submit" name="argsubmit" style="display:none"/>
+			            </form> 
+			    {#*****************************下一页表单******************#}
+	         		<form id="nextpage_{{paging.next_page}}" class="" role="" method="post" action="{% url 'bms:mall_goods_list' paging.next_page %}"> {% csrf_token %}
+				                <input type="hidden"   name="search_state"{% if get_data.search_state %} value="{{get_data.search_state}}"{% else %}value=""{% endif %}>
+		          				<input type="hidden"   name="search_present_situation"{% if get_data.search_present_situation %} value="{{get_data.search_present_situation}}"{% else %}value=""{% endif %}>
+		          				<input type="hidden"   name="search_goods_type"{% if get_data.search_goods_type %} value="{{get_data.search_goods_type}}"{% else %}value=""{% endif %}>
+		          				<input type="hidden"   name="client_sign"{% if get_data.id_client %} value="{{get_data.client_sign}}"{% else %}value=""{% endif %}>
+		          				<input type="hidden"   name="search_keyword"{% if get_data.id_client %} value="{{get_data.search_keyword}}"{% else %}value=""{% endif %}>
+				                <input type="submit" name="argsubmit" style="display:none"/>
+			            </form> 
+			         {#*****************************每一页表单******************#}    
+			      {% for page in paging.pages %}
+				            <form id="choosepage_{{page}}" class="" role="" method="post" action="{% url 'bms:mall_goods_list' page%}"> {% csrf_token %}
+				                <input type="hidden"   name="search_state"{% if get_data.search_state %} value="{{get_data.search_state}}"{% else %}value=""{% endif %}>
+		          				<input type="hidden"   name="search_present_situation"{% if get_data.search_present_situation %} value="{{get_data.search_present_situation}}"{% else %}value=""{% endif %}>
+		          				<input type="hidden"   name="search_goods_type"{% if get_data.search_goods_type %} value="{{get_data.search_goods_type}}"{% else %}value=""{% endif %}>
+		          				<input type="hidden"   name="client_sign"{% if get_data.id_client %} value="{{get_data.client_sign}}"{% else %}value=""{% endif %}>
+		          				<input type="hidden"   name="search_keyword"{% if get_data.id_client %} value="{{get_data.search_keyword}}"{% else %}value=""{% endif %}>
+				                <input type="submit" name="argsubmit" style="display:none"/>
+				            </form>     
+                {% endfor %}
+                </p>
+            </ul>
+        {% endif %}
+        </div>
+
+	<div class="col-sm-4">
+            <br/><br/>
+            <a class="btn btn-primary pull-right" style="margin-left: 10px" href="{% url 'bms:mall_goods_create' %}"><i class="fa fa-plus"></i> 创建商品</a>
+        </div>
+
+    </div>
+{% endblock %}
+
+
+{% block page_middle %}
+    {% if message and message != '' %}
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="alert alert-warning">{{ message }}</div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row" style="margin-top: 10px">
+        <div class="col-sm-12">
+            <div class="list-group" id="notice_group">
+                <input type="hidden" id="page_index" name="page_index" value="{{ page_index }}"/>
+                    <div class="list-group-item">
+                        <div class="row" >
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">商品名称</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">商品类别</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">用户手机号</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">状态</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">创建时间</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">操作</p>
+                            </div>
+                        </div>
+                    </div>
+				{% for mall_goods in mall_goods_lists %}
+				<!-- {{mall_goods_list}} -->
+<!-- {#                        <a href="" class="list-group-item">#}
+                        <a href="{% url 'bms:mall_goods_detail' mall_goods.id %}" class="list-group-item"> -->
+                         <div class="list-group-item">
+                            <div class="row">
+                                <div class="col-sm-2">
+                                    <p class="list-group-item-text text-center"><strong>{{ mall_goods.goods_name }}</strong></p>
+                                </div>
+                                <div class="col-sm-2">
+	                                <p class="list-group-item-text text-center"><strong>{% if mall_goods.goods_type  %}{{ mall_goods.goods_type.name }}{% else %}  未找到货物类型 {%endif %}</strong></p>
+	                            </div>
+                                <div class="col-sm-2">
+                                    <p class="list-group-item-text text-center">{{ mall_goods.client.profile.phone  }}</p>
+                                </div>
+                                <div class="col-sm-2">
+                                    <p class="list-group-item-text text-center">{% if mall_goods.is_hidden %}隐藏 {% else %}显示 {% endif %}</p>
+                                </div>
+                                <div class="col-sm-2">
+                                    <p class="list-group-item-text text-center">{% if mall_goods.create_time %}{{ mall_goods.create_time|date:'Y年m月d日'}}{% endif %}</p>
+                                </div>
+                            <div class="col-sm-2">
+									  <div class="row text-center">
+									  	  		<a href="{% url 'bms:mall_goods_detail' mall_goods.id %}"><button class="btn btn-xs btn-success" style="width:30px;" title="查看详情"><i class="fa fa-search-plus" ></i></button></a>
+									  			<a href="{% url 'bms:mall_goods_edit' mall_goods.id %}"><button class="btn btn-xs btn-info" style="width:30px;" title="编辑"><i class="fa fa-edit"></i></button></a>
+									  			<a href="{% url 'bms:mall_goods_delete' mall_goods.id %}" onclick="return confirmAct();"><button class="btn btn-xs btn-danger" style="width:30px;" title="删除"><i class="fa fa-trash-o"></i></button></a>
+									 </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+
+       </div>
+    </div>
+    
+    </div>
+    
+
+    
+{% endblock %}
+
+{% block page_bottom %}
+{% endblock %}
+
+
+{% block script_block %}
+    <script type="text/javascript">
+      function confirmAct(){
+    	  if(confirm("确定要删除商品吗？")){
+    		  return true; 
+    	    }else{
+    	    	return false; 
+    	   }
+      }
+      
+      //“全部”按钮的响应事件，清空搜索关键字，然后提交搜索
+      $('#cancel_search').click(function(event) {
+          console.log("click cancel_search");
+          alert(44)
+          $('#search_state').val('');
+          $('#search_present_situation').val('');
+          $('#search_goods_type').val('');
+          $('#client_sign').val('');
+          $('#search_keyword').val('');
+          $('#goods_search_form').submit();
+        });
+      function change_state(){
+          $('#goods_search_form').submit();
+      }
+    </script>
+{% endblock %}
+

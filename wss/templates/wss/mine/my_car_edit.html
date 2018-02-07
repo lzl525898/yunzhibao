@@ -1,0 +1,174 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}我的{% endblock %}
+
+{% block container_block %}
+<style>
+.weui_input {
+  border:0px solid #C8C8CD;  
+}
+</style>
+{% if message %}
+    <div class="weui_dialog_alert">
+        <div class="weui_mask"></div>
+        <div class="weui_dialog">
+            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+            <div class="weui_dialog_bd">{{ message }}</div>
+            <div class="weui_dialog_ft">
+                <a onclick="close_dialog();" class="weui_btn_dialog primary">确定</a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{#    首页所在位置，进入页面后的默认页面#}
+  <!--   <div class="wss_title" ><i class="fa   fa-car"></i> &nbsp; <strong>添加车辆</strong></div> -->
+  <div class="top">
+	<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+		<tbody>
+			<tr>
+					<td width="23%" valign="middle">
+							<a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a>
+					</td>
+					<td class="wz" width="53%" valign="middle" align="center">
+							<span id="toptitle">
+									<i class="fa   fa-car"></i>&nbsp;<strong>编辑车辆</strong>
+							</span>
+					</td>
+					<td width="23%" valign="middle" align="right">
+					<a id="aso" href="#"></a>
+					</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+    <div class="bd">
+        <form id="wss_register_form" method="post" action="" enctype="multipart/form-data" style="padding-top:50px;">{% csrf_token %}
+            <input type="hidden" name="open_id" value="{{ open_id }}">
+            <input type="hidden" name="next_view" value="{{ next_view }}">
+            <div class="weui_cells_tips wss_dashed_bottom" ><i class="weui_icon_warn"></i>根据您提交的信息，为您提供到期提醒的服务！</div>
+             <div class="weui_cells_title"  style="display:inline;color:#5172D5;font-size:15px;" ><div style="float:left; padding-left: 15px;"><i class="fa fa-sign-out">&nbsp;商业险保险期限</i></div> </div>     
+                <div class="weui_cells weui_cells_form wss_dashed_bottom">
+				       <div class="weui_cell">
+				            <div class="weui_cell_bd weui_cell_primary">
+				                <input class="weui_input" type="text" value="{{ car.commercial_date_start |default_if_none:'' |date:'Y-m-d' }}" readonly="readonly" name="syDate" id="syDate" placeholder="请输入商险开始时间"/>
+				            </div>
+				            &nbsp;&nbsp;<small>至</small>&nbsp;&nbsp;
+				            <div class="weui_cell_bd weui_cell_primary">
+				                <input class="weui_input" type="text" value="{{ car.commercial_date_stop |default_if_none:'' |date:'Y-m-d' }}" readonly="readonly" name="syDateend" id="syDateend" placeholder="请输入商险结束时间" />
+				            </div>
+				        </div>
+                </div>
+			    <div class="weui_cells_title"  style="display:inline;color:#5172D5;font-size:15px;" > <div  style="margin-top: -15px;"><div style="float:left; padding-left: 15px;"><i class="fa fa-sign-out">&nbsp;交强险保险期限</i></div></div></div> 
+                <div class="weui_cells weui_cells_form wss_dashed_bottom">
+				       <div class="weui_cell">
+				            <div class="weui_cell_bd weui_cell_primary">
+				                <input class="weui_input" type="text"  value="{{ car.liability_date_start |default_if_none:'' |date:'Y-m-d' }}" readonly="readonly" name="jqDate" id="jqDate"  placeholder="请输入交强险开始时间"  />
+				            </div>
+				            &nbsp;&nbsp;<small>至</small>&nbsp;&nbsp;
+				           <div class="weui_cell_bd weui_cell_primary">
+				                <input class="weui_input" type="text"  value="{{ car.liability_date_stop |default_if_none:'' |date:'Y-m-d' }}" readonly="readonly" name="jqDateend" id="jqDateend"  placeholder="请输入交强险结束时间" />
+				            </div>
+				        </div>
+                 </div>
+			    <div class="weui_cells_title"  style="display:inline;color:#5172D5;font-size:15px;" ><div  style="margin-top: -15px;"><div style="float:left; padding-left: 15px;"><i class="fa fa-sign-out">&nbsp;年检时间</i></div></div></div> 
+                <div class="weui_cells weui_cells_form">
+				       <div class="weui_cell">
+				            <div class="weui_cell_bd weui_cell_primary">
+				                <input class="weui_input" type="text"  {% if car.plate_expiration_periods  %}value="{{ car.plate_expiration_periods}}"{% endif %} readonly="readonly" name="njDate" id="njDate"/>
+				            </div>
+				        </div>
+                 </div>
+
+        <button type="submit" class="weui_btn weui_btn_primary">提交</button>
+        </form>
+    </div>
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+	<script type="text/javascript">
+/*         $(function () {
+			var currYear = (new Date()).getFullYear();	
+			var opt={};
+			opt.date = {preset : 'date'};
+			opt.datetime = {preset : 'datetime'};
+			opt.time = {preset : 'time'};
+			opt.default = {
+				theme: 'android-ics light', //皮肤样式
+		        display: 'modal', //显示方式 
+		        mode: 'scroller', //日期选择模式
+				dateFormat: 'yyyy-mm-dd',
+				lang: 'zh',
+				showNow: true,
+				nowText: "今天",
+		        startYear: currYear - 50, //开始年份
+		        endYear: currYear + 50 //结束年份
+			};
+
+		  	$("#syDate").mobiscroll($.extend(opt['date'], opt['default']));
+		  	$("#jqDate").mobiscroll($.extend(opt['date'], opt['default']));
+		 	$("#syDateend").mobiscroll($.extend(opt['date'], opt['default']));
+		  	$("#jqDateend").mobiscroll($.extend(opt['date'], opt['default']));
+		  	
+        }); */
+        
+        <!--时间插件-->
+        $(function () {
+    	var currYear = (new Date()).getFullYear();	
+    	var opt={};
+    	opt.date = {preset : 'date'};
+    	opt.datetime = {preset : 'datetime'};
+    	opt.time = {preset : 'time'};
+    	opt.default = {
+    		theme: 'android-ics light', //皮肤样式
+            display: 'modal', //显示方式 
+            mode: 'scroller', //日期选择模式
+    		dateFormat: 'yyyy-mm',
+    		dateOrder : 'yymm', //面板中日期排列格式
+    		lang: 'zh',
+    		showNow: true,
+    		nowText: "今天",
+            startYear: currYear - 50, //开始年份
+            endYear: currYear + 50 //结束年份
+    	};
+
+		$("#njDate").mobiscroll($.extend(opt['date'], opt['default']));
+
+    });
+    </script>
+            <script src="{% static 'js/fastclick.js' %}"></script>
+        <script>
+          $(function() {
+            FastClick.attach(document.body);
+          });
+        </script>
+        <script src="{% static 'js/jquery-weui.js' %}"></script> 
+        <script>
+        $("#syDate").calendar({
+        	onChange: function (p, values, displayValues) {
+              console.log(values, displayValues);
+            }
+          });
+        $("#jqDate").calendar({
+        	onChange: function (p, values, displayValues) {
+              console.log(values, displayValues);
+            }
+          });
+        $("#syDateend").calendar({
+        	onChange: function (p, values, displayValues) {
+              console.log(values, displayValues);
+            }
+          });
+        $("#jqDateend").calendar({
+        	onChange: function (p, values, displayValues) {
+              console.log(values, displayValues);
+            }
+          });
+        </script> 
+{% endblock %}

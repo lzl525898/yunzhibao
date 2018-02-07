@@ -1,0 +1,107 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}我的{% endblock %}
+
+{% block container_block %}
+{% if message %}
+    <div class="weui_dialog_alert">
+        <div class="weui_mask"></div>
+        <div class="weui_dialog">
+            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+            <div class="weui_dialog_bd">{{ message }}</div>
+            <div class="weui_dialog_ft">
+                <a onclick="close_dialog();" class="weui_btn_dialog primary">确定</a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+{#    首页所在位置，进入页面后的默认页面#}
+<div class="wss_title" >预存保费</div>
+<form id="wss_register_form" method="post" action="{% url 'wss:pay_user_balance' %}" enctype="multipart/form-data">{% csrf_token %}
+
+    <div class="weui_cells weui_cells_form">
+        <div class="weui_cell">
+            <div class="weui_cell_hd"><label class="weui_label">预存金额</label></div>
+            <div class="weui_cell_bd weui_cell_primary">
+                <input class="weui_input" type="number" pattern="[0-9]*" placeholder="请输入预存金额"  id="id_stored_permium" name="stored_permium" value=""/>
+            </div>
+        </div>
+    </div>
+
+    <div class="" style="text-align: justify;margin-top: 30px">
+{#        <a href="javascript:;" class="weui_btn  weui_btn_primary" onclick="alipay_pc_direct()">支付宝支付</a>#}
+        <a href="javascript:;" class="weui_btn weui_btn_primary " onclick="alipay_pc_direct()">微信支付</a>
+    </div>
+</form>
+
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+<script src="{% static 'js/pingpp.js' %}"></script>
+    <script type="text/javascript">
+        function alipay_pc_direct() {
+            var stored_permium = $('#id_stored_permium').val();
+            if(!stored_permium){
+                alert("请输入支付金额");
+                return
+            }
+            var dot = stored_permium.indexOf(".");
+            if(dot != -1){
+		            //var dotCnt = stored_permium.substring(stored_permium+1,stored_permium.length);
+		            dotCnt = stored_permium.split(".")[1];
+		            if(dotCnt.length > 2){
+		                alert("小数位已超过2位，小数位只能保留两位！");
+		                return false;
+		            }
+            }
+            var channel;
+            channel = 'wx_pub';
+            var state_flag = 'wx_deposit';
+            $.ajax({
+                url:'/wss/mine/pay/user_balance/',
+                data:{channel:channel,stored_permium:stored_permium,state_flag:state_flag,order_id:""},
+                type:'POST',
+                dataType:'json',
+                timeout:15000,
+                success:function(data){
+                    //alert(JSON.stringify(data['data']['ch']));
+                    if (data['code'] == 0){
+                        pingpp.createPayment(data['data']['ch'], function(result, err) {
+                            if (result == "success") {
+                                // 微信公众账号支付的结果会在这里返回
+                               window.location.href= "/wss/mine/pay/detail";
+                            } else if (result == "fail") {
+                                // charge 不正确或者微信公众账号支付失败时会在此处返回
+                                $('#transaction_result').text('支付取消');
+                                  alert(err.extra);
+                            } else if (result == "cancel") {
+                                // 微信公众账号支付取消支付
+                                $('#transaction_result').text('支付取消');
+{#                                alert('取消支付！！！');#}
+                            }
+                            $('#transaction_result_modal').modal('show');
+
+                        });
+
+                    }else{
+                        alert(data['message']);
+                    }
+
+                },
+                error:function(){
+                    $('#ticket_info_alert').html("网络超时，操作失败");
+                }
+            });
+        }
+        function clearNoNum(obj){
+        	obj.value = obj.value.replace(/^(\-)*(\d+)\.(\d\d).*$/,'$1$2.$3'); //只能输入两个小数
+        }
+    </script>
+{% endblock %}

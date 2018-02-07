@@ -1,0 +1,78 @@
+{% extends 'bms/base.html' %}
+{% load static %}
+{% block title %} 日志 {% endblock %}
+{% block tab_logs %}class='active'{% endblock %}
+
+{% block content_block %}
+
+
+    <div class="row">
+
+
+        <div class="col-sm-2">
+            <div class="panel-group" id="settings" role="tablist" aria-multiselectable="true">
+    {#                level 1#}
+              <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="headingOne">
+                  <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#settings" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                      后台日志
+                    </a>
+                  </h4>
+                </div>
+                <div id="collapseOne" class="panel-collapse collapse {% block level_1 %}{% endblock %}" role="tabpanel" aria-labelledby="headingOne">
+                    <div class="panel-body">
+                        <ul class="nav nav-pills nav-stacked narrow">
+                            <li class="{% block bms_log %}{% endblock %}" ><a href="{% url 'bms:log_list' '1' %}">后台操作日志</a></li>
+                            <li class="{% block bms_exception %}{% endblock %}" ><a href="{% url 'bms:exception_list' '1' %}">系统异常日志</a></li>
+                        </ul>
+                    </div>
+                </div>
+              </div>
+    {#                level 2#}
+              <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="headingTwo">
+                  <h4 class="panel-title">
+                    <a class="collapsed" data-toggle="collapse" data-parent="#settings" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                       微信日志
+                    </a>
+                  </h4>
+                </div>
+                <div id="collapseTwo" class="panel-collapse collapse {% block level_2 %}{% endblock %}" role="tabpanel" aria-labelledby="headingTwo">
+                  <div class="panel-body">
+                    <ul class="nav nav-pills nav-stacked narrow">
+                        <li class="{% block wechat_event %}{% endblock %}"><a href="{% url 'bms:wechat_event_list' '1' %}">回调事件日志</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+    {#                level 3#}
+              <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="headingThree">
+                  <h4 class="panel-title">
+                    <a class="collapsed" data-toggle="collapse" data-parent="#settings" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                       客户端日志
+                    </a>
+                  </h4>
+                </div>
+                <div id="collapseThree" class="panel-collapse collapse {% block level_3 %}{% endblock %}" role="tabpanel" aria-labelledby="headingThree">
+                  <div class="panel-body">
+                    <ul class="nav nav-pills nav-stacked narrow">
+{#                        <li class="{% block debug_other %}{% endblock %}"><a href="{% url 'bms:settings_database' %}?type=other&debug=true">其他设置</a></li>#}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+          </div>
+        </div>
+
+        <div class="col-sm-10">
+            {% block page_top %}{% endblock %}
+            {% block page_middle %}{% endblock %}
+            {% block page_bottom %}{% endblock %}
+        </div>
+    </div>
+
+{% endblock %}
+
+

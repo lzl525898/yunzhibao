@@ -1,0 +1,44 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% block title_block %}
+成功
+{% endblock %}
+
+{% block css_block %}
+    <link rel="stylesheet" href="{% static 'css/weui-example.css' %}"/>
+{% endblock %}
+
+{% block container_block %}
+<div class="weui_msg">
+    <div class="weui_icon_area"><i class="weui_icon_success weui_icon_msg"></i></div>
+    <div class="weui_text_area">
+        <h2 class="weui_msg_title">{% if code_pic == 'open'%} 激活二维码成功 {% else %}注册成功{% endif %}</h2>
+        <p class="weui_msg_desc">{% if code_pic != 'open'%} 扫描二维码关注运至宝公众帐号获取更多资讯{% endif %}</p>
+        <h2>
+        {% if code_pic == 'open'%} 
+        <img src="{{code_pic_url}}" style="max-width: 250px;max-height: 250px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+        {% else %}
+        <img src="{% static 'pic/temp/wx_code.jpg' %}" style="max-width: 150px;max-height: 150px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+        {% endif %}
+        </h2>
+    </div>
+{% if code_pic == 'open'%}
+    <div class="weui_opr_area">
+        <p class="weui_btn_area">
+            <a href="javascript:;" class="weui_btn weui_btn_dialog weui_btn_primary" onclick="close_window()">确定</a>
+        </p>
+    </div>
+ {% endif %}
+
+
+</div>
+
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+{% endblock %}

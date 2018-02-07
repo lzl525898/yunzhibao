@@ -1,0 +1,153 @@
+{% extends 'bms/insurance/base_insurance.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block insurance_policy %}class='active'{% endblock %}
+{% block title %} 保单详情 {% endblock %}
+
+{% block page_top %}
+
+    <div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+
+            <h2 class="text-center">保单详情</h2>
+            {% if message and message_policy and message != '' %}
+                <div class="row">
+                    <div class="col-sm-12">
+                        {% if message_policy %}
+                            <div class="alert alert-warning text-center">{{ message_policy }}</div>
+                        {% else %}
+                            <div class="alert alert-warning text-center">{{ message }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <table class="table table-bordered">
+                <tr>
+                  <td class="info text-center">保单号</td>
+                  <td class="text-center">{{ policy.paper_id }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">保险公司</td>
+                  <td class="text-center"><a href="{% url 'bms:company_detail' policy.company.id %}">{{ policy.company.name }}</a></td>
+                </tr>
+                <tr>
+                  <td class="info text-center">保险类型</td>
+                  <td class="text-center">{{ policy|displayName:'insurance_type' }}</td>
+                </tr>
+            
+                <tr>
+                  <td class="info text-center">运单号</td>
+                  <td class="text-center">{{ policy.transport_id }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">保险费率</td>
+                  <td class="text-center">{{ policy.insurance_rate }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">保险开始时间</td>
+                  <td class="text-center">{{ policy.start_date|date:'Y年m月d日 H:i:s' }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">车牌号</td>
+                  <td class="text-center">{{ policy.plate_number }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">用户名称</td>
+                  <td class="text-center"></td>
+                </tr>
+                <tr>
+                  <td class="info text-center">是否显示</td>
+                  <td class="text-center">{% if not policy.is_hidden %}是{% else %}否{% endif %}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">是否理赔</td>
+                  <td class="text-center">{% if policy.is_compensate %}是{% else %}否{% endif %}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">创建时间</td>
+                  <td class="text-center">{{ policy.create_time|date:'Y年m月d日 H:i:s' }}</td>
+                </tr>
+            </table>
+            <a class="btn btn-danger" type="button" data-toggle="modal" data-target="#delete_policy_modal"><i class="fa fa-trash-o"></i>
+                {% if not policy.is_hidden %}
+                   屏 蔽
+                {% else %}
+                   取消屏蔽
+                {% endif %}
+            </a>
+            <a class="btn btn-default" href="{% url 'bms:policy_list' '1' %}"><i class="fa fa-times"></i> 返 回</a>
+        </div>
+        <div class="col-sm-2"></div>
+    </div>
+{#          添加投保模态框         #}
+<div class="modal fade" id="save_insurance_policy_modal" tabindex="-1" role="dialog" >
+    <div class="modal-dialog">
+        <form id="id_user_protocol_form" class="form" method="post" action="{% url 'bms:policy_detail' policy.id %}"  >  {% csrf_token %}
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title"><i class="fa fa-edit"></i> 投保文档</h4>
+              </div>
+              <input id="id_document_type" name="document_type" type="hidden" value="">
+              <div class="modal-body">
+                  {% for insurance_document in insurance_documents  %}
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" class="insurance_document" id="modal_{{ insurance_document.id }}" name="{{ insurance_document.id }}" value="{{ insurance_document.id }}">
+                            {{ insurance_document.name }}
+                        </label>
+                    </div>
+                  {% endfor %}
+              </div>
+              <div class="modal-footer">
+{#                  onclick="save_policy_document();"#}
+                <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 提 交</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> 退 出</button>
+              </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+{#删除保单确认模态框#}
+<div class="modal fade" id="delete_policy_modal" tabindex="-1" role="dialog" >
+    <div class="modal-dialog">
+        <form id="delete_policy_form" class="form" method="post" action="#"  >  {% csrf_token %}
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title"><i class="fa fa-trash-o"></i> 屏蔽保单</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group" >
+                        <label class="control-label">你确定要
+                            {% if policy.is_hidden %}
+                                取消屏蔽
+                            {% else %}
+                                屏蔽保单
+                            {% endif %}么？
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a class="btn btn-danger" href="{% url 'bms:policy_hidden' policy.id %}" ><i class="fa fa-trash-o"></i> 确 定 </a>
+                    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> 退 出</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+{% endblock %}
+
+
+
+{% block script_block %}
+    <script type="text/javascript">
+
+    </script>
+{% endblock %}

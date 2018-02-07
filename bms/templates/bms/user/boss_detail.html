@@ -1,0 +1,255 @@
+{% extends 'bms/user/base_user.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block user_boss %}class='active'{% endblock %}
+{% block title %} 司机详情 {% endblock %}
+
+{% block page_top %}
+
+<div class="row">
+        <div class="col-sm-12">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+{#                        <i class="fa fa-edit fa-3x pull-right"></i>#}
+                        <h1>{{ boss|displayName:'user_type' }}&nbsp;&nbsp;&nbsp;&nbsp;{{ boss|displayName:'user_classify' }}</h1>
+                            <p>用户账号：{{ boss.profile.phone }}</p>
+                            <p>创建时间：{{ boss.create_time|date:'Y年m月d日 H:i:s'  }}</p>
+                            <p>认证时间：{{ boss.certificate_time|date:'Y年m月d日 H:i:s'  }}</p>
+                            <p>推荐码：{{ boss.referee_code }}</p>
+                            <p>推荐人：{% if client.profile.phone %}<a href="{% url 'bms:item_detail' client.id %}" target="_blank">{{ client.profile.phone }}</a>{% else %}无{% endif %}</p>
+                            <p>编号：{% if boss.paper_id %}{{ boss.paper_id }}{% else %}无{% endif %}</p>
+                            <p>预存余额：{% if boss.balance %}{{ boss.balance|FenToYuan }}元{% else %}0.0{% endif %}</p>
+                            <p>优惠券数量：<a data-toggle="modal" data-target="#coupon_modal"class="pointer">{{ coupon_count }}张</a></p>
+                        <hr/>
+                            <p>姓名：{{ boss.name }}</p>
+                            <p class="pull-left">身份证：{{ boss.national_id }}</p>
+                            <div class="pull-left">&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                            <a onclick="look_photo('{{ boss.national_image }}')" class="pull-left pointer"><i class="fa fa-eye"></i>查看照片</a>
+                            <div class="pull-left">&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                            <a onclick="look_photo('{{ boss.national_image_down }}')" class="pull-left pointer"><i class="fa fa-eye"></i>查看照片</a>
+                            <div class="clearfix"></div>
+                            {% if boss.user_classify == 'units' %}
+                                <p class="pull-left">营业执照：{{ boss.business_license_id }}</p>
+                                <div class="pull-left">&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                                <a onclick="look_photo('{{ boss.business_license_image }}')" class="pull-left pointer"><i class="fa fa-eye"></i>查看照片</a>
+                                <div class="clearfix"></div>
+                                <p class="pull-left">组织机构代码证：{{ boss.organ }}</p>
+                                <div class="pull-left">&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                                <a onclick="look_photo('{{ boss.organ_image }}')" class="pull-left pointer"><i class="fa fa-eye"></i>查看照片</a>
+                            {% endif %}
+                            <div class="clearfix"></div>
+                            <!-- 二维码 -->
+                            <p class="pull-left"><a href="{% url 'bms:build_code_pic' boss.id %}?user_type={{boss.user_type}} ">更新二维码</a></p>
+                            <div class="pull-left">&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                            {% if boss.QR_code_image %}
+                            <a onclick="look_code_photo('{{ boss.QR_code_image }}')" class="pull-left pointer"><i class="fa fa-eye"></i>查看二维码</a>
+                            {% endif %}
+                        <hr/>
+
+                        {% if message %}
+                            <div class="alert alert-warning">
+                                <p class="text-center">{{ message }}</p>
+                            </div>
+                        {% endif %}
+
+                        <form id="boss_edit_form" method="post" action="{% url 'bms:boss_edit' boss.id %}"  enctype="multipart/form-data">{% csrf_token %}
+{#                            <input type="text" hidden name="page_index" value="{{ page_index }}"/>#}
+{#                            <div class="form-group" >#}
+{#                                <label for="nickname" ><i class="fa fa-leaf"></i> *昵称： </label>#}
+{#                                <input class="form-control"  id="nickname" name="nickname" type="text" value="{{ registered.profile.nickname }}" maxlength="16">#}
+{#                            </div>#}
+                            <div class="form-group">
+                                <label for="phone_number" ><i class="fa fa-phone"></i> *手机号码：</label>
+                                <input class="form-control" id="phone_number" name="phone" value="{{ boss.profile.phone|default_if_none:'' }}" type="text"  maxlength="16">
+                            </div>
+
+{#                            <div class="form-group">#}
+{#                                <label for="id_name" ><i class="fa fa-user"></i> *姓名：</label>#}
+{#                                <input class="form-control" id="id_name" name="name" value="{{ boss.name|default_if_none:'' }}" type="text"  maxlength="16">#}
+{#                            </div>#}
+
+                            <div class="form-group">
+                                <label for="password" ><i class="fa fa-lock"></i> 更改密码：</label>
+                                <input class="form-control" id="password" name="password"  type="text" maxlength="128">
+                            </div>
+
+                            <div id="id_insurance_product_car" class="form-group">
+                                <label for="id_insurance_product_car_id"><i class="fa fa-film"></i> *运单默认发送产品： </label>
+                                <select class="form-control" id="id_insurance_product_car_id" name="insurance_product_car_id">
+                                    <option value="">请选择</option>
+                                      {% for insurance_product_car in insurance_product_cars %}
+                                        <option value="{{ insurance_product_car.id }}" {% if boss.product_car == insurance_product_car %} selected {% endif %}>{{ insurance_product_car.name }}</option>
+                                      {% endfor %}
+                                </select>
+                            </div>
+                            <div id="id_insurance_product_batch" class="form-group">
+                                <label for="id_insurance_product_batch_id"><i class="fa fa-film"></i> *车次默认发送产品： </label>
+                                <select class="form-control" id="id_insurance_product_batch_id" name="insurance_product_batch_id">
+                                    <option value="">请选择</option>
+                                      {% for insurance_product_batch in insurance_product_batchs %}
+                                        <option value="{{ insurance_product_batch.id }}" {% if boss.product_batch == insurance_product_batch %} selected {% endif %}>{{ insurance_product_batch.name }}</option>
+                                      {% endfor %}
+                                </select>
+                            </div>
+                            <div id="id_hidden_insurance_product_ticket" class="form-group">
+                                <label for="id_insurance_product_ticket_id"><i class="fa fa-film"></i> *单票默认发送产品： </label>
+                                <select class="form-control" id="id_insurance_product_ticket_id" name="insurance_product_ticket_id">
+                                    <option value="">请选择</option>
+                                      {% for insurance_product_ticket in insurance_product_tickets %}
+                                        <option value="{{ insurance_product_ticket.id }}" {% if boss.product_ticket == insurance_product_ticket %} selected {% endif %}>{{ insurance_product_ticket.name }}</option>
+                                      {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="id_channel"><i class="fa fa-life-bouy"></i> 是否激活： </label>
+                                <div class="">
+                                    <label class="radio-inline">
+                                      <input type="radio" name="active" id="id_show" value="show" {% if boss.user.is_active %}checked {% endif %}> 激活
+                                    </label>
+                                    <label class="radio-inline">
+                                      <input type="radio" name="active" id="id_hidden" value="hidden" {% if not boss.user.is_active %}checked {% endif %}> 不激活
+                                    </label>
+                                </div>
+                            </div>
+
+{#                            <a class="btn btn-danger" data-toggle="modal" data-target="#delete_registered_modal"><i class="fa fa-trash"></i> 删 除</a>#}
+                            <button type="submit" class="btn btn-success"><i class="fa fa-floppy-o"></i> 保 存</button>
+                            <button class="btn btn-default" onclick="history.back()" ><i class="fa fa-times"></i> 返 回</button>
+                        </form>
+
+
+                    </div>
+                </div>
+
+       </div>
+    </div>
+
+
+
+
+{#照片模态框#}
+<div class="modal fade" id="look_photo_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<form id="" class="form" method="post" action="">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						照片
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="">
+                        <img class="img-responsive center-block" id="id_image" src="">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+
+    {#优惠券列表#}
+<div class="modal fade" id="coupon_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog" style="width: 900px">
+		<form id="" class="form" method="post" action="">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						优惠券列表
+					</h4>
+				</div>
+				<div class="modal-body">
+                        <div class="row" style="margin-top: 10px">
+                            <div class="col-sm-12">
+                                <div class="list-group" id="notice_group">
+                                        <div class="list-group-item">
+                                            <div class="row" >
+                                                <div class="col-sm-3">
+                                                    <p class="list-group-item-text text-center">优惠券名称</p>
+                                                </div>
+                                                <div class="col-sm-3">
+                                                    <p class="list-group-item-text text-center">产品名称</p>
+                                                </div>
+                                                <div class="col-sm-2">
+                                                    <p class="list-group-item-text text-center">保险公司</p>
+                                                </div>
+                                                <div class="col-sm-2">
+                                                    <p class="list-group-item-text text-center">优惠比例</p>
+                                                </div>
+                                                <div class="col-sm-2">
+                                                    <p class="list-group-item-text text-center">截止日期</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% for use_coupon in use_coupons %}
+                                            <div class="list-group-item">
+                                                <div class="row">
+                                                    <div class="col-sm-3">
+                                                        <p class="list-group-item-text text-center"><strong>{{ use_coupon.coupon.name }}</strong></p>
+                                                    </div>
+                                                    <div class="col-sm-3">
+                                                        <p class="list-group-item-text text-center"><strong>{{ use_coupon.coupon.product.name }}</strong></p>
+                                                    </div>
+                                                    <div class="col-sm-2">
+                                                        <p class="list-group-item-text text-center"><strong>{{ use_coupon.coupon.product.company.simple_name }}</strong></p>
+                                                    </div>
+                                                    <div class="col-sm-2">
+                                                        <p class="list-group-item-text text-center"><strong>{{ use_coupon.coupon.rate }}</strong></p>
+                                                    </div>
+                                                    <div class="col-sm-2">
+                                                        <p class="list-group-item-text text-center">{{ use_coupon.coupon.end_date|date:'Y年m月d日' }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                           </div>
+                        </div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+    //查看二维码照片
+    function look_code_photo(photo_src){
+        var a = document.getElementById('id_image');
+        a.src =  photo_src;
+        $('#look_photo_modal').modal('show');
+    }
+    </script>
+{% endblock %}

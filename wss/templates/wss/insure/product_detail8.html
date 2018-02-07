@@ -1,0 +1,51 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}意外险{% endblock %}
+
+{% block container_block %}
+{#    首页所在位置，进入页面后的默认页面#}
+    <div class="weui_cells_title hd" style="text-align: center;">意外险详情</div>
+    <div class="weui_cells">
+        <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>产品名称：</p>
+            </div>
+            <div class="weui_cell_ft">意外险</div>
+        </div>
+{#        <div class="weui_cell">#}
+{#            <div class="weui_cell_bd weui_cell_primary">#}
+{#                <p>产品特点：</p>#}
+{#            </div>#}
+{#            <div class="weui_cell_ft">保障高、保费低</div>#}
+{#        </div>#}
+{##}
+{#        <div class="weui_cells_title">产品简介</div>#}
+{#        <div class="weui_cells weui_cells_form">#}
+{#            <div class="weui_cell">#}
+{#                <div class="weui_cell_bd weui_cell_primary">#}
+{#                    <textarea class="weui_textarea" rows="2" disabled="disabled" style="background-color: #ffffff">个人意外险、货车司机驾驶员意外险，安全保障，放心无忧。#}
+{#                    </textarea>#}
+{#                    <div class="weui_textarea_counter"><span>0</span>/200</div>#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+    </div>
+{#    <a href="{% url 'wss:prompt' %}" class="weui_btn weui_btn_primary" style="margin-top: 302px">投保</a>#}
+
+    <div class="weui_cells">
+{#        <img src="{% static 'pic/default/logo.png' %}" style="max-width: 200px;max-height: 200px;display:block;text-align: center;margin-right: auto;margin-left: auto;">#}
+        <img src="{% static 'pic/default/ewm.jpg' %}" style="max-width: 350px;max-height: 200px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+        <div class="weui_cell_bd weui_cell_primary">
+            <p style="text-align: center;margin-right: auto;margin-left: auto;margin-top: 10px">长按上图选择“识别图中二维码”↑↑↑</p>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+{% endblock %}

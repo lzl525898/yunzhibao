@@ -1,0 +1,89 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}保险管家{% endblock %}
+
+{% block container_block %}
+{#    首页所在位置，进入页面后的默认页面#}
+
+
+<script  type="text/javascript">
+wx.ready(function () {
+	  // 2.1 监听“分享给朋友”，按钮点击、自定义分享内容及分享结果接口
+	  wx.onMenuShareAppMessage({
+	      title: '物流保险产品超市',
+	      desc: '运之宝”物流服务一站式平台，8种物流相关保险产品供您选择。',
+	      link: '{{main_url}}wss/insure/product_list?referee_id={{ mine_id }}',
+	      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5UZha8Y5GQHtuDY2SkYLSn4zQTo1zJyq0ZZUZib7lI0KyJicxk9qkWAAAePr75jPGu3w4zWMicibsaw7MA/0?wx_fmt=png',
+	    });
+	  
+	 //  2.2 监听“分享到朋友圈”按钮点击、自定义分享内容及分享结果接口
+	 wx.onMenuShareTimeline({
+	      title: '物流保险产品超市',
+	      link:'{{main_url}}wss/insure/product_list?referee_id={{ mine_id }}',
+	      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5UZha8Y5GQHtuDY2SkYLSn4zQTo1zJyq0ZZUZib7lI0KyJicxk9qkWAAAePr75jPGu3w4zWMicibsaw7MA/0?wx_fmt=png',
+	    });  
+});
+
+
+</script>
+  <div class="wss_title" ><i class="fa fa-user-secret"></i> &nbsp; <strong>保险管家</strong></div>
+  <div class="swiper-container" >
+      <div class="swiper-wrapper">
+        <!-- Slides -->
+        <div class="swiper-slide"><img src="{% static 'pic/default/stewardship.jpg' %}" /></div>
+      </div>
+      <!-- If we need pagination -->
+      <div class="swiper-pagination"></div>
+ </div> 
+ <div class="wss_line"></div>
+  <nav class="nav_stewardship">
+	<ul>
+		<li><a href="{% url 'wss:wx_car_list' '1' %}?referee_id={{ referee_id }}"><img src="{% static 'pic/default/stewardship_1.png' %}" /></a></li>
+        <li><a href="{% url 'wss:wx_freight_list' '1' %}?referee_id={{ referee_id }}"><img src="{% static 'pic/default/stewardship_2.png' %}" /></a></li>
+        <li><a href="{% url 'wss:wx_employee_list' '1' %}?referee_id={{ referee_id }}"><img src="{% static 'pic/default/stewardship_3.png' %}" /></a></li>
+        <li><a href="{% url 'wss:wx_personal_list' '1' %}?referee_id={{ referee_id }}"><img src="{% static 'pic/default/stewardship_4.png' %}" /></a></li>
+        <li><a href="{% url 'wss:wx_other_insurance_list' '1' %}?referee_id={{ referee_id }}"><img src="{% static 'pic/default/stewardship_5.png' %}" /></a></li>
+	</ul>
+</nav>
+  <!--<div class="bd">
+     <div class="weui_grids">
+
+	    	<a href="{% url 'wss:wx_car_list' '1' %}?referee_id={{ referee_id }}"  class="weui_grid">
+	            <div class="weui_grid_icon">
+	            <img class="img-responsive center-block" src="{% static '' %}pic/default/stewardship_1.png" />
+	            </div>
+	           <p class="weui_grid_label">车险列表</p>
+	        </a>
+	        <a href="{% url 'wss:wx_employee_list' '1' %}?referee_id={{ referee_id }}" class="weui_grid">
+	            <div class="weui_grid_icon" style="height:50px;width:50px;background:url(/static/pic/default/background.png) no-repeat;background-size:100% 100%;background-position: center;  ">
+	            <img class="img-responsive center-block" src="{% static '' %}{{ product.1 }}" />
+	            </div>
+	           <p class="weui_grid_label">员工保险</p>
+	        </a>
+	        <a href="{% url 'wss:wx_freight_list' '1' %}?referee_id={{ referee_id }}" class="weui_grid">
+	            <div class="weui_grid_icon" style="height:50px;width:50px;background:url(/static/pic/default/background.png) no-repeat;background-size:100% 100%;background-position: center;  ">
+	            <img class="img-responsive center-block" src="{% static '' %}{{ product.1 }}" />
+	            </div>
+	           <p class="weui_grid_label">货运年险</p>
+	        </a>
+	        <a href="{% url 'wss:wx_personal_list' '1' %}?referee_id={{ referee_id }}"  class="weui_grid">
+	            <div class="weui_grid_icon" style="height:50px;width:50px;background:url(/static/pic/default/background.png) no-repeat;background-size:100% 100%;background-position: center;  ">
+	            <img class="img-responsive center-block" src="{% static '' %}{{ product.1 }}" />
+	            </div>
+	           <p class="weui_grid_label">个人保单</p>
+	        </a>
+
+    </div> 
+
+</div>-->
+
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}{{ logistics.company_name }}{% endblock %}
+
+{% block container_block %}
+{#    首页所在位置，进入页面后的默认页面#}
+
+    <script  type="text/javascript">
+			var a="{{logistics.special_line_list}}";
+			var b;
+			b=a.replace(/&#39;/g, "").replace(/\[/g, "").replace(/\]/g, "");
+		  wx.ready(function () {
+			  wx.onMenuShareAppMessage({
+			      title: '{{ logistics.company_name }}',
+			      desc: "专线路线："+b,
+			      link: '{{a.url |safe}}',
+			      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5UZha8Y5GQHtuDY2SkYLSn4zW5uyxNliajicFLdz8blg9BW8nkD9bsia8rk3sXrhPFzDH57pCkZk2JvJA/0?wx_fmt=png',
+			    });
+			 wx.onMenuShareTimeline({
+			      title: '{{ logistics.company_name }}',
+			      link:'{{ a.url|safe }}',
+			      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5UZha8Y5GQHtuDY2SkYLSn4zW5uyxNliajicFLdz8blg9BW8nkD9bsia8rk3sXrhPFzDH57pCkZk2JvJA/0?wx_fmt=png',
+			    });  
+		});
+</script>
+<div class="top">
+	<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+		<tbody>
+			<tr>
+				   <td width="10%" valign="middle">
+							<a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a>
+					</td> 
+					<td class="wz" width="85%" valign="middle" align="center">
+							<span id="toptitle">
+									<i class="fa   fa-file-text"></i>&nbsp;<strong>{{ logistics.company_name }}详情</strong>
+							</span>
+					</td>
+				  <td width="5%" valign="middle" align="right">
+					<a id="aso" href="#"></a>
+					</td> 
+			</tr>
+		</tbody>
+	</table>
+</div>
+<div style="padding-top:30px;"></div>
+    {% if logistics.logistics_image_list %}
+        {% for logistics_image in logistics.logistics_image_list %}
+            <div class="weui_cells" >
+                <img src="{% static '' %}{{ logistics_image }}" style="max-width: 350px;max-height: 300px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+            </div>
+        {% endfor %}
+    {% endif %}
+ 
+       {#  <div class="weui_cells_title wss_title_first" ><i class="fa fa-cog"></i> &nbsp; 公司名称</div>#}
+         <div class="weui_cells_title wss_dashed" ><i class="fa fa-cog"></i> &nbsp; 公司名称</div>
+        <div class="weui_cells wss_p">
+        	<div class="weui_cell">
+		            <div class="weui_cell_bd weui_cell_primary">
+		                <p>&nbsp;&nbsp;{{ logistics.company_name }}</p>
+		            </div>
+            </div>
+        </div>
+        <div class="weui_cells_title wss_dashed" ><i class="fa  fa-truck"></i> &nbsp; 专线运输</div>
+        <div class="weui_cells wss_p">
+              <div class="weui_cell">
+		            <div class="weui_cell_bd weui_cell_primary">
+		                <p>&nbsp;&nbsp;{% for line in logistics.special_line_list %}{{ line }}&nbsp;&nbsp;{% endfor %}</p>
+		            </div>
+		       </div>
+        </div>
+       	<div class="weui_cells_title wss_dashed" ><i class="fa fa-user"></i> &nbsp; 联系人/联系电话</div>
+		<div class="weui_cells weui_cells_access wss_p">
+					        <a class="weui_cell" href="tel:{{ logistics.phone}}">
+					            <div class="weui_cell_bd weui_cell_primary">
+					                <p>&nbsp;&nbsp;{{ logistics.person }}</p>
+					            </div>
+					            <div class="weui_cell_ft">{{ logistics.phone }}</div>
+					        </a>
+					    
+			        {% if logistics.phone1 %}
+			        <div class="wss_dashed_bottom"></div>
+					        <a class="weui_cell" href="tel:{{ logistics.phone1}}">
+					            <div class="weui_cell_bd weui_cell_primary">
+					                <p>&nbsp;&nbsp;{{ logistics.person1 }}</p>
+					            </div>
+					            <div class="weui_cell_ft">{{ logistics.phone1 }}</div>
+					        </a>
+			        {% endif%}
+		</div>
+         <div class="weui_cells_title wss_dashed" ><i class="fa fa-info-circle"></i> &nbsp; 公司简介</div>
+        <div class="weui_cells weui_cells_form">
+            <div class="weui_cell wss_p">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <div class="weui_textarea"  style="background-color: #ffffff; margin-right:30px;max-width: 350px; word-wrap:break-word;">{{ logistics.description |safe}}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <div class="weui_cells">
+{#        <img src="{% static 'pic/default/logo.png' %}" style="max-width: 200px;max-height: 200px;display:block;text-align: center;margin-right: auto;margin-left: auto;">#}
+        <img src="{% static 'pic/default/ewm.jpg' %}" style="max-width: 350px;max-height: 200px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+        <div class="weui_cell_bd weui_cell_primary">
+            <p style="text-align: center;margin-right: auto;margin-left: auto;margin-top: 10px">长按上图选择“识别图中二维码”↑↑↑</p>
+        </div>
+    </div>
+
+
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+{% endblock %}

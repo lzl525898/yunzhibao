@@ -1,0 +1,400 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% block title_block %}
+注册用户
+{% endblock %}
+
+
+{% block container_block %}
+<link href="{% static 'css/validate.css' %}" rel="stylesheet">
+{% if message %}
+    <div class="weui_dialog_alert">
+        <div class="weui_mask"></div>
+        <div class="weui_dialog">
+            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+            <div class="weui_dialog_bd">{{ message }}</div>
+            <div class="weui_dialog_ft">
+                <a onclick="close_dialog();" class="weui_btn_dialog primary">确定</a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{#    首页所在位置，进入页面后的默认页面#}
+{#    <div class="hd">#}
+{#        <h1 class="page_title" style="text-align: center;">注册用户</h1>#}
+{#        <p class="page_desc">将您的用户帐号绑定到微信</p>#}
+{#    </div>#}
+    <div class="bd">
+        <form id="wss_register_form" method="POST" action="">{% csrf_token %}
+            <div class="weui_cells weui_cells_form">
+            <h1 class="page_title" style="text-align: center;"><img alt="" src="{% static 'pic/default/register.png'%}"></h1>
+                <div class="weui_cell">
+                   <!--  <div class="weui_cell_hd"><label class="weui_label">手机号</label></div> -->
+                    <div class="weui_cell_bd weui_cell_primary">
+                        <input class="weui_input" type="text" data-pattern="^(13[0-9]|15[012356789]|17[3678]|18[0-9]|14[57])[0-9]{8}$" data-descriptions="telphone"  data-required="true" placeholder="手机号码" id="id_phone" name="phone" value="{{ posted_data.phone }}" style="height: 37px;"/>
+                    </div>
+                </div>
+                <div class="weui_cell weui_vcode">
+                   <!--  <div class="weui_cell_hd"><label class="weui_label">验证码</label></div> -->
+                    <div class="weui_cell_bd weui_cell_primary">
+                      <input class="weui_input" type="number" placeholder="验证码" name="verification_code" style="height: 37px;" id="phoneyzm" data-required="true" data-descriptions="phoneyzm" data-conditional="phoneyzm">
+                    </div>
+                    <div class="weui_cell_ft" style="width: 40%;">
+                      <button type="button"  id="sent_code" name="sent_code"   style="height: 39px;border-radius: 0;margin-right: 14px;width:90%;	background:#5172D5;color:#FFF;border:0px;">发送验证码</button>
+                      <input class="" type="hidden" style="width: 75%;text-align: center;margin-left: auto;margin-right: auto;padding-left: 14px;padding-right: 14px;height: 39px;border: 2px solid #eeeeee;border-radius: 0;" id="count_change" value="60">
+                    </div>
+                </div>
+                <div class="weui_cell">
+                    <!-- <div class="weui_cell_hd"><label class="weui_label">密码</label></div> -->
+                    <div class="weui_cell_bd weui_cell_primary">
+                        <input class="weui_input" type="password" placeholder="密码" name="password" style="height: 37px;" data-required="true" id="password"data-descriptions="password"  data-pattern="^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,12}$" />
+                    </div>
+                </div>
+                <div class="weui_cell">
+                   <!--  <div class="weui_cell_hd"><label class="weui_label">确认密码</label></div> -->
+                    <div class="weui_cell_bd weui_cell_primary">
+                        <input class="weui_input" type="password" placeholder="再次输入密码" name="password_again" style="height: 37px;" data-required="true" data-descriptions="confirmpassword" data-conditional="confirmpwd"/>
+                    </div>
+                </div>
+                <div class="weui_cell">
+        <!--             <div class="weui_cell_hd"><label class="weui_label">推荐码</label></div> -->
+                    <div class="weui_cell_bd weui_cell_primary">
+                    	<input class="weui_input" type="hidden" placeholder="推荐码" name="code" value="{{ referee_phone|default_if_none:'' }}" style="height: 37px;"/>
+                        <!-- <input class="weui_input" type="text" placeholder="请填写推荐码" name="code" value="{{ posted_data.code }}"/> -->
+                    </div>
+                </div>
+                
+                <div class="weui-row weui-no-gutter">
+					      <div class="weui-col-50" style="width:62%;">
+						      <div class="weui_cells weui_cells_checkbox">
+				                    <label class="weui_cell weui_check_label" for="s11">
+				                        <div class="weui_cell_hd">
+				                            <input type="checkbox" class="weui_check" name="checkbox" id="s11" checked="checked">
+				                            <i class="weui_icon_checked"></i>
+				                        </div>
+				                        <div class="weui_cell_bd weui_cell_primary">
+				                            <p style="font-size: 13px;">我已经认真阅读、理解并同意</p>
+				                        </div>
+				                    </label>
+				                </div>
+                		  </div>
+					      <div class="weui-col-50" style="width:38%;"> 
+					            <div class="weui_cells " style="padding-left:0px;">
+				                    <div class="weui_cell "  style="padding-left:0px;">
+				                        <div class="weui_cell_hd">
+				                            	<p style="font-size: 13px;"><a href="javascript:;"  class="open-popup"  data-target="#full" >《运之宝会员协议》</a></p>
+				                        </div>
+				                    </div>
+				                </div>
+
+					      </div>
+			    </div>
+
+                <div class="weui_opr_area">
+                    <p class="weui_btn_area">
+                        <button class="weui_btn weui_btn_primary" type="submit" id="register_submit">立即注册</button>
+{#                        <a href="javascript:;" onclick="close_window();" class="weui_btn weui_btn_default">取消</a>#}
+                    </p>
+                </div>
+
+{#                <div class="" style="padding-left: 5px">#}
+{#                    <input id="check_box" name="check_box" type="checkbox" checked  class="">#}
+{#                    <p style="font-size: 12px"></p>#}
+{#                </div>#}
+
+            </div>
+
+        </form>
+    </div>
+    <div id="full" class='weui-popup-container'>
+      <div class="weui-popup-overlay"></div>
+      <div class="weui-popup-modal">
+       <div class="top">
+			<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+				<tbody>
+					<tr>
+							<td width="23%" valign="middle">
+								   <a class="btn1" onclick="#"></a> 
+							</td>
+							<td class="wz" width="54%" valign="middle" align="center">
+									<span id="toptitle">
+											<i class="fa    fa-file-text"></i>&nbsp;<strong>运之宝会员协议</strong>
+									</span>
+							</td>
+							<td width="23%" valign="middle" align="right">
+								<a href="javascript:;" class="close-popup" style="color:#FFF;">关闭</a>
+							</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+        <article class="weui_article" style="padding-top:30px;">
+          <section id="hyxy">{{ user_protocol |safe}}</section>
+
+        </article>
+      </div>
+    </div>
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+   <script src="{% static 'js/jquery-2.1.4.js' %}"></script>
+ <script src="{% static 'js/fastclick.js' %}"></script>
+ <script src="{% static 'js/jquery-mvalidate.js' %}"></script>
+<script>
+  $(function() {
+    FastClick.attach(document.body);
+  });
+</script>
+ <script type="text/javascript">
+    $(function() {
+
+        var phoneYZM;
+        $("#sent_code").on("click", function() {
+            var phone = $.trim($("#id_phone").val());
+            if (!phone) {
+                $.mvalidateTip("请输入手机号码！");
+                return;
+            } else if (!/^(13[0-9]|15[012356789]|17[3678]|18[0-9]|14[57])[0-9]{8}$/.test(phone)) {
+                $.mvalidateTip("您输入的手机号码不正确！");
+                return;
+            }
+            countDown_code();
+
+            $.ajax({
+                 url:"/pss/send/verification_code/",
+                 data:{verification_type:"register",phone:phone},
+                 type:'POST',
+                 dataType:'json',
+                 success:function(data){
+                     if(data['code'] == 0){
+                         phoneYZM = data.data.verification_code;
+                         $('#back_password_form').addClass('non');
+                         $('#back_form').removeClass('non');
+                     }else{
+                         $.mvalidateTip(data['message']);
+                         clearTimeout(t); 
+                         $('#sent_code').removeAttr('disabled');
+                         $('#count_change').val(60);
+                         $('#sent_code').text('发送验证码')
+                     }
+                 },
+                 error:function(){
+                	 $.mvalidateTip("网络超时，用户操作失败");
+                     //$('#alerts').html("网络超时，用户操作失败");
+                 }
+
+             });
+        });
+        $("#wss_register_form").mvalidate({
+            type: 1,
+            onKeyup: true,
+            sendForm: true,
+            firstInvalidFocus: false,
+            valid: function(event, options) {
+                //点击提交按钮时,表单通过验证触发函数
+                //alert("验证通过！接下来可以做你想做的事情啦！");
+               /*  $("#wss_register_form").attr("action", "/wss/register"); */
+                $("#wss_register_form").submit();
+                event.preventDefault();
+            },
+            conditional: {
+                phoneyzm: function() {
+                    return $("#phoneyzm").val() == phoneYZM;
+                },
+                confirmpwd:function(val){
+                    return val==$("#password").val();
+                }
+            },
+            descriptions: {
+                telphone: {
+                    required: '请输入手机号码！',
+                    pattern: '你输入的手机格式不正确！'
+                },
+                phoneyzm: {
+                    required: '请输入手机验证码！',
+                    conditional: '您输入的手机短信验证码不正确！'
+                },
+                password:{
+                    required : '请输入密码！',
+                    pattern : '密码必须有6-12位的数字字母组合，不能是纯数字或纯字母组合！'
+               },
+               confirmpassword:{
+                   required : '请再次输入密码！',
+                   conditional : '两次密码不一样！'
+               }
+            }
+        });
+    });
+    
+
+    </script>
+ <script src="{% static 'js/jquery-weui.js' %}"></script>
+    <script>
+      $(document).on("open", ".weui-popup-modal", function() {
+        console.log("open popup");
+      }).on("close", ".weui-popup-modal", function() {
+        console.log("close popup");
+      });
+    </script>
+    <script type="text/javascript">
+    var t; 
+ function countDown_code() {
+        $('#sent_code').attr('disabled',"disabled");
+{#        $('sent_code').removeAttr('onclick');#}
+        var num = parseInt($('#count_change').val());
+        if (num >= 0) {
+            var str = '';
+           str +=  '重新发送'+(num);
+            document.getElementById('sent_code').innerHTML = str;
+            $('#count_change').val(num-1);
+//{#            console.log(str);#}
+            t = setTimeout(countDown_code, 1000);
+        }
+        else {
+           $('#sent_code').removeAttr('disabled');
+            $('#count_change').val(60);
+            $('#sent_code').text('重新发送')
+        }
+    }
+    
+ 
+    function close_dialog(){
+    	  $(".weui_dialog_alert").hide();
+    	  var host =  window.location.host;
+    	  order_url = host+reverse('wss:certificate', args=[order_id, ]);
+    	  window.location.href(order_url);
+    	  return false;
+    }
+
+/*     function send_code(){
+
+        var phone = document.getElementById('id_phone').value;
+//{#        var pic_code_value = $('#id_pic_code_value').val().toLowerCase().trim();#}
+//{#        var pic_code = $('#name_pic_code').val().toLowerCase().trim();#}
+//{#        if(pic_code_value==pic_code){#}
+              if(phone && phone.length ==11){
+
+            countDown_code();
+
+           $.ajax({
+                url:"/pss/send/verification_code/",
+                data:{verification_type:"register",phone:phone},
+                type:'POST',
+                dataType:'json',
+                success:function(data){
+//    {#                console.log(data);#}
+                    if(data['code'] == 0){
+                        $('#back_password_form').addClass('non');
+                        $('#back_form').removeClass('non');
+                    }else{
+                        alert(data['message']);
+                        clearTimeout(t); 
+                        $('#sent_code').removeAttr('disabled');
+                        $('#count_change').val(60);
+                        $('#sent_code').text('发送验证码')
+                    }
+                },
+                error:function(){
+                    $('#alerts').html("网络超时，用户操作失败");
+                }
+
+            });
+            }else{
+                alert('请填写正确的手机号码');
+            }
+
+} */
+/* $(function(){
+	$("#register_submit").click(function(){ 
+		alert("9999");
+	}); 
+}); */
+{#       $(function(){#}
+{#            $('#wss_register_form').formValidation({#}
+{##}
+{#                // I am validating Bootstrap form#}
+{#                framework: 'bootstrap',#}
+{#                locale : 'zh_CN',#}
+{#                // Feedback icons#}
+{#                icon: {#}
+{#                    valid: 'glyphicon glyphicon-ok',#}
+{#                    invalid: 'glyphicon glyphicon-remove',#}
+{#                    validating: 'glyphicon glyphicon-refresh'#}
+{#                },#}
+{##}
+{#                // List of fields and their validation rules#}
+{#                fields: {#}
+{#                    phone: {#}
+{#                        validators: {#}
+{#                            notEmpty: {#}
+{#                                message: '手机号不可为空'#}
+{#                            },#}
+{#                            stringLength: {#}
+{#                                message: '请输入11位手机号码'#}
+{#                            },#}
+{#                            regexp: {#}
+{#                                regexp: /^0?(13[0-9]|15[012356789]|17[0678]|18[0-9]|14[57])[0-9]{8}$/,#}
+{#                                message: '请输入正确的手机号码'#}
+{#                            }#}
+{#                        }#}
+{#                    },#}
+{#                    password: {#}
+{#                        validators: {#}
+{#                            notEmpty: {#}
+{#                                message: '密码不可以空'#}
+{#                            },#}
+{#                            stringLength: {#}
+{#                                min: 6,#}
+{#                                max: 20,#}
+{#                                message: '请输入6～20个字符'#}
+{#                            },#}
+{#                            regexp: {#}
+{#                                regexp: /^(\w){6,20}$/,#}
+{#                                message: '只能输入6-20个字母、数字、下划线 '#}
+{#                            }#}
+{#                        }#}
+{#                    },#}
+{#                    password_again: {#}
+{#                        validators: {#}
+{#                            notEmpty: {#}
+{#                                message: '密码不可以空'#}
+{#                            },#}
+{#                            stringLength: {#}
+{#                                min: 5,#}
+{#                                max: 128,#}
+{#                                message: '请输入6～20个字符'#}
+{#                            },#}
+{#                            identical: {#}
+{#                                field: 'password',#}
+{#                                message: '两次输入的密码不同'#}
+{#                            },#}
+{#                            regexp: {#}
+{#                                regexp: /^(\w){6,20}$/,#}
+{#                                message: '只能输入6-20个字母、数字、下划线 '#}
+{#                            }#}
+{##}
+{#                        }#}
+{#                    },#}
+{#                    code: {#}
+{#                        validators: {#}
+{#                            notEmpty: {#}
+{#                                message: '验证密码不可为空'#}
+{#                            },#}
+{#                            regexp: {#}
+{#                                regexp: /^[0-9]+$/,#}
+{#                                message: '请输入正确的推荐码'#}
+{#                            }#}
+{#                        }#}
+{#                    }#}
+{#                }#}
+{#            });#}
+{##}
+{##}
+{#        });#}
+    </script>
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+{% endblock %}

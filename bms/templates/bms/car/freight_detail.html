@@ -1,0 +1,124 @@
+{% extends 'bms/car/base_car.html' %}
+{% load static %}					{#%static'%识别#}
+{% load legoo_tag %}    		{#认证状态转换#}
+{% block freight_list %}class='active'{% endblock %}
+{% block title %} 货运年险详情 {% endblock %}
+
+{% block page_top %}
+
+    <div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+
+            <h2 class="text-center">货运年险详情</h2>
+            {% if message and message != '' %}
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="alert alert-warning text-center">{{ message }}</div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <table class="table table-bordered"style="word-break:break-all">
+                <tr>
+                  <td class="info text-center">保单号</td>
+                  <td class="text-center">{{ freight.paper_id }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">承保公司</td>
+                  <td class="text-center">{% if user.is_superuser %}<a href="{% url 'bms:item_detail' freight.company.id %}" target="_blank">{{ freight.company.simple_name }}</a>{% else %}{{ freight.company.simple_name }}{% endif %}  </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">报案电话</td>
+                  <td class="text-center">{{ freight.company.parent.phone }}  </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">用户</td>
+                  <td class="text-center"><a href="{% url 'bms:item_detail' freight.client.id %}" target="_blank">{{ freight.client.company_name }} &nbsp;&nbsp;&nbsp;{{ freight.client.name }} &nbsp;&nbsp;&nbsp; {{ freight.client.profile.phone }}</a> </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">险种</td>
+                  <td class="text-center">{{ freight|displayName:'insurance_type' }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">单车保险金额</td>
+                  <td class="text-center">{{ freight.single_vehicle_price }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">免赔</td>
+                  <td class="text-center">{{ freight.deductible }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">保费</td>
+                  <td class="text-center">{{ freight.insurance_price }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">保单地址</td>
+                  <td class="text-center">
+		                  <table class="table table-bordered table-hover">
+				                   <tbody>
+					                  {% for insurance_image in freight.insurance_image_list %}
+					                  		<!--  细化保单信息-->
+					                  		{% if freight.up_state == 'pdf'%}
+					                  		<td class="text-center">{{ insurance_image }}<a class="pull-right" href="{% static '' %}{{ insurance_image }}" download="{{ freight.paper_id }}"><i class="fa fa-download">下载</i></a></td>
+					                  		{% elif  freight.up_state == 'picture' %}
+					                        <td>
+					                            <a href="{% static '' %}{{ insurance_image }}" target="_blank"><img class="img-responsive center-block" src="{% static '' %}{{ insurance_image }}" style="max-width: 50px;max-height: 50px;word-break:break-all" alt="商品图片"/></a>
+					                        </td>
+					                      {% else %}
+					                      	<td>
+					                            <a href="{{ insurance_image }}" target="_blank">{{ insurance_image }}</a>
+					                        </td>
+					                      {% endif %}
+					                  {% endfor %}  
+					                  </tbody>
+					             </table>
+                  
+                   </td>
+                </tr>
+                 {% if  freight.other_list %}
+				<tr>
+                  <td class="info text-center">补充信息</td>
+                  <td class="text-center">
+		                  <div class="row" >
+	                          <div class="col-sm-6">补充字段</div>
+	                          <div class="col-sm-6">字段内容</div>
+	                      </div>
+	                      <hr/>
+	                      {% for other_set in freight.other_list %}
+	                          <div class="row" style="margin-bottom: 5px">
+	                              <div class="col-sm-6">{{ other_set.field_name }}</div>
+	                              <div class="col-sm-6">{{ other_set.field_content }}</div>
+	                          </div>
+	                      {% endfor %}
+                  </td>
+                </tr>
+                {% endif %}
+                {% if freight.date_start and freight.date_stop  %}
+                <tr>
+                  <td class="info text-center" colspan="1" style="width: 150px">起止时间</td>
+                  <td class="text-center"colspan="3" style="width: 75pc">{{ freight.date_start|date:"Y年m月d日" }}		至	{{ freight.date_stop|date:"Y年m月d日" }}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                  <td class="info text-center">是否显示</td>
+                  <td class="text-center">{% if not freight.is_hidden %}是{% else %}否{% endif %}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">创建时间</td>
+                  <td class="text-center">{{ freight.create_time|date:'Y年m月d日 H:i:s' }}</td>
+                </tr>
+            </table>
+            <a class="btn btn-success" href="{% url 'bms:freight_edit' freight.id %}"><i class="fa fa-edit"></i> 编 辑</a>
+            <a class="btn btn-default" href="{% url 'bms:freight_list' page_index %}"><i class="fa fa-times"></i> 返 回</a>
+        </div>
+        <div class="col-sm-2"></div>
+    </div>
+
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+
+    </script>
+{% endblock %}

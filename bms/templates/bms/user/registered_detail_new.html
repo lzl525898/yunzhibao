@@ -1,0 +1,979 @@
+{% extends 'bms/user/base_user.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block user_registered %}class='active'{% endblock %}
+{% block title %} 注册用户详情 {% endblock %}
+
+
+
+{% block page_top %}
+<div class="row">
+    <div class="col-sm-2"></div>
+    <div class="col-sm-8">
+        <h2 class="text-center">用户详情</h2>
+        {% if message and message != '' %}
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="alert alert-warning">{{ message }}</div>
+                </div>
+            </div>
+        {% endif %}
+<!--         <a class="btn btn-success" data-toggle="modal" data-target="#add_user_information_modal"><i class=""></i>补充信息</a>
+        <a class="btn btn-success" href="{% url 'bms:registered_edit' registered.id %} "><i class=""></i>编辑</a> -->
+        <br/><br/>
+<!--          <a class="btn btn-success" data-toggle="modal" data-target="#confirm_national_modal"><i class=""></i>认证身份证</a>
+         <a class="btn btn-success" data-toggle="modal" data-target="#confirm_business_modal"><i class=""></i>认证营业执照</a>
+        <a class="btn btn-success" data-toggle="modal" data-target="#add_user_information_modal"><i class=""></i>补充信息</a>
+        <a class="btn btn-success" data-toggle="modal" data-target="#confirm_organ_modal"><i class=""></i>认证组织机构代码证</a>
+        <a class="btn btn-success" data-toggle="modal" data-target="#confirm_operating_modal"><i class=""></i>认证道路运输经营许可证</a>
+        <a class="btn btn-success" data-toggle="modal" data-target="#confirm_driver_modal"><i class=""></i>认证驾驶证</a>
+        <a class="btn btn-success" data-toggle="modal" data-target="#confirm_transportation_modal"><i class=""></i>认证营运证</a>
+        <a class="btn btn-success" data-toggle="modal" data-target="#confirm_plate_modal"><i class=""></i>认证行驶证</a>
+        <br/><br/>
+        
+        <a data-toggle="modal" data-target="#confirm_plate_modal"style="cursor: pointer;"title="补充行驶证信息"><small><i class="fa fa-edit"></i> </small></a> -->
+
+        <table class="table table-bordered">
+     
+            <tr>
+              <td class="info text-center">手机号码</td>
+              <td class="text-center">{{ registered.profile.phone }}</td>
+            </tr>
+            <tr>
+              <td class="info text-center">编号</td>
+              <td class="text-center">{{ registered.paper_id |default_if_none:''}}</td>
+            </tr>
+            <tr>
+              <td class="info text-center">余额</td>
+              <td class="text-center">{{ registered.balance|FenToYuan }}元</td>
+            </tr>
+            <tr>
+              <td class="info text-center">优惠卷</td>
+              <td class="text-center"><a data-toggle="modal" data-target="#coupon_modal" class="pointer">{{ coupon_count }}张</a></td>
+            </tr>
+      
+            <tr>
+              <td class="info text-center">用户状态</td>
+              <td class="text-center">{% if registered.user.is_active %}激活{% else%} 未激活{% endif %}</td>
+            </tr>
+            {% if referee_people.profile.phone %}
+            <tr>
+              <td class="info text-center">推荐人手机号</td>
+              <td class="text-center">{{ referee_people.profile.phone|default_if_none:'' }}</td>
+            </tr>
+            {% endif %}
+            {% if registered.wx_id %}
+            <tr>
+              <td class="info text-center">微信ID</td>
+              <td class="text-center">{{ registered.wx_id }}</td>
+            </tr>
+            {% endif %}
+            <tr>
+              <td class="info text-center">二维码&nbsp;&nbsp;&nbsp;
+              <a href="{% url 'bms:build_code_pic' registered.id %}?user_type=registered "title='刷新二维码'><i class="fa fa-refresh" aria-hidden="true"></i></a>
+              </td>
+              <td>
+                   <a href="{{ registered.QR_code_image }}" target="_blank"><img class="img-responsive center-block" src="{{registered.QR_code_image }}" style="max-width: 100px;max-height: 500px;word-break:break-all" alt="二维码 图片"/></a>
+               </td>
+            </tr>
+            <tr>
+              <td class="info text-center">用户身份</td>
+              <td class="text-center">{{ registered|displayName:'user_type' }}
+              	<small>{% if  registered|displayName:'user_classify' != '无' %}({{registered|displayName:'user_classify'}}){% endif %}</small>
+              </td>
+            </tr>
+            {% if registered.national_image   %}
+            <tr>
+              <td class="info text-center">身份证正面
+              <!-- <a data-toggle="modal" data-target="#confirm_national_modal"style="cursor: pointer;"title="补充身份证信息"><small><i class="fa fa-edit"></i> </small></a> -->
+              </td>
+              <td class="text-center">
+                   <a href="{% static '' %}{{ registered.national_image }}" target="_blank"><img class="img-responsive center-block" src="{% static '' %}{{registered.national_image }}" 
+                   style="max-width: 100px;max-height: 500px;word-break:break-all" alt="身份证正面 图片"/></a>
+               </td>
+            </tr>
+            {% endif %}
+	        {% if registered.national_image_down   %}
+            <tr>
+              <td class="info text-center">身份证背面
+              <!-- <a data-toggle="modal" data-target="#confirm_national_modal"style="cursor: pointer;"title="补充身份证信息"><small><i class="fa fa-edit"></i> </small></a> -->
+              </td>
+              <td class="text-center">
+                   <a href="{% static '' %}{{ registered.national_image_down }}" target="_blank"><img class="img-responsive center-block" src="{% static '' %}{{registered.national_image_down }}" 
+                   style="max-width: 100px;max-height: 500px;word-break:break-all" alt="身份证正面 图片"/></a>
+               </td>
+            </tr>
+            {% endif %}
+            {% if registered.name   %}
+            <tr>
+              <td class="info text-center">身份证姓名</td>
+              <td class="text-center">{{ registered.name }}</td>
+            </tr>
+            {% endif %}
+            {% if registered.national_id   %}
+            <tr>
+              <td class="info text-center">身份证号</td>
+              <td class="text-center">{{ registered.national_id }}</td>
+            </tr>
+            {% endif %}
+            {% if registered.national_effective_time   %}
+            <tr>
+              <td class="info text-center">有效日期</td>
+              <td class="text-center">{{ registered.national_effective_time|date:'Y年m月d日 '  }}</td>
+            </tr>
+            {% endif %}
+            {% if registered.user_type == 'transport'    %}
+		            {% if registered.operating_permit_image   %}
+		            <tr>
+		              <td class="info text-center">道路运输经营许可证
+		              <!-- <a data-toggle="modal" data-target="#confirm_operating_modal"style="cursor: pointer;"title="补充道路运输经营许可证信息"><small><i class="fa fa-edit"></i> </small></a> -->
+		              </td>
+		              <td>
+		                   <a href="{% static '' %}{{ registered.operating_permit_image }}" target="_blank"><img class="img-responsive center-block" src="{% static '' %}{{registered.operating_permit_image }}" style="max-width: 100px;max-height: 500px;word-break:break-all" alt="身份证正面 图片"/></a>
+		               </td>
+		            </tr>
+		            {% endif %}
+		             {% if registered.operating_permit_id   %}
+		            <tr>
+		              <td class="info text-center">道路运输经营许可证号码</td>
+		              <td class="text-center">{{ registered.operating_permit_id  }}</td>
+		            </tr>
+		            {% endif %}
+		             {% if registered.business_license_image   %}
+		            <tr>
+		              <td class="info text-center">营业执照
+		              <a data-toggle="modal" data-target="#confirm_business_modal"style="cursor: pointer;"title="补充营业执照信息"><small><i class="fa fa-edit"></i> </small></a>
+		              </td>
+		              <td>
+		                   <a href="{% static '' %}{{ registered.business_license_image }}" target="_blank"><img class="img-responsive center-block" src="{% static '' %}{{registered.business_license_image}}" style="max-width: 100px;max-height: 500px;word-break:break-all" alt="身份证正面 图片"/></a>
+		               </td>
+		            </tr>
+		            {% endif %}
+		             {% if registered.business_license_id   %}
+		            <tr>
+		              <td class="info text-center">营业执照编号</td>
+		              <td class="text-center">{{ registered.business_license_id }}</td>
+		            </tr>
+		            {% endif %}
+		             {% if registered.company_name   %}
+		            <tr>
+		              <td class="info text-center">单位名称</td>
+		              <td class="text-center">{{ registered.company_name }}</td>
+		            </tr>
+		            {% endif %}
+		             {% if registered.organ_image   %}
+		            <tr>
+		              <td class="info text-center">组织机构代码证
+		              <!-- <a data-toggle="modal" data-target="#confirm_organ_modal"style="cursor: pointer;"title="补充组织机构代码证信息"><small><i class="fa fa-edit"></i> </small></a> -->
+		              </td>
+		              <td>
+		                   <a href="{% static '' %}{{ registered.organ_image }}" target="_blank"><img class="img-responsive center-block" src="{% static '' %}{{registered.organ_image }}" style="max-width: 100px;max-height: 500px;word-break:break-all" alt="身份证正面 图片"/></a>
+		               </td>
+		            </tr>
+		            {% endif %}
+		             {% if registered.organ   %}
+		            <tr>
+		              <td class="info text-center">组织机构代码编号</td>
+		              <td class="text-center">{{ registered.organ }}</td>
+		            </tr>
+		            {% endif %}
+            {% endif %}
+            {% if  registered.user_type == 'boss'   and registered.user_classify == 'units' %}
+            		{% if registered.business_license_image   %}
+		            <tr>
+		              <td class="info text-center">营业执照</td>
+		              <td>
+		                   <a href="{% static '' %}{{ registered.business_license_image }}" target="_blank"><img class="img-responsive center-block" src="{% static '' %}{{registered.business_license_image}}" style="max-width: 100px;max-height: 500px;word-break:break-all" alt="身份证正面 图片"/></a>
+		               </td>
+		            </tr>
+		            {% endif %}
+		            {% if registered.business_license_id   %}
+		            <tr>
+		              <td class="info text-center">营业执照编号</td>
+		              <td class="text-center">{{ registered.business_license_id }}</td>
+		            </tr>
+		            {% endif %}
+		            {% if  registered.company_name   %}
+		            <tr>
+		              <td class="info text-center">单位名称</td>
+		              <td class="text-center">{{ registered.company_name }}</td>
+		            </tr>
+		            {% endif %}
+		            {% if registered.organ_image   %}
+		            <tr>
+		              <td class="info text-center">组织机构代码证</td>
+		              <td>
+		                   <a href="{% static '' %}{{ registered.organ_image }}" target="_blank"><img class="img-responsive center-block" src="{% static '' %}{{registered.organ_image }}" style="max-width: 100px;max-height: 500px;word-break:break-all" alt="身份证正面 图片"/></a>
+		               </td>
+		            </tr>
+		            {% endif %}
+		            {% if registered.organ   %}
+		            <tr>
+		              <td class="info text-center">组织机构代码编号</td>
+		              <td class="text-center">{{ registered.organ }}</td>
+		            </tr>
+		            {% endif %}
+            {% endif %}
+            {% if registered.user_type == 'driver' %}
+            		{% if registered.driver_image  %}
+		             <tr>
+		              <td class="info text-center">驾驶证
+		              <!-- <a data-toggle="modal" data-target="#confirm_driver_modal"style="cursor: pointer;"title="补充驾驶证信息"><small><i class="fa fa-edit"></i> </small></a> -->
+		              </td>
+		              <td>
+		                   <a href="{% static '' %}{{ registered.driver_image }}" target="_blank"><img class="img-responsive center-block" src="{% static '' %}{{registered.driver_image }}" style="max-width: 100px;max-height: 500px;word-break:break-all" alt="身份证正面 图片"/></a>
+		               </td>
+		            </tr>
+		            {% endif %}
+		            {% if registered.driver_id%}
+		            <tr>
+		              <td class="info text-center">驾驶证编号</td>
+		              <td class="text-center">{{ registered.driver_id }}</td>
+		            </tr>
+		            {% endif %}
+		            {% if registered.plate_image%}
+		             <tr>
+		              <td class="info text-center">行驶证
+		             <!--  <a data-toggle="modal" data-target="#confirm_plate_modal"style="cursor: pointer;"title="补充行驶证信息"><small><i class="fa fa-edit"></i> </small></a> -->
+		              </td>
+		              <td>
+		                   <a href="{% static '' %}{{ registered.plate_image }}" target="_blank"><img class="img-responsive center-block" src="{% static '' %}{{registered.plate_image }}" style="max-width: 100px;max-height: 500px;word-break:break-all" alt="身份证正面 图片"/></a>
+		               </td>
+		            </tr>
+		            {% endif %}
+		            {% if registered.holder%}
+		            <tr>
+		              <td class="info text-center">所有人</td>
+		              <td class="text-center">{{ registered.holder }}</td>
+		            </tr>
+		            {% endif %}
+		            {% if registered.plate_number%}
+		            <tr>
+		              <td class="info text-center">车牌号</td>
+		              <td class="text-center">{{ registered.plate_number }}</td>
+		            </tr>
+		            {% endif %}
+		            {% if registered.car_type%}
+		            <tr>
+		              <td class="info text-center">车辆类型</td>
+		              <td class="text-center">{{ registered.car_type|CX_CarType }}</td>
+		            </tr>
+		            {% endif %}
+		            {% if registered.use_property%}
+		            <tr>
+		              <td class="info text-center">使用性质</td>
+		              <td class="text-center">{{ registered.use_property |CX_UseProperty}}</td>
+		            </tr>
+		            {% endif %}
+		            {% if registered.brand_digging%}
+		            <tr>
+		              <td class="info text-center">品牌型号</td>
+		              <td class="text-center">{{ registered.brand_digging }}</td>
+		            </tr>
+		            {% endif %}
+		            {% if registered.engine_number%}
+		            <tr>
+		              <td class="info text-center">发动机号</td>
+		              <td class="text-center">{{ registered.engine_number }}</td>
+		            </tr>
+		            {% endif %}
+		            {% if registered.issue_date%}
+		            <tr>
+		              <td class="info text-center">发证日期</td>
+		              <td class="text-center">{{ registered.issue_date|date:'Y-m-d' }}</td>
+		            </tr>
+		            {% endif %}
+		            {% if registered.transportation_image %}
+		             <tr>
+		              <td class="info text-center">营运证
+		              <!-- <a data-toggle="modal" data-target="#confirm_transportation_modal"style="cursor: pointer;"title="补充营运证信息"><small><i class="fa fa-edit"></i> </small></a> -->
+		              </td>
+		              <td>
+		                   <a href="{% static '' %}{{ registered.transportation_image }}" target="_blank"><img class="img-responsive center-block" src="{% static '' %}{{registered.transportation_image }}"
+		                    style="max-width: 100px;max-height: 500px;word-break:break-all" alt="营运证 图片"/></a>
+		               </td>
+		            </tr>
+		            {% endif %}
+		            {% if registered.transportation_license_id%}
+		            <tr>
+		              <td class="info text-center">营运证编号</td>
+		              <td class="text-center">{{ registered.transportation_license_id }}</td>
+		            </tr>
+		            {% endif %}
+            {% endif %}
+            <tr>
+              <td class="info text-center">创建时间</td>
+              <td class="text-center">{{ registered.create_time }}</td>
+            </tr>
+   
+        </table>
+        <a class="btn btn-success" href="{% url 'bms:registered_list' 1 %} "><i class=""></i>返回</a>
+    </div>
+    
+</div>
+
+  {#补充用户信息模态框#}
+<div class="modal fade  " id="add_user_information_modal" data-backdrop="static" tabindex="-1" role="dialog" >
+	<div class="modal-dialog modal-lg"style="width:700px">
+		 <form id="verify_form" class="form" method="post" action="{% url 'bms:add_user_information' registered.id %}"enctype="multipart/form-data">  {% csrf_token %}
+			<div class="modal-content">
+			<!-- *****modal-header***** -->
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						补充用户信息
+					</h4>
+				</div>
+				<!-- **********************************modal-header-end********************************************************** -->
+				<!-- ***********modal-body*********** -->
+	            <div class="modal-body">
+	            
+                        <div class="form-group" >
+                            <label class="control-label" for="id_national_image"><i class="fa fa-picture-o"></i>身份证正面图片<small>（gif、png、jpeg或icon;）</small>: </label>
+                            <input class="filestyle" type="file" id="id_national_image" name="national_image" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                        </div>
+                        <div class="form-group" >
+                            <label class="control-label" for="id_national_image_down"><i class="fa fa-picture-o"></i>身份证背面图片<small>（gif、png、jpeg或icon;）</small>: </label>
+                            <input class="filestyle" type="file" id="id_national_image_down" name="national_image_down" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                        </div>
+
+                        <div class="form-group" >
+                            <label for="id_user_type"><i class="fa fa-globe"></i> *认证目标： </label>
+                            <select class="form-control" id="id_user_type" name="user_type" onchange="chang_user_type()">
+                                    <option value="">注册用户</option>
+                                  {% for x,y in user_types %}
+                                      {% if forloop.counter != 1 and forloop.counter != 5 and forloop.counter != 6 %}
+                                        <option value="{{ x }}" {% if posted_data.insurance_type == x %} selected {% endif %}>{{ y }}</option>
+                                      {% endif %}
+                                  {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="form-group" >
+                            <label for="id_user_classify"><i class="fa fa-globe"></i> *用户类别： </label>
+                            <select class="form-control" id="id_user_classify" name="user_classify" onchange="change_user_classify()">
+                                    <option value="">请选择</option>
+                                  {% for x,y in user_classifys %}
+                                      {% if forloop.counter != 1 %}
+                                        <option value="{{ x }}" {% if posted_data.user_classify == x %} selected {% endif %}>{{ y }}</option>
+                                      {% endif %}
+                                  {% endfor %}
+                            </select>
+                        </div>
+
+                    <div class="control-show" id="id_business_certificate">
+                        <div class="form-group" >
+                            <label class="control-label" for="id_business_license_image"><i class="fa fa-picture-o"></i>营业执照正本<small>（gif、png、jpeg或icon;如三证合一只传营业执照）</small>: </label>
+                            <input class="filestyle" type="file" id="id_business_license_image" name="business_license_image" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                        </div>
+
+                        <div class="form-group" >
+                            <label class="control-label" for="id_organ_image"><i class="fa fa-picture-o"></i>组织机构代码证<small>（gif、png、jpeg或icon;）</small>: </label>
+                            <input class="filestyle" type="file" id="id_organ_image" name="organ_image" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                        </div>
+                        
+                        <div class="form-group" >
+                            <label class="control-label" for="id_operating_permit_image"><i class="fa fa-picture-o"></i>道路运输经营许可证<small>（gif、png、jpeg或icon;）</small>: </label>
+                            <input class="filestyle" type="file" id="id_operating_permit_image" name="operating_permit_image" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                        </div>
+                    </div>
+
+                    {# 司机认证 #}
+
+                    <div class="control-show" id="id_driver_certificate">
+                        <div class="form-group" >
+                            <label class="control-label" for="id_driver_image"><i class="fa fa-picture-o"></i>驾驶证<small>（gif、png、jpeg或icon;）</small>: </label>
+                            <input class="filestyle" type="file" id="id_driver_image" name="driver_image" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                        </div>
+                        <div class="form-group" >
+                            <label class="control-label" for="id_plate_image"><i class="fa fa-picture-o"></i>行驶证<small>（gif、png、jpeg或icon;）</small>: </label>
+                            <input class="filestyle" type="file" id="id_plate_image" name="plate_image" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                        </div>
+                        <div class="form-group" >
+                            <label class="control-label" for="id_transportation_image"><i class="fa fa-picture-o"></i>营运证<small>（gif、png、jpeg或icon;）</small>: </label>
+                            <input class="filestyle" type="file" id="id_transportation_image" name="transportation_image" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                        </div>
+                    </div>
+				{# 货主认证 #}
+                    <div class="control-show" id="id_boss_certificate">
+                        <div class="form-group" >
+                            <label class="control-label" for="id_business_license_image_boss"><i class="fa fa-picture-o"></i>营业执照<small>（gif、png、jpeg或icon;如三证合一只传营业执照）</small>: </label>
+                            <input class="filestyle" type="file" id="id_business_license_image_boss" name="business_license_image_boss" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                        </div>
+
+                        <div class="form-group" >
+                            <label class="control-label" for="id_organ_image_boss"><i class="fa fa-picture-o"></i>组织机构代码证<small>（gif、png、jpeg或icon;）</small>: </label>
+                            <input class="filestyle" type="file" id="id_organ_image_boss" name="organ_image_boss" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                        </div>
+                    </div>
+             
+				</div>
+				<!-- ***********************************modal-body-end**************************************** -->
+				
+			      <!-- ******modal-footer****** -->
+				<div class="modal-footer">
+						<!-- <div class="form-group" style="text-align: center;">
+								<p><font color = 'red'>温馨提示：1、填写手续费比例时请逐一提交，提交手续费比例后，信息仍可修改。</font></p>
+			                    <p><font color = 'red'>2、点击保存并提交后，保险公司手续费无法修改，请确认您填写的信息！！！</font></p>
+		                 </div> -->
+		                <button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+							保存并提交
+						</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">
+							<i class="fa fa-times">
+							</i>
+							退 出
+						</button>
+			</div>
+			<!-- **********************************modal-footer-end********************************************************** -->
+		</div>
+    	</form>
+	</div>
+</div>
+
+
+{#认证身份证模态框#}
+<div class="modal fade" id="confirm_national_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<form id="national_form" class="form" method="post" action="{% url 'bms:improve_part_information' registered.id %}?type=national">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						补充身份证信息
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+		                <a href="{% static '' %}{{ registered.national_image }}"target="_blank">
+		                	<img class="img-responsive" src="{% static '' %}{{ registered.national_image }}" style="max-width: 300px;max-height: 200px;word-break:break-all"> </a><br>
+		                <a href="{% static '' %}{{ registered.national_image_down }}"target="_blank">
+                        	<img class="img-responsive" src="{% static '' %}{{ registered.national_image_down }}" style="max-width: 300px;max-height: 200px;word-break:break-all"> </a><br>
+                        <br/>
+						<div class="form-group">
+                            <label class="control-label">姓名：</label>
+                            <input  name="modal_national_name"{% if registered.name %} value='{{registered.name}}'{%elif posted_data.modal_national_name %} 
+                            value='{{posted_data.modal_national_name}}'{% endif %} >
+                        </div>
+						<div class="form-group">
+                            <label class="control-label">身份证号码：</label>
+                            <input  name="modal_national_id"{% if registered.national_id %} value='{{registered.national_id}}'{% elif posted_data.modal_national_id %} 
+                            value='{{posted_data.modal_national_id}}'{% endif %} >
+                        </div>
+						<div class="form-group">
+							<label class="control-label" for="">身份证有效期：</label>
+							<input name="modal_national_effective" {% if registered.national_effective_time %} value="{{registered.national_effective_time|date:'Y-m-d '}}"{% elif posted_data.modal_national_effective %} 
+                            value='{{posted_data.modal_national_effective}}'{% endif %}
+							placeholder="保险期限起始日期"   onFocus="WdatePicker({isShowClear:false,readOnly:true,dateFmt: 'yyyy-MM-dd'})" > 
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						保存
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+
+
+{#认证营业执照模态框#}
+<div class="modal fade" id="confirm_business_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<form id="business_form" class="form" method="post" action="{% url 'bms:improve_part_information' registered.id %}?type=business">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						补充营业执照信息
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+							<a href="{% static '' %}{{ registered.business_license_image }}"target="_blank">
+		                	<img class="img-responsive" src="{% static '' %}{{ registered.business_license_image }}" style="max-width: 300px;max-height: 200px;word-break:break-all"> </a>
+                        <br/>
+                        <div class="form-group">
+                            <label class="control-label">营业执照编号：</label>
+                            <input  name="modal_business_id"{% if registered.business_license_id %} value='{{registered.business_license_id}}'{%elif posted_data.modal_business_id %} 
+                            value='{{posted_data.modal_business_id}}'{% endif %} >
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">单位名称：</label> 
+                            <input  name="modal_business_name"{% if registered.company_name %} value='{{registered.company_name}}'{%elif posted_data.modal_business_name %} 
+                            value='{{posted_data.modal_business_name}}'{% endif %} >
+                        </div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						保存
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+
+    {#认证组织机构代码模态框#}
+<div class="modal fade" id="confirm_organ_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<form id="organ_form" class="form" method="post" action="{% url 'bms:improve_part_information' registered.id %}?type=organ">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						补充组织机构代码
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+                        <img class="img-responsive" src="{% static '' %}{{ registered.organ_image }}" style="">
+                        <br/>
+                        <label class="control-label">组织机构代码：</label>
+                        <input  name="modal_organ_id"{% if registered.organ %} value='{{registered.organ}}'{%elif posted_data.modal_organ_id %} 
+                            value='{{posted_data.modal_organ_id}}'{% endif %} >
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						保存
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+
+ {#认证道路运输经营许可证模态框#}
+<div class="modal fade" id="confirm_operating_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<form id="operating_form" class="form" method="post" action="{% url 'bms:improve_part_information' registered.id  %}?type=operating">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						补充道路运输经营许可证
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+                        <img class="img-responsive" src="{% static '' %}{{ registered.operating_permit_image }}" style="">
+                        <br/>
+                        <label class="control-label">业户的运输许可证编号：</label>
+                        <input  name="modal_operating_id"{% if registered.operating_permit_id %} value='{{registered.operating_permit_id}}'{%elif posted_data.modal_operating_id %} 
+                            value='{{posted_data.modal_operating_id}}'{% endif %} >
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						保存
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+{#认证驾驶证模态框#}
+<div class="modal fade" id="confirm_driver_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<form id="driver_form" class="form" method="post" action="{% url 'bms:improve_part_information' registered.id  %}?type=driver">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+{#                    <input type="hidden" value="on" id="" name="result">#}
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						补充驾驶证
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						{% if registered.driver_image_list%}
+							{% for driver_image in registered.driver_image_list %}
+								<a href="{% static '' %}{{ driver_image }}"target="_blank">
+		                        	<img class="img-responsive" src="{% static '' %}{{ driver_image }}" style="max-width: 300px;max-height: 200px;word-break:break-all">
+		                        </a><br>
+		                    {% endfor %}
+                    	{% endif %}
+                    	{% if registered.driver_image%}
+                    		<a href="{% static '' %}{{ registered.driver_image }}"target="_blank">
+		                        	<img class="img-responsive" src="{% static '' %}{{ registered.driver_image }}" style="max-width: 300px;max-height: 200px;word-break:break-all">
+		                    </a><br>
+                    	{% endif %}
+                        <br/>
+                        <label class="control-label">驾驶证号：</label>
+                        <input  name="modal_driver_id"{% if registered.driver_id %} value='{{registered.driver_id}}'{%elif posted_data.modal_driver_id %} 
+                            value='{{posted_data.modal_driver_id}}'{% endif %} >
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						保存
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+
+ {#认证营运证模态框#}
+<div class="modal fade" id="confirm_transportation_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<form id="transportation_form" class="form" method="post" action="{% url 'bms:improve_part_information' registered.id %}?type=transportation">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						补充营运证
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						{% if   registered.transportation_image %}
+							<a href="{% static '' %}{{ registered.transportation_image }}"target="_blank">
+			                        	<img class="img-responsive" src="{% static '' %}{{ registered.transportation_image }}" style="max-width: 300px;max-height: 200px;word-break:break-all">
+			                 </a><br>
+						{% endif %}
+						{% for transportation_image in registered.transportation_image_list%}
+			                        <a href="{% static '' %}{{ transportation_image }}"target="_blank">
+			                        	<img class="img-responsive" src="{% static '' %}{{ transportation_image }}" style="max-width: 300px;max-height: 200px;word-break:break-all">
+			                        </a><br>
+		                  {% endfor %}
+                        <br/>
+                        <label class="control-label">营运证号：</label>
+                        <input  name="modal_transportation_id"{% if registered.transportation_license_id %} value='{{registered.transportation_license_id}}'{%elif posted_data.modal_transportation_id %} 
+                            value='{{posted_data.modal_transportation_id}}'{% endif %} >
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						补充成功
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+
+{#认证行驶证模态框#}
+<div class="modal fade" id="confirm_plate_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<form id="plate_form" class="form" method="post" action="{% url 'bms:improve_part_information' registered.id %}?type=plate">{% csrf_token %}
+		<!-- <input type ='hidden'  value='plate'class="form-control " name='certificate' /> -->
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						补充行驶证
+					</h4>
+				</div>
+				<div class="modal-body">
+				<input type ='hidden'  value='plate'class="form-control " name='certificate' />
+					<div class="panel-body">
+						<div class="form-group">
+		                      <div class="rowContainer">
+		                          <label class="col-sm-2 control-label">行驶证照片</label>
+		                          {% if registered.plate_image%}
+		                          <div class="col-sm-12">
+			                        <a href="{% static '' %}{{ registered.plate_image }}"target="_blank">
+			                        	<img class="img-responsive" src="{% static '' %}{{ registered.plate_image }}" style="max-width: 300px;max-height: 200px;word-break:break-all">
+			                        </a>
+		                          </div>
+		                          {% endif %}
+		                          {% for plate_image in registered.plate_image_list %}
+		                          <div class="col-sm-12">
+			                        <a href="{% static '' %}{{ plate_image }}"target="_blank">
+			                        	<img class="img-responsive" src="{% static '' %}{{ plate_image }}" style="max-width: 300px;max-height: 200px;word-break:break-all">
+			                        </a>
+		                          </div>
+		                          {% endfor %}
+		                      </div>
+		                   </div>
+		             </div>
+		              <div class="panel-body">
+	              		<div class="form-group">
+	                       <div class="rowContainer">
+	                           <label class="col-sm-2 control-label">所有人:</label>
+	                           <div class="col-sm-4">
+	                           			<input type="text" class="form-control" data-fv-row=".rowContainer" name="modal_holder" maxlength="10"
+	                           			 {% if registered.holder %} value='{{registered.holder}}' {% else %}value="{{ posted_data.modal_holder|default_if_none:'' }}"{% endif %}/>
+	                           </div>
+	                       </div>
+	                       <div class="rowContainer">
+	                           <label class="col-sm-2 control-label">车牌号:</label>
+	                           <div class="col-sm-4">
+	                                   <select class="" name="short_number" id =""style="height: 34px;">
+		                                    {% for short in short_detail %}
+		                                      <option value="{{short}}" {% if short_number|toString ==  short   %} selected ="selected" {% endif %}> {{short}} </option>
+		                                    {% endfor %}
+	                                    </select>
+	                                    <select class="" name="mid_number" id =""style="height: 34px;">
+			                                    {% for mid in mid_detail %}
+			                                      <option value="{{mid}}" {% if mid_number|toString ==  mid   %} selected ="selected" {% endif %}> {{mid}} </option>
+			                                    {% endfor %}
+			                            </select>    
+			                            <input type="text" style="width: 150px;height: 34px;"class="" name="plate_number"value="{{ end_number|default_if_none:'' }}"
+			                            maxlength="5" >
+	                           </div>
+	                           
+	                       </div>
+	                   </div>
+	     		    </div>
+		              <div class="panel-body">
+	              		<div class="form-group">
+	                       <div class="rowContainer">
+	                           <label class="col-sm-2 control-label">使用性质:</label>
+	                           <div class="col-sm-4">
+	                               <select class="from-control "  id="user_property" name="modal_use_property"style="width: 250px;height: 34px;">
+		                                  {% for use_property in USE_PROPERTY %}
+		                                    	<option value="{{ use_property.0 }}" {% if registered.use_property|toString == use_property.0  %} selected="selected"  
+		                                    	{% elif not registered.use_property and  posted_data.modal_use_property|toString == use_property.0  %} selected="selected"  
+		                                    	{% endif %}>{{use_property.1}}</option>
+		                                  {% endfor %}
+		                            </select>
+	                           </div>
+	                       </div>
+	                       <div class="rowContainer">
+	                           <label class="col-sm-2 control-label">车辆类型:</label>
+	                           <div class="col-sm-4">
+	                               <select class="from-control "  id="car_type" name="modal_car_type"style="width: 250px;height: 34px;">
+		                                  {% for car_type in CAR_TYPE %}
+		                                    <option value="{{ car_type.0 }}" {% if  registered.car_type|toString  == car_type.0 %} selected="selected" {% elif posted_data.modal_car_type == car_type.0 %} selected="selected" {% endif %}>{{car_type.1}}</option>
+		                                  {% endfor %}
+		                            </select>
+	                           </div>
+	                       </div>
+	                   </div>
+	     		    </div>
+		              <div class="panel-body">
+	              		<div class="form-group">
+		              		<div class="rowContainer">
+		                           <label class="col-sm-2 control-label">注册日期:</label>
+		                           <div class="col-sm-4">
+		                               <input type="text" class="form-control"data-fv-row=".rowContainer" name="modal_issue_date" 
+		                               {% if registered.issue_date %} value="{{ registered.issue_date|date:'Y-m-d'}}"{% else %}value="{{ posted_data.issue_date|default_if_none:'' }}" {% endif %}placeholder="行驶证注册日期" 
+								    onFocus="WdatePicker({isShowClear:false,readOnly:true,dateFmt: 'yyyy-MM-dd'})" />
+		                           </div>
+		                       </div>
+	                       
+	                       <div class="rowContainer">
+	                           <label class="col-sm-2 control-label">品牌型号:</label>
+	                           <div class="col-sm-4">
+	                               <input type="text" class="form-control" data-fv-row=".rowContainer" name="modal_brand_digging"
+	                               {% if registered.brand_digging %} value="{{ registered.brand_digging}}"{% else %}value="{{ posted_data.modal_brand_digging|default_if_none:'' }}"{% endif %}/>
+	                           </div>
+	                       </div>
+	                   </div>
+	     		    </div>
+		              <div class="panel-body">
+	              		<div class="form-group">
+
+	                       <div class="rowContainer">
+	                           <label class="col-sm-2 control-label">发动机号:</label>
+	                           <div class="col-sm-4">
+	                               <input type="text" class="form-control" data-fv-row=".rowContainer" name="modal_engine_number"
+	                               {% if registered.engine_number %} value='{{registered.engine_number}}'{% else %}value="{{ posted_data.modal_engine_number|default_if_none:'' }}"{% endif %}/>
+	                           </div>
+	                       </div>
+	                   </div>
+	     		    </div>
+		            
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="test_success"><i class="fa fa-save"></i>
+						补充成功
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+
+{#优惠券列表#}
+<div class="modal fade" id="coupon_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog" style="width: 900px">
+		<form id="" class="form" method="post" action="">{% csrf_token %}
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-save">
+						</i>
+						优惠券列表
+					</h4>
+				</div>
+				<div class="modal-body">
+                        <div class="row" style="margin-top: 10px">
+                            <div class="col-sm-12">
+                                <div class="list-group" id="notice_group">
+                                        <div class="list-group-item">
+                                            <div class="row" >
+                                                <div class="col-sm-3">
+                                                    <p class="list-group-item-text text-center">优惠券名称</p>
+                                                </div>
+                                                <div class="col-sm-3">
+                                                    <p class="list-group-item-text text-center">产品名称</p>
+                                                </div>
+                                                <div class="col-sm-2">
+                                                    <p class="list-group-item-text text-center">保险公司</p>
+                                                </div>
+                                                <div class="col-sm-2">
+                                                    <p class="list-group-item-text text-center">优惠比例</p>
+                                                </div>
+                                                <div class="col-sm-2">
+                                                    <p class="list-group-item-text text-center">截止日期</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% for use_coupon in use_coupons %}
+                                            <div class="list-group-item">
+                                                <div class="row">
+                                                    <div class="col-sm-3">
+                                                        <p class="list-group-item-text text-center"><strong>{{ use_coupon.coupon.name }}</strong></p>
+                                                    </div>
+                                                    <div class="col-sm-3">
+                                                        <p class="list-group-item-text text-center"><strong>{{ use_coupon.coupon.product.name }}</strong></p>
+                                                    </div>
+                                                    <div class="col-sm-2">
+                                                        <p class="list-group-item-text text-center"><strong>{{ use_coupon.coupon.product.company.simple_name }}</strong></p>
+                                                    </div>
+                                                    <div class="col-sm-2">
+                                                        <p class="list-group-item-text text-center"><strong>{{ use_coupon.coupon.rate }}</strong></p>
+                                                    </div>
+                                                    <div class="col-sm-2">
+                                                        <p class="list-group-item-text text-center">{{ use_coupon.coupon.end_date|date:'Y年m月d日' }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                           </div>
+                        </div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	</form>
+	</div>
+</div>
+
+{% endblock %}
+{% block page_middle %}
+
+{% endblock %}
+{% block script_block %}
+    <script type="text/javascript">
+
+    </script>
+{% endblock %}
+

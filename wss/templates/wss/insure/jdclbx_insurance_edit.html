@@ -1,0 +1,440 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}选择险种{% endblock %}
+
+{% block container_block %}
+<style>
+.weui_input {
+  width: 100%;
+  border:0px solid #C8C8CD;  
+  border-radius: 3px !important;
+  outline: 0;
+  -webkit-appearance: none; 
+  background-color: #5172D5;
+  font-size: 14px;
+  color: #fff;
+  height: 2em;
+  line-height: 2em;
+}
+#item-ifo #ico {
+width: 16px;
+height: 16px;
+position: absolute;
+top: 22px;
+left: 42px;
+z-index: 3;
+color:#fff;
+}  
+</style>
+{% if message %}
+    <div class="weui_dialog_alert">
+        <div class="weui_mask"></div>
+        <div class="weui_dialog">
+            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+            <div class="weui_dialog_bd">{{ message }}</div>
+            <div class="weui_dialog_ft">
+                <a onclick="close_dialog();" class="weui_btn_dialog primary">确定</a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{#    首页所在位置，进入页面后的默认页面#}
+<div class="top">
+	<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+		<tbody>
+			<tr>
+					<td width="20%" valign="middle">
+							<a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a>
+					</td>
+					<td class="wz" width="60%" valign="middle" align="center">
+							<span id="toptitle">
+									<i class="fa   fa-file-text"></i>&nbsp;<strong>险种编辑</strong>
+							</span>
+					</td>
+					<td width="20%" valign="middle" align="right">
+					<a id="aso" href="#"></a>
+					</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<form id="wss_register_form" method="POST" action="{% url 'wss:jdclbx_insurance_edit' order.id %}" enctype="multipart/form-data" style="padding-top:30px;">{% csrf_token %}
+     <input type="hidden" name="paper_id" value="{{ paper_id }}">
+     <input type="hidden" name="chongxinxunjia_state" id="chongxinxunjia_state"  value="{{ paper_id }}">
+	<div class="weui_cells" style="height:100%;background:#F3F3F3;padding-top:20px;">
+       <div class="weui_panel weui_panel_access">
+		      <div class="weui_panel_hd"  style="background:#F3F3F3;">交强险和车船使用税</div>
+		      <div class="weui_panel_bd">
+		        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+			          <div class="weui_media_bd">
+			            <h4 class="weui_media_title"  style="font-size:14px;">交强险</h4>
+			            <p class="weui_media_desc">国家规定的强制保险</p>
+			          </div>
+			          <div class="weui_media_hd" style="margin-right:.1em">
+			                <input class="weui_switch" type="checkbox"  checked  id="jqx" name= "liability_state">
+			          </div>
+		        </a>
+		        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+			          <div class="weui_media_bd">
+			            <h4 class="weui_media_title"  style="font-size:14px;">车船使用税</h4>
+			            <p class="weui_media_desc">以排量为收取标准的国家税收</p>
+			          </div>
+			         <div class="weui_media_hd" style="margin-right:.1em">
+			                 <input class="weui_switch" type="checkbox"  checked  id="ccs" name="vehicle_vessel_tax_state">
+			          </div>
+		        </a>
+		      </div>
+		</div>
+		<div class="weui_panel weui_panel_access">
+		      <div class="weui_panel_hd"  style="background:#F3F3F3;padding:0px 15px 10px;">商业险</div>
+		      <div class="weui_panel_bd">
+		        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+			          <div class="weui_media_bd">
+			            <h4 class="weui_media_title"  style="font-size:14px;">三者险</h4>
+			            <p class="weui_media_desc">用于赔付对他人造成的财产损失</p>
+			          </div>
+			          <div class="weui_media_hd" style="margin-right:.1em"  id="item-ifo">
+			                <input class="weui_input" type="text"    id="szx" value="{{third_insurance}}" name="third_insurance"><i class="fa fa-angle-down" id="szx" ></i>
+			          </div>
+		        </a>
+		        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+			          <div class="weui_media_bd">
+			            <h4 class="weui_media_title"  style="font-size:14px;">车损险</h4>
+			            <p class="weui_media_desc">用于赔付自己车辆损失</p>
+			          </div>
+			         <div class="weui_media_hd" style="margin-right:.1em">
+			                 <input class="weui_switch" type="checkbox"  checked  id="csx" name="damage_insurance">
+			          </div>
+		        </a>
+		        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+			          <div class="weui_media_bd">
+			            <h4 class="weui_media_title"  style="font-size:14px;">玻璃险</h4>
+			            <p class="weui_media_desc">用于赔付非抗力对玻璃造成的损失</p>
+			          </div>
+			          <div class="weui_media_hd" style="margin-right:.1em"  id="item-ifo">
+			                <input class="weui_input" type="text"    id="blx" value="{{glass_insurance}}" name="glass_insurance"><i class="fa fa-angle-down" id="blx" ></i>
+			          </div>
+		        </a>
+		        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+			          <div class="weui_media_bd">
+			            <h4 class="weui_media_title"  style="font-size:14px;">司机险</h4>
+			            <p class="weui_media_desc">用于对司机造成的人身伤害</p>
+			          </div>
+			         <div class="weui_media_hd" style="margin-right:.1em"  id="item-ifo">
+			                 <input class="weui_input" type="text"    id="sjx" value="{{driver_insurance}}" name="driver_insurance" ><i class="fa fa-angle-down" id="sjx" ></i>
+			          </div>
+		        </a>
+		        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+			          <div class="weui_media_bd">
+			            <h4 class="weui_media_title"  style="font-size:14px;">乘客险</h4>
+			            <p class="weui_media_desc">车内本车乘客（非驾驶员）的人身伤亡费用</p>
+			          </div>
+			          <div class="weui_media_hd" style="margin-right:.1em"  id="item-ifo">
+			                 <input class="weui_input" type="text"    id="ckx" value="{{passenger_insurance}}"  name="passenger_insurance"><i class="fa fa-angle-down" id="ckx" ></i>
+			          </div>
+		        </a>
+		        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+			          <div class="weui_media_bd">
+			            <h4 class="weui_media_title"  style="font-size:14px;">盗抢险</h4>
+			            <p class="weui_media_desc">用于赔付车辆被盗抢损失</p>
+			          </div>
+			         <div class="weui_media_hd" style="margin-right:.1em">
+			                 <input class="weui_switch" type="checkbox"   id="dqx" name="theft_insurance">
+			          </div>
+		        </a>
+		        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+			          <div class="weui_media_bd">
+			            <h4 class="weui_media_title"  style="font-size:14px;">不计免赔险</h4>
+			            <p class="weui_media_desc">事故发生时自己不再承担损失</p>
+			          </div>
+			         <div class="weui_media_hd" style="margin-right:.1em">
+			                 <input class="weui_switch" type="checkbox"   checked id="bjmpx" name="iop_insurance">
+			          </div>
+		        </a>
+		        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+			          <div class="weui_media_bd">
+			            <h4 class="weui_media_title"  style="font-size:14px;">自燃损失险</h4>
+			            <p class="weui_media_desc">车辆的自身原因起火造成车辆本身的损失</p>
+			          </div>
+			         <div class="weui_media_hd" style="margin-right:.1em">
+			                 <input class="weui_switch" type="checkbox"   id="zrssx" name="autoignition_insurance">
+			          </div>
+		        </a>
+		       <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+			          <div class="weui_media_bd">
+			            <h4 class="weui_media_title"  style="font-size:14px;">划痕险</h4>
+			            <p class="weui_media_desc">他人恶意行为造成的车辆车身人为划痕</p>
+			          </div>
+			          <div class="weui_media_hd" style="margin-right:.1em"  id="item-ifo">
+			                <input class="weui_input" type="text"    id="hhx" value="{{scratch_insurance}}" name="scratch_insurance" ><i class="fa fa-angle-down" id="ico" ></i>
+			          </div>
+		        </a>
+		        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+			          <div class="weui_media_bd">
+			            <h4 class="weui_media_title"  style="font-size:14px;">涉水险</h4>
+			            <p class="weui_media_desc">因水淹或涉水行驶造成发动机损坏的费用</p>
+			          </div>
+			         <div class="weui_media_hd" style="margin-right:.1em">
+			                 <input class="weui_switch" type="checkbox"   id="shesx" name="wading_insurance">
+			          </div>
+		        </a>	
+		         </div>
+		          </div>
+		         <div class="weui_panel weui_panel_access">
+		        <div class="weui_panel_hd"  style="background:#F3F3F3;padding:0px 15px 10px;">保险起期</div>
+		        <div style="display: none" id="jiaoqiangxian">
+					        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+						          <div class="weui_media_bd">
+						            <h4 class="weui_media_title"  style="font-size:14px;">交强险保险起期</h4>
+						            
+						          </div>
+						          <div class="weui_media_hd" style="margin-right:.1em; width:20%;"  id="item-ifo">
+						               <input class="weui_input" style="width:100%;    background-color: transparent ; border:1px solid #C8C8CD; color: #000; "data-descriptions="liability_expectStartTime1" data-required="true"   id="jiao_start_date" type="text" name="liability_expectStartTime" placeholder="请输入保险起期时间" value="{{liability_expectStartTime}}"  style="height: 30px; width:80px;">
+						          </div>
+					        </a>
+		            </div>
+		            <div style="display: none" id="shangyexian">
+				        <a href="javascript:void(0);" class="weui_media_box weui_media_appmsg" style ="padding:0px 15px;">
+					          <div class="weui_media_bd">
+					            <h4 class="weui_media_title"  style="font-size:14px;">商业险保险起期</h4>
+					            
+					          </div>
+					          <div class="weui_media_hd" style="margin-right:.1em;width:20%;"  id="item-ifo">
+					               <input class="weui_input" style="width:100%;    background-color: transparent ; border:1px solid #C8C8CD; color: #000; " data-descriptions="commercial_expectStartTime1"  data-required="true"  id="shang_start_date" type="text" name="commercial_expectStartTime" placeholder="请输入保险起期时间" value="{{commercial_expectStartTime}}"  style="height: 30px; width:80px">
+					          </div>
+				        </a>
+		        </div>
+			
+		  </div>
+		</div>
+	   <div style="height:20px;"></div>
+        <div class="weui_cell ">
+                <div class="weui_cell_bd weui_cell_primary " >
+								<button type="submit" id="tijiaoxiugai"class="weui_btn weui_btn_primary">提交修改</button>
+                </div>
+        </div>
+</form>
+      
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+ <script src="{% static 'js/jquery-2.1.4.js' %}"></script>
+ <script src="{% static 'js/fastclick.js' %}"></script>
+ <script>
+  $(function() {
+    FastClick.attach(document.body);
+    $("#tijiaoxiugai").attr("disabled", true);
+  });
+ </script>
+ <script src="{% static 'js/jquery-weui.js' %}"></script>
+  <script src="{% static 'js/city-picker.js' %}"></script>
+ <script type="text/javascript">
+	 $(document).ready(function (){ 
+			change_wx_cargo_type();
+	 });
+      $("#szx").select({
+        title: "选择",
+        items: ["不投保","10万", "20万","30万", "50万","100万", "150万","200万", "250万", "300万"],
+        onChange: function(d) {
+          console.log(this, d);
+        },
+        onClose: function() {
+          console.log("close");
+        },
+        onOpen: function() {
+          console.log("open");
+        },
+      });
+      $("#blx").select({
+          title: "选择",
+          items: ["不投保","国产", "进口"],
+          onChange: function(d) {
+            console.log(this, d);
+          },
+          onClose: function() {
+            console.log("close");
+          },
+          onOpen: function() {
+            console.log("open");
+          },
+        });
+      $("#sjx").select({
+          title: "选择",
+          items: ["不投保","1万", "2万","5万", "10万","20万"],
+          onChange: function(d) {
+            console.log(this, d);
+          },
+          onClose: function() {
+            console.log("close");
+          },
+          onOpen: function() {
+            console.log("open");
+          },
+        });
+      $("#ckx").select({
+          title: "选择",
+          items: ["不投保","1万", "2万","5万", "10万","20万"],
+          onChange: function(d) {
+            console.log(this, d);
+          },
+          onClose: function() {
+            console.log("close");
+          },
+          onOpen: function() {
+            console.log("open");
+          },
+        });
+      $("#hhx").select({
+          title: "选择",
+          items: ["不投保","2千", "5千","1万", "2万"],
+          onChange: function(d) {
+            console.log(this, d);
+          },
+          onClose: function() {
+            console.log("close");
+          },
+          onOpen: function() {
+            console.log("open");
+          },
+        });
+      $("#jiao_start_date").calendar({
+  		onChange: function (p, values, displayValues) {
+  	      console.log(values, displayValues);
+  	    }
+  	  });
+  	$("#shang_start_date").calendar({
+  		onChange: function (p, values, displayValues) {
+  	      console.log(values, displayValues);
+  	    }
+  	  });
+  	 $("#jqx").change(function(){
+  		 if ( $("#jqx").is(':checked')){
+  			$("#jiaoqiangxian").css("display","block");
+  		 }
+  		 else{
+  			$("#jiaoqiangxian").css("display","none");
+  		 }
+  		
+	    	
+	    	});
+      function change_wx_cargo_type(){
+  		if ('{{order.liability_state}}' == 'True'){
+  			// alert("验证通过！接下来可以做你想做的事情啦1123！");
+  			      $("#jqx").attr("checked",true);
+  			    $("#jiaoqiangxian").css("display","block");
+  		}
+  		else{
+  			 
+  			       $("#jqx").attr("checked",false);
+  			       $("#jiaoqiangxian").css("display","none");
+  		}
+  		if ('{{order.vehicle_vessel_tax_state}}' == 'True'){
+		      $("#ccs").attr("checked",true);
+			}
+			else{
+				       $("#ccs").attr("checked",false);
+			}
+				if ('{{order.damage_insurance}}' == 'True'){
+				      $("#csx").attr("checked",true);
+			}
+			else{
+				       $("#csx").attr("checked",false);
+			}
+		  		if ('{{order.theft_insurance}}' == 'True'){
+				      $("#dqx").attr("checked",true);
+			}
+			else{
+				
+				       $("#dqx").attr("checked",false);
+			}
+		  		if ('{{order.iop_insurance}}' == 'True'){
+				      $("#bjmpx").attr("checked",true);
+			}
+			else{
+				       $("#bjmpx").attr("checked",false);
+			}
+		  		if ('{{order.autoignition_insurance}}' == 'True'){
+				      $("#zrssx").attr("checked",true);
+			}
+			else{
+				       $("#zrssx").attr("checked",false);
+			}
+		  		if ('{{order.wading_insurance}}' == 'True'){
+				      $("#shesx").attr("checked",true);
+			}
+			else{
+				       $("#shesx").attr("checked",false);
+			}
+  		 if ('{{order.damage_insurance}}' == 'True'||'{{order.theft_insurance}}' == 'True'||'{{order.iop_insurance}}' == 'True'||'{{order.autoignition_insurance}}' == 'True'||'{{order.wading_insurance}}' == 'True'||'{{jdclbx_order.third_insurance}}' != '0'||'{{jdclbx_order.glass_insurance}}' != 'no'||'{{jdclbx_order.driver_insurance}}' != '0'||'{{jdclbx_order.passenger_insurance}}' != '0'||'{{jdclbx_order.scratch_insurance}}' != '0'){
+  			 $("#shangyexian").css("display","block");
+  		 }
+  		 else{
+  			 $("#shangyexian").css("display","none");
+  		 }
+  	}
+      
+      $("#jqx").change(function(){
+   	   $("#tijiaoxiugai").attr("disabled",false);   	
+   	    $('#chongxinxunjia_state').val("change");
+ 	    });
+      $("#ccs").change(function(){
+      	   $("#tijiaoxiugai").attr("disabled",false);   	
+      	    $('#chongxinxunjia_state').val("change");
+    	    });
+      $("#szx").change(function(){
+      	   $("#tijiaoxiugai").attr("disabled",false);   	
+      	    $('#chongxinxunjia_state').val("change");
+    	    });
+      $("#csx").change(function(){
+      	   $("#tijiaoxiugai").attr("disabled",false);   	
+      	    $('#chongxinxunjia_state').val("change");
+    	    });
+      $("#blx").change(function(){
+      	   $("#tijiaoxiugai").attr("disabled",false);   	
+      	    $('#chongxinxunjia_state').val("change");
+    	    });
+      $("#sjx").change(function(){
+      	   $("#tijiaoxiugai").attr("disabled",false);   	
+      	    $('#chongxinxunjia_state').val("change");
+    	    });
+      $("#ckx").change(function(){
+      	   $("#tijiaoxiugai").attr("disabled",false);   	
+      	    $('#chongxinxunjia_state').val("change");
+    	    });
+      $("#dqx").change(function(){
+      	   $("#tijiaoxiugai").attr("disabled",false);   	
+      	    $('#chongxinxunjia_state').val("change");
+    	    });
+      $("#bjmpx").change(function(){
+      	   $("#tijiaoxiugai").attr("disabled",false);   	
+      	    $('#chongxinxunjia_state').val("change");
+    	    });
+      $("#zrssx").change(function(){
+      	   $("#tijiaoxiugai").attr("disabled",false);   	
+      	    $('#chongxinxunjia_state').val("change");
+    	    });
+      $("#hhx").change(function(){
+     	   $("#tijiaoxiugai").attr("disabled",false);   	
+     	    $('#chongxinxunjia_state').val("change");
+   	    });
+      $("#shesx").change(function(){
+      	   $("#tijiaoxiugai").attr("disabled",false);   	
+      	    $('#chongxinxunjia_state').val("change");
+    	    });
+      $("#jiao_start_date").change(function(){
+     	   $("#tijiaoxiugai").attr("disabled",false);   	
+     	    $('#chongxinxunjia_state').val("change");
+   	    });
+      $("#shang_start_date").change(function(){
+     	   $("#tijiaoxiugai").attr("disabled",false);   	
+     	    $('#chongxinxunjia_state').val("change");
+   	    });
+      
+      
+    </script>
+{% endblock %}

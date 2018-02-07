@@ -1,0 +1,31 @@
+{% extends 'bms/base.html' %}
+{% load static %}
+{% block title %} 产品管理 {% endblock %}
+{% block tab_car %}class='active'{% endblock %}<!-- 选中标签 -->
+
+{% block content_block %}
+
+
+    <div class="row">
+
+        <div class="col-sm-2">
+            <h4 class="visible-xs"></h4>
+            <ul class="nav nav-pills nav-stacked">
+                <li {% block car_list %}{% endblock %}><a href="{% url 'bms:car_list' '1'  %}">车险</a></li>
+                <li {% block employee_list %}{% endblock %}><a href="{% url 'bms:employee_list' '1'  %}">员工保险</a></li>
+                <li {% block freight_list %}{% endblock %}><a href="{% url 'bms:freight_list' '1'  %}">货运年险</a></li>
+                <li {% block personal_list %}{% endblock %}><a href="{% url 'bms:personal_list' '1'  %}">个人保险</a></li>
+                <li {% block other_insurance_list %}{% endblock %}><a href="{% url 'bms:other_insurance_list' '1'  %}">其他保险</a></li>
+
+            </ul>
+            <hr class="visible-xs"/>
+        </div>
+
+        <div class="col-sm-10">
+            {% block page_top %}{% endblock %}
+            {% block page_middle %}{% endblock %}
+            {% block page_bottom %}{% endblock %}
+        </div>
+    </div>
+
+{% endblock %}

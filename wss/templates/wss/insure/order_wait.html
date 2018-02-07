@@ -1,0 +1,563 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}我的{% endblock %}
+
+{% block container_block %}
+<style>
+.buttonWrapper{
+height:16px;
+padding:4px;
+padding-right:9px;
+padding-left:9px;
+color:#fff;
+background-color:#5172D5;
+}
+
+.detail{
+padding:2px;
+padding-right:9px;
+padding-left:9px;
+color:#778899;
+}
+<!--
+
+-->
+</style>
+
+    <script type="text/javascript">
+    function require_delete(){
+            $('#delete_model').removeClass('control-show');
+
+   } 
+    </script>
+
+{% if message %}
+    <div class="weui_dialog_alert">
+        <div class="weui_mask"></div>
+        <div class="weui_dialog">
+            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+            <div class="weui_dialog_bd">{{ message }}</div>
+            <div class="weui_dialog_ft">
+                <a onclick="close_dialog();" class="weui_btn_dialog primary">确定</a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<div id="id_message" class="row control-show"style ="z-index:999">
+	<div class="weui_dialog_alert"style ="z-index:999">
+	        <div class="weui_mask"></div>
+	        <div class="weui_dialog"style ="z-index:999">
+	            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+	            <div class="weui_dialog_bd"id="id_message_id"></div>
+	            <div class="weui_dialog_ft">
+	                <a onclick="$('#id_message').addClass('control-show');" class="weui_btn_dialog primary">确定</a>
+	            </div>
+	        </div>
+	    </div>
+<!--         <div class="col-sm-12">
+            <div id="id_message_id" class="alert alert-warning"></div>
+        </div> -->
+    </div>
+    
+<!--   删除  -->
+    <div id="delete_model" class="row control-show" >
+		<div class="weui_dialog_alert" >
+		        <div class="weui_mask" style="z-index:999;"></div>
+		        <div class="weui_dialog"  style="z-index:1000;">
+		            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+		            <div class="weui_dialog_bd"id="id_message_id">确认删除订单？订单删除后不可复原</div>
+		            <div class="weui_dialog_ft">
+		            	<a  href="{% url 'wss:order_delete' order.id %}" class="weui_btn_dialog primary">确定</a>
+		                <a onclick="$('#delete_model').addClass('control-show');" class="weui_btn_dialog primary">取消</a>
+		            </div>
+		        </div>
+		    </div>
+    </div>
+  
+  <!--   查看详情  -->
+    <div id="search_model" class="row control-show">
+		<div class="weui_dialog_alert">
+		        <div class="weui_mask"></div>
+		        <div class="weui_dialog">
+		            <div class="weui_dialog_hd"><strong class="weui_dialog_title">详情</strong></div>
+		            <div class="weui_dialog_bd"id="id_search_id"></div>
+		            <div class="weui_dialog_ft">
+		            	<a onclick="$('#search_model').addClass('control-show');" class="weui_btn_dialog primary">取消</a>
+		            </div>
+		        </div>
+		    </div>
+    </div>
+
+<div><!-- 解决遮挡层覆盖不全的问题 -->
+<!--   补充信息  -->
+    <div id="add_order_detail_model" class="row control-show">
+		<div class="weui_dialog_alert">
+		        <div class="weui_mask" style="z-index:6;"></div>
+		        <div class="weui_dialog"  style="z-index:13;">
+		            <div class="weui_dialog_hd"><strong class="weui_dialog_title">众安保险补充信息</strong></div>
+		            <div class="weui_dialog_bd">
+		            <div class="weui_dialog_bd"><small><font color= 'red' id="id_za_message_id"></font></small></div>
+		            <input id="id_product_id" name="product_id" type="hidden" >
+		            <input id="id_order_id" name="order_id" value="{{order.id}}" type="hidden">
+		      {# 2017/11/28 添加众安单票保险补充信息 #}      
+			{% if order_product_type == "ticket" %}
+			        <div class="weui_cell  wss_dashed_bottom"  id ="ticket_tb_client_type">
+			            <div class="weui_cell_hd"><label class="weui_label"style='width:150px'>【投保人身份】</label></div>
+			            <div class="weui_cell_bd weui_cell_primary">
+				          		<input class="weui_input" name="tb_client_type" id ="tb_client_type"type="text" value="">
+				        </div>
+			        </div>
+			        
+			        <div class="weui_cell  wss_dashed_bottom"  id ="ticket_holderCertNo"style ="display:none">
+			         {#   <div class="weui_cell_hd"><label class="weui_label"style='width:150px'>【投保人证件号】</label></div>#}
+			            <div class="weui_cell_bd weui_cell_primary">
+				          		<input class="weui_input" name="holderCertNo" id ="holderCertNo"type="text" value=""placeholder="个人请填写身份证号">
+				        </div>
+			        </div>
+			        
+			        <div class="weui_cell  wss_dashed_bottom"  id ="ticket_taxpayerRegNum"style ="display:none">
+			          {#  <div class="weui_cell_hd"><label class="weui_label"style='width:150px'>【纳税人识别号】</label></div>#}
+			            <div class="weui_cell_bd weui_cell_primary">
+				          		<input class="weui_input" name="taxpayerRegNum" id ="taxpayerRegNum"type="text" value=""placeholder="公司请填写纳税人识别号">
+				        </div>
+			        </div>
+			   {% elif order_product_type == "batch" %}
+			   		<div class="weui_cell  wss_dashed_bottom"  id ="">
+			           {# <div class="weui_cell_hd"><label class="weui_label"style='width:150px'>【投保人身份】</label></div>#}
+			            <div class="weui_cell_bd weui_cell_primary">
+				          		<input class="weui_input" name="tb_client_type" id ="tb_client_type"type="text" value=""style=" font-size:14px;"placeholder="投保人身份（必填）">
+				        </div>
+			        </div>
+			        <div class="weui_cell  wss_dashed_bottom"  >
+			            {# <div class="weui_cell_hd"><label class="weui_label"style='width:150px'>【纳税人识别号】</label></div>#}
+			            <div class="weui_cell_bd weui_cell_primary">
+				          		<input class="weui_input" name="taxpayerRegNum" id ="taxpayerRegNum"type="text" value=""placeholder="纳税人识别号（必填）"style=" font-size:14px;">
+				        </div>
+			        </div>
+			        <div class="weui_cell  wss_dashed_bottom"  id ="">
+			            {# <div class="weui_cell_hd"><label class="weui_label"style='width:150px'>【投保人证件类型】</label></div>#}
+			            <div class="weui_cell_bd weui_cell_primary">
+				          		<input class="weui_input" name="tb_holderCertType" id ="tb_holderCertType"type="text" value=""style=" font-size:14px;"placeholder="投保人证件类型（必填）">
+				        </div>
+			        </div>
+			        
+			        <div class="weui_cell  wss_dashed_bottom"  >
+			            {# <div class="weui_cell_hd"><label class="weui_label"style='width:150px'>【投保人证件号】</label></div>#}
+			            <div class="weui_cell_bd weui_cell_primary">
+				          		<input class="weui_input" name="holderCertNo" id ="holderCertNo"type="text" value=""placeholder="投保人证件号（必填）"style=" font-size:14px;">
+				        </div>
+				        <small><font color= 'red' id=""></font></small>
+			        </div>
+			        
+			        <div class="weui_cell  wss_dashed_bottom"  id ="">
+			            {# <div class="weui_cell_hd"><label class="weui_label"style='width:150px'>【被保人证件类型】</label></div>#}
+			            <div class="weui_cell_bd weui_cell_primary">
+				          		<input class="weui_input" name="bb_insureCertType" id ="bb_insureCertType"type="text" value=""style=" font-size:14px;"placeholder="被保人证件号（必填）">
+				        </div>
+			        </div>
+			        
+			        <div class="weui_cell  wss_dashed_bottom"  >
+			             {#<div class="weui_cell_hd"><label class="weui_label"style='width:150px'>【被保人证件号】</label></div>#}
+			            <div class="weui_cell_bd weui_cell_primary">
+				          		<input class="weui_input" name="bb_insureCertNo" id ="bb_insureCertNo"type="text" value=""placeholder="被保人证件号（必填）"style=" font-size:14px;">
+				        </div>
+			        </div>
+			        <div class="weui_cell  wss_dashed_bottom"  >
+			            {# <div class="weui_cell_hd"><label class="weui_label"style='width:150px'>【挂车牌号】</label></div>#}
+			            <div class="weui_cell_bd weui_cell_primary">
+				          		<input class="weui_input" name="trailerNo" id ="trailerNo"type="text" value=""placeholder="挂车牌号（必须有”挂“字）"style=" font-size:14px;">
+				        </div>
+			        </div>
+			   
+			   {% endif %}   
+			   {# 2017/11/28 添加众安车次保险（众安单票责任险）补充信息 #}      
+		            
+		            
+		            
+		            </div>
+		            <div class="weui_dialog_ft">
+		            	<a  href="#" class="weui_btn_dialog primary"onclick ="add_za_detail_ajax()">确定</a>
+		                <a onclick="$('#add_order_detail_model').addClass('control-show');" class="weui_btn_dialog primary">取消</a>
+		            </div>
+		        </div>
+		    </div>
+    </div>
+
+{#    首页所在位置，进入页面后的默认页面#}
+<!-- <div class="wss_title" ><i class="fa   fa-file-text"></i> &nbsp; <strong>订单详情</strong></div> -->
+       <div class="top">
+		<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+			<tbody>
+				<tr>
+						<td width="20%" valign="middle">
+							   <!-- <a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a>  -->
+						</td>
+						<td class="wz" width="60%" valign="middle" align="center">
+								<span id="toptitle">
+										<i class="fa    fa-file-text"></i>&nbsp;<strong>选择投保产品</strong>
+								</span>
+						</td>
+						<td width="20%" valign="middle" align="right">
+						<a id="aso" href="#"></a>
+						</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	
+	
+<div class="weui_cells wss_p" style="padding-top:22px;">
+ 
+{% if insurable_products_list %}
+{% for insurable_products_detail in insurable_products_list %}
+<div class="weui_cells wss_p" style="border-radius: 10px;background-color: #ebeffa;margin: 3px 3px;">
+        <div class="weui_cell wss_dashed_bottom">
+	        <div class="weui_cell_hd"><label for="name" class="weui_label">【承保公司】</label></div>
+	        <div class="weui_cell_bd weui_cell_primary">
+	          		{{ insurable_products_detail.product.company.parent.description }}
+	        </div>
+      	</div>
+      	<div class="weui_cell wss_dashed_bottom">
+	        <div class="weui_cell_hd"><label for="name" class="weui_label">【险别】</label></div>
+	        <div class="weui_cell_bd weui_cell_primary">
+	          		{{ insurable_products_detail.product.risks|slice:"15" }}
+					{% if insurable_products_detail.product.risks|length >= 16 %}……
+					 <a onclick="$('#search_model').removeClass('control-show');document.getElementById('id_search_id').innerHTML ='{{insurable_products_detail.product.risks}}';" >
+					 <i class="fa fa-search" aria-hidden="true"style="color:#5172D5;"></i></a>
+					 {% endif %}
+	        </div>
+      	</div>
+      	<div class="weui_cell wss_dashed_bottom">
+	        <div class="weui_cell_hd"><label for="name" class="weui_label">【免赔】</label></div>
+	        <div class="weui_cell_bd weui_cell_primary">
+	          			{{ insurable_products_detail.product.deductible|slice:"15" }} 
+						 {% if insurable_products_detail.product.deductible|length >= 16 %}…
+						 <a onclick="$('#search_model').removeClass('control-show');document.getElementById('id_search_id').innerHTML ='{{insurable_products_detail.product.deductible}}';" >
+						 <i class="fa fa-search" aria-hidden="true"style="color:#5172D5;"></i></a>
+						 {% endif %}
+	        </div>
+      	</div>
+      	<div class="weui_cell ">
+	        <div class="weui_cell_hd"><label for="name" class="weui_label">【出单方式】</label></div>
+	        <div class="weui_cell_bd weui_cell_primary">
+	          			{% if insurable_products_detail.product.create_way == 'hjb' %} 自动出单
+	  		   			{% elif  insurable_products_detail.product.create_way == 'yzb' %}手动出单
+	  		  			{% else %} 未识别{% endif %}
+	        </div>
+      	</div>
+      	<div class="weui_cell " style = "background-color: #ECECEC;" >
+	        <div class="weui_cell_hd"><label for="name" class="weui_label">【订单费用】</label></div>
+	        <div class="weui_cell_bd weui_cell_primary">
+	          		<i class="fa fa-jpy"   style="color:#5172D5;">{{insurable_products_detail.price |FenToYuan }}</i>
+	        </div>
+	        <div  class="weui_cell_ft">
+	        {# 2017/11/27添加接口有关信息（众安）#}
+			     {% if "众安" in  insurable_products_detail.product.company.parent.description %}
+			     <a class="buttonWrapper " href="#"onclick="add_order_detail('{{insurable_products_detail.product.id}}')"style="text-align:right;">补充信息 </a>
+			     {# 原提交按钮 #}
+			     {% else %}
+			     	<a class="buttonWrapper " href="{% url 'wss:order_choose_product' order.id %}?product_id={{insurable_products_detail.product.id}}"style="text-align:right;">提交 </a>
+			     {% endif %}
+			 {# 添加结束 #}
+	        <!-- <a class="buttonWrapper " href="{% url 'wss:order_choose_product' order.id %}?product_id={{insurable_products_detail.product.id}}"style="text-align:right;border-radius: 10px;">提交 </a> -->
+	        </div>
+      	</div>
+</div>
+<!-- 	<div class="col-sm-12 "  style="background-color:#d8dff5;">
+			<div class='detail'><i class="fa fa-reorder "style="color:#5172D5;"></i>&nbsp;&nbsp;承保公司：{{ insurable_products_detail.product.company.parent.description }}</div>
+			<div class='detail'><i class="fa fa-reorder"style="color:#5172D5;"></i>&nbsp;&nbsp;险别：
+			{{ insurable_products_detail.product.risks|slice:"15" }}
+			{% if insurable_products_detail.product.risks|length >= 16 %}……
+			 <a onclick="$('#search_model').removeClass('control-show');document.getElementById('id_search_id').innerHTML ='{{insurable_products_detail.product.risks}}';" >
+			 <i class="fa fa-search" aria-hidden="true"style="color:#5172D5;"></i></i></a>
+			 {% endif %}
+			</div>
+			<div class='detail'><i class="fa fa-reorder"style="color:#5172D5;"></i>&nbsp;&nbsp;免赔：
+			{{ insurable_products_detail.product.deductible|slice:"15" }} 
+			 {% if insurable_products_detail.product.deductible|length >= 16 %}……
+			 <a onclick="$('#search_model').removeClass('control-show');document.getElementById('id_search_id').innerHTML ='{{insurable_products_detail.product.deductible}}';" >
+			 <i class="fa fa-search" aria-hidden="true"style="color:#5172D5;"></i></i></a>
+			 {% endif %}
+			</div>
+			<div class='detail'><i class="fa fa-reorder" aria-hidden="true"style="color:#5172D5;"></i>&nbsp;&nbsp;出单方式：
+				{% if insurable_products_detail.product.create_way == 'hjb' %} 自动出单
+	  		   {% elif  insurable_products_detail.product.create_way == 'yzb' %}手动出单
+	  		  {% else %} 未识别{% endif %}
+			</div>
+	</div> -->
+
+ 	<!-- <div class="col-sm-12 " style="padding-top:9px">padding-right:35px;padding-top:9px&nbsp;&nbsp;
+	     <div  style ="float:left;padding-left:5px">
+	     	【订单费用】<i class="fa fa-jpy"   style="color:#5172D5;text-align:left;">{{insurable_products_detail.price |FenToYuan }}</i>
+	     </div>
+	     <div  style ="float:right;padding-right:5px">
+	     {# 2017/11/27添加接口有关信息（众安）#}
+	     {% if "众安" in  insurable_products_detail.product.company.parent.description %}
+	     <a class="buttonWrapper " href="#"onclick="add_order_detail('{{insurable_products_detail.product.id}}')"style="text-align:right;">补充信息 </a>
+	     {# 原提交按钮 #}
+	     {% else %}
+	     	<a class="buttonWrapper " href="{% url 'wss:order_choose_product' order.id %}?product_id={{insurable_products_detail.product.id}}"style="text-align:right;">提交 </a>
+	     {% endif %}
+	     {# 添加结束 #}
+	     </div>
+	</div>  -->
+
+
+<!-- <div style = "border-bottom:8px solid #F3F3F3;align-items:center;padding-top:9px"></div> -->
+
+ {% endfor %} 
+
+ {% else %}
+<div  class="thumbBox"  style="padding-top: 25%;"><img  src="/static/pic/default/201305122026542520.gif" alt="icon"  style="max-width: 180px;max-height: 180px;word-break:break-all;" ></div>
+<div  class="thumbBox"  style="padding-top: 5%;"><p>抱歉，没有筛出可保产品!</p></div>
+{% endif %}
+<!-- **********************筛选出的可保产品end  ************************************* --> 
+
+
+{% if order.state == 'wait' %}
+ <div style="height:85px;"></div>
+ <div class="weui_tabbar" style=" width: 100%; position: fixed;  bottom: 0px;z-index: 3;">
+
+        <a href="{% url 'wss:order_edit'  order.id  %}" class="weui_tabbar_item weui_bar_item_on">
+          <div class="weui_tabbar_icon" style="color:#5172D5;font-weight:bold;">
+           <i class="fa fa-edit"></i>
+          </div>
+          <p class="weui_tabbar_label">修改订单</p>
+        </a>
+        <a onclick="require_delete();" class="weui_tabbar_item weui_bar_item_on">
+          <div class="weui_tabbar_icon" style="color:#5172D5;font-weight:bold;">
+            <i class="fa fa-trash-o"></i>
+          </div>
+          <p class="weui_tabbar_label">删除订单</p>
+        </a>
+      </div>
+{% endif %}
+
+</div>
+
+</div><!-- 解决遮挡层覆盖不全的问题 -->
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+<script src="{% static 'js/jquery-weui.js' %}"></script>
+ <script src="{% static 'js/city-picker.js' %}"></script>
+    <script type="text/javascript">
+
+    
+    
+    function require_delete1(){
+            $('#delete_model').removeClass('control-show');
+
+   }
+    
+    /* 查看详情 */
+/*     function require_search(detail){
+    	    var detail =detail
+            $('#search_model').removeClass('control-show');
+    	    $("#id_search_id").html(detail)；
+    	    
+
+   } */
+    /* 2017/11/27添加补充众安信息方法 */
+    function add_order_detail ( product_id){
+    	var product_id = product_id;
+    	document.getElementById('id_za_message_id').innerText='';
+    	document.getElementById("id_product_id").value =product_id;
+    	 $('#add_order_detail_model').removeClass('control-show');
+    	
+    }
+    
+   /* 2017/11/27汇聚宝对接参数*/
+   //投保人身份
+   $("#tb_client_type").picker({
+      title: "选择投保人身份",
+      cols: [
+        {
+          textAlign: 'center',
+          values:["个人","公司"]
+        }
+      ],
+      onChange: function(p, v, dv) {
+        console.log(p, v, dv);
+      },
+      onClose: function(p, v, d) {
+        console.log("close");
+        var tb_client_type = document.getElementById("tb_client_type").value 
+        //alert(tb_client_type)
+        if ( tb_client_type == "公司"){
+        	document.getElementById("ticket_holderCertNo").style.display="none";//隐藏
+        	document.getElementById("ticket_taxpayerRegNum").style.display="block";//隐藏	
+        }
+        else{
+        	document.getElementById("ticket_taxpayerRegNum").style.display="none";//隐藏ticket_holderCertNo
+        	document.getElementById("ticket_holderCertNo").style.display="block";//隐藏	
+        }
+      }
+    });
+   //投保人证件类型
+      $("#tb_holderCertType").picker({
+      title: "选择投保人证件类型",
+      cols: [
+        {
+          textAlign: 'center',
+          values:["统一社会信用代码","组织机构代码"]
+        }
+      ],
+      onChange: function(p, v, dv) {
+        console.log(p, v, dv);
+      },
+      onClose: function(p, v, d) {
+        console.log("close");
+        var tb_holderCertType = document.getElementById("tb_holderCertType").value 
+        //alert(tb_client_type)
+        if ( tb_holderCertType == "统一社会信用代码"){
+        	$('#holderCertNo').attr('placeholder','请输入统一社会信用代码')
+        }
+        else{
+        	$('#holderCertNo').attr('placeholder','请输入组织机构代码')
+        }
+      }
+    });
+   //被保人证件类型
+      $("#bb_insureCertType").picker({
+      title: "选择投保人身份",
+      cols: [
+        {
+          textAlign: 'center',
+          values:["统一社会信用代码","组织机构代码"]
+        }
+      ],
+      onChange: function(p, v, dv) {
+        console.log(p, v, dv);
+      },
+      onClose: function(p, v, d) {
+        console.log("close");
+        var bb_insureCertType = document.getElementById("bb_insureCertType").value 
+        //alert(tb_client_type)
+        if ( bb_insureCertType == "统一社会信用代码"){
+        	$('#bb_insureCertNo').attr('placeholder','请输入统一社会信用代码')
+        }
+        else{
+        	$('#bb_insureCertNo').attr('placeholder','请输入组织机构代码')
+        }
+      }
+    });
+/* end */
+    </script>
+    
+    <script type="text/javascript">
+    /* 2017/11/27向后台传值将用户填写的数据维护进数据库*/  
+       function add_za_detail_ajax(){
+    	document.getElementById('id_za_message_id').innerText='';
+    	var  control_state="1"
+        var order_id =  document.getElementById("id_order_id").value;//订单号
+        var product_id =document.getElementById("id_product_id").value;//选中产品id
+        //单票保险车次保险共有
+        var tb_client_type =  document.getElementById("tb_client_type").value;//单票保险用户身份
+        var holderCertNo =  document.getElementById("holderCertNo").value;//单票保险投保人证件号
+        var taxpayerRegNum =  document.getElementById("taxpayerRegNum").value;//单票保险纳税人识别号 
+        //车次保险独有
+        var tb_holderCertType = '';//投保人证件类型
+        var bb_insureCertType  = '';//被保人证件类型
+        var bb_insureCertNo  = '';//被保人证件号
+        var trailerNo  = '';//挂车牌号
+        if ('{{order.product_type}}' == 'batch'){
+        	var tb_holderCertType =  document.getElementById("tb_holderCertType").value;//投保人证件类型
+            var bb_insureCertType =  document.getElementById("bb_insureCertType").value;//被保人证件类型
+            var bb_insureCertNo =  document.getElementById("bb_insureCertNo").value;//被保人证件号
+            var trailerNo =  document.getElementById("trailerNo").value;//挂车牌号
+        }
+        //alert("-----tb_client_type------"+tb_client_type +"-----holderCertNo------"+holderCertNo+"-----taxpayerRegNum------"+taxpayerRegNum);
+        if ('{{order.product_type}}' == 'ticket'){
+        	if (tb_client_type == ''){
+        		control_state="0";
+        		 document.getElementById('id_za_message_id').innerText='请选择投保人身份';
+        	}
+        	else if (tb_client_type == "个人"){
+        		if (holderCertNo  == ''){
+            		control_state="0";
+            		 document.getElementById('id_za_message_id').innerText='请填写身份证号';
+            	}
+        	}
+        	else {
+        		if (taxpayerRegNum == ''){
+            		control_state="0";
+            		 document.getElementById('id_za_message_id').innerText='请填写保险纳税人识别号';
+            	}
+        	}
+        }//单票保险判断结束
+        if ('{{order.product_type}}' == 'batch'){
+        	if (tb_client_type == ''){
+        		control_state="0";
+        		 document.getElementById('id_za_message_id').innerText='请选择投保人身份';
+        		 
+        	}
+        	else if (taxpayerRegNum == ''){
+        		control_state="0";
+        		 document.getElementById('id_za_message_id').innerText='请输入纳税人识别号';
+        	}
+        	else if (tb_holderCertType == ''){
+        		control_state="0";
+        		 document.getElementById('id_za_message_id').innerText='请选择投保人证件类型';
+        	}
+        	else if (holderCertNo == ''){
+        		control_state="0";
+        		 document.getElementById('id_za_message_id').innerText='请选择输入投保人证件号';
+        	}
+        	else if (bb_insureCertType == ''){
+        		control_state="0";
+        		 document.getElementById('id_za_message_id').innerText='请选择被保人证件类型';
+        	}
+        	else if (bb_insureCertNo == ''){
+        		control_state="0";
+        		 document.getElementById('id_za_message_id').innerText='请输入被保人证件号';
+        	}
+        	else if (trailerNo == ''){
+        		control_state="0";
+        		 document.getElementById('id_za_message_id').innerText='请输入挂车牌号';
+        	}
+        	
+        }//车次保险判断结束
+        
+
+        if (control_state == "1"){
+        	document.getElementById('id_za_message_id').innerText="信息提交中，请耐心等待审核。"
+	       $.ajax({
+	           url: "/wss/insure/add_za_order_detail",
+	           data: {order_id: order_id , tb_client_type: tb_client_type , holderCertNo: holderCertNo , taxpayerRegNum: taxpayerRegNum ,tb_holderCertType: tb_holderCertType , bb_insureCertType: bb_insureCertType , bb_insureCertNo: bb_insureCertNo , trailerNo: trailerNo ,  },
+	           type: 'GET',
+	           dataType: 'json',
+	           timeout: 15000,
+	           success: function (data) {
+			          var code = data['code'];
+			          var message = data['message'];
+			          //alert(code)
+			          if (code=='1'){
+			        	  document.getElementById('id_za_message_id').innerText=message;
+			          }
+			          else if  (code=='0'){
+			        	  document.getElementById('id_za_message_id').innerText='信息已经保存';
+			        	  window.location.href= "/wss/insure/order_choose_product/"+order_id +"?product_id=" + product_id;
+			        	 // href="{% url 'wss:order_choose_product' order.id %}?product_id={{insurable_products_detail.product.id}}"
+			          }
+			          else{
+			        	  document.getElementById('id_za_message_id').innerText= '网络延迟，请稍后再试';
+			          } 
+	           },
+	           error: function (data) {
+	        	   document.getElementById('id_za_message_id').innerText='网络延迟，请稍后再试~';
+	           }
+	       }); //ajax结束
+        }//if 结束
+    }
+    
+    </script>
+
+{% endblock %}

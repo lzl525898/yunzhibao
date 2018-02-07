@@ -1,0 +1,107 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}物流公司全年物流责任保险{% endblock %}
+
+{% block container_block %}
+{#    首页所在位置，进入页面后的默认页面#}
+<script  type="text/javascript">
+wx.ready(function () {
+	  // 2.1 监听“分享给朋友”，按钮点击、自定义分享内容及分享结果接口
+	  wx.onMenuShareAppMessage({
+	      title: '物流责任险 一张保单保全年',
+	      desc: '不限车次任意运，无须通知保险公司运量，一张保单保全年',
+	      link: '{{main_url}}wss/insure/product_detail4?referee_id={{ mine_id }}',
+	      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5UZha8Y5GQHtuDY2SkYLSn4zQTo1zJyq0ZZUZib7lI0KyJicxk9qkWAAAePr75jPGu3w4zWMicibsaw7MA/0?wx_fmt=png',
+
+	    });
+	  
+	 //  2.2 监听“分享到朋友圈”按钮点击、自定义分享内容及分享结果接口
+	 wx.onMenuShareTimeline({
+	      title: '物流责任险 一张保单保全年',
+	      link:'{{main_url}}wss/insure/product_detail4?referee_id={{ mine_id }}',
+	      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5UZha8Y5GQHtuDY2SkYLSn4zQTo1zJyq0ZZUZib7lI0KyJicxk9qkWAAAePr75jPGu3w4zWMicibsaw7MA/0?wx_fmt=png',
+	    });  
+});
+</script>
+
+    <div class="weui_cells_title hd" style="text-align: center;">物流公司全年物流责任保险详情</div>
+    <div class="weui_cells">
+        <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>产品名称：</p>
+            </div>
+            <div class="weui_cell_ft">物流公司全年物流责任保险</div>
+        </div>
+        <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>产品特点：</p>
+            </div>
+            <div class="weui_cell_ft">一次交费 全年无忧</div>
+        </div>
+
+        <div class="weui_cells_title">产品简介</div>
+        <div class="weui_cells weui_cells_form">
+            <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <textarea class="weui_textarea" rows="2" disabled="disabled" style="background-color: #ffffff">物流公司全年物流责任保险，一次交费全年无忧，无需对账，方便省事。
+                    </textarea>
+                </div>
+            </div>
+        </div>
+        <table border="1" style="margin-top: 10px">
+             <tr>
+		            <th>每次事故赔偿限额（万元）</th>
+		            <th>年累计赔偿限额（万元）</th>
+		            <th>保费（万元）</th>
+		             <th>免陪</th>
+            </tr>
+            <tr>
+            <td style="text-align: center">70</td>
+            <td style="text-align: center">150</td>
+            <td style="text-align: center">4</td>
+            <td rowspan="2" style="text-align: center">5000元或损失的10%，以高者为准</td>
+
+            </tr>
+            <tr><td style="text-align: center">100</td><td style="text-align: center">300</td><td style="text-align: center">4.5</td></tr>
+            <tr><td style="text-align: center">150</td><td style="text-align: center">300</td><td style="text-align: center">5.58</td> <td rowspan="5" style="text-align: center">一万元或损失的10%，以高者为准</td></tr>
+            <tr><td style="text-align: center">200</td><td style="text-align: center">500</td><td style="text-align: center">7.5</td></tr>
+            <tr><td style="text-align: center">300</td><td style="text-align: center">500</td><td style="text-align: center">8.5</td></tr>
+            <tr><td style="text-align: center">400</td><td style="text-align: center">600</td><td style="text-align: center">10</td></tr>
+            <tr><td style="text-align: center">500</td><td style="text-align: center">800</td><td style="text-align: center">11</td></tr>
+        </table>
+    </div>
+    <div class="weui_cells weui_cells_access">
+        <a class="weui_cell" href="tel:15910731868">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>投保请咨询客服：</p>
+            </div>
+            <div class="weui_cell_ft">15910731868</div>
+        </a>
+    </div>
+    <div class="weui_cells">
+        <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>微信：</p>
+            </div>
+            <div class="weui_cell_ft">15910731868</div>
+        </div>
+    </div>
+{#    <a href="{% url 'wss:prompt' %}" class="weui_btn weui_btn_primary" style="margin-top: 124px">投保</a>#}
+
+    <div class="weui_cells">
+{#        <img src="{% static 'pic/default/logo.png' %}" style="max-width: 200px;max-height: 200px;display:block;text-align: center;margin-right: auto;margin-left: auto;">#}
+        <img src="{% static 'pic/default/ewm.jpg' %}" style="max-width: 350px;max-height: 200px;display:block;text-align: center;margin-right: auto;margin-left: auto;">
+        <div class="weui_cell_bd weui_cell_primary">
+            <p style="text-align: center;margin-right: auto;margin-left: auto;margin-top: 10px">长按上图选择“识别图中二维码”↑↑↑</p>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+{% endblock %}

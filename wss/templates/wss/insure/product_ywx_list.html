@@ -1,0 +1,75 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}意外险{% endblock %}
+
+{% block container_block %}
+{#    首页所在位置，进入页面后的默认页面#}
+
+<script  type="text/javascript">
+wx.ready(function () {
+	  // 2.1 监听“分享给朋友”，按钮点击、自定义分享内容及分享结果接口
+	  wx.onMenuShareAppMessage({
+	      title: '意外保障 低保费 高保障',
+	      desc: '意外险',
+	      link: '{{main_url}}wss/insure/product_ywx_list?referee_id={{ mine_id }}',
+	      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5UZha8Y5GQHtuDY2SkYLSn4zs3G0lq3DUcpnqr5dIvXlDZIemkrZzqE0JNJ9ic3S8xK3vBIibVFnYdXQ/0?wx_fmt=png',
+	    });
+	  
+	 //  2.2 监听“分享到朋友圈”按钮点击、自定义分享内容及分享结果接口
+	 wx.onMenuShareTimeline({
+	      title: '意外保障 低保费 高保障',
+	      link:'{{main_url}}wss/insure/product_ywx_list?referee_id={{ mine_id }}',
+	      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5UZha8Y5GQHtuDY2SkYLSn4zs3G0lq3DUcpnqr5dIvXlDZIemkrZzqE0JNJ9ic3S8xK3vBIibVFnYdXQ/0?wx_fmt=png',
+	    });  
+});
+</script>
+
+<!--     <div class="weui_cells_title hd" style="text-align: center;">意外险</div> -->
+    <div class="top">
+	<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+		<tbody>
+			<tr>
+					<td width="20%" valign="middle">
+							<a class="btn1" href="{% url 'wss:product_list'  %}"><i class="fa fa-chevron-left"></i></a>
+					</td>
+					<td class="wz" width="60%" valign="middle" align="center">
+							<span id="toptitle">
+									<i class="fa   fa-file-text"></i>&nbsp;<strong>意外险</strong>
+							</span>
+					</td>
+					<td width="20%" valign="middle" align="right">
+					<a id="aso" href="#"></a>
+					</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+    <div class="weui_cells weui_cells_access"  style="padding-top:30px;">
+    {% for product  in product_kinds_list %}
+         {% if product.isline == '2'%}
+                      <a class="weui_cell wss_dashed_bottom" href="{{product.product_url}} ">
+				            <div class="weui_cell_bd weui_cell_primary">
+				                <p>{{product.name}}</p>
+				            </div>
+				            <div class="weui_cell_ft"></div>
+				        </a>
+                {% else %}
+                      <a class="weui_cell wss_dashed_bottom" href="{% url 'wss:product_ywx_detail1'  %}?product_id={{product.id }}">
+				            <div class="weui_cell_bd weui_cell_primary">
+				                <p>{{product.name}}</p>
+				            </div>
+				            <div class="weui_cell_ft"></div>
+				        </a>
+                {% endif %}
+    {% endfor %}
+    </div>
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+{% endblock %}

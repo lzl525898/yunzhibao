@@ -1,0 +1,75 @@
+{% extends 'bms/product/base_product.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block insurance_document %}class='active'{% endblock %}
+{% block title %} 保险文档详情 {% endblock %}
+
+{% block page_top %}
+
+    <div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+
+            <h2 class="text-center">保险文档详情</h2>
+            {% if message and message != '' %}
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="alert alert-warning text-center">{{ message }}</div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <table class="table table-bordered">
+                <tr>
+                  <td class="info text-center">文档名称</td>
+                  <td class="text-center">{{ insurance_document.name }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">文档所属保险公司</td>
+                  <td class="text-center"><a href="{% url 'bms:item_detail' insurance_document.company.id %}" target="_blank">{{ insurance_document.company.simple_name }}</a></td>
+                </tr>
+                <tr>
+                  <td class="info text-center">文档名简称</td>
+                  <td class="text-center">{{ insurance_document.simple_name }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">文档地址</td>
+                  <td class="text-center">{{ insurance_document.file_url }} <a class="pull-right" href="{% static '' %}{{ insurance_document.file_url }}" download="{{ insurance_document.name }}"><i class="fa fa-download">下载</i></a></td>
+                </tr>
+                <tr>
+                  <td class="info text-center">备注</td>
+                  <td class="text-center">{{ insurance_document.note }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">是否显示</td>
+                  <td class="text-center">{% if not insurance_document.is_hidden %}是{% else %}否{% endif %}</td>
+                </tr>
+{#                <tr>#}
+{#                  <td class="info text-center">单车单次投保基础费率</td>#}
+{#                  <td class="text-center">{{ insurance_document.car_rate }}</td>#}
+{#                </tr>#}
+                <tr>
+                  <td class="info text-center">创建时间</td>
+                  <td class="text-center">{{ insurance_document.create_time|date:'Y年m月d日 H:i:s' }}</td>
+                </tr>
+            </table>
+            <table class="table table-bordered">
+                <tr>
+                  <pre class="pre-scrollable prettyprint" style="min-height: 200px;">{{ insurance_document.content }}</pre>
+                </tr>
+            </table>
+            <a class="btn btn-success" href="{% url 'bms:insurance_document_preview' insurance_document.id %}" target="_blank"><i class="fa fa-edit"></i> 预 览</a>
+            <a class="btn btn-success" href="{% url 'bms:insurance_document_edit' insurance_document.id %}"><i class="fa fa-edit"></i> 编 辑</a>
+            <a class="btn btn-default" href="{% url 'bms:insurance_document_list' '1' %}"><i class="fa fa-times"></i> 返 回</a>
+        </div>
+        <div class="col-sm-2"></div>
+    </div>
+
+
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+
+    </script>
+{% endblock %}

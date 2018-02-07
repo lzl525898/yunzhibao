@@ -1,0 +1,264 @@
+{% extends 'bms/settings/base_settings.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block level_4 %} in {% endblock %}
+{% block platform_product %}class='active'{% endblock %}
+{% block page_top %}
+   <!-- BEGIN PAGE HEADER-->
+         <div class="row">
+            <div class="col-md-12">
+               <!-- BEGIN PAGE TITLE & BREADCRUMB-->
+               <ul class="page-breadcrumb breadcrumb">
+                  <li>
+                     <i class="icon-home"></i>
+                     <a href="index.html">系统管理</a> 
+                     <i class="icon-angle-right"></i>
+                  </li>
+                  <li>
+                     <a href="#">平台信息管理</a>
+                     <i class="icon-angle-right"></i>
+                  </li>
+                  <li><a href="#">产品管理</a></li>
+               </ul>
+               <!-- END PAGE TITLE & BREADCRUMB-->
+            </div>
+         </div>
+    <div class="row">
+        <div class="col-sm-12">
+            {% if search_keyword %}
+            <p></p>
+            <div class="alert alert-warning">
+                <p>关键字： “{{ search_keyword }}”， 搜索结果：{{ paging.item_count }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <a class="btn btn-primary pull-right" style="margin-left: 10px" href="{% url 'bms:platform_product_save'%}"><i class="fa fa-plus"></i> 创建保险产品</a>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block page_middle %}
+    {% if message and message != '' %}
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="alert alert-warning">{{ message }}</div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row" style="margin-top: 10px">
+        <div class="col-sm-12">
+            <div class="list-group" id="notice_group">
+                <input type="hidden" id="page_index" name="page_index" value="{{ page_index }}"/>
+                    <div class="list-group-item">
+                        <div class="row" >
+<!--                             <div class="col-sm-4">
+                                <p class="list-group-item-text text-center">产品名称</p>
+                            </div> -->
+                              <div class="col-sm-3">
+                                <p class="list-group-item-text text-center">产品类型</p>
+                            </div>
+                            <div class="col-sm-5">
+                                <p class="list-group-item-text text-center">产品名称</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">优先级</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">操作</p>
+                            </div>
+                        </div>
+                    </div>
+                   
+                    {% for platformProducts in platformProducts_set %}
+                     <div class="list-group-item">
+                            <div class="row">
+<!--                                 <div class="col-sm-4">
+                                    <p class="list-group-item-text text-center"><strong>{{ platformProducts.name }}</strong></p>
+                                </div> -->
+                                <div class="col-sm-3">
+                                    <p class="list-group-item-text text-center"><strong>{{ platformProducts| displayName:'product_type' }}</strong></p>
+                                </div>
+                                <div class="col-sm-5">
+                                    <p class="list-group-item-text text-center">{{ platformProducts.name}}</p>
+                                </div>
+                                <div class="col-sm-2">
+                                    <p class="list-group-item-text text-center">{{ platformProducts.priority}}</p>
+                                </div>
+                                <div class="col-sm-2">
+												  <div class="row text-center">
+												            <a href="{% url 'bms:platform_product_detail' platformProducts.id %}"><button class="btn btn-xs btn-success" style="width:25px;" title="查看详情"><i class="fa fa-search-plus" ></i></button></a>
+												  			<a href="{% url 'bms:platform_product_edit' platformProducts.id %}"><button class="btn btn-xs btn-info" style="width:25px;" title="编辑"><i class="fa fa-edit"></i></button></a>
+												  			<a href="{% url 'bms:platform_product_delete' platformProducts.id %}" onclick="return confirmAct();"><button class="btn btn-xs btn-danger" style="width:25px;" title="删除"><i class="fa fa-trash-o"></i></button></a>
+												 </div>
+                                </div>
+                            </div>
+                     </div>
+                    {% endfor %}
+                </div>
+       </div>
+    </div>
+
+    {#  添加模块 #}
+<!-- <div class="modal fade" id="add_insurance_modal" tabindex="-1" role="dialog" >
+    <div class="modal-dialog" style="width:800px;">
+        <form id="id_manage_shop_form" class="form" method="post" action="{% url 'bms:platform_product_list' %}"  >  {% csrf_token %}
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title"><i class="fa fa-edit"></i> 创建保险产品</h4>
+              </div>
+              <div class="modal-body">
+                    <div class="form-group">
+                           	<div class="row">
+										<div class="col-xs-12 col-lg-2">
+												  <label for="id_platform_name_edit">产品名称：</label>
+										</div>
+										<div class="col-xs-12 col-lg-10">
+												<input class="form-control"  id="id_insurance_name" name="insurance_name" type="text" placeholder="产品名称"
+								                 value="{{ posted_data.insurance_name|default_if_none:'' }}">
+										</div>
+							</div> 
+                    </div>
+                   <div class="form-group">
+                           	<div class="row">
+										<div class="col-xs-12 col-lg-2">
+												  <label for="id_platform_name_edit">产品类型</label>
+										</div>
+										<div class="col-xs-12 col-lg-10">
+												     <select class="form-control" id="id_product_type_id" name="product_type">
+						                            		<option value="">请选择</option>
+						                                  {% for x,y in product_types %}
+						                                    <option value="{{ x }}" {% if posted_data.product_type == x %} selected {% endif %}>{{ y }}</option>
+						                                  {% endfor %}
+						                            </select>
+										</div>
+							</div> 
+                    </div>
+                   <div class="form-group">
+                           	<div class="row">
+										<div class="col-xs-12 col-lg-2">
+												  <label for="id_platform_name_edit">产品特点：</label>
+										</div>
+										<div class="col-xs-12 col-lg-10">
+												<input class="form-control"  id="id_insurance_feature" name="insurance_feature" type="text" placeholder="产品特点"
+								                 value="{{ posted_data.insurance_feature|default_if_none:'' }}">
+										</div>
+							</div> 
+                    </div>
+                   <div class="form-group">
+                          		<label class="control-label" for="id_html"> 产品介绍：</label>
+								<textarea id="intro_id" name="content"  style="width:760px;height:320px;"></textarea>
+                    </div>
+               </div>  
+               <div class="modal-footer">
+                    <button class="btn btn-success" type="submit"  id="save"><i class="fa fa-save"></i> 保 存 </button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-save"></i> 退 出</button>
+                </div>  
+                
+           </div>
+           </form>     
+      </div>  
+ </div>       -->  
+{% endblock %}
+
+
+{% block page_bottom %}
+{% endblock %}
+
+
+{% block script_block %}
+    <script charset="utf-8" src="{% static 'kindEditor/kindeditor.js' %}"></script>
+	<script charset="utf-8" src="{% static 'kindEditor/lang/zh_CN.js' %}"></script>
+	<script>
+	    // 打开Dialog后创建编辑器
+	    KindEditor.ready(function(K) {
+	    	
+	        window.editor = K.create('#intro_id',{
+	
+	        	afterBlur: function(){this.sync();}
+	        });
+        });
+	</script>
+    <script type="text/javascript">
+
+        //“全部”按钮的响应事件，清空搜索关键字，然后提交搜索
+        $('#cancel_search').click(function(event) {
+            console.log("click cancel_search");
+            $('#search_keyword').val('');
+            $('#id_start_time').val('');
+            $('#id_end_time').val('');
+            $('#driver_search_form').submit();
+          });
+        function change_state(){
+            $('#driver_search_form').submit();
+        }
+      function confirmAct(){
+    	  if(confirm("确定要删除该产品吗？")){
+    		  return true; 
+    	    }else{
+    	    	return false; 
+    	   }
+      }
+
+/*       function add_platform(){
+          $('#add_insurance_modal').modal('show');
+          $('#add_insurance_modal').on('shown', function() {
+        	    $(document).off('focusin.modal');
+
+
+        	});
+        //hide完毕前执行
+          $('#myModal').on('hidden', function () {
+              // 关闭Dialog前移除编辑器
+              KindEditor.remove('textarea[name="content"]');
+          })
+      } */
+
+    </script>
+
+<!-- 	<script type="text/javascript">
+	$(document).ready(function() {
+
+	    $('#id_manage_shop_form').formValidation({
+	        message: 'This value is not valid',
+	        icon: {
+	            valid: 'glyphicon glyphicon-ok',
+	            invalid: 'glyphicon glyphicon-remove',
+	            validating: 'glyphicon glyphicon-refresh'
+	        },
+	        fields: {
+	        	insurance_name: {
+	                row: '.col-sm-4',
+	                validators: {
+	                    notEmpty: {
+	                        message: '产品名称是必填项！'
+	                    }
+	                }
+	            },
+	            product_type: {
+	                row: '.col-sm-4',
+	                validators: {
+	                    notEmpty: {
+	                        message: '产品类型是必填项！'
+	                    }
+	                }
+	            },
+	            insurance_feature: {
+	                row: '.col-sm-4',
+	                validators: {
+	                    notEmpty: {
+	                        message: '产品特点是必填项！'
+	                    }
+	                }
+	            }
+	        }
+	    });
+	});
+	</script> -->
+{% endblock %}

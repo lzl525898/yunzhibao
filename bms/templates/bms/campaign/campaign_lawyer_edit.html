@@ -1,0 +1,125 @@
+{% extends 'bms/campaign/base_campaign.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block campaign_lawyer %}class='active'{% endblock %}
+{% block title %} 编辑律师{% endblock %}
+
+{% block page_top %}
+<div class="row">
+        <div class="col-sm-10">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <i class="fa fa-plus fa-3x pull-right"></i>
+                    <form role="form" id="create_order_form" method="post" action="{% url 'bms:campaign_lawyer_edit' campaign_lawyer.id %}"  enctype="multipart/form-data">  {% csrf_token %}
+                        <div class="page-tailer">
+                          <h1 class="text-center">编辑律师</h1>
+                        </div>
+                        {% if message and message != '' %}
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="alert alert-warning">{{ message }}</div>
+                                </div>
+                            </div>
+                        {% endif %}
+						<div class="form-group">
+							<label for="id_name"><i class="fa fa-road"></i> *姓名： </label>
+							<input class="form-control"  id="id_name" name="name" type="text"
+								   value="{{ campaign_lawyer.name|default_if_none:'' }}"required  maxlength="10">
+						</div>
+                    <input name="edit_hidden" value="edit" type="hidden">
+                        <div class="form-group" >
+                            <label class="control-label" for="id_icon"><i class="fa fa-picture-o"></i>上传个人头像<small>（gif、png、jpeg或icon;）</small>: </label>
+                            <input class="filestyle" type="file" id="id_icon" name="icon" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox" multiple>
+                        </div>
+						<div class="form-group">
+							<label for="id_phone"><i class="fa fa-road"></i> *联系电话： </label>
+							<input class="form-control"  id="id_phone" name="phone" type="text"
+								   value="{{ campaign_lawyer.phone|default_if_none:'' }}"required  maxlength="15">
+						</div>
+						<div class="form-group">
+							<label for="id_address"><i class="fa fa-road"></i> 地址： </label>
+							<input class="form-control"  id="id_address" name="address" type="text"
+								   value="{{ campaign_lawyer.address|default_if_none:'' }}"maxlength="50">
+						</div>
+						<div class="form-group">
+							<label for="id_qualified"><i class="fa fa-road"></i> *律师资格证书： </label>
+							<input class="form-control"  id="id_qualified" name="qualified" type="text"
+								   value="{{ campaign_lawyer.qualified|default_if_none:'' }}"required maxlength="30">
+						</div>
+						<div class="form-group">
+							<label for="id_practice"><i class="fa fa-road"></i> *律师执业证号： </label>
+							<input class="form-control"  id="id_practice" name="practice" type="text"
+								   value="{{ campaign_lawyer.practice|default_if_none:'' }}"required maxlength="30">
+						</div>
+						<div class="form-group">
+							<label for="id_description"><i class="fa fa-road"></i> 个人介绍： </label>
+                            <textarea id="id_description" name="content" class="form-control" maxlength="2000" style="min-height: 200px">{{ campaign_lawyer.description|default_if_none:'' }}</textarea>
+						</div>
+						<div class="form-group" >
+							<label for="id_priority"><i class="fa fa-road"></i> *优先级(建议值为1~100之间的整数，默认值为50)： </label>
+							<input class="form-control"  id="id_priority" name="priority" type="number"
+								   value="{{ campaign_lawyer.priority|default_if_none:"50" }}" maxlength="3" >
+						</div>
+                    
+                        <div class="form-group" >
+                            <div style="color: red">友情提示：如果有更多的联系电话，请填写在下面！！！</div>
+                        </div>
+						<div class="form-group">
+							<label for="id_phone1"><i class="fa fa-road"></i> *联系电话： </label>
+							<input class="form-control"  id="id_phone1" name="phone1" type="text"
+								   value="{{ campaign_lawyer.phone1|default_if_none:'' }}"maxlength="15">
+						</div>
+                        <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 保 存</button>
+                        <a class="btn btn-default" href="{% url 'bms:campaign_lawyer_detail' campaign_lawyer.id %}"><i class="fa fa-times"></i> 返 回</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2"></div>
+</div>
+{% endblock %}
+
+{% block script_block %}
+<!--     <script type="text/javascript">
+       $(function(){
+
+            $('#create_order_form').formValidation({
+                // I am validating Bootstrap form
+                framework: 'bootstrap',
+                locale : 'zh_CN',
+                // Feedback icons
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+
+                // List of fields and their validation rules
+                fields: {
+                    transport_id: {
+                        validators: {
+                            notEmpty: {
+                                message: '运单号不可为空'
+                            },
+                            stringLength: {
+                                min: 2,
+                                max: 50,
+                                message: '请输入2～50个字符'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+    </script> -->
+    <script charset="utf-8" src="{% static 'kindEditor/kindeditor.js' %}"></script>
+	<script charset="utf-8" src="{% static 'kindEditor/lang/zh_CN.js' %}"></script>
+	<script>
+		    KindEditor.ready(function(K) {
+		        window.editor = K.create('#id_description',{
+	                uploadJson: '/bms/settings/uploadImg/'        
+		        });
+	        });
+	</script>
+{% endblock %}

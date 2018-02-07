@@ -1,0 +1,374 @@
+{% extends 'bms/product/base_product.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block intermediary_list %}class='active'{% endblock %}
+{% block title %} 中介渠道详情 {% endblock %}
+
+{% block page_top %}
+
+    <div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+
+            <h2 class="text-center">中介渠道详情</h2>
+            {% if message and message != '' %}
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="alert alert-warning text-center">{{ message }}</div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <table class="table table-bordered">
+                <tr>
+                  <td class="info text-center">中介渠道名称</td>
+                  <td class="text-center">{{ intermediary.intermediary_name }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">中介渠道描述</td>
+                  <td class="text-center"style="max-width: 400px; word-wrap:break-word;">{{ intermediary.intermediary_introduce }} </td>
+                </tr>
+                
+                <tr>
+                  <td class="info text-center">中介渠道利润点</td>
+                  <td class="text-center">{{ intermediary.intermediary_profit_point }}% </td>
+                </tr>
+     
+                <tr>
+                  <td class="info text-center">报案电话</td>
+                  <td class="text-center">{{ intermediary.intermediary_phone }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">是否显示</td>
+                  <td class="text-center">{% if  intermediary.state == True %}是{% else %}否{% endif %}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">可保保单车辆类型</td>
+                  <td class="text-center"style="max-width: 400px; word-wrap:break-word;">
+                  {% for car_type in intermediary.order_car_type %}
+	                  {% if car_type == 'passenger_car' %}九座以下客车 
+	                   {% elif car_type == 'truck' %}货车 
+	                   {% else %}{{ car_type}}未找到对应货物大类
+	                   {% endif %}&nbsp;
+					{% endfor %}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">可保车牌省份</td>
+                  <td class="text-center"style="max-width: 400px; word-wrap:break-word;">
+                  {% for plate_number in intermediary.plate_number_list %}{{ plate_number }}、&nbsp; {% endfor %}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">出单机构</td>
+                  <td class="text-center"style="max-width: 400px; word-wrap:break-word;">
+                  {% for company in intermediary.intermediary_company_list %}
+                  	<a href="{% url 'bms:item_detail' company.id %}" target="_blank">{{ company.simple_name }}</a>&nbsp; &nbsp;&nbsp;&nbsp;
+                  {% endfor %}
+                  </td>
+                </tr>
+<!--                 <tr>
+		                  <td class="info text-center">关联的分公司<p>及其手续费比例</p></td>
+		                  <td class="text-center">
+		                  
+		                  			<table class="table table-bordered" id="id_batch_list">
+			                                <tr id="id_properties_title" class="info">
+			                                    <td class="text-center">公司名称</td>
+			                                    <td class="text-center">交强险手续费%</td>
+			                                    <td class="text-center">商业险手续费%</td>
+			                                    <td class="text-center">操作</td>
+			                                </tr>
+			                                {% for company in intermediary.intermediary_company_list %}
+			                               <tr id="id_properties_title" class="">
+			                                    <td class="text-center"><a href="{% url 'bms:item_detail' company.id %}" target="_blank">{{ company.name }}</a></td>
+			                                    <td class="text-center" id="jq">
+			                                       {% for intermediary_rate_set in intermediary_rate_list %}
+			                                    		{% if intermediary_rate_set.company == company %}
+			                                    		{{intermediary_rate_set.liability_process_price}}
+			                                    		{% endif %}
+			                                        {% endfor %}
+			                                   </td>
+			                                    <td class="text-center" id="sx">
+			                                       {% for intermediary_rate_set in intermediary_rate_list %}
+				                                    	 {% if intermediary_rate_set.company == company %}
+				                                    		{{intermediary_rate_set.commercial_process_price}}
+				                                    	{% endif %}
+			                                       {% endfor %}
+			                                     </td>
+			                                    
+			                                    <td class="text-center" id="text">
+			                                    <a  href=# title="手续费比例"class="btn btn-xs btn-warning" style="width:25px;" onclick="add_company_rate(this,'{{company.id}}','{{ company.name }}' );"><i class="fa fa-edit"></i></a>
+			                                    </td>
+			                                </tr>
+			                                {% endfor %}
+			                            </table>
+		                   </td>
+		                </tr>	 -->
+		         <tr>
+                  <td class="info text-center">中介人员</td>
+                  <td class="text-center">
+                     		<table class="table table-bordered" id="id_batch_list">
+			                                <tr id="id_properties_title" class="info">
+			                                    <td class="text-center">中介人员姓名</td>
+			                                    <td class="text-center">手机号</td>
+			                                    <td class="text-center">创建时间</td>
+			                                    <td class="text-center">中介人员状态</td>
+			                                    <td class="text-center">操作
+			                                    <a  href=# title="创建保险中介人员"class="" style="width:25px;" data-toggle="modal"data-target="#add_people_modal"><i class="fa fa-edit"></i></a>
+			                                    
+			                                    </td>
+			                                </tr>
+			                                {% for intermediary_people in intermediary_people_list %}
+			                               <tr id="id_properties_title" class="">
+			                                    <td class="text-center">{{ intermediary_people.name }}</td>
+			                                    <td class="text-center">{{ intermediary_people.profile.phone }}</td>
+			                                    <td class="text-center" id=>{{ intermediary_people.create_time }}</td>
+			                                    <td class="text-center" id=>{% if intermediary_people.user.is_active  %} 激活 {% else %} 未激活 {% endif %}</td>
+			                                    <td class="text-center" id="text">
+			                                    <a  href=# title="编辑保险中介人员信息"class="btn btn-xs btn-warning" style="width:25px;" data-toggle="modal"data-target="#edit_people_modal_{{ intermediary_people.id }}"><i class="fa fa-edit"></i></a>
+			                                    </td>
+			                                </tr>
+			                                {% endfor %}
+			               </table>
+                  </td>
+                </tr>      
+                <tr>
+                  <td class="info text-center">创建时间</td>
+                  <td class="text-center">{{ intermediary.create_time|date:'Y年m月d日 H:i:s' }}</td>
+                </tr>
+            </table>
+            <a class="btn btn-success" href="{% url 'bms:intermediary_edit' intermediary.id %}"><i class="fa fa-edit"></i> 编 辑</a>
+            <a class="btn btn-default" href="{% url 'bms:intermediary_list' '1' %}"><i class="fa fa-times"></i> 返 回</a>
+        </div>
+        <div class="col-sm-2"></div>
+    </div>
+    
+{# 创建中介人员信息模态框模态框 #}
+<div class="modal fade" id="add_people_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		 <form id="pay_order_form" class="form" method="post" action="{%url 'bms:intermediary_people_create'  %}" >{% csrf_token %} 
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+                    <input type="hidden" value="{{ intermediary.id }}" id="add_intermediary_id" name="add_intermediary_id">
+                    <input type="hidden" value="" id="add_company_id" name="add_company_id">
+					<h4 class="modal-title"  id='id_people_name'>创建中介人员</h4>
+				</div>
+				<div class="modal-body">
+							<div class="form-group" >
+                                <label for="id_name"><i class="fa fa-leaf"></i> *姓名： </label>
+                                <input class="form-control" id="id_name" name="name"  type="text" value="{{ posted_data.name|default_if_none:"" }}" required >
+                            </div>
+
+                            <div class="form-group" >
+                                <label for="id_phone"><i class="fa fa-phone"></i> *手机号码： </label>
+                                <input class="form-control"  id="id_phone" name="phone" type="tel"
+                                       value="{{ posted_data.phone|default_if_none:"" }}" required>
+                            </div>
+                            <div class="form-group" >
+                                <label for="id_company_id"><i class="fa fa-film"></i> *归属于保险中介： </label>
+                                <input class="form-control" id="" name="intermediary_id"  type="hidden" value="{{ intermediary.id }}" >
+                                <input class="form-control" id="" name="intermediary_id1"  type="" value="{{ intermediary.intermediary_name }}" disabled='disabled'/>
+                     <!--            <select class="form-control" id="intermediary_id" name="intermediary_id">
+                                        <option value="{{ intermediary.id }}" >{{ intermediary.intermediary_name }}</option>
+                                </select> -->
+                            </div>
+
+                            <div class="form-group" >
+                                <label for="id_password"><i class="fa fa-lock"></i> *密码： </label>
+                                <input class="form-control" id="id_password" name="password"  type="password" maxlength="20" required >
+                            </div>
+                            <div class="form-group" >
+                                <label for="id_password"><i class="fa fa-lock"></i> *确认密码： </label>
+                                <input class="form-control" id="id_re_password" name="re_password"  type="password" maxlength="20" required >
+                            </div>
+                            
+
+                            <div class="form-group">
+                                <label for="id_channel"><i class="fa fa-life-bouy"></i> 是否激活： </label>
+                                <div class="">
+                                    <label class="radio-inline">
+                                      <input type="radio" name="active" id="id_show" value="show" checked> 激活
+                                    </label>
+                                    <label class="radio-inline">
+                                      <input type="radio" name="active" id="id_hidden" value="hidden"> 不激活
+                                    </label>
+                                </div>
+                            </div>
+								
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						确 认
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	 </form> 
+	</div>
+</div>
+{# end-创建中介人员信息模态框模态框 #}  
+
+
+{# 编辑中介人员信息模态框模态框 #}
+{% for intermediary_people in intermediary_people_list %}
+<div class="modal fade" id="edit_people_modal_{{ intermediary_people.id }}" data-backdrop="static" tabindex="-1" role="dialog">
+		<div class="modal-dialog">
+			 <form id="pay_order_form" class="form" method="post" action="{%url 'bms:intermediary_people_edit' intermediary_people.id %}" >{% csrf_token %} 
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">
+							<span aria-hidden="true">&times;</span>
+							<span class="sr-only">
+								Close
+							</span>
+						</button>
+	                    <input type="hidden" value="{{ intermediary.id }}" id="add_intermediary_id" name="add_intermediary_id">
+	                    <input type="hidden" value="" id="add_company_id" name="add_company_id">
+						<h4 class="modal-title"  id='id_people_name'>编辑{{ intermediary_people.name }}信息</h4>
+					</div>
+					<div class="modal-body">
+								<div class="form-group" >
+                                <label for="id_name" ><i class="fa fa-leaf"></i> *姓名： </label>
+                                <input class="form-control"  id="id_name" name="name" type="text" value="{{ intermediary_people.name }}" maxlength="16">
+                            </div>
+                            <div class="form-group">
+                                <label for="phone_number" ><i class="fa fa-phone"></i> *手机号码：</label>
+                                <input class="form-control" id="phone_number" name="phone" value="{{ intermediary_people.profile.phone|default_if_none:'' }}" type="text"  maxlength="16">
+                            </div>
+
+                            <div class="form-group" >
+                                <label for="id_company_id"><i class="fa fa-film"></i> *归属于保险中介： </label>
+                                <input class="form-control" id="" name="intermediary_id"  type="hidden" value="{{ intermediary.id }}" >
+                                <input class="form-control" id="" name="intermediary_id1"  type="" value="{{ intermediary.intermediary_name }}" disabled='disabled'/>
+                 <!--                <select class="form-control" id="intermediary_id" name="intermediary_id">
+                                	<option value="{{ intermediary.id }}" >{{ intermediary.intermediary_name }}</option>
+                                </select> -->
+                            </div>
+
+                            <div class="form-group">
+                                <label for="password" ><i class="fa fa-lock"></i> 更改密码：</label>
+                                <input class="form-control" id="password" name="password"  type="password" maxlength="20"value="" >
+                            </div>
+                            <div class="form-group" >
+                                <label for="id_password"><i class="fa fa-lock"></i> *确认密码： </label>
+                                <input class="form-control" id="id_re_password" name="re_password"  type="password" maxlength="20"  >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="id_channel"><i class="fa fa-life-bouy"></i> 是否激活： </label>
+                                <div class="">
+                                    <label class="radio-inline">
+                                      <input type="radio" name="active" id="id_show" value="show" {% if intermediary_people.user.is_active %}checked {% endif %}> 激活
+                                    </label>
+                                    <label class="radio-inline">
+                                      <input type="radio" name="active" id="id_hidden" value="hidden" {% if not intermediary_people.user.is_active %}checked {% endif %}> 不激活
+                                    </label>
+                                </div>
+                            </div>
+									
+					</div>
+					<div class="modal-footer">
+						<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+							确 认
+						</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">
+							<i class="fa fa-times">
+							</i>
+							退 出
+						</button>
+					</div>
+				</div>
+	    	 </form> 
+		</div>
+	</div>
+{% endfor %}	
+{# end-编辑中介人员信息模态框模态框 #}
+
+{# 编辑手续费比例模态框 #}
+<div class="modal fade" id="add_rate_modal" data-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		 <form id="pay_order_form" class="form" method="post" action="{% url 'bms:intermediary_company_rate' intermediary.id %}" >{% csrf_token %} 
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">
+							Close
+						</span>
+					</button>
+                    <input type="hidden" value="{{ intermediary.id }}" id="add_intermediary_id" name="add_intermediary_id">
+                    <input type="hidden" value="" id="add_company_id" name="add_company_id">
+					<h4 class="modal-title"  id='id_company_name'>
+						<i class="fa fa-save">
+						</i>
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="text-center">
+						<p><small><font color='red'>注意：手续费最多为两位小数。如：30.88%，在上方输入30.88</font></small></p>		
+					</div>
+					<div class="form-group">
+							<div class="col-sm-6">交强险手续费：
+									<input style="width: 80px" class="" name="liability_process_price" id='liability_process_price'value=""/>%
+							</div>
+							<div class="col-sm-6">商业险手续费：
+									<input style="width: 80px" class="" name="commercial_process_price"id='commercial_process_price'value=""/>%
+							</div>
+						</br>											                                		
+					</div>
+								
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-danger" id="id_modal"><i class="fa fa-save"></i>
+						确 认
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<i class="fa fa-times">
+						</i>
+						退 出
+					</button>
+				</div>
+			</div>
+    	 </form> 
+	</div>
+</div>
+
+
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+    //手续费比例页面回显
+    function add_company_rate(obj,company_id,company_name,company_val){
+    	//alert(company_id+'dddddddd'+company_name);
+    	$('#add_rate_modal').modal('show');
+    	$("#id_company_name").text('设置'+company_name+'手续费比例');
+    	$("#add_company_id").val(company_id);
+    	$("#liability_process_price").val(obj.parentNode.parentNode.querySelectorAll('td')[1].innerText);
+    	$("#commercial_process_price").val(obj.parentNode.parentNode.querySelectorAll('td')[2].innerText);
+
+    }
+    
+    //手续费比例页面回显
+    function edit_people_detail(obj,id,name,state){
+    	alert(id+'dddddddd'+name+'状态====='+state);
+    	$('#edit_people_modal').modal('show');
+        $("#id_people_name").text('设置'+name+'信息');
+    	$("#add_company_id").val(company_id);
+    	/* $("#liability_process_price").val(obj.parentNode.parentNode.querySelectorAll('td')[1].innerText);
+    	$("#commercial_process_price").val(obj.parentNode.parentNode.querySelectorAll('td')[2].innerText); */ 
+
+    }
+
+    </script>
+{% endblock %}

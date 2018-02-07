@@ -1,0 +1,374 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}商品详情{% endblock %}
+
+{% block  container_block %}
+<style>
+.weui_uploader_input_wrp {
+  float: left;
+  position: relative;
+  margin-right: 9px;
+  margin-bottom: 9px;
+  width: 98%;
+  height: 120px;
+  border: 1px solid #D9D9D9;
+  margin:0 auto;
+}
+.weui_uploader_file {
+  float: left;
+  margin-right: 9px;
+  margin-bottom: 9px;
+  width: 98%;
+  height: 120px;
+  background: no-repeat center center;
+  background-size: cover;
+}
+.weui_input {
+  width: 100%;
+  border:0px solid #C8C8CD;  
+  border-radius: 3px !important;
+  outline: 0;
+  -webkit-appearance: none; 
+  background-color: transparent;
+  font-size: 14px;
+  color: inherit;
+  height: 2em;
+  line-height: 2em;
+}
+#item-ifo #ico {
+width: 16px;
+height: 16px;
+position: absolute;
+top: 10px;
+left: 75%;
+z-index: 3;
+color:#fff;
+font-size:16px;
+}  
+</style> 
+<script  type="text/javascript">
+wx.ready(function () {
+	  // 2.1 监听“分享给朋友”，按钮点击、自定义分享内容及分享结果接口
+	  wx.onMenuShareAppMessage({
+	      title: '闲置交易',
+	      desc: '{{ mall_goods.goods_name }},单价：{{ mall_goods.unit_price|FenToYuan }}',
+	      link: '{{main_url}}wss/second/wx_secondhand_detail/{{mall_goods.id}}?referee_id={{ mine_id }}',
+	      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5UZha8Y5GQHtuDY2SkYLSn4z1PNMAmibkibk0Dfrf8OibCHtoTqr6t3cWQEkAAt6vLOzibbvnYb0PHf0Bg/0?wx_fmt=png',
+	    });
+	  
+	 //  2.2 监听“分享到朋友圈”按钮点击、自定义分享内容及分享结果接口
+	 wx.onMenuShareTimeline({
+	      title: '闲置交易',
+	      link:'{{main_url}}wss/second/wx_secondhand_detail/{{mall_goods.id}}?referee_id={{ mine_id }}',
+	      imgUrl: 'https://mmbiz.qlogo.cn/mmbiz/rrFA3l0J5UZha8Y5GQHtuDY2SkYLSn4z1PNMAmibkibk0Dfrf8OibCHtoTqr6t3cWQEkAAt6vLOzibbvnYb0PHf0Bg/0?wx_fmt=png',
+	    });  
+});
+</script>
+<!-- 商品价值证明` -->
+    <div id="search_pic_model" class="row control-show" >
+		<div class="weui_dialog_alert" >
+		        <div class="weui_mask" style="z-index:999;"></div>
+		        <div class="weui_dialog"  style="z-index:1000;">
+		            <div class="weui_dialog_hd"><strong class="weui_dialog_title"id="id_message_id">证明商品价值</strong></div>
+		            <div class="weui_dialog_bd">
+					            {% if  mall_goods.certificate_type == 'picture' %}
+						            {% for certificate_image in mall_goods.certificate_image_list %}
+							            <div >
+							            	<a href="{% static '' %}{{ certificate_image }}" target="_blank" color="#000"><img class="img-responsive" src="{% static '' %}{{ certificate_image }}" style="max-width: 150px;max-height: 150px;"></a>
+							            </div>
+						            {% endfor %}
+						            
+						         {% elif  mall_goods.certificate_type == 'web_url' %}
+						         	{% for certificate_image in mall_goods.certificate_image_list %}
+							            <div >
+							            	<a href="{{ certificate_image }}" target="_blank" color="#000">原商品网址：{{ certificate_image }}</a>
+							            </div>
+						            {% endfor %}
+					            {% endif %}
+		            </div>
+		            <div class="weui_dialog_ft">
+		                <a onclick="$('#search_pic_model').addClass('control-show');" class="weui_btn_dialog primary">确定</a>
+		            </div>
+		        </div>
+		    </div>
+    </div>
+
+<!--   删除  -->
+    <div id="delete_model" class="row control-show" >
+		<div class="weui_dialog_alert" >
+		        <div class="weui_mask" style="z-index:999;"></div>
+		        <div class="weui_dialog"  style="z-index:1000;">
+		            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+		            <div class="weui_dialog_bd"id="id_message_id">确认删除订单？订单删除后不可复原</div>
+		            <div class="weui_dialog_ft">
+		            	<a  href="{% url 'wss:secondhand_delete' mall_goods.id %}" class="weui_btn_dialog primary">确定</a>
+		                <a onclick="$('#delete_model').addClass('control-show');" class="weui_btn_dialog primary">取消</a>
+		            </div>
+		        </div>
+		    </div>
+    </div>
+    
+<div class="top">
+	<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+		<tbody>
+			<tr>
+					<td width="23%" valign="middle">
+							<a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a>
+					</td>
+					<td class="wz" width="53%" valign="middle" align="center">
+							<span id="toptitle">
+									<i class="fa fa-edit"></i>&nbsp;<strong>商品详情</strong>
+							</span>
+					</td>
+					<td width="23%" valign="middle" align="right">
+					<a id="aso" href="#"></a>
+					</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<div class="weui_cells wss_p" style="padding-top:20px;">
+
+
+<!-- <marquee behavior="scroll" loop=infinite width="100%" height="80" scrollamount="4" scrolldelay="60" onmouseover="this.stop()" onmouseout="this.start()">
+{% for batch_image in mall_goods.goods_image_list %}
+<a target="cont" href="{% static '' %}{{ batch_image }}"><img src="{% static '' %}{{ batch_image }}" width="100%" height="80" border="0"></a>
+{% endfor %}
+</marquee> -->
+
+<div class="swiper-container" style=" height:250px;">
+      <div class="swiper-wrapper" style=" height:250px;">
+        <!-- Slides -->
+        {% for batch_image in mall_goods.goods_image_list %}
+        <div class="swiper-slide"style=" height:250px;text-align:center;"><img src="{% static '' %}{{ batch_image }}" style=" width:auto;max-height:250px;margin:0 auto"/></div>
+        {% endfor %}
+      </div>
+      <!-- If we need pagination -->
+      <div class="swiper-pagination"></div>
+ </div> 
+	<div class="weui_cell wss_dashed_bottom">
+         <div class="weui_cell_bd weui_cell_primary">
+             <p>【卖家名称】</p>
+         </div>
+         <div class="weui_cell_ft">
+	         {% if mall_goods.client.company_name %}{{ mall_goods.client.company_name }}
+	         {% elif mall_goods.client.name  %}{{ mall_goods.client.name }}
+	         {%else%}未找到
+	         {%endif%}
+         </div>
+     </div>
+     {#{{main_url}}static/{{ mall_goods.goods_image_list.0 }}#}
+     <div class="weui_cell wss_dashed_bottom weui_cells_access">
+         <div class="weui_cell_bd weui_cell_primary">
+             <p>【商品名称】</p>
+         </div>
+         <div class="weui_cell_ft">
+         	<a onclick='alert("{{  mall_goods.goods_name }}")'>{{ mall_goods.goods_name|String_Interception }}</a>
+         </div>
+     </div>
+     {% if mall_goods.goods_brand_digging %}
+     <div class="weui_cell wss_dashed_bottom weui_cells_access">
+         <div class="weui_cell_bd weui_cell_primary">
+             <p>【品牌型号】</p>
+         </div>
+         <div class="weui_cell_ft ">
+         	<a onclick='alert("{{  mall_goods.goods_brand_digging }}")'>{{ mall_goods.goods_brand_digging|String_Interception }}</a>
+         </div>
+     </div>
+     {% endif %}
+      <div class="weui_cell wss_dashed_bottom">
+         <div class="weui_cell_bd weui_cell_primary">
+             <p>【商品类别】</p>
+         </div>
+         <div class="weui_cell_ft">{{mall_goods.goods_type.name }}</div>
+     </div>
+     <div class="weui_cell wss_dashed_bottom">
+         <div class="weui_cell_bd weui_cell_primary">
+             <p>【商品原价】</p>
+         </div>
+         <div class="weui_cell_ft">{{ mall_goods.original_cost |FenToYuan }}元</div>
+     </div>
+     <div class="weui_cell wss_dashed_bottom">
+         <div class="weui_cell_bd weui_cell_primary">
+             <p>【商品状态】</p>
+         </div>
+         <div class="weui_cell_ft">{{ mall_goods|displayName:'goods_present_situation' }}</div>
+     </div>
+     {% if mall_goods.other_notes %}
+     <div class="weui_cell wss_dashed_bottom weui_cells_access">
+         <div class="weui_cell_bd weui_cell_primary">
+             <p>【备注】</p>
+         </div>
+         <div class="weui_cell_ft">
+         	<a onclick='alert("{{  mall_goods.other_notes }}")'>{{ mall_goods.other_notes|String_Interception }}</a>
+         </div>
+     </div>
+     {% endif %}
+     <div class="weui_cell wss_dashed_bottom">
+         <div class="weui_cell_bd weui_cell_primary">
+             <p>【折扣价】</p>
+         </div>
+         <div class="weui_cell_ft">{{ mall_goods.unit_price |FenToYuan }}元</div>
+     </div>
+     <div class="weui_cell wss_dashed_bottom">
+         <div class="weui_cell_bd weui_cell_primary">
+             <p>【商品数量】</p>
+         </div>
+         <div class="weui_cell_ft">{{ mall_goods.goods_count }}</div>
+     </div>
+     <div class="weui_cell wss_dashed_bottom">
+         <div class="weui_cell_bd weui_cell_primary">
+             <p>【商品所在地址】</p>
+         </div>
+         <div class="weui_cell_ft">{{mall_goods.mail_address |CityName}}</div>
+     </div>
+      <div class="weui_cell wss_dashed_bottom weui_cells_access">
+         <div class="weui_cell_bd weui_cell_primary">
+             <p>【具体地址】</p>
+         </div>
+         <div class="weui_cell_ft"><a onclick='alert("{{mall_goods.policy_address }}")'>{{mall_goods.policy_address|String_Interception }}</a> </div>
+     </div>
+     {% if mall_goods.contact_phone %}
+ <!--     <a class="weui_cell wss_dashed_bottom"  href="tel:{{mall_goods.contact_phone }}" >
+            <div class="weui_cell_bd weui_cell_primary">
+                <p><font color="#000">【电话】</font></p>
+            </div>
+            <div class="weui_cell_ft">{{  mall_goods.contact_phone }}</div>
+     </a> -->
+     {% endif %}
+     {% if mall_goods.contact_landline %}
+     <div class="weui_cell wss_dashed_bottom">
+         <div class="weui_cell_bd weui_cell_primary">
+             <p>【座机】</p>
+         </div>
+         <div class="weui_cell_ft">{{ mall_goods.contact_landline}}</div>
+     </div>
+     {% endif %}
+     {% if mall_goods.contact_qq %}
+     <div class="weui_cell wss_dashed_bottom">
+         <div class="weui_cell_bd weui_cell_primary">
+             <p>【QQ】</p>
+         </div>
+         <div class="weui_cell_ft">{{ mall_goods.contact_qq  }}</div>
+     </div>
+     {% endif %}
+     {% if mall_goods.contact_wx %}
+     <div class="weui_cell wss_dashed_bottom">
+         <div class="weui_cell_bd weui_cell_primary">
+             <p>【微信】</p>
+         </div>
+         <div class="weui_cell_ft">{{ mall_goods.contact_wx }}</div>
+     </div>
+     {% endif %}
+     
+     <div class="weui_cell wss_dashed_bottom">
+         <div class="weui_cell_bd weui_cell_primary">
+             <p>【上架状态】</p>
+         </div>
+         <div class="weui_cell_ft">{{ mall_goods|displayName:'state' }}</div>
+     </div>
+     
+     <a class="weui_cell wss_dashed_bottom"  href="#" onclick="$('#search_pic_model').removeClass('control-show');" >
+            <div class="weui_cell_bd weui_cell_primary">
+                <p><font color="#000">【商品价值证明】</font></p>
+            </div>
+            <div class="weui_cell_ft"><i class="fa fa-search-plus"></i></div>
+     </a>
+     <div class="weui_cell wss_dashed_bottom">
+         <div class="weui_cell_bd weui_cell_primary">
+             <p>【创建时间】</p>
+         </div>
+         <div class="weui_cell_ft">{{mall_goods.create_time}}</div>
+     </div>
+     <div class="weui_cell ">
+         <div class="weui_cell_bd weui_cell_primary">
+             <p>【商品描述】</p>
+         </div>
+     </div>
+     <div class="weui_cell wss_dashed_bottom">
+	    	    {{ mall_goods.goods_describe}}
+	   </div>
+	   {% if mall_goods.contact_phone %}
+	   <div class="weui_cells  wss_btn" style="background-color:#cccc98;color:#FFF; opacity: 0.8;" >
+			        <a class="weui_cells_access weui_cell wss_btn" href="tel:{{mall_goods.contact_phone }}"  >
+			            <div class="weui_cell_bd weui_cell_primary">
+			                <p><i class="fa  fa-phone-square"></i> 联系电话</p>
+			            </div>
+			            <div class="weui_cell_ft wss_btn" >{{mall_goods.contact_phone }}</div>
+			        </a>
+	    </div> 
+		{% endif %}
+{% if mall_goods.client == client %}
+ <div style="height:55px;"></div>
+ <div class="weui_tabbar" style=" width: 100%; position: fixed;  bottom: 0px;z-index: 3;">
+
+        <a href="{% url 'wss:wx_secondhand_edit'  mall_goods.id  %}" class="weui_tabbar_item weui_bar_item_on">
+          <div class="weui_tabbar_icon" style="color:#5172D5;font-weight:bold;">
+           <i class="fa fa-edit"></i>
+          </div>
+          <p class="weui_tabbar_label">修改商品信息</p>
+        </a>
+        {% if mall_goods.state != 'publish' %}
+        <a href="{% url 'wss:wx_change_secondhand'  mall_goods.id  %}?change_state=publish" class="weui_tabbar_item weui_bar_item_on">
+          <div class="weui_tabbar_icon" style="color:#5172D5;font-weight:bold;">
+           <i class="fa fa-edit"></i>
+          </div>
+          <p class="weui_tabbar_label">上架商品</p>
+        </a>
+        {% endif %}
+        {% if mall_goods.state != 'offshelf' %}
+        <a href="{% url 'wss:wx_change_secondhand'  mall_goods.id  %}?change_state=offshelf"  class="weui_tabbar_item weui_bar_item_on">
+          <div class="weui_tabbar_icon" style="color:#5172D5;font-weight:bold;">
+           <i class="fa fa-edit"></i>
+          </div>
+          <p class="weui_tabbar_label">下架商品</p>
+        </a>
+        {% endif %}
+        {% if mall_goods.state != 'done' %}
+        <a href="{% url 'wss:wx_change_secondhand'  mall_goods.id  %}?change_state=done"  class="weui_tabbar_item weui_bar_item_on">
+          <div class="weui_tabbar_icon" style="color:#5172D5;font-weight:bold;">
+           <i class="fa fa-edit"></i>
+          </div>
+          <p class="weui_tabbar_label">完成</p>
+        </a>
+        {% endif %}
+        <a onclick="require_delete();" class="weui_tabbar_item weui_bar_item_on">
+          <div class="weui_tabbar_icon" style="color:#5172D5;font-weight:bold;">
+            <i class="fa fa-trash-o"></i>
+          </div>
+          <p class="weui_tabbar_label">删除商品</p>
+        </a>
+      </div>
+{% endif %}
+	   
+	   
+</div>
+{% endblock %}
+
+{% block page_block %}
+{% endblock %}
+{% block script_block %}
+ <script src="{% static 'js/fastclick.js' %}"></script>
+ <script src="{% static 'js/swiper.js' %}"></script>
+<script>
+$(".swiper-container").swiper({
+    loop: true,
+    autoplay: 3000
+  });
+  $(function() {
+    FastClick.attach(document.body);
+  });
+</script>
+<script src="{% static 'js/jquery-weui.js' %}"></script>
+<script src="{% static 'js/city-picker.js' %}"></script>
+<script>
+
+
+function require_delete(){
+        $('#delete_model').removeClass('control-show');
+
+}
+</script>
+{% endblock %}

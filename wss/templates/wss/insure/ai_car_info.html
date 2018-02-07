@@ -1,0 +1,430 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}车辆信息{% endblock %}
+
+{% block container_block %}
+
+<style>
+.weui_input {
+  width: 100%;
+  border:0px solid #C8C8CD;  
+  border-radius: 3px !important;
+  outline: 0;
+  -webkit-appearance: none; 
+  background-color: transparent;
+  font-size: 14px;
+  color: inherit;
+  height: 2em;
+  line-height: 2em;
+}
+</style>
+{% if message %}
+    <div class="weui_dialog_alert">
+        <div class="weui_mask"></div>
+        <div class="weui_dialog">
+            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+            <div class="weui_dialog_bd">{{ message }}</div>
+            <div class="weui_dialog_ft">
+                <a onclick="close_dialog();" class="weui_btn_dialog primary">确定</a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{#    首页所在位置，进入页面后的默认页面#}
+<div class="top">
+	<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+		<tbody>
+			<tr>
+					<td width="20%" valign="middle">
+							<a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a>
+					</td>
+					<td class="wz" width="60%" valign="middle" align="center">
+							<span id="toptitle">
+									<i class="fa   fa-file-text"></i>&nbsp;<strong>车辆信息</strong>
+							</span>
+					</td>
+					<td width="20%" valign="middle" align="right">
+					<a id="aso" href="#"></a>
+					</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<form id="wss_register_form" method="post" action="/wss/insure/enquiry_user/" enctype="multipart/form-data">{% csrf_token %}
+        <input type="hidden" name="paper_id" value="{{ paper_id }}">
+		<div class="weui_cells" style="height:100%;background:#F3F3F3;padding-top:20px;">
+		<div class="swiper-container" >
+		      <div class="swiper-wrapper">
+		        <!-- Slides -->
+		        <div class="swiper-slide"><img src="{% static 'pic/auto_insurance/ad_3.gif' %}" /></div>
+		      </div>
+		      <div class="swiper-pagination"></div>
+		</div>
+         <div class="weui_tab" style="height: 20px;z-index: 1;">
+            <div class="weui_navbar" >
+                <div onclick="click_1()" id="nav_click_1" class="weui_navbar_item weui_bar_item_on" >
+                    上传行驶证
+                </div>
+                <!-- <div onclick="click_2()" id="nav_click_2" class="weui_navbar_item">
+                    手工录入
+                </div> -->
+            </div>
+         </div> 
+        <div id="click_1" class="" style="margin-top: 10px;height:100%;background:#F3F3F3;">
+             <div class="weui_cells_title">行驶证正页图片，格式（gif、png、jpeg、icon）</div>
+            <div class="weui_cells weui_cells_form" style="background:#F3F3F3;">         
+                    <div class="weui_cell" style="background:#F3F3F3;">
+                        <div class="weui_cell_bd weui_cell_primary">
+                            <div class="weui_uploader">
+                                <div class="weui_uploader_bd">
+                                    <ul class="weui_uploader_files ul_national_image">
+                                    </ul>
+                                    <div class="weui_uploader_input_wrp" >
+                                        <input class="weui_uploader_input national_image" name="national_image" type="file" accept="image/jpg,image/jpeg,image/png,image/gif"/>
+{#                                        <input type='hidden' id="id_national_image_hidden" name="national_image_hidden">#}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+            
+            <div class="weui_cells_title">行驶证附页图片，格式（gif、png、jpeg、icon）</div>
+               <div class="weui_cells weui_cells_form" >
+                   <div class="weui_cell" style="background:#F3F3F3;">
+                        <div class="weui_cell_bd weui_cell_primary">
+                            <div class="weui_uploader">
+                                <div class="weui_uploader_bd">
+                                    <ul class="weui_uploader_files ul_national_image_down">
+                                    </ul>
+                                    <div class="weui_uploader_input_wrp">
+                                        <input class="weui_uploader_input national_image_down" name="national_image_down" type="file" accept="image/jpg,image/jpeg,image/png,image/gif"/>
+{#                                        <input type='hidden' id="id_national_image_down_hidden" name="national_image_down_hidden">#}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+        <div id="click_2" class="control-show" style="margin-top: 10px">
+        <div class="weui_cells" style="background:#F3F3F3;font-size:15px;">
+		        <div class="weui_cell  wss_dashed_bottom">
+		            <div class="weui_cell_hd"><label for="" class="weui_label">【车牌号】</label></div>
+		                <div class="weui_cell_bd weui_cell_primary " id="item-ifo">
+									<input class="weui_input" id="short_number" type="text" name="short_number" value="{% if posted_data.short %}{{ posted_data.short }}{% else %}京 A{% endif %}"><i class="fa fa-sort-desc" id="ico"></i>
+		                </div>
+		                <div class="weui_cell_ft"><input class="weui_input" type="text" placeholder="请输入车牌号"  id="plate_number" name="plate_number" value="{{ posted_data.batch_plate_number }}"/></div>
+		        </div>
+		        <div class="weui_cell  wss_dashed_bottom">
+		            <div class="weui_cell_hd"><label for="" class="weui_label">【车辆类型】</label></div>
+		                <div class="weui_cell_bd weui_cell_primary " >
+									<input class="weui_input" type="text" placeholder="请输入车辆类型"  id="car_type" name="car_type" value=""/>
+		                </div>
+		        </div>
+		        <div class="weui_cell  wss_dashed_bottom">
+		            <div class="weui_cell_hd"><label for="" class="weui_label">【所有人】</label></div>
+		                <div class="weui_cell_bd weui_cell_primary " >
+									<input class="weui_input" type="text" placeholder="请输入所有人"  id="holder" name="holder" value=""/>
+		                </div>
+		        </div>
+		        <div class="weui_cell  wss_dashed_bottom">
+		            <div class="weui_cell_hd"><label for="" class="weui_label">【使用性质】</label></div>
+		                <div class="weui_cell_bd weui_cell_primary " >
+									<input class="weui_input" type="text" placeholder="请输入使用性质"  id="use_property" name="use_property" value=""/>
+		                </div>
+		        </div>
+		       <div class="weui_cell  wss_dashed_bottom">
+		            <div class="weui_cell_hd"><label for="" class="weui_label">【品牌型号】</label></div>
+		                <div class="weui_cell_bd weui_cell_primary " >
+									<input class="weui_input" type="text" placeholder="请输入品牌型号"  id="brand_digging" name="brand_digging" value=""/>
+		                </div>
+		        </div>
+		        <div class="weui_cell  wss_dashed_bottom">
+		            <div class="weui_cell_hd" style="width:40%;"><label for="" class="weui_label" style="width:100%;">【车辆识别代码】</label></div>
+		                <div class="weui_cell_bd weui_cell_primary " >
+									<input class="weui_input" type="text" placeholder="请输入车辆识别代码"  id="car_number" name="car_number" value=""/>
+		                </div>
+		        </div>
+		        <div class="weui_cell  wss_dashed_bottom">
+		            <div class="weui_cell_hd"><label for="" class="weui_label">【发动机号】</label></div>
+		                <div class="weui_cell_bd weui_cell_primary " >
+									<input class="weui_input" type="text" placeholder="请输入发动机号"  id="engine_number" name="engine_number" value=""/>
+		                </div>
+		        </div>
+		         <div class="weui_cell  wss_dashed_bottom">
+		            <div class="weui_cell_hd"><label for="" class="weui_label">【注册日期】</label></div>
+		                <div class="weui_cell_bd weui_cell_primary " >
+									<input class="weui_input" type="text" placeholder="请输入注册日期"  id="issue_date" name="issue_date" value=""/>
+		                </div>
+		        </div>
+		        <div class="weui_cell  wss_dashed_bottom">
+		            <div class="weui_cell_hd"><label for="" class="weui_label">【核定载质量】</label></div>
+		                <div class="weui_cell_bd weui_cell_primary " >
+									<input class="weui_input" type="text" placeholder="请输入核定载质量"  id="load_weight" name="load_weight" value=""/>
+		                </div>
+		        </div>
+        </div>
+        </div>
+<div style="height:55px;"></div>
+<div style=" width: 100%; position: fixed;  bottom: 0px; ">
+		<button type="submit" class="weui_btn weui_btn_primary">下一步</button>
+    </div>
+</div>
+</form>
+      
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+ <script src="{% static 'js/jquery-2.1.4.js' %}"></script>
+ <script src="{% static 'js/fastclick.js' %}"></script>
+ <script>
+  $(function() {
+    FastClick.attach(document.body);
+  });
+ </script>
+ <script src="{% static 'js/jquery-weui.js' %}"></script>
+ <script>
+      $("#car_type").select({
+        title: "选择车辆类型",
+        items: ["货车", "9座以下客车"],
+        onChange: function(d) {
+          console.log(this, d);
+        },
+        onClose: function() {
+          console.log("close");
+        },
+        onOpen: function() {
+          console.log("open");
+        },
+      });
+    </script>
+    <script type="text/javascript">
+$(function () {
+	$('#show_0').show();
+	$(".weui_navbar_item").each(function(index){
+        $(this).click(function(){
+        	$(this).addClass('weui_bar_item_on').siblings('.weui_bar_item_on').removeClass('weui_bar_item_on');     
+        	$('#show_'+index).siblings('.weui_cells').hide();
+        	 $('#show_'+index).show();
+        });
+    }) ;         
+});
+
+function click_1(){
+    $('#click_1').removeClass('control-show');
+    $('#click_2').addClass('control-show');
+
+    $('#nav_click_1').addClass('weui_bar_item_on');
+    $('#nav_click_2').removeClass('weui_bar_item_on');
+}
+
+function click_2(){
+    $('#click_1').addClass('control-show');
+    $('#click_2').removeClass('control-show');
+
+    $('#nav_click_1').removeClass('weui_bar_item_on');
+    $('#nav_click_2').addClass('weui_bar_item_on');
+}
+
+{#行驶证证正面照#}
+$(function () {
+// 允许上传的图片类型
+var allowTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'];
+// 1024KB，也就是 1MB
+var maxSize = 3072 * 3072;
+// 图片最大宽度
+var maxWidth = 400;
+// 最大上传图片数量
+var maxCount = 1;
+$('.national_image').on('change', function (event) {
+var files = event.target.files;
+
+// 如果没有选中文件，直接返回
+if (files.length === 0) {
+return;
+}
+
+for (var i = 0, len = files.length; i < len; i++) {
+var file = files[i];
+var reader = new FileReader();
+// 如果类型不在允许的类型范围内
+if (allowTypes.indexOf(file.type) === -1) {
+$.weui.alert({text: '该类型不允许上传'});
+continue;
+}
+
+if (file.size > maxSize) {
+$.weui.alert({text: '图片太大，不允许上传'});
+continue;
+}
+
+if ($('.li_national_image').length >= maxCount) {
+$.weui.alert({text: '最多只能上传' + maxCount + '张图片'});
+return;
+}
+reader.onload = function (e) {
+
+var img = new Image();
+img.onload = function () {
+// 不要超出最大宽度
+var w = Math.min(maxWidth, img.width);
+// 高度按比例计算
+var h = img.height * (w / img.width);
+var canvas = document.createElement('canvas');
+var ctx = canvas.getContext('2d');
+// 设置 canvas 的宽度和高度
+canvas.width = w;
+canvas.height = h;
+ctx.drawImage(img, 0, 0, w, h);
+var base64 = canvas.toDataURL('image/png');
+console.log(base64);
+// 插入到预览区
+var $preview = $('<li class="weui_uploader_file weui_uploader_status li_national_image" style="background-image:url(' + base64 + ')" onclick="deletePic(this);"></li>');
+$('.ul_national_image').append($preview);
+$('.national_image').parent('.weui_uploader_input_wrp').hide();
+{#var num = $('.weui_uploader_file').length;#}
+{#$('.js_counter').text(num + '/' + maxCount);#}
+    
+{#setTimeout(uploading('.uploader_national_image'), 30);#}
+};
+img.src = e.target.result;
+    $('#id_national_image_hidden').val(img.src);
+};
+reader.readAsDataURL(file);
+}
+});
+
+});
+{#行驶证证背面照#}
+$(function () {
+// 允许上传的图片类型
+var allowTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'];
+// 1024KB，也就是 1MB
+var maxSize = 3072 * 3072;
+// 图片最大宽度
+var maxWidth = 400;
+// 最大上传图片数量
+var maxCount = 1;
+
+$('.national_image_down').on('change', function (event) {
+var files = event.target.files;
+
+// 如果没有选中文件，直接返回
+if (files.length === 0) {
+return;
+}
+
+for (var i = 0, len = files.length; i < len; i++) {
+var file = files[i];
+var reader = new FileReader();
+// 如果类型不在允许的类型范围内
+if (allowTypes.indexOf(file.type) === -1) {
+$.weui.alert({text: '该类型不允许上传'});
+continue;
+}
+
+if (file.size > maxSize) {
+$.weui.alert({text: '图片太大，不允许上传'});
+continue;
+}
+
+if ($('.li_national_image_down').length >= maxCount) {
+$.weui.alert({text: '最多只能上传' + maxCount + '张图片'});
+return;
+}
+reader.onload = function (e) {
+var img = new Image();
+img.onload = function () {
+// 不要超出最大宽度
+var w = Math.min(maxWidth, img.width);
+// 高度按比例计算
+var h = img.height * (w / img.width);
+var canvas = document.createElement('canvas');
+var ctx = canvas.getContext('2d');
+// 设置 canvas 的宽度和高度
+canvas.width = w;
+canvas.height = h;
+ctx.drawImage(img, 0, 0, w, h);
+var base64 = canvas.toDataURL('image/png');
+console.log(base64);
+// 插入到预览区
+var $preview = $('<li class="weui_uploader_file weui_uploader_status li_national_image_down" style="background-image:url(' + base64 + ')" onclick="deletePic(this);"></li>');
+$('.ul_national_image_down').append($preview);
+$('.national_image_down').parent('.weui_uploader_input_wrp').hide();
+{#var num = $('.weui_uploader_file').length;#}
+{#$('.js_counter').text(num + '/' + maxCount);#}
+};
+img.src = e.target.result;
+    $('#id_national_image_down_hidden').val(img.src);
+};
+reader.readAsDataURL(file);
+}
+});
+});
+	
+function deletePic(obj){
+	if (confirm("确认删除该上传图片吗?")){
+		$(obj).parent('.weui_uploader_files').siblings(".weui_uploader_input_wrp").show();
+		$(obj).remove();
+	}
+}
+
+$("#car_type").picker({
+    title: "选择车辆类型",
+    cols: [
+      {
+        textAlign: 'center',
+        values:["轿车", "小型普通客车", "中型普通客车", "大型普通客车","重型普通货车", "重型箱式货车", "重型自卸货车", "中型封闭货车", "中型集装箱车", "中型自卸货车", "轻型普通货车", "轻型箱式货车", "轻型自卸货车", "微型普通货车", "微型箱式货车", "微型自卸货车", "重型普通半挂车","中型普通半挂车", "微型普通半挂车", "重型普通全挂车", "中型普通全挂车", "大型专项作业车",  "中型专项作业车","小型专项作业车",   "其他"]
+      }
+    ],
+    onChange: function(p, v, dv) {
+      console.log(p, v, dv);
+    },
+    onClose: function(p, v, d) {
+      console.log("close");
+    }
+  });
+$("#short").picker({
+    title: "选择省份代码",
+    cols: [
+      {
+        textAlign: 'center',
+        values:  ["京", "津", "冀", "蒙","晋", "沪","皖", "苏", "浙", "鲁", "闽","赣", "粤", "桂", "琼","豫", "鄂", "湘","黑", "吉", "辽", "陕","甘","宁","青","新","渝","川","云","贵","藏","港","澳","台"]
+      },
+      {
+        textAlign: 'center',
+        values:["A", "B", "C", "D","E", "F","G", "H", "I", "J", "K","L", "M", "N", "O","P", "Q", "R","S", "T", "U", "V","W","x","Y","Z"]
+      }
+    ]
+  });
+  
+
+$("#use_character").picker({
+    title: "选择使用性质",
+    cols: [
+      {
+        textAlign: 'center',
+        values:["自用", "营运", "非营运"]
+      }
+    ],
+    onChange: function(p, v, dv) {
+      console.log(p, v, dv);
+    },
+    onClose: function(p, v, d) {
+      console.log("close");
+    }
+  });
+$("#reg_date").calendar({
+	onChange: function (p, values, displayValues) {
+      console.log(values, displayValues);
+    }
+  });
+</script>
+
+{% endblock %}

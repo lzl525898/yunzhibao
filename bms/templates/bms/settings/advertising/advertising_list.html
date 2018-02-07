@@ -1,0 +1,118 @@
+{% extends 'bms/settings/base_settings.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block level_5 %} in {% endblock %}
+{% block advertising %}class='active'{% endblock %}
+{% block page_top %}
+<div class="row">
+        <div class="col-sm-8">
+        {% if paging.total_pages_count > 0 %}
+            <ul class="pagination">
+                <li><a href="{% url 'bms:advertising_list' paging.prev_page %}">&laquo;</a></li>
+                {% for page in paging.pages %}
+                    <li {% if page == paging.page_index %}class="active"{% endif %}><a href="{% url 'bms:advertising_list' page %}">{{ page }}</a></li>
+                {% endfor %}
+                <li><a href="{% url 'bms:advertising_list' paging.next_page %}">&raquo;</a></li>
+                <div class="clearfix"></div>
+                <p>
+                    第{{ paging.page_index }}页/共{{ paging.total_pages_count }}页 &nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <a href="{% url 'bms:advertising_list' '1' %}">首页</a> / <a href="{% url 'bms:advertising_list' paging.total_pages_count %}">尾页</a>
+                </p>
+            </ul>
+        {% endif %}
+        </div>
+        <div class="col-sm-4">
+            <br/><br/>
+             <a class="btn btn-primary pull-right" style="margin-left: 10px" href="{% url 'bms:advertising_create' %}"><i class="fa fa-plus"></i> 创建广告位</a>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block page_middle %}
+ {% if message and message != '' %}
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="alert alert-warning">{{ message }}</div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row" style="margin-top: 10px">
+        <div class="col-sm-12">
+            <div class="list-group" id="notice_group">
+                <input type="hidden" id="page_index" name="page_index" value="{{ page_index }}"/>
+                    <div class="list-group-item">
+                        <div class="row" >
+                            <div class="col-sm-3">
+                                <p class="list-group-item-text text-center">名称</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">广告位名称</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">状态</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">创建时间</p>
+                            </div>
+                            <div class="col-sm-3">
+                                <p class="list-group-item-text text-center">操作</p>
+                            </div>
+                        </div>
+                    </div>
+				{% for advertising in advertising_list %}
+				<!-- {{advertising_list}} -->
+<!-- {#                        <a href="" class="list-group-item">#}
+                        <a href="{% url 'bms:advertising_detail' advertising.id %}" class="list-group-item"> -->
+                         <div class="list-group-item">
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <p class="list-group-item-text text-center"><strong>{{ advertising.name }}</strong></p>
+                                </div>
+                                <div class="col-sm-2">
+                                    <p class="list-group-item-text text-center">{{ advertising.position.name  }}</p>
+                                </div>
+                                <div class="col-sm-2">
+                                    <p class="list-group-item-text text-center">{% if advertising.is_hidden %}隐藏 {% else %}显示 {% endif %}</p>
+                                </div>
+                                <div class="col-sm-2">
+                                    <p class="list-group-item-text text-center">{% if advertising.create_time %}{{ advertising.create_time|date:'Y年m月d日'}}{% endif %}</p>
+                                </div>
+                            <div class="col-sm-3">
+									  <div class="row text-center">
+									  	  		 <a href="{% url 'bms:advertising_detail' advertising.id %}"><button class="btn btn-xs btn-success" style="width:30px;" title="查看详情"><i class="fa fa-search-plus" ></i></button></a>
+									  			<a href="{% url 'bms:advertising_edit' advertising.id %}"><button class="btn btn-xs btn-info" style="width:30px;" title="编辑"><i class="fa fa-edit"></i></button></a>
+									  			<a href="{% url 'bms:advertising_delete' advertising.id %}" onclick="return confirmAct();"><button class="btn btn-xs btn-danger" style="width:30px;" title="删除"><i class="fa fa-trash-o"></i></button></a> 
+									 </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+
+       </div>
+    </div>
+    
+    </div>
+{% endblock %}
+
+
+{% block page_bottom %}
+{% endblock %}
+
+
+{% block script_block %}
+    <script charset="utf-8" src="{% static 'kindEditor/kindeditor.js' %}"></script>
+	<script charset="utf-8" src="{% static 'kindEditor/lang/zh_CN.js' %}"></script>
+    <script type="text/javascript">
+      function confirmAct(){
+    	  if(confirm("确定要删除此广告吗？")){
+    		  return true; 
+    	    }else{
+    	    	return false; 
+    	   }
+      }
+    </script>
+
+{% endblock %}

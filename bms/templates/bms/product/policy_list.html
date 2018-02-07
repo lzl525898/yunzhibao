@@ -1,0 +1,154 @@
+{% extends 'bms/insurance/base_insurance.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block insurance_policy %}class='active'{% endblock %}
+{% block title %} 保单列表 {% endblock %}
+
+{% block page_top %}
+    <div class="row">
+        <div class="col-sm-12">
+            <form id="policy_search_form" class="form-inline" role="form" method="post" action="{% url 'bms:policy_list' '1' %}"> {% csrf_token %}
+                <div class="input-group">
+                    <input type="text" class="form-control" id="search_keyword" placeholder="请输入关键字" name="search_keyword" value="{{ search_keyword}}" maxlength="30">
+{#                    <span class="input-group-btn">#}
+{#                        <button type="submit" class="btn btn-default"><i class="fa fa-search"></i> 搜索</button>#}
+{#                            <button id="cancel_search" type="button" class="btn btn-default"><i class="fa fa-times"></i> 取消</button>#}
+{#                    </span>#}
+                </div>
+                <div class="input-group">
+                    <label for="id_certification_goal" class="input-group-addon">激活状态：</label>
+                    <select id="id_certification_goal" name="certification_goal" class="input-group-addon">
+                        <option value="" >全部</option>
+                        <option value="transport" {% if get_data.certification_goal == "transport" %} selected {% endif %}>激活</option>
+                        <option value="driver" {% if get_data.certification_goal == "driver" %} selected {% endif %}>不激活</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <span class="input-group-btn">
+                        <button type="submit" class="btn btn-default"><i class="fa fa-search"></i> 搜索</button>
+                        <button id="cancel_search" type="button" class="btn btn-default"><i class="fa fa-times"></i> 取消</button>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            {% if search_keyword %}
+            <p></p>
+            <div class="alert alert-warning">
+                <p>关键字： “{{ search_keyword }}”， 搜索结果：{{ paging.item_count }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-8">
+        {% if paging.total_pages_count > 0 %}
+            <ul class="pagination">
+                <li><a href="{% url 'bms:policy_list' paging.prev_page %}">&laquo;</a></li>
+                {% for page in paging.pages %}
+                    <li {% if page == paging.page_index %}class="active"{% endif %}><a href="{% url 'bms:policy_list' page %}">{{ page }}</a></li>
+                {% endfor %}
+                <li><a href="{% url 'bms:policy_list' paging.next_page %}">&raquo;</a></li>
+                <div class="clearfix"></div>
+                <p>
+                    第{{ paging.page_index }}页/共{{ paging.total_pages_count }}页 &nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <a href="{% url 'bms:policy_list' '1' %}">首页</a> / <a href="{% url 'bms:policy_list' paging.total_pages_count %}">尾页</a>
+                </p>
+            </ul>
+        {% endif %}
+        </div>
+        <div class="col-sm-4">
+            <br/><br/>
+            <a class="btn btn-primary pull-right" href="{% url 'bms:policy_create' %}"><i class="fa fa-plus"></i> 创建保单</a>
+        </div>
+
+    </div>
+{% endblock %}
+
+
+{% block page_middle %}
+    {% if message and message != '' %}
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="alert alert-warning">{{ message }}</div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row" style="margin-top: 10px">
+        <div class="col-sm-12">
+            <div class="list-group" id="notice_group">
+                <input type="hidden" id="page_index" name="page_index" value="{{ page_index }}"/>
+                    <div class="list-group-item">
+                        <div class="row" >
+{#                            <div class="col-sm-1">#}
+{#                            </div>#}
+{#                            <div class="col-sm-2">#}
+{#                                <p class="list-group-item-text">认证目标</p>#}
+{#                            </div>#}
+                            <div class="col-sm-3">
+                                <p class="list-group-item-text text-center">保单号</p>
+                            </div>
+                            <div class="col-sm-3">
+                                <p class="list-group-item-text text-center">是否理赔</p>
+                            </div>
+                            <div class="col-sm-3">
+                                <p class="list-group-item-text text-center">显示与隐藏</p>
+                            </div>
+                            <div class="col-sm-3">
+                                <p class="list-group-item-text text-center">创建时间</p>
+                            </div>
+{#                            <div class="col-sm-2">#}
+{#                                <p class="list-group-item-text">认证状态</p>#}
+{#                            </div>#}
+                        </div>
+                    </div>
+                    {% for policy in policys %}
+{#                        <a href="" class="list-group-item">#}
+                        <a href="{% url 'bms:policy_detail' policy.id %}" class="list-group-item {% if policy.is_hidden %}list-group-item-danger{% endif %}">
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <p class="list-group-item-text text-center"><strong>{{ policy.paper_id }}</strong></p>
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="list-group-item-text text-center"><strong>{% if policy.is_compensate %}是{% else %}否{% endif %}</strong></p>
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="list-group-item-text text-center">{% if not policy.is_hidden %}<i class="fa fa-check text-success"></i>{% else %}<i class="fa fa-times text-danger"></i>{% endif %}</p>
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="list-group-item-text text-center">{{ policy.create_time|date:'Y年m月d日 H:i:s' }}</p>
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+       </div>
+    </div>
+{% endblock %}
+
+{% block page_bottom %}
+
+
+
+{% endblock %}
+
+
+{% block script_block %}
+    <script type="text/javascript">
+
+        //“全部”按钮的响应事件，清空搜索关键字，然后提交搜索
+        $('#cancel_search').click(function(event) {
+            console.log("click cancel_search");
+            $('#search_keyword').val('');
+            $('#policy_search_form').submit();
+          })
+
+    </script>
+{% endblock %}

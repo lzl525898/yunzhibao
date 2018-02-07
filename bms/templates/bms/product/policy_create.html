@@ -1,0 +1,158 @@
+{% extends 'bms/insurance/base_insurance.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block insurance_policy %}class='active'{% endblock %}
+{% block title %} 创建保单 {% endblock %}
+
+{% block page_top %}
+<div class="row">
+        <div class="col-sm-10">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <i class="fa fa-plus fa-3x pull-right"></i>
+                    <form role="form" id="create_policy_form" method="post" action="{% url 'bms:policy_create' %}"  enctype="multipart/form-data">  {% csrf_token %}
+
+                        <div class="page-header">
+                          <h1 class="text-center">添加保单</h1>
+                        </div>
+                        {% if message and message != '' %}
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="alert alert-warning">{{ message }}</div>
+                                </div>
+                            </div>
+                        {% endif %}
+						<div class="form-group" >
+							<label for="id_paper_id"><i class="fa fa-user"></i> *保单号： </label>
+							<input class="form-control"  id="id_paper_id" name="paper_id" type="text"
+								   value="{{ posted_data.paper_id|default_if_none:'' }}" required >
+						</div>
+                        <div class="form-group" >
+                            <label for="id_company_id"><i class="fa fa-film"></i> *保险公司： </label>
+                            <select class="form-control" id="id_company_id" name="company_id">
+                                <option value="" selected>请选择</option>
+                                  {% for company in companys %}
+                                    <option value="{{ company.id }}" {% if posted_data.company_id|toString == company.id|toString %} selected {% endif %}>{{ company.name }}</option>
+                                  {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group" >
+                            <label for="id_insurance_type"><i class="fa fa-film"></i> *保险类型： </label>
+                            <select class="form-control" id="id_insurance_type" name="insurance_type">
+                                <option value="" selected>请选择</option>
+                                  {% for x,y in insurance_type %}
+                                    <option value="{{ x }}" {% if posted_data.insurance_type == x %} selected {% endif %}>{{ y }}</option>
+                                  {% endfor %}
+                            </select>
+                        </div>
+						<div class="form-group">
+							<label for="id_transport_id"><i class="fa fa-road"></i> *运单号： </label>
+							<input class="form-control"  id="id_transport_id" name="transport_id" type="text"
+								   value="{{ posted_data.transport_id|default_if_none:'' }}">
+						</div>
+						<div class="form-group">
+							<label for="id_plate_number"><i class="fa fa-road"></i> *车牌号： </label>
+							<input class="form-control"  id="id_plate_number" name="plate_number" type="text"
+								   value="{{ posted_data.plate_number|default_if_none:'' }}">
+						</div>
+						<div class="form-group">
+							<label for="id_start_date"><i class="fa fa-road"></i> *开始时间： </label>
+							<input class="form-control"  id="id_start_date" name="start_date" type="date"
+								   value="{{ posted_data.start_date|default_if_none:'' }}">
+						</div>
+						<div class="form-group">
+							<label for="id_insurance_rate"><i class="fa fa-road"></i> *保险费率： </label>
+							<input class="form-control"  id="id_insurance_rate" name="insurance_rate" type="text"
+								   value="{{ posted_data.insurance_rate|default_if_none:'' }}">
+						</div>
+                        <div class="form-group">
+                            <label for="id_channel"><i class="fa fa-life-bouy"></i> 是否激活： </label>
+                            <div class="">
+                                <label class="radio-inline">
+                                  <input type="radio" name="active" id="id_show" value="show" checked> 显示
+                                </label>
+                                <label class="radio-inline">
+                                  <input type="radio" name="active" id="id_hidden" value="hidden"> 隐藏
+                                </label>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 保 存</button>
+                        <a class="btn btn-default" href="{% url 'bms:policy_list' '1' %}"><i class="fa fa-times"></i> 返 回</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2"></div>
+</div>
+
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+       $(function(){
+
+            $('#create_policy_form').formValidation({
+                // I am validating Bootstrap form
+                framework: 'bootstrap',
+                locale : 'zh_CN',
+                // Feedback icons
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+
+                // List of fields and their validation rules
+                fields: {
+                    paper_id: {
+                        validators: {
+                            notEmpty: {
+                                message: '保单号不可为空'
+                            },
+                            stringLength: {
+                                max:20,
+                                message: '最多为20个字符'
+                            }
+                        }
+                    },
+                    transport_id: {
+                        validators: {
+                            notEmpty: {
+                                message: '运单号不可为空'
+                            },
+                            stringLength: {
+                                max: 50,
+                                message: '最多为50个字符'
+                            }
+                        }
+                    },
+                    plate_number: {
+                        validators: {
+                            notEmpty: {
+                                message: '车牌号不可为空'
+                            },
+                            stringLength: {
+                                max: 10,
+                                message: '最多可输入10字符'
+                            }
+                        }
+                    },
+                    insurance_rate: {
+                        validators: {
+                            notEmpty: {
+                                message: '费率不可为空'
+                            },
+                            regexp: {
+                                regexp: /^[-+]?[0-9]*\.?[0-9]+$/,
+                                message: '保险费率为小数'
+                            }
+                        }
+                    }
+                }
+            });
+
+
+        });
+    </script>
+{% endblock %}

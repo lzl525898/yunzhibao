@@ -1,0 +1,191 @@
+{% extends 'cos/order/base_order.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block order_order %}class='active'{% endblock %}
+{% block title %} 订单详情{% endblock %}
+
+{% block page_top %}
+
+    <div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+
+            <h2 class="text-center">订单详情</h2>
+            {% if message and message != '' %}
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="alert alert-warning text-center">{{ message }}</div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <table class="table table-bordered">
+                <tr>
+                  <td class="info text-center">订单号</td>
+                  <td class="text-center">{{ order.paper_id }} </td>
+                </tr>
+{#                <tr>#}
+{#                  <td class="info text-center">投保人</td>#}
+{#                    {% if order.client.company_name %}#}
+{#                  <td class="text-center">{{ order.client.company_name }}</td>#}
+{#                    {% else %}#}
+{#                  <td class="text-center">{{ order.client.name }}</td>#}
+{#                    {% endif %}#}
+{#                </tr>#}
+                <tr>
+                  <td class="info text-center">被投保人姓名</td>
+                  <td class="text-center">{{ order.insured }}</td>
+                </tr>
+                {% if order.startSiteName %}
+                <tr>
+                  <td class="info text-center">起运地</td>
+                  <td class="text-center">{{ order.startSiteName |CityName }}</td>
+                </tr>
+                {% endif %}
+                {% if order.targetSiteName %}
+                <tr>
+                  <td class="info text-center">目的地</td>
+                  <td class="text-center">{{ order.targetSiteName |CityName }}</td>
+                </tr>
+                {% endif %}
+                <!--2017/08/03添加砖头对接的字段  -->
+                {% if order.car_startSiteName %}
+                <tr>
+                  <td class="info text-center">起运地</td>
+                  <td class="text-center">{{ order.car_startSiteName }}</td>
+                </tr>
+                {% endif %}
+                {% if order.car_targetSiteName %}
+                <tr>
+                  <td class="info text-center">目的地</td>
+                  <td class="text-center">{{ order.car_targetSiteName }}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                  <td class="info text-center">启运日期</td>
+                  <td class="text-center">{{ order.pay_time|date:'Y年m月d日' }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">保额</td>
+                  <td class="text-center">{{order.insurance_price|FenToYuan }}</td>
+                </tr>
+{#                <tr>#}
+{#                  <td class="info text-center">应缴纳保费</td>#}
+{#                  <td class="text-center">{{ order.price }}</td>#}
+{#                </tr>#}
+{#                <tr>#}
+{#                  <td class="info text-center">保费</td>#}
+{#                  <td class="text-center">{{ order.pay_price }}</td>#}
+{#                </tr>#}
+            {% if order.insurance_product.product_type == 'car' %}
+                <tr>
+                  <td class="info text-center">运单号</td>
+                  <td class="text-center">{{ order.transport_id }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">货物名称</td>
+                  <td class="text-center">{{ order.commodityName }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">货物数量</td>
+                  <td class="text-center">{{ order.commodityCases }}</td>
+                </tr>
+            {% endif %}
+
+            {% if order.insurance_product.product_type == 'batch' %}
+                <tr>
+                  <td class="info text-center">车牌号</td>
+                  <td class="text-center">{{ order.plate_number }}</td>
+                </tr>
+                {% if order.batch_url %}
+                <tr>
+                  <td class="info text-center">货物清单文档</td>
+                  <td class="text-center">{{ order.batch_url }}<a class="pull-right" href="{% static '' %}{{ order.batch_url }}" download="{{ order.paper_id }}"><i class="fa fa-download">下载</i></a></td>
+                </tr>
+                {% endif %}
+                {% if order.batch_image_list %}
+                <tr>
+                    <td class="info text-center">车次清单图片</td>
+                    <td>
+                        <table class="table table-bordered" >
+                            <tr>
+                                {% for batch_image in order.batch_image_list %}
+                                    <td>
+                                        <a href="{% static '' %}{{ batch_image }}" target="_blank"><img class="img-responsive center-block" src="{% static '' %}{{ batch_image }}" style="max-width: 50px;max-height: 50px;word-break:break-all" alt="商品图片"/></a>
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                {% endif %}
+                {% if order.batch_list %}
+                <tr>
+                  <td class="info text-center">货物清单</td>
+                  <td class="text-center">
+                      <div class="row">
+                          <div class="col-sm-1"></div>
+                          <div class="col-sm-2">运单号</div>
+                          <div class="col-sm-2">起运地</div>
+                          <div class="col-sm-2">目的地</div>
+                          <div class="col-sm-2">货物名称</div>
+                          <div class="col-sm-2">货物数量</div>
+                          <div class="col-sm-1"></div>
+                      </div>
+                      <hr/>
+                      {% for batch in order.batch_list %}
+                            <div class="row" style="margin-bottom: 15px">
+                            <div class="col-sm-1"></div>
+                              <div class="col-sm-2">{{ batch.transport_id }}</div>
+                              <div class="col-sm-2">{{ batch.startSiteName }}</div>
+                              <div class="col-sm-2">{{ batch.targetSiteName }}</div>
+                              <div class="col-sm-2">{{ batch.commodityName }}</div>
+                              <div class="col-sm-2">{{ batch.commodityCases }}</div>
+                              <div class="col-sm-1"></div>
+                          </div>
+
+                      {% endfor %}
+                  </td>
+                </tr>
+                {% endif %}
+            {% endif %}
+
+            {% if order.insurance_product.product_type == 'ticket' %}
+                <tr>
+                  <td class="info text-center">运单号</td>
+                  <td class="text-center">{{ order.transport_id }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">车牌号</td>
+                  <td class="text-center">{{ order.plate_number }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">挂车牌号</td>
+                  <td class="text-center">{{ order.plate_number_plus }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">货物名称</td>
+                  <td class="text-center">{{ order.commodityName }}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">货物数量</td>
+                  <td class="text-center">{{ order.commodityCases }}</td>
+                </tr>
+            {% endif %}
+            </table>
+            <a class="btn btn-default" href="{% url 'cos:order_list' '1' %}"><i class="fa fa-times"></i> 返 回</a>
+        </div>
+        <div class="col-sm-2"></div>
+    </div>
+
+{% endblock %}
+
+{% block script_block %}
+<script type="text/javascript">
+
+
+</script>
+
+
+
+{% endblock %}

@@ -1,0 +1,638 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}我的{% endblock %}
+
+{% block container_block %}
+<!-- <style>
+.weui_tabbar:before {
+  content: " ";
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 1px;
+  border-top: 1px solid #979797;
+  color: #979797;
+  -webkit-transform-origin: 0 0;
+          transform-origin: 0 0;
+  -webkit-transform: scaleY(0.5);
+          transform: scaleY(0.5);
+}
+
+</style> -->
+
+{% if message %}
+    <div class="weui_dialog_alert">
+        <div class="weui_mask"></div>
+        <div class="weui_dialog">
+            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+            <div class="weui_dialog_bd">{{ message }}</div>
+            <div class="weui_dialog_ft">
+                <a onclick="close_dialog();" class="weui_btn_dialog primary">确定</a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+<div id="id_message" class="row control-show">
+	<div class="weui_dialog_alert">
+	        <div class="weui_mask"></div>
+	        <div class="weui_dialog">
+	            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+	            <div class="weui_dialog_bd"id="id_message_id"></div>
+	            <div class="weui_dialog_ft">
+	                <a onclick="$('#id_message').addClass('control-show');" class="weui_btn_dialog primary">确定</a>
+	            </div>
+	        </div>
+	    </div>
+<!--         <div class="col-sm-12">
+            <div id="id_message_id" class="alert alert-warning"></div>
+        </div> -->
+    </div>
+    
+<!--   删除  -->
+    <div id="delete_model" class="row control-show">
+		<div class="weui_dialog_alert">
+		        <div class="weui_mask" style="z-index:999;"></div>
+		        <div class="weui_dialog" style="z-index:1000;">
+		            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+		            <div class="weui_dialog_bd"id="id_message_id">确认删除订单？订单删除后不可复原</div>
+		            <div class="weui_dialog_ft">
+		            	<a  href="{% url 'wss:order_delete' order.id %}" class="weui_btn_dialog primary">确定</a>
+		                <a onclick="$('#delete_model').addClass('control-show');" class="weui_btn_dialog primary">取消</a>
+		            </div>
+		        </div>
+		    </div>
+    </div>
+    
+<!--   支付方式  -->
+    <div id="pay_way_model" class="row control-show">
+		<div class="weui_dialog_alert">
+		        <div class="weui_mask" style="z-index:999;"></div>
+		        <div class="weui_dialog" style="z-index:1000;">
+		            <div class="weui_dialog_hd"><strong class="weui_dialog_title">选择支付方式</strong></div>
+		            <div class="" style=" width: 100%;display:-webkit-flex;display:webkit-box;font-size:18px;  ">
+					        <a href="/wss/insure/wx_pay?order_id={{order.id}}" onclick="return start_prompt();" class="weui_tabbar_item weui_bar_item_on">
+					          <p class="weui_tabbar_label">微信支付</p>
+					        </a>
+					        <a href="{% url 'wss:order_pay_update' order.id %}" onclick="return start_prompt();"  class="weui_tabbar_item weui_bar_item_on">
+					          <p class="weui_tabbar_label">账户余额支付</p>
+					        </a>
+					      </div>
+		            <div class="weui_dialog_ft">
+		                <a onclick="$('#pay_way_model').addClass('control-show');" class="weui_btn_dialog primary">取消</a>
+		            </div>
+		        </div>
+		    </div>
+    </div>
+    
+{#    首页所在位置，进入页面后的默认页面#}
+<!-- <div class="wss_title" ><i class="fa   fa-file-text"></i> &nbsp; <strong>订单详情</strong></div> -->
+       <div class="top">
+		<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+			<tbody>
+				<tr>
+						<td width="20%" valign="middle">
+							   <!-- <a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a> --> 
+							   <a class="btn1" {% if order_list_state ==  'car' %}href="{% url 'wss:yundan_order_list' %}" {% else %}href="{% url 'wss:order_list' %}" {% endif %}><i class="fa fa-chevron-left"></i></a> 
+						</td>
+						<td class="wz" width="60%" valign="middle" align="center">
+								<span id="toptitle">
+										<i class="fa    fa-file-text"></i>&nbsp;<strong>订单详情</strong>
+								</span>
+						</td>
+						<td width="20%" valign="middle" align="right">
+						<a id="aso" href="#"></a>
+						</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	
+	
+    <div class="weui_cells wss_p" style="padding-top:30px;">
+        <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【订单号】</p>
+            </div>
+            <div class="weui_cell_ft">{{ order.paper_id }}</div>
+        </div>
+        {% if order.insurance_id %}
+            <div class="weui_cell wss_dashed_bottom">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p>【保单号】</p>
+                </div>
+                <div class="weui_cell_ft">{{ order.insurance_id }}</div>
+            </div>
+    {% endif %}
+    {% if order.insurance_image_list %}
+   		 {% if order.insurance_product.company.paper_id == "ZHONGAN_COMPANY_CODE"|settings_value or  order.picture_upload_path == 'hjb'  %}
+<!--    		    <a class="weui_cell weui_cells_access wss_dashed_bottom" href="{% static 'order/doc_file/' %}{{order.id}}.pdf">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p><font color="#000">【电子保单】</font></p>
+                </div>
+                <div class="weui_cell_ft">
+                </div>
+            </a> -->
+            {% for insurance_image in order.insurance_image_list %}                        
+				<a class="weui_cell weui_cells_access wss_dashed_bottom" href="{{ insurance_image }}" target="_blank">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p><font color="#000">【电子保单】</font></p>
+                </div>
+                <div class="weui_cell_ft">
+                </div>
+            </a>
+			{% endfor %}
+   		 {%else%}
+            <a class="weui_cell weui_cells_access wss_dashed_bottom" href="{% url 'wss:insurance_list_pic' order.id %}">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p><font color="#000">【电子保单】</font></p>
+                </div>
+                <div class="weui_cell_ft">
+                </div>
+            </a>
+          {% endif %}
+    {% endif %}
+
+      <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【产品名称】</p>
+            </div>
+            <div class="weui_cell_ft">{{ order.insurance_product.name }}</div>
+        </div>
+       <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【产品类型】</p>
+            </div>
+            <div class="weui_cell_ft">{{ order.insurance_product|displayName:'product_type' }}</div>
+        </div>
+        <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【货物价值】</p>
+            </div>
+            {% if order.product_type == 'batch' %}
+            <div class="weui_cell_ft">{{ order.insurance_price|FenToWanYuan }}</div>
+            {% else %}
+            <div class="weui_cell_ft">{{ order.insurance_price|FenToYuan }}元</div>
+            {% endif %}
+        </div>
+        <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary" >
+                <p>【费率】</p>
+            </div>
+            <div class="weui_cell_ft">{{ order.insurance_rate|RateFormat }}</div>
+        </div>
+        {% if  order.client_name %}
+        <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【保险人】</p>
+            </div>
+            <div class="weui_cell_ft">{{ order.client_name }}</div>
+        </div>
+        {% endif %}
+        {% if  order.tb_client_type %}
+        <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【投保人身份】</p>
+            </div>
+            <div class="weui_cell_ft">{% if  order.tb_client_type == 'person' %} 个人{% elif order.tb_client_type == 'company' %} 公司{% else %} {{order.client_type}}查找失败 {% endif %}</div>
+        </div>
+        {% endif %}
+         {% if  order.product_type == 'batch' %}
+          {%   if order.holderCertNo %}
+	        <div class="weui_cell wss_dashed_bottom">
+	            <div class="weui_cell_bd weui_cell_primary">
+	                <p>【投保人{% if order.tb_holderCertType == "TY"  %}社会信用代码{% elif order.tb_holderCertType == "Ｚ" %}组织机构代码{% endif %}】</p>
+	            </div>
+	            <div class="weui_cell_ft">{{  order.holderCertNo }} </div>
+	        </div>
+	        {% endif %}
+	    {% endif %}
+        {% if  order.product_type == 'ticket' %}
+          {%   if order.holderCertNo %}
+	        <div class="weui_cell wss_dashed_bottom">
+	            <div class="weui_cell_bd weui_cell_primary">
+	                <p>【投保人证件号】</p>
+	            </div>
+	            <div class="weui_cell_ft">{{  order.holderCertNo }} </div>
+	        </div>
+	        {% endif %}
+        {% endif %}
+        {% if order.client_id_card %}
+<!--         <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【保险人身份证】</p>
+            </div>
+            <div class="weui_cell_ft">{{ order.client_id_card }}</div>
+        </div> -->
+        {% endif %}
+        {% if order.insured %}
+        <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【被保险人】</p>
+            </div>
+            <div class="weui_cell_ft">{{ order.insured }}</div>
+        </div>
+        {% endif %}
+        {% if  order.client_type %}
+        <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【被保险人身份】</p>
+            </div>
+            <div class="weui_cell_ft">{% if  order.client_type == 'person' %} 货主{% elif order.client_type == 'company' %} 物流公司{% else %} {{order.client_type}}查找失败 {% endif %}</div>
+        </div>
+        {% endif %}
+        
+        {% if  order.taxpayerRegNum %}
+        <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【纳税人识别号】</p>
+            </div>
+            <div class="weui_cell_ft">{{  order.taxpayerRegNum }} </div>
+        </div>
+        {% endif %}
+
+        {% if  order.product_type == 'batch' %}
+	        {%   if order.bb_insureCertType %}
+	        <div class="weui_cell wss_dashed_bottom">
+	            <div class="weui_cell_bd weui_cell_primary">
+	                <p>【被保人{% if order.bb_insureCertType == "TY"  %}社会信用代码{% elif order.bb_insureCertType == "Ｚ" %}组织机构代码{% endif %}】</p>
+	            </div>
+	            <div class="weui_cell_ft">{{  order.bb_insureCertNo }} </div>
+	        </div>
+	        {% endif %}
+        {% endif %}
+        {%   if order.plate_number_plus %}
+	        <div class="weui_cell wss_dashed_bottom">
+	            <div class="weui_cell_bd weui_cell_primary">
+	                <p>【挂车牌号】</p>
+	            </div>
+	            <div class="weui_cell_ft">{{  order.plate_number_plus }} </div>
+	        </div>
+	        {% endif %}
+        {% if order.insured_id_card %}
+<!--         <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【被保险人身份证】</p>
+            </div>
+            <div class="weui_cell_ft">{{ order.insured_id_card }}</div>
+        </div> -->
+        {% endif %}
+        <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【不打折前保费】</p>
+            </div>
+            <div class="weui_cell_ft">{{ order.old_price|FenToYuan }}元</div>
+        </div>
+        <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【订单状态】<font color="#888">{{ order|displayName:'state' }}</font></p>
+            </div>
+            <div class="weui_cell_ft"><font color="#000">【应付保费】</font>{{ order.price|FenToYuan }}元</div>
+        </div>
+<!--         <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【订单状态】</p>
+            </div>
+            <div class="weui_cell_ft">{{ order|displayName:'state' }}</div>
+        </div> -->
+        {% if order.pay_time %}
+        <div class="weui_cells_title">自您支付订单完成时起</div>
+        <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【保险起期】</p>
+            </div>
+            <div class="weui_cell_ft">{{ order.pay_time|date:'Y年m月d日 ' }}</div>
+        </div>
+        {% endif %}
+         <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【起运地】</p>
+            </div>
+            <div class="weui_cell_ft"onclick="$('#id_start_city').removeClass('control-show');">
+            	{% if order.startSiteName %}{{ order.startSiteName |WXCityName  }}
+            	{% elif order.car_startSiteName %}{{ order.car_startSiteName }}{% endif %}
+            </div>
+        </div>
+        {# 起运地提示信息#}
+		<div id="id_start_city" class="row control-show">
+		<div class="weui_dialog_alert">
+		        <div class="weui_mask"></div>
+		        <div class="weui_dialog">
+		            <div class="weui_dialog_hd"><strong class="weui_dialog_title">起运地</strong></div>
+		            <div class="weui_dialog_bd"id="id_start_city_id">
+		            	{% if order.startSiteName %}{{ order.startSiteName |CityName  }}
+		            	{% elif order.car_startSiteName %}{{ order.car_startSiteName }}{% endif %}
+		            </div>
+		            <div class="weui_dialog_ft">
+		             	<a onclick="$('#id_start_city').addClass('control-show');"  class="weui_btn_dialog primary">确定</a>
+		            </div>
+		        </div>
+		    </div>
+	    </div>
+	    {#结束#}
+        <div class="weui_cell wss_dashed_bottom">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>【目的地】</p>
+            </div>
+            <div class="weui_cell_ft"onclick="$('#id_stop_city').removeClass('control-show');">
+            	{% if order.targetSiteName %}{{ order.targetSiteName|WXCityName }}
+            	{% elif order.car_targetSiteName %}{{ order.car_targetSiteName }}{% endif %}
+            </div>
+        </div>
+        {# 目的地提示信息#}
+		<div id="id_stop_city" class="row control-show">
+		<div class="weui_dialog_alert">
+		        <div class="weui_mask"></div>
+		        <div class="weui_dialog">
+		            <div class="weui_dialog_hd"><strong class="weui_dialog_title">目的地</strong></div>
+		            <div class="weui_dialog_bd"id="id_start_city_id">
+		            	{% if order.targetSiteName %}{{ order.targetSiteName |CityName  }}
+		            	{% elif order.car_targetSiteName %}{{ order.car_targetSiteName }}{% endif %}
+		            </div>
+		            <div class="weui_dialog_ft">
+		             	<a onclick="$('#id_stop_city').addClass('control-show');"  class="weui_btn_dialog primary">确定</a>
+		            </div>
+		        </div>
+		    </div>
+	    </div>
+	    {#结束#}
+       <!--运单保险显示  -->
+        {% if order.insurance_product.product_type == 'car' %}
+	        <div class="weui_cell wss_dashed_bottom">
+	            <div class="weui_cell_bd weui_cell_primary">
+	                <p>【运单号】</p>
+	            </div>
+	            <div class="weui_cell_ft">{{ order.transport_id }}</div>
+	        </div>
+	        <div class="weui_cell wss_dashed_bottom">
+	            <div class="weui_cell_bd weui_cell_primary">
+	                <p>【货物名称】</p>
+	            </div>
+	            <div class="weui_cell_ft">{{ order.commodityName }}</div>
+	        </div>
+	        <div class="weui_cell wss_dashed_bottom">
+	            <div class="weui_cell_bd weui_cell_primary">
+	                <p>【货物数量】</p>
+	            </div>
+	            <div class="weui_cell_ft">{{ order.commodityCases }}</div>
+	        </div>
+	    {% endif %}
+	     <!--运单保险显示 end -->
+	     
+	    {% if order.batch_list %}
+	            <a class="weui_cell weui_cells_access wss_dashed_bottom" href="{% url 'wss:batch_list' order.id %}">
+	                <div class="weui_cell_bd weui_cell_primary">
+	                    <p><font color="#000">【车次清单】</font></p>
+	                </div>
+	                <div class="weui_cell_ft"></div>
+	            </a>
+	    {% endif %}
+	    <!--  车次保险-->
+	    {% if order.insurance_product.product_type == 'batch' %}
+	        <div class="weui_cell wss_dashed_bottom">
+	            <div class="weui_cell_bd weui_cell_primary">
+	                <p>【车牌号】</p>
+	            </div>
+	            <div class="weui_cell_ft">{{ order.plate_number }}</div>
+	        </div>
+	        {% if order.plate_number_plus %}
+	                <div class="weui_cell wss_dashed_bottom">
+	                    <div class="weui_cell_bd weui_cell_primary">
+	                        <p>【挂车牌号】</p>
+	                    </div>
+	                    <div class="weui_cell_ft">{{ order.plate_number_plus }}</div>
+	                </div>
+	        {% endif %}
+	        {% if order.batch_url %}
+	                <div class="weui_cell wss_dashed_bottom">
+	                    <div class="weui_cell_bd weui_cell_primary">
+	                        <p>【车次清单文档】</p>
+	                    </div>
+	                    <div class="weui_cell_ft"><a class="" href="{% static '' %}{{ order.batch_url }}">下载</a></div>
+	                </div>
+	        {% endif %}
+	        {% if order.batch_image_list %}
+	                <a class="weui_cell weui_cells_access wss_dashed_bottom" href="{% url 'wss:batch_list_pic' order.id %}">
+	                    <div class="weui_cell_bd weui_cell_primary">
+	                        <p><font color="#000">【车次清单图片】</font></p>
+	                    </div>
+	                    <div class="weui_cell_ft">
+	                    </div>
+	                </a>
+	        {% endif %}
+	    {% endif %}
+	    <!--  车次保险  end-->
+	    <!--  单票保险-->
+	    {% if order.insurance_product.product_type == 'ticket' %}
+	        {% if order.transport_id %}
+	                <div class="weui_cell wss_dashed_bottom">
+	                    <div class="weui_cell_bd weui_cell_primary">
+	                        <p>【运单号】</p>
+	                    </div>
+	                    <div class="weui_cell_ft">{{ order.transport_id }}</div>
+	                </div>
+	        {% endif %}
+	        {% if order.plate_number %}
+	                <div class="weui_cell wss_dashed_bottom">
+	                    <div class="weui_cell_bd weui_cell_primary">
+	                        <p>【车牌号】</p>
+	                    </div>
+	                    <div class="weui_cell_ft">{{ order.plate_number }}</div>
+	                </div>
+	        {% endif %}
+	        {% if order.plate_number_plus %}
+	                <div class="weui_cell wss_dashed_bottom">
+	                    <div class="weui_cell_bd weui_cell_primary">
+	                        <p>【挂车牌号】</p>
+	                    </div>
+	                    <div class="weui_cell_ft">{{ order.plate_number_plus }}</div>
+	                </div>
+	        {% endif %}
+	        <div class="weui_cell wss_dashed_bottom">
+	            <div class="weui_cell_bd weui_cell_primary">
+	                <p>【货物名称】</p>
+	            </div>
+	            <div class="weui_cell_ft">{{ order.commodityName }}</div>
+	        </div>
+	        <div class="weui_cell wss_dashed_bottom">
+	            <div class="weui_cell_bd weui_cell_primary">
+	                <p>【货物数量】</p>
+	            </div>
+	            <div class="weui_cell_ft">{{ order.commodityCases }}</div>
+	        </div>
+	        
+	        <div class="weui_cell wss_dashed_bottom">
+	            <div class="weui_cell_bd weui_cell_primary">
+	                <p>【保单货物类型】</p>
+	            </div>
+	        {#    <div class="weui_cell_ft">#}
+	  {#           		{% if order.good_type == "普通货物" and  order.common_good_detail != "普通货物" %}#}
+       {#           			 &nbsp; &nbsp;({{order.common_good_detail}})#}
+         {#         		{% endif %}#}
+	            	
+	     {#       </div>#}
+	     <div class="weui_cell_ft">{{ order.cargo.cargo_name }}</div>
+	        </div>
+	       
+	        <div class="weui_cell wss_dashed_bottom">
+	            <div class="weui_cell_bd weui_cell_primary">
+	                <p>【包装类型】</p>
+	            </div>
+	            <div class="weui_cell_ft">{{ order.pack_method | PackMethod }}</div>
+	        </div>
+	    {% endif %}
+	     <!--  单票保险 end-->
+    <!-- </div> -->
+    <div class="weui_cells weui_cells_access wss_p" {% if not order.coupon and order.state == 'init' %}style="margin-bottom: 45px"{% endif %}>
+        <a class="weui_cell wss_dashed_bottom" href="tel:{{ order.company.parent.phone }}">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>{{ order.company.parent.name }}</p>
+                <p>全国统一客服电话</p>
+            </div>
+            <div class="weui_cell_ft">{{ order.company.parent.phone }}</div>
+        </a>
+    </div>
+    {% if order.coupon %}
+        <div class="weui_cells weui_cells_access wss_p" {% if order.state == 'init' %}style="margin-bottom: 45px"{% endif %}>
+            <a class="weui_cell wss_dashed_bottom" href="{% url 'wss:coupon_detail' order.coupon.id %}">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p>{{ order.coupon.describe }}</p>
+                </div>
+                <div class="weui_cell_ft"></div>
+            </a>
+        </div>
+    {% endif %}
+    {% if order.state == 'init' %}
+        {# 保险文档 #}
+	     <div class="weui_cells_title" style="color: red;font-size: 18px"><i class="fa  fa-exclamation-triangle"></i>【重要提示】投保前请务必认真阅读以下提示文件</div>
+        <div class="weui_cells weui_cells_checkbox">
+            <label class="weui_cell weui_check_label" for="s11">
+                <div class="weui_cell_hd">
+                    <input type="checkbox" class="weui_check" name="checkbox" id="s11" checked="checked">
+                    <i class="weui_icon_checked"></i>
+                </div>
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p style="font-size: 13px;">我已经认真阅读、理解并同意
+                        {% for document in docuemnts %}
+                            <a class="" href="{% url 'wss:document_detail' document.id %}">《{{ document.name }}》</a>
+                        {% endfor %}全部内容。
+                    </p>
+                </div>
+            </label>
+        </div>
+
+ <div style="height:85px;"></div>
+ 		{% if order.product_type == 'car' %}
+ 		<div class="weui_tabbar" style=" width: 100%; position: fixed;  bottom: 0px;z-index: 999;">
+		        <!-- <a onclick="pay_way();"class="weui_tabbar_item weui_bar_item_on"> -->
+		        <a href="/wss/insure/wx_pay?order_id={{order.id}}" class="weui_tabbar_item weui_bar_item_on" onclick="return start_prompt();" > 
+		          <div class="weui_tabbar_icon" style="color:#04BE02;">
+		           <i class="fa fa-edit"></i>
+		          </div>
+		          <p class="weui_tabbar_label">支付订单</p>
+		        </a>
+		        {% if order.submit_style != 'platform' %}
+		        <a onclick="require_delete();" class="weui_tabbar_item weui_bar_item_on">
+		          <div class="weui_tabbar_icon" style="color:#04BE02;">
+		            <i class="fa fa-trash-o"></i>
+		          </div>
+		          <p class="weui_tabbar_label">删除订单</p>
+		        </a>
+		        {% endif %}
+		      </div>
+ 		{% else %}
+		 <div class="weui_tabbar" style=" width: 100%; position: fixed;  bottom: 0px;z-index: 999;">
+		<!--  <a href="{% url 'wss:order_pay_update' order.id %}" class="weui_tabbar_item weui_bar_item_on" onclick="return start_prompt();" >  -->
+		<a href="/wss/insure/wx_pay?order_id={{order.id}}" class="weui_tabbar_item weui_bar_item_on" onclick="return start_prompt();" > 
+		<!-- <a href="javascript:;" class="weui_tabbar_item weui_bar_item_on " onclick="alipay_pc_direct()"> -->
+		          <div class="weui_tabbar_icon" style="color:#04BE02;">
+		            <i class="fa fa-check-square-o"></i>
+		          </div>
+		          <p class="weui_tabbar_label">确认投保</p>
+		        </a>
+		        <a href="{% url 'wss:order_edit'  order.id  %}" class="weui_tabbar_item weui_bar_item_on">
+		          <div class="weui_tabbar_icon" style="color:#04BE02;">
+		           <i class="fa fa-edit"></i>
+		          </div>
+		          <p class="weui_tabbar_label">修改订单</p>
+		        </a>
+		        <a onclick="require_delete();" class="weui_tabbar_item weui_bar_item_on">
+		          <div class="weui_tabbar_icon" style="color:#04BE02;">
+		            <i class="fa fa-trash-o"></i>
+		          </div>
+		          <p class="weui_tabbar_label">删除订单</p>
+		        </a>
+		      </div>
+		   {% endif %}
+
+ <div class="weui_tabbar" style=" width: 100%; position: fixed;  bottom: 0px;z-index: 888;">
+<!--  <a href="{% url 'wss:order_pay_update' order.id %}" class="weui_tabbar_item weui_bar_item_on" onclick="return start_prompt();" >  -->
+<a href="/wss/insure/wx_pay?order_id={{order.id}}" class="weui_tabbar_item weui_bar_item_on" onclick="return start_prompt();" > 
+<!-- <a href="javascript:;" class="weui_tabbar_item weui_bar_item_on " onclick="alipay_pc_direct()"> -->
+          <div class="weui_tabbar_icon" style="color:#5172D5;">
+            <i class="fa fa-check-square-o"></i>
+          </div>
+          <p class="weui_tabbar_label">确认投保</p>
+        </a>
+        <a href="{% url 'wss:order_edit'  order.id  %}" class="weui_tabbar_item weui_bar_item_on">
+          <div class="weui_tabbar_icon" style="color:#5172D5;">
+           <i class="fa fa-edit"></i>
+          </div>
+          <p class="weui_tabbar_label">修改订单</p>
+        </a>
+        <a onclick="require_delete();" class="weui_tabbar_item weui_bar_item_on">
+          <div class="weui_tabbar_icon" style="color:#5172D5;">
+            <i class="fa fa-trash-o"></i>
+          </div>
+          <p class="weui_tabbar_label">删除订单</p>
+        </a>
+      </div>
+
+    {% endif %}
+    {% if order.state == 'paid'  or order.state == 'done'  %}
+    {% if order.product_type != 'car' %}
+     <div class="weui_tabbar" style=" width: 100%; position: fixed;  bottom: 0px;z-index: 999;">
+        <a href="{% url 'wss:order_copy'  order.id  %}" class="weui_tabbar_item weui_bar_item_on">
+          <div class="weui_tabbar_icon" style="color:#5172D5;">
+           <i class="fa fa-edit"></i>
+          </div>
+          <p class="weui_tabbar_label">复制一单</p>
+        </a>
+      </div>
+      {% endif %}
+    {% endif %}
+   </div>
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+    <script type="text/javascript">
+    function start_prompt(){
+        if($("input[name='checkbox']:checked").length>0){
+           /* document.getElementById("order_confirm_form").submit(); */
+       }else{
+           /* alert('投保前必须阅读并同意文件内容'); */
+            $('#id_message').removeClass('control-show');
+            $('#id_message_id').html('投保前必须阅读并同意文件内容');
+           return false;
+       }
+   }
+    
+    
+    function require_delete(){
+            $('#delete_model').removeClass('control-show');
+
+   }
+    
+    function pay_way(){
+        $('#pay_way_model').removeClass('control-show');
+
+}
+    </script>
+
+{% endblock %}

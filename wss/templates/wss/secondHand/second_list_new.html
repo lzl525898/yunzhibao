@@ -1,0 +1,351 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}原厂低价正品交易平台{% endblock %}
+<style type="text/css">
+.weui_grid:nth-child(2n):before {
+  border-right-width: 0;
+}
+.weui_grid:nth-child(3n):before {
+  border-right-width: 1px;
+}
+.js_grid{
+  width:50%;
+  height:220px;
+}
+.weui_grid_icon {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
+}
+.swiper-container {
+  width: 100%;
+} 
+
+.swiper-container img {
+  display: block;
+  width: 100%;
+}
+.weui_grid {
+    padding: 5px 5px;
+}
+.weui-grid__label2{
+  display:block;
+  text-align:center;
+  color:#000000;
+  font-size:13px;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+  overflow:hidden;
+}
+.wss_menu1{
+background: #7894e6; float: left;z-index:9;min-width:100px;
+}
+</style>
+
+{% block container_block %}
+
+<!-- 商品分类` -->
+    <div id="goods_type_model" class="row control-show" >
+		<div class="weui_dialog_alert" >
+		        <div class="weui_mask" style="z-index:999;"></div>
+		        <div class="weui_dialog"  style="z-index:1000;">
+		            <div class="weui_dialog_hd"><strong class="weui_dialog_title"id="id_message_id">商品分类</strong></div>
+		            <div class="weui_dialog_bd" style="max-height:300px; overflow:auto;">
+		            			<div class="wss_dashed_bottom">
+					            	<a href="{% url 'wss:secondhand_list' '1' %}?goods_type_state=all"  ><font  color=black ><i class="fa fa-chevron-right"style="padding-right:5px;"></i>全部</font></a>
+					            </div>
+					            {% if goods_type_list %}
+						         	{%  for goods_type_set in goods_type_list  %}
+							            <div class="wss_dashed_bottom">
+							            	<a href="{% url 'wss:secondhand_list' '1' %}?goods_type_state={{goods_type_set.id}}"><font  color=black ><i class="fa fa-chevron-right"style="padding-right:5px;"></i>{{goods_type_set.name }}</font></a>
+							            </div>
+						            {% endfor %}
+					            {% endif %}
+		            </div>
+		            <div class="weui_dialog_ft">
+		                <a onclick="$('#goods_type_model').addClass('control-show');" class="weui_btn_dialog primary">取消</a>
+		            </div>
+		        </div>
+		    </div>
+    </div>
+
+
+<link href="{% static 'css/component.css' %}" rel="stylesheet" type="text/css" />
+<div class="top">
+<!--      <header class="header" >
+			<div id="dl-menu" class="dl-menuwrapper"  style="left:0;">
+				<button id="dl-menu-button"  style="left: 0;">Open Menu</button>
+				<ul class="dl-menu" >
+				<li><a id="" href="{% url 'wss:secondhand_list' '1' %}?goods_type_state=all" >全部</a></li>
+				{% if goods_type_list %}
+					{% for goods_type_set in goods_type_list %}
+					    <li><a id="" href="{% url 'wss:secondhand_list' '1' %}?goods_type_state={{goods_type_set.id}}" >{{goods_type_set.name }}</a></li>
+					{% endfor %}
+				{% endif %}
+				</ul>
+			</div>
+			<div style="padding-left: 40px;height: 38px;line-height: 38px;color: #fff;">
+				 分类{% if goods_type_state != 'all' %}{% if mall_goods_list %} -{{mall_goods_list.0.goods_type.name}} {% endif %}{% endif %}
+			</div>
+			
+			
+			<div id="dl-menu1" class="dl-menuwrapper" >
+				<button id="dl-menu-button1" style="background: url('');text-indent:0;font-size: 16px;color: #fff;width:80px">
+					<a href="{% url 'wss:publish_info' %}"  style="color: #fff;">我的</a>
+					发布信息<i class="fa fa-chevron-down"></i>
+				</button>
+				<ul class="dl-menu" style="width:100px">
+				{% if certificate_state == 'Y' %}
+				    <li><a id="fabu" href="{% url 'wss:publish_info' %}" >发布信息</a></li>
+				    <li><a id="guanli" href="{% url 'wss:wx_my_secondhands'  1 %}" >我的商品</a></li>
+				{% elif certificate_state == 'N' %}
+					<li><a id="fabu" href="#" >用户未认证不可使用</a></li>
+				{% else %}
+					<li><a id="fabu" href="#" >网络延迟，未获取用户状态</a></li>
+				{% endif %}
+				</ul>
+			</div>
+		</header> -->
+    <!-- 下拉菜单结束 -->
+    
+    <div class="wss_title"> 
+    
+	    <div style="margin-left:15px;float:left;font-size:16px;">
+		    <a href="{% url 'wss:wx_goodstype_list' %}"><!-- onclick="search_goods_type()"  -->
+		    <font color="white">
+			    <i class="fa fa-list" style="padding-right:5px;"></i>
+			        分类{% if goods_type_state != 'all' %}{% if mall_goods_list %} -{{mall_goods_list.0.goods_type.name}} {% endif %}{% endif %}
+			        </font>
+	        </a>
+        </div>
+        <div style="text-align: right;padding-right: 15px;float:right;font-size:16px;"><a href="{% url 'wss:publish_info' %}"><font color="white">发布信息</font></a></div>
+    </div> 
+    
+	<div class="container" id="container">
+			<div class="bd">
+			    <div class="weui_search_bar" id="search_bar">
+			        <form class="weui_search_outer"  action="{% url 'wss:secondhand_list' '1' %}?goods_type_state={{goods_type_state}}" method="POST" >{% csrf_token %}
+			            <div class="weui_search_inner">
+			                <i class="weui_icon_search"></i>
+			                <input type="search" class="weui_search_input" id="search_input" name="search_keyword" placeholder="搜索.." required/>
+			                <a href="javascript:" class="weui_icon_clear" id="search_clear"></a>
+			            </div>
+			            <label for="search_input" class="weui_search_text" id="search_text">
+			                <i class="weui_icon_search"></i>
+			                <span>搜索</span>
+			            </label>
+			        </form>
+			        <a href="javascript:" class="weui_search_cancel" id="search_cancel" style="color:#5172D5;font-size:14px;">取消</a>
+			    </div>
+			</div>
+		</div>
+  </div>
+  <div class="swiper-container" style="padding-top:80px;">
+      <div class="swiper-wrapper">
+        <!-- Slides -->
+         {% if advertising_list%}
+        	{% for advertising_set in advertising_list %}
+        	<div class="swiper-slide"style=" height:250px;text-align:center;"><a href="{{ advertising_set.advertising_url }}" target="_blank"><img src="{% static '' %}{{ advertising_set.picture }}" style=" width:auto;max-height:250px;margin:0 auto"/></a></div>
+         {#<div class="swiper-slide"><img src="{% static 'pic/default/secondhand.jpg' %}" /></div> #}
+         	{% endfor %}
+         {% endif %}
+      </div>
+      <!-- If we need pagination -->
+      <div class="swiper-pagination"></div>
+ </div> 
+ <div class="wss_line">
+ </div>
+
+ 
+   <div class="weui_grids"  id="list" >
+   {% if mall_goods_list %}
+	   {% for mall_goods in mall_goods_list %}
+	    <a href="{% url 'wss:secondhand_detail' mall_goods.id %}" class="weui_grid js_grid">
+	    <div class="weui_grid_icon" style="height:200px;width:100%;background-color:white;background-size:100% 100%;background-position: center;  ">
+            <img class="img-responsive center-block" src="{% static '' %}{{ mall_goods.goods_image_list.0 }}" />
+           </div>
+<!-- 	      <div class="weui_grid_icon" style="width:100%;height:200px;">
+	        {#<img src="{% static 'pic/default/stewardship_1.png' %}" alt="" >#}
+	        <img src="{% static '' %}{{ mall_goods.goods_image_list.0 }}" alt="" style=" width:auto;max-height:200px;margin:0 auto">
+	      </div> -->
+	      <p class="weui_grid_label"style="text-align:left">
+	        {{ mall_goods.goods_name|CutString:"14" }}
+	      </p>
+	      <div class="weui_grid_label">
+	        <div style="float:left;color:red;">￥{{ mall_goods.unit_price |FenToYuan|CutString:"5" }} </div>
+	        {% if mall_goods.original_cost  %}
+	        <div style="float:left;color:#CECECE;text-decoration:line-through"><small>￥{{ mall_goods.original_cost |FenToYuan|CutString:"5" }}</small></div>
+	        {% endif %}
+	        <div style="float:right;color:#CECECE;"><small>数量:{{ mall_goods.goods_count|String_Goods_Price }}</small></div>
+	      </div>
+	    </a>
+	 {% endfor %}
+	 <div id= "id_properties_bottom"><input type="hidden" class="" id="page_input" name="page_input"  value="{{paging.page_index}}"/></div>
+		<div class="weui-loadmore" id ="load_more" {%  if paging.page_index  !=  paging.total_pages_count %}style="display:block"{% else %} style="display:none"{% endif %}>  
+		    <i class="weui-loading"></i>  
+		    <span class="weui-loadmore__tips">正在加载</span>  
+		</div>  
+       	<div  id ="no_more" {%  if paging.page_index  !=  paging.total_pages_count %}style="text-align:center;display:none" {% else %} style="text-align:center;display:block"{% endif %}> 
+       			<small>
+         	 			<font color=black>没有更多了</font>
+         	 		</small>
+       	</div>
+{% else %}
+
+	<div  class="thumbBox"  style="padding-top: 25%;"><img  src="/static/pic/default/201305122026542520.gif" alt="icon"  style="max-width: 180px;max-height: 180px;word-break:break-all;" ></div>
+	 <div  class="thumbBox"  style="padding-top: 5%;"><p>抱歉，暂时无上架商品</p></div>
+{% endif %}
+ 
+
+ 
+
+
+  </div>
+
+
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+ <script src="{% static 'js/swiper.js' %}"></script>
+<script>
+$(".swiper-container").swiper({
+    loop: true,
+    autoplay: 3000
+  });
+  $(function() {
+    FastClick.attach(document.body);
+  });
+</script>
+<script src="{% static 'js/jquery-weui.js' %}"></script>
+<script src="{% static 'js/city-picker.js' %}"></script>
+
+<script src="{% static 'js/search.js' %}"type="text/javascript"></script>
+<script type="text/javascript" src="{% static 'js/jquery.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/modernizr.custom.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/jquery.dlmenu.js' %}"></script>
+ <script src="{% static 'js/fastclick.js' %}"></script>
+<script>
+  $(function() {
+	    FastClick.attach(document.body);
+	    $( '#dl-menu' ).dlmenu();
+	    $( '#dl-menu1' ).dlmenu();
+	});
+</script>
+<script>  
+var loading = false;
+ $(document).scroll(function(){
+	 var page_input = document.getElementById('page_input').value;
+		var total_pages='{{paging.total_pages_count}}';
+		page_input =  parseInt(page_input);
+		total_pages =  parseInt(total_pages);
+		if (page_input == total_pages){
+			loading = true;
+			document.getElementById('load_more').style.display='none';
+			document.getElementById('no_more').style.display='block';
+		}
+		else{
+			document.getElementById('load_more').style.display='block';
+			document.getElementById('no_more').style.display='none';
+		}
+    if ($(document).scrollTop() >= 200) {
+    	if(loading) {return};
+    	loading = true;
+    	setTimeout(function(){
+    		get_data()
+    		loading =false;
+    	},2000);
+    }
+});  
+
+</script>
+<script type="text/javascript">
+function get_data(){
+	var page_input = document.getElementById('page_input').value;
+	var next_page='{{paging.next_page}}';
+	var total_pages='{{paging.total_pages_count}}';
+	//alert(typeof $("#page_input").val());
+	//alert(typeof total_pages);
+	page_input =  parseInt(page_input);
+	next_page =  parseInt(next_page);
+	total_pages =  parseInt(total_pages);
+	//alert(page_input+"-------"+next_page+'------'+total_pages)
+	//alert(typeof page_input);
+	//alert(typeof total_pages);
+	if (page_input && total_pages ){
+		if (page_input == total_pages){
+			alert("已经是最后一页了");
+		}
+		else{
+			//获取新数据
+			$.ajax({
+    			url: "/wss/second/get_secondhand_detail/",
+    			data: {goods_type_state: "{{goods_type_state}}",search_keyword:"{{search_keyword}}",page:next_page},
+                type: 'GET',
+                dataType: 'json',
+                timeout: 15000,
+                success: function (data) {
+                	//alert(66666);
+                	//查询失败
+                	if (data.code=='1'){
+                    	alert(data.message);
+                    }
+                	//查询成功
+                    else{
+                    	//alert(777);
+                    	var mall_goods_list=data.data.mall_goods_detail
+                    	for ( i in mall_goods_list ){
+                    		//alert(i)
+                    		var goods_id = mall_goods_list[i]['goods_id'];
+                    		var goods_picture = mall_goods_list[i]['goods_picture'];
+                    		var goods_name = mall_goods_list[i]['goods_name'];
+                    		var goods_price = mall_goods_list[i]['goods_price'];
+                    		var original_cost = mall_goods_list[i]['original_cost'];
+                    		var goods_number = mall_goods_list[i]['goods_number'];
+                    		var test_detail ="goods_id"+ goods_id +'----------------------' +"goods_picture"+ goods_picture +'----------------------' +"goods_name"+ goods_name +'----------------------' +"goods_price"+ goods_price +'----------------------' +goods_number
+                    		//alert(test_detail)
+                     		var url="/wss/second/wx_secondhand_detail/"+goods_id;
+                     		var  pic_url = "/static/" +goods_picture;
+                    		//alert(url+"------------"+pic_url)
+                     		var add_detail='<a class="weui_grid js_grid"  href="'+url+'">'+'<div class="weui_grid_icon" style="width:100%;height:200px;">'
+                    										+'<img src="'+pic_url+'" alt="" ></div>'
+		                    								+'<p class="weui_grid_label"style="text-align:left">' +goods_name +'</p>'
+		                    								+'<div class="weui_grid_label"><div style="float:left;color:red;">￥' + goods_price + '</div>'
+		                    if (original_cost ){
+		                    	add_detail = add_detail + '<div style="float:left;color:#CECECE;text-decoration:line-through"><small>￥' + original_cost + '</small></div>'
+		                    }
+		                   add_detail = add_detail	+'<div style="float:right;color:#CECECE;"><small>数量:' + goods_number + '</small></div>'
+		                    								+'</div></a>' 
+                    		//alert(add_detail);
+                    		$('#id_properties_bottom').before(add_detail);//加载新内容
+                    	}
+                    	$("#page_input").val(next_page);
+                    	
+                    	
+                    }
+              },
+              error: function (data) {
+            	  //alert(data.message)
+              	alert('网络延迟，请退出后重试.');
+              }
+    		});
+			//end
+			
+		}
+		
+	}
+	else{
+		alert("网络延迟未获取更多信息，可退出后重试")
+	}
+	
+}
+
+function search_goods_type(){
+	$('#goods_type_model').removeClass('control-show');
+}
+</script>
+{% endblock %}

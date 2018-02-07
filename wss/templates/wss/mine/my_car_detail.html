@@ -1,0 +1,232 @@
+{% extends 'wss/base.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block title_block %}我的{% endblock %}
+
+{% block container_block %}
+<style>
+.weui_panel:before {
+  content: " ";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 1px;
+  border-top: 0px solid #E5E5E5;
+  color: #E5E5E5;
+  -webkit-transform-origin: 0 0;
+          transform-origin: 0 0;
+  -webkit-transform: scaleY(0.5);
+          transform: scaleY(0.5);
+}
+.weui_panel:after {
+  content: " ";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1px;
+  border-bottom: 0px solid #E5E5E5;
+  color: #E5E5E5;
+  -webkit-transform-origin: 0 100%;
+          transform-origin: 0 100%;
+  -webkit-transform: scaleY(0.5);
+          transform: scaleY(0.5);
+}
+</style>
+
+{% if message %}
+    <div class="weui_dialog_alert">
+        <div class="weui_mask"></div>
+        <div class="weui_dialog">
+            <div class="weui_dialog_hd"><strong class="weui_dialog_title">提示</strong></div>
+            <div class="weui_dialog_bd">{{ message }}</div>
+            <div class="weui_dialog_ft">
+                <a onclick="close_dialog();" class="weui_btn_dialog primary">确定</a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+{#    首页所在位置，进入页面后的默认页面#}
+<div class="top">
+	<table class="tabel" border="0" cellspacing="0" cellpadding="0">
+		<tbody>
+			<tr>
+					<td width="23%" valign="middle">
+							<a class="btn1" onclick="history.go(-1)"><i class="fa fa-chevron-left"></i></a>
+					</td>
+					<td class="wz" width="53%" valign="middle" align="center">
+							<span id="toptitle">
+									<i class="fa   fa-file-text"></i>&nbsp;<strong>车辆详情</strong>
+							</span>
+					</td>
+					<td width="23%" valign="middle" align="right">
+					<a id="aso" href="#"></a>
+					</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+ <div class="weui_cells"  style="padding-top:30px;">
+        <div class="weui_cells_title" id="wss_bt_title"><i class="fa  fa-sign-out"></i>车辆信息</div>
+        <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p><small>车牌号</small></p>
+            </div>
+            <div class="weui_cell_ft"><small>{{car.plate_number}}</small></div>
+        </div>
+        <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p><small>车龄</small></p>
+                </div>
+                <div class="weui_cell_ft"><small>{% if car.car_state == '0'  %}{{car.issue_date}}年{% endif %}</small></div>
+        </div>
+        <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p><small>年检时间</small></p>
+                </div>
+                <div class="weui_cell_ft"><small>{% if car.plate_expiration_periods %}{{ car.plate_expiration_periods|dateformat}}{% endif %}</small></div>
+        </div>
+        {% if car.liability_date_start %}
+        <div class="weui_cells_title" id="wss_bt_title"><i class="fa  fa-sign-out"></i>交强险--保单信息</div>
+                {% endif %}
+        {% if car.liability_number %}
+        <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p><small>交强险保单号</small></p>
+            </div>
+            <div class="weui_cell_ft"><small>{{car.liability_number}}</small></div>
+        </div>
+        {% endif %}
+        {% if car.liability_price %}
+        <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p><small>保费</small></p>
+                </div>
+                <div class="weui_cell_ft"><small>{{car.liability_price |FenToYuan}}元</small></div>
+        </div>
+        {% endif %}
+         {% if car.liability_tax %}
+        <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p><small>车船税</small></p>
+                </div>
+                <div class="weui_cell_ft"><small>{{car.liability_tax|FenToYuan}}元</small></div>
+        </div>
+        {% endif %}
+       {% if car.liability_date_start %}
+        <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p><small>保险期限</small></p>
+                </div>
+                <div class="weui_cell_ft"><small>{{car.liability_date_start|date:'Y年m月d日' }}----{{car.liability_date_stop |date:'Y年m月d日'  }}</small></div>
+        </div>
+        {% endif %}
+        {% if car.liability_company %}
+        <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p><small>承保公司</small></p>
+                </div>
+                <div class="weui_cell_ft"><small>{{car.liability_company}}</small></div>
+        </div>
+        {% endif %}
+         {% if car.liability_phone_num %}
+	    <a class="weui_cell weui_cells_access" href="tel:{{car.liability_phone_num}}">
+	            <div class="weui_cell_bd weui_cell_primary">
+	                <p><small><font color="#000">报案电话</font></small></p>
+	            </div>
+	            <div class="weui_cell_ft"><small>{{car.liability_phone_num}}</small></div>
+	     </a>
+	        {% endif %}
+	              {% if car.commercial_date_start %}
+         <div class="weui_cells_title" id="wss_bt_title"><i class="fa  fa-sign-out"></i>商业险--保单信息</div>
+         {% endif %}
+                  {% if car.commercial_num %}
+        <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p><small>商业险保单号</small></p>
+            </div>
+            <div class="weui_cell_ft"><small>{{car.commercial_num}}</small></div>
+        </div>
+        {% endif %}
+         {% if car.commercial_tax %}
+	    <div class="weui_cell">
+	    	<table class="bordered"  style="width:100%">    
+						<tr>
+								  <th>险种</th>
+								  <th>保费</th>
+						</tr>
+						  {% for tax in car.commercial_tax %}
+						<tr>
+								<td>{{tax.com_kind}}</td>
+								<td>{{tax.com_price |FenToYuan}}元</td>
+						</tr>
+						  {% endfor %}
+				</table>
+	    </div>
+	     {% endif %}
+	     {% if car.commercial_price %}
+        <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p><small>保费总额</small></p>
+                </div>
+                <div class="weui_cell_ft"><small>{{car.commercial_price|FenToYuan}}元</small></div>
+        </div>
+         {% endif %}
+       {% if car.commercial_date_start %}
+        <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p><small>保险期限</small></p>
+                </div>
+                <div class="weui_cell_ft"><small>{{car.commercial_date_start |date:'Y年m月d日'}}----{{car.commercial_date_stop |date:'Y年m月d日'}}</small></div>
+        </div>
+        {% endif %}
+          {% if car.commercial_company %}
+        <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p><small>承保公司</small></p>
+                </div>
+                <div class="weui_cell_ft"><small>{{car.commercial_company}}</small></div>
+        </div>
+        {% endif %}
+         {% if car.commercial_phone_num %}
+	    <a class="weui_cell weui_cells_access" href="tel:{{car.commercial_phone_num}}">
+	            <div class="weui_cell_bd weui_cell_primary">
+	                <p><small><font color="#000">报案电话</font></small></p>
+	            </div>
+	            <div class="weui_cell_ft"><small>{{car.commercial_phone_num}}</small></div>
+	     </a>
+	     {% endif %}
+</div>
+      {% if car.liability_number or car.commercial_num %}
+<div class="weui_cells" style="background:#c7e4b0; color:#fff" >
+	  <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p><small>保费合计金额（交强险+商业险）</small></p>
+                </div>
+                <div class="weui_cell_ft" style="color:#fff"><small>{{total_price|FenToYuan}}元</small></div>
+        </div>
+        <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p><small>返还油卡金额</small></p>
+                </div>
+                <div class="weui_cell_ft" style="color:#fff"><small>{{car.oil_card_price|FenToYuan}}元</small></div>
+        </div>
+        <div class="weui_cell">
+                <div class="weui_cell_bd weui_cell_primary">
+                    <p><small>净费</small></p>
+                </div>
+                <div class="weui_cell_ft" style=" color:#fff"><small>{{net_price |FenToYuan}}元</small></div>
+        </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block page_block %}
+{#    Page所在，微信页面的Page使用PageManager管理，详见"js/we-example.js"#}
+{#    Page是一个类似于Modal的概念#}
+{% endblock %}
+{% block script_block %}
+{#    对于页面中的Page需要使用对应的js来控制页面跳转#}
+{% endblock %}

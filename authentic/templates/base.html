@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+{% load static %}
+{% load legoo_tag %}
+<html lang="zh-cn" >
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ "APP_NAME"|settings_value }} - {% block title %}- 欢迎使用 {% endblock %}</title>
+
+{#    自定义收藏夹图标#}
+    <link rel="icon" href="{% static "pic/default/favicon.ico" %}" type="image/x-icon">
+    <!-- Bootstrap -->
+    <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
+    <link href="{% static 'css/font-awesome.min.css' %}" rel="stylesheet" >
+    <link href="{% static 'css/simpleFilePreview.css' %}" rel="stylesheet" >
+    <link href="{% static 'css/legoo.css' %}" rel="stylesheet" >
+<!--     <link rel="stylesheet" href="{% static 'css/formValidation.css' %}"/> -->
+    <link href="{% static 'css/formValidation.min.css' %}" rel="stylesheet" >
+    <link href="{% static 'css/chosen.css' %}" rel="stylesheet" >
+<!--         <link href="{% static 'css/zoom.css' %}" rel="stylesheet" > -->
+    <!-- <link href="{% static 'css/bootstrap-select.css' %}" rel="stylesheet" > -->
+
+
+    <style type="text/css">
+
+<!--
+a{
+
+}
+a:link {
+text-decoration: none;
+}
+a:visited {
+text-decoration: none;
+}
+a:hover {
+text-decoration: none;
+
+}
+a strong:hover{
+
+}
+a p:hover{
+
+}
+a:active {
+text-decoration: none;
+}
+
+
+    {% block inline_css %} {% endblock %}
+    </style>
+    <!--  数据统计页面引入文件3-->
+    		<script src="{% static 'js/echarts-all.js' %}"></script>
+    		<script src="{% static 'js/eBase-js.js' %}"></script>
+		<!--  数据统计页面引入文件结束-->	
+    {% block link_script %} {% endblock %}
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+<div id="container">
+    <div id="header">
+        <!-- 导航栏 -->
+        <nav class="navbar navbar-inverse" role="navigation">
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                        <span class="sr-only">
+                            Toggle navigation
+                        </span>
+                        <span class="icon-bar">
+                        </span>
+                        <span class="icon-bar">
+                        </span>
+                        <span class="icon-bar">
+                        </span>
+                    </button>
+                    <a class="navbar-brand" href="#"><strong>{{ "APP_NAME"|settings_value }}</strong></a>
+                </div>
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                  <ul class="nav navbar-nav">
+
+                  </ul>
+
+                  <ul class="nav navbar-nav navbar-right">
+                      {% block navigation-right %}
+                          <li><a href="{% url 'home' %}">返回首页</a></li>
+                      {% endblock %}
+                  </ul>
+                </div>
+                <!--/.nav-collapse -->
+            </div>
+            <!-- /.container-fluid-->
+        </nav>
+
+            <!-- body_block -->
+    </div>
+    <div id="page" class="container-fluid">
+     {% block body_block %}
+     {% endblock %}
+    </div>
+    <div id="footer" class="container-fluid">
+        <hr>
+         <footer>
+            {% block footer_block %}
+                 <p class="text-center">{{ "COPYRIGHT"|settings_value }}</p>
+            {% endblock %}
+        </footer>
+    </div>
+</div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="{% static 'js/jquery-1.11.0.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <!-- 劫持表单提交改为Ajax -->
+    <script src="{% static 'js/jquery.cookie.js' %}"></script>
+    <script src="{% static 'js/jquery.form.js' %}"></script>
+    <!-- Bootstrap的文件选择样式 -->
+{#    <script src="{% static 'js/bootstrap-filestyle.min.js' %}"></script>#}
+    <!-- 在网页中播放MP4 -->
+{#    <script src="{% static 'video-js/video.js' %}"></script>#}
+        <!-- FormValidation plugin and the class supports validating Bootstrap form -->
+    <script src="{% static 'js/formValidation.min.js' %}"></script>
+    <script src="{% static 'js/framework/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/language/zh_CN.js' %}"></script>
+    <!-- 日期时间选择控件及其依赖项 -->
+    <script src="{% static 'js/jquery.cityselect.js' %}"></script>
+    <script src="{% static 'js/ajax-bms.js' %}"></script>
+    <script src="{% static 'js/pingpp-pc.js' %}"></script>
+    <script src="{% static 'js/pingpp.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery.simpleFilePreview.js' %}"></script>
+<!--     <script src="{% static 'js/bootstrap-select.js' %}"></script> -->
+    <script src="{% static 'js/chosen.jquery.min.js' %}"></script> 
+    <script  type="text/javascript" src="{% static 'js/My97DatePicker/WdatePicker.js' %}"></script>
+<!--        <script  type="text/javascript" src="{% static 'js/zoom.min.js' %}"></script> -->
+
+
+{#<script>#}
+{#  videojs.options.flash.swf = "{% static 'video-js/video-js.swf' %}"#}
+{#</script>#}
+<script type="text/javascript">
+			jQuery(function($) {
+				$(".chosen-select").chosen(); 
+				$('#chosen-multiple-style').on('click', function(e){
+					var target = $(e.target).find('input[type=radio]');
+					var which = parseInt(target.val());
+					if(which == 2) $('#form-field-select-4').addClass('tag-input-style');
+					 else $('#form-field-select-4').removeClass('tag-input-style');
+				});
+
+			});
+		</script>
+{% block script_block %} {% endblock %}
+{% block base_script_block %} {% endblock %}
+
+
+</body>
+</html>

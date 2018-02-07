@@ -1,0 +1,171 @@
+{% extends 'bms/user/base_user.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block user_certificate %}class='active'{% endblock %}
+{% block title %} 重新申请认证 {% endblock %}
+
+{% block page_top %}
+<div class="row">
+        <div class="col-sm-10">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <i class="fa fa-plus fa-3x pull-right"></i>
+                    <form role="form" id="create_certificate_form" method="post" action="{% url 'bms:certificate_reject_repeat' certificate.id %}"  enctype="multipart/form-data">  {% csrf_token %}
+
+                        <div class="page-tailer">
+                          <h1 class="text-center">重新申请认证</h1>
+                        </div>
+                        {% if message and message != '' %}
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="alert alert-warning">{{ message }}</div>
+                                </div>
+                            </div>
+                        {% endif %}
+{#						<div class="form-group" >#}
+{#							<label for="id_name"><i class="fa fa-user"></i> *姓名： </label>#}
+{#							<input class="form-control"  id="id_name" name="name" type="text"#}
+{#								   value="{{ certificate.name|default_if_none:'' }}" maxlength="100" required disabled>#}
+{#						</div>#}
+						<div class="form-group" >
+							<label for="id_user_type"><i class="fa fa-user"></i> *认证目标： </label>
+							<input class="form-control"  id="id_user_type" name="" type="text"
+								   value="{{ certificate|displayName:'user_type'|default_if_none:'' }}" maxlength="100" required disabled>
+                            <input type="hidden" name="user_type" value="{{ certificate.user_type }}">
+						</div>
+						<div class="form-group" >
+							<label for="id_user_classify"><i class="fa fa-user"></i> *用户类别： </label>
+							<input class="form-control"  id="id_user_classify" name="user_classify" type="text"
+								   value="{{ certificate|displayName:'user_classify'|default_if_none:'' }}" maxlength="100" required disabled>
+                            <input type="hidden" name="user_classify" value="{{ certificate.user_classify }}">
+						</div>
+                    {% if not certificate.national_id %}
+                        <div class="form-group" >
+                            <label class="control-label" for="id_national_image"><i class="fa fa-picture-o"></i>身份证正面图片<small>（gif、png、jpeg或icon;）</small>: </label>
+                            <input class="filestyle" type="file" id="id_national_image" name="national_image" multiple="multiple" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                        </div>
+                        <div class="form-group" >
+                            <label class="control-label" for="id_national_image_down"><i class="fa fa-picture-o"></i>身份证背面图片<small>（gif、png、jpeg或icon;）</small>: </label>
+                            <input class="filestyle" type="file" id="id_national_image_down" name="national_image_down" multiple="multiple" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                        </div>
+                    {% endif %}
+                    <div class="{% if certificate.user_type != 'transport' %}control-show{% endif %}" id="id_business_certificate">
+                    {% if not certificate.business_license_id %}
+                        <div class="form-group" >
+                            <label class="control-label" for="id_business_license_image"><i class="fa fa-picture-o"></i>营业执照正本<small>（gif、png、jpeg或icon;）</small>: </label>
+                            <input class="filestyle" type="file" id="id_business_license_image" name="business_license_image" multiple="multiple" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                        </div>
+                    {% endif %}
+                    {% if not certificate.organ %}
+                        <div class="form-group" >
+                            <label class="control-label" for="id_organ_image"><i class="fa fa-picture-o"></i>组织机构代码证<small>（gif、png、jpeg或icon;）</small>: </label>
+                            <input class="filestyle" type="file" id="id_organ_image" name="organ_image" multiple="multiple" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                        </div>
+                    {% endif %}
+{#                    {% if not certificate.tax_id %}#}
+{#                        <div class="form-group" >#}
+{#                            <label class="control-label" for="id_tax_image"><i class="fa fa-picture-o"></i>税务登记证<small>（gif、png、jpeg或icon;）</small>: </label>#}
+{#                            <input class="filestyle" type="file" id="id_tax_image" name="tax_image" multiple="multiple" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">#}
+{#                        </div>#}
+{#                    {% endif %}#}
+                    {% if not certificate.operating_permit_id %}
+                        <div class="form-group" >
+                            <label class="control-label" for="id_operating_permit_image"><i class="fa fa-picture-o"></i>道路运输经营许可证<small>（gif、png、jpeg或icon;）</small>: </label>
+                            <input class="filestyle" type="file" id="id_operating_permit_image" name="operating_permit_image" multiple="multiple" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                        </div>
+                    {% endif %}
+                    </div>
+
+                    {# 司机认证 #}
+
+                    <div class="{% if certificate.user_type != 'driver' %}control-show{% endif %}" id="id_driver_certificate">
+                    {% if not certificate.driver_id %}
+                        <div class="form-group" >
+                            <label class="control-label" for="id_driver_image"><i class="fa fa-picture-o"></i>驾驶证<small>（gif、png、jpeg或icon;）</small>: </label>
+                            <input class="filestyle" type="file" id="id_driver_image" name="driver_image" multiple="multiple" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                        </div>
+                    {% endif %}
+                    {% if not certificate.plate_number %}
+                        <div class="form-group" >
+                            <label class="control-label" for="id_plate_image"><i class="fa fa-picture-o"></i>行驶证<small>（gif、png、jpeg或icon;）</small>: </label>
+                            <input class="filestyle" type="file" id="id_plate_image" name="plate_image" multiple="multiple" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                        </div>
+                    {% endif %}
+                    {% if not certificate.transportation_license_id %}
+                        <div class="form-group" >
+                            <label class="control-label" for="id_transportation_image"><i class="fa fa-picture-o"></i>营运证<small>（gif、png、jpeg或icon;）</small>: </label>
+                            <input class="filestyle" type="file" id="id_transportation_image" name="transportation_image" multiple="multiple" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                        </div>
+                    {% endif %}
+                    </div>
+{# 货主认证 #}
+                    <div class="{% if certificate.user_type != 'boss' %}control-show{% endif %}" id="id_boss_certificate">
+                    {% if certificate.user_classify == 'units' %}
+                        {% if not certificate.business_license_id %}
+                            <div class="form-group" >
+                                <label class="control-label" for="id_business_license_image_boss"><i class="fa fa-picture-o"></i>营业执照<small>（gif、png、jpeg或icon;）</small>: </label>
+                                <input class="filestyle" type="file" id="id_business_license_image_boss" name="business_license_image_boss" multiple="multiple" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                            </div>
+                        {% endif %}
+                        {% if not certificate.organ %}
+                            <div class="form-group" >
+                                <label class="control-label" for="id_organ_image_boss"><i class="fa fa-picture-o"></i>组织机构代码证<small>（gif、png、jpeg或icon;）</small>: </label>
+                                <input class="filestyle" type="file" id="id_organ_image_boss" name="organ_image_boss" data-icon="true" data-input="true" data-buttonText="选择图片" data-iconName="glyphicon-inbox">
+                            </div>
+                        {% endif %}
+                    {% endif %}
+
+                    </div>
+                        <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 保 存</button>
+                        <a class="btn btn-default" href="{% url 'bms:registered_edit' certificate.client.id %}"><i class="fa fa-times"></i> 返 回</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2"></div>
+</div>
+
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+       $(function(){
+
+            $('#create_certificate_form').formValidation({
+                // I am validating Bootstrap form
+                framework: 'bootstrap',
+                locale : 'zh_CN',
+                // Feedback icons
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+
+                // List of fields and their validation rules
+                fields: {
+                    name: {
+                        validators: {
+                            notEmpty: {
+                                message: '保险公司名称不可为空'
+                            },
+                            stringLength: {
+                                min: 2,
+                                max: 16,
+                                message: '请输入2～16个字符'
+                            }
+                        }
+                    },
+                    rate: {
+                        validators: {
+                            regexp: {
+                                regexp: /^[0-9]+([.]{1}[0-9]+){0,1}$/,
+                                message: '请填写正确的格式'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}

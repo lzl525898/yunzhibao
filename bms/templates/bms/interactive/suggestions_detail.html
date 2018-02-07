@@ -1,0 +1,43 @@
+{% extends 'bms/interactive/base_interactive.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block interactive_suggestions %}class='active'{% endblock %}
+{% block title %} 建议详情 {% endblock %}
+
+{% block page_top %}
+
+    <div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+
+            <h2 class="text-center">建议和意见</h2>
+            {% if message and message != '' %}
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="alert alert-warning text-center">{{ message }}</div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <table class="table table-bordered">
+                <tr>
+                  <td class="">建议</td>
+                  <td class="text-center">{{ suggestions.description }} </td>
+                </tr>
+                <tr>
+                  <td class="">创建时间</td>
+                  <td class="text-center">{{ suggestions.create_time|date:'Y年m月d日 H:i:s' }}</td>
+                </tr>
+            </table>
+            <a class="btn btn-default" href="{% url 'bms:suggestions_list' '1' %}"><i class="fa fa-times"></i> 返 回</a>
+        </div>
+        <div class="col-sm-2"></div>
+    </div>
+
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+
+    </script>
+{% endblock %}

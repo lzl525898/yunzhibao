@@ -1,0 +1,159 @@
+{% extends 'bms/product/base_product.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block product_head_company %}class='active'{% endblock %}
+{% block title %} 保险总公司详情 {% endblock %}
+
+{% block page_top %}
+
+    <div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+
+            <h2 class="text-center">保险总公司详情</h2>
+            {% if message and message != '' %}
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="alert alert-warning text-center">{{ message }}</div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <table class="table table-bordered">
+                <tr>
+                  <td class="info text-center">总公司名称</td>
+                  <td class="text-center">{{ head_company.name }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">公司介绍</td>
+                  <td class="text-center">{{ head_company.description }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">公司编号</td>
+                  <td class="text-center">{{ head_company.paper_id }} </td>
+                </tr>
+                <tr>
+                  <td class="info text-center">报案电话</td>
+                  <td class="text-center">{{ head_company.phone }} </td>
+                </tr>
+{#                <tr>#}
+{#                  <td class="info text-center">系统对接投保基础费率</td>#}
+{#                  <td class="text-center">{{ head_company.docking_rate|stringformat:'f' }}</td>#}
+{#                </tr>#}
+{#                <tr>#}
+{#                  <td class="info text-center">系统对接投保文档</td>#}
+{#                  <td class="text-center">#}
+{#                      <div class="row">#}
+{#                          <div class="col-lg-1">#}
+{#                          </div>#}
+{#                          <div class="col-lg-10">#}
+{#                              {% for docking_document in head_company.docking_documents  %}#}
+{#                                  <div id="id_docking_{{ docking_document.id }}" class="" name="name_docking_document" document_id="{{ docking_document.id }}">{{ docking_document.simple_name }}</div>#}
+{#                              {% endfor %}#}
+{#                          </div>#}
+{#                          <div class="col-lg-1">#}
+{#                              <a onclick="head_company_document_show('docking_document')"><i class="fa fa-edit text-danger"></i></a>#}
+{#                          </div>#}
+{#                      </div>#}
+{#                  </td>#}
+{#                </tr>#}
+{#                <tr>#}
+{#                  <td class="info text-center">单车单次投保基础费率</td>#}
+{#                  <td class="text-center">{{ head_company.car_rate|stringformat:'f' }}</td>#}
+{#                </tr>#}
+{#                <tr>#}
+{#                  <td class="info text-center">单车单次投保文档</td>#}
+{#                  <td class="text-center">#}
+{#                      <div class="row">#}
+{#                          <div class="col-lg-1">#}
+{#                          </div>#}
+{#                          <div class="col-lg-10">#}
+{#                              {% for car_document in head_company.car_documents  %}#}
+{#                                  <div class="" name="name_car_document" document_id="{{ car_document.id }}">{{ car_document.simple_name }}</div>#}
+{#                              {% endfor %}#}
+{#                          </div>#}
+{#                          <div class="col-lg-1">#}
+{#                              <a onclick="head_company_document_show('car_document')"><i class="fa fa-edit text-danger"></i></a>#}
+{#                          </div>#}
+{#                      </div>#}
+{#                  </td>#}
+{#                </tr>#}
+{#                <tr>#}
+{#                  <td class="info text-center">单票货物投保基础费率</td>#}
+{#                  <td class="text-center">{{ head_company.batch_rate|stringformat:'f' }}</td>#}
+{#                </tr>#}
+{#                <tr>#}
+{#                  <td class="info text-center">单票货物投保文档</td>#}
+{#                  <td class="text-center">#}
+{#                      <div class="row">#}
+{#                          <div class="col-lg-1">#}
+{#                          </div>#}
+{#                          <div class="col-lg-10">#}
+{#                              {% for batch_document in head_company.batch_documents  %}#}
+{#                                  <div class="" name="name_batch_document" document_id="{{ batch_document.id }}">{{ batch_document.simple_name }}</div>#}
+{#                              {% endfor %}#}
+{#                          </div>#}
+{#                          <div class="col-lg-1">#}
+{#                              <a onclick="head_company_document_show('batch_document')"><i class="fa fa-edit text-danger"></i></a>#}
+{#                          </div>#}
+{#                      </div>#}
+{#                  </td>#}
+{#                </tr>#}
+{#                <tr>#}
+{#                  <td class="info text-center">案均赔款</td>#}
+{#                  <td class="text-center">{% if head_company.avg_project_pay %}{{ head_company.avg_project_pay }}{% else %}无{% endif %}</td>#}
+{#                </tr>#}
+{#                <tr>#}
+{#                  <td class="info text-center">案均处理时效</td>#}
+{#                  <td class="text-center">{% if head_company.avg_project_time %}{{ head_company.avg_project_time }}{% else %}无{% endif %}</td>#}
+{#                </tr>#}
+                <tr>
+                  <td class="info text-center">是否显示</td>
+                  <td class="text-center">{% if not head_company.is_hidden %}是{% else %}否{% endif %}</td>
+                </tr>
+                <tr>
+                  <td class="info text-center">创建时间</td>
+                  <td class="text-center">{{ head_company.create_time|date:'Y年m月d日 H:i:s' }}</td>
+                </tr>
+            </table>
+            <a class="btn btn-success" href="{% url 'bms:head_company_edit' head_company.id %}"><i class="fa fa-edit"></i> 编 辑</a>
+            <a class="btn btn-default" href="{% url 'bms:head_company_list' '1' %}"><i class="fa fa-times"></i> 返 回</a>
+        </div>
+        <div class="col-sm-2"></div>
+    </div>
+{#          添加投保模态框         #}
+{#<div class="modal fade" id="save_insurance_head_company_modal" tabindex="-1" role="dialog" >#}
+{#    <div class="modal-dialog">#}
+{#        <form id="id_user_protocol_form" class="form" method="post" action="{% url 'bms:head_company_detail' head_company.id %}"  >  {% csrf_token %}#}
+{#            <div class="modal-content">#}
+{#              <div class="modal-header">#}
+{#                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>#}
+{#                <h4 class="modal-title"><i class="fa fa-edit"></i> 投保文档</h4>#}
+{#              </div>#}
+{#              <input id="id_document_type" name="document_type" type="hidden" value="">#}
+{#              <div class="modal-body">#}
+{#                  {% for insurance_document in insurance_documents  %}#}
+{#                    <div class="checkbox">#}
+{#                        <label>#}
+{#                            <input type="checkbox" class="insurance_document" id="modal_{{ insurance_document.id }}" name="{{ insurance_document.id }}" value="{{ insurance_document.id }}">#}
+{#                            {{ insurance_document.name }}#}
+{#                        </label>#}
+{#                    </div>#}
+{#                  {% endfor %}#}
+{#              </div>#}
+{#              <div class="modal-footer">#}
+{#                  onclick="save_head_company_document();"#}
+{#                <button class="btn btn-success" type="submit" ><i class="fa fa-floppy-o"></i> 提 交</button>#}
+{#                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> 退 出</button>#}
+{#              </div>#}
+{#            </div>#}
+{#        </form>#}
+{#    </div>#}
+{#</div>#}
+{% endblock %}
+
+{% block script_block %}
+    <script type="text/javascript">
+
+    </script>
+{% endblock %}

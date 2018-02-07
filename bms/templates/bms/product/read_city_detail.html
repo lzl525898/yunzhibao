@@ -1,0 +1,246 @@
+{# {% extends 'bms/product/base_product.html' %}#}
+{% extends 'bms/settings/base_settings.html' %}
+{% load static %}
+{% load legoo_tag %}
+{% block level_4 %} in {% endblock %}
+{% block insurance_product_list %}class='active'{% endblock %}
+{% block title %} 产品列表 {% endblock %}
+
+{% block page_top %}
+{# 2017-09-14  添加 筛选部分#}
+    <div class="row">
+        <div class="col-sm-12">
+            <form id="order_search_form" class="form-inline" role="form" method="post" action="{% url 'bms:read_city_detail' '1' %}"> {% csrf_token %}
+                <div class="input-group">
+                    <label for="id_user_type" class="input-group-addon">地区类别：</label>
+                    <select id="id_user_type" name="city_type" class="input-group-addon" >
+                        <option value="">全部</option>
+                        <option value="1" {% if get_data.city_type == "1" %} selected {% endif %}>省</option>
+                        <option value="2" {% if get_data.city_type == "2" %} selected {% endif %}>市</option>
+                        <option value="3" {% if get_data.city_type == "3" %} selected {% endif %}>区</option>
+                    </select>
+                </div>
+                <br/>
+                <div class="input-group" style="margin-top: 15px">
+                    <input type="text" class="form-control" id="search_keyword" placeholder="地区名称或地区编码" name="search_keyword" value="{{ get_data.search_keyword}}" maxlength="30">
+                     <span class="input-group-btn">
+                        <button type="submit" class="btn btn-default"><i class="fa fa-search"></i> 搜索</button>
+                        <button id="cancel_search" type="button" class="btn btn-default"><i class="fa fa-times"></i> 取消</button>
+                    </span>
+                </div>
+            <br/>
+            </form>
+        </div>
+    </div>
+
+
+
+
+{# 添加筛选结束 #}
+
+<!-- 
+    <div class="row">
+        <div class="col-sm-8">
+        {% if paging.total_pages_count > 0 %}
+            <ul class="pagination">
+                <li><a href="{% url 'bms:read_city_detail' paging.prev_page %}">&laquo;</a></li>
+                {% for page in paging.pages %}
+                    <li {% if page == paging.page_index %}class="active"{% endif %}><a href="{% url 'bms:read_city_detail' page %}">{{ page }}</a></li>
+                {% endfor %}
+                <li><a href="{% url 'bms:read_city_detail' paging.next_page %}">&raquo;</a></li>
+                <div class="clearfix"></div>
+                <p>
+                    第{{ paging.page_index }}页/共{{ paging.total_pages_count }}页 &nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <a href="{% url 'bms:read_city_detail' '1' %}">首页</a> / <a href="{% url 'bms:read_city_detail' paging.total_pages_count %}">尾页</a>
+                </p>
+            </ul>
+        {% endif %}
+        </div>
+    </div> -->
+    
+    
+        <div class="row">
+        <div class="col-sm-8">
+        {% if paging.total_pages_count > 0 %}
+            <ul class="pagination">
+                  {% if  paging.page_index ==  1  %}
+                         <li><a style= "opacity: 0.2" disabled="true">&laquo;</a></li>
+                  {% endif %} 
+                  {% if paging.page_index != 1 %}     
+                         <li><a  href="javascript:;" onclick='$("#prevpage_{{paging.prev_page}}").submit();'>&laquo;</a></li>
+                   {% endif %} 
+                {% for page in paging.pages %}
+                   <li {% if page == paging.page_index %}class="active"{% endif %}><a href="javascript:;" onclick='$("#choosepage_{{page}}").submit();'>{{ page }}</a></li>             
+                {% endfor %}
+                {% if  paging.page_index ==  paging.total_pages_count  %}
+                            <li><a  style= "opacity: 0.2" disabled="true">&raquo;</a></li>
+                 {% endif %} 
+                 {% if paging.page_index != paging.total_pages_count %}  
+                            <li><a href="javascript:;" onclick='$("#nextpage_{{paging.next_page}}").submit();'>&raquo;</a></li>  
+                 {% endif %} 
+                <div class="clearfix"></div>
+                <p>
+                    第{{ paging.page_index }}页/共{{ paging.total_pages_count }}页 &nbsp;&nbsp;&nbsp;&nbsp;
+                 {% if  paging.page_index ==  1  %}
+                    <a disabled="true">首页</a> / 
+                 {% endif %}   
+                 {% if  paging.page_index !=  1  %}
+                    <a href="javascript:;" onclick='$("#first_page").submit();'>首页</a> / 
+                 {% endif %}   
+                  
+                 {% if  paging.page_index ==  paging.total_pages_count  %}
+                          <a disabled="true">尾页</a>
+                 {% endif %} 
+                 {% if paging.page_index != paging.total_pages_count %}  
+                        <a  href="javascript:;" onclick='$("#last_page").submit();'>尾页</a>
+                 {% endif %} 
+                 {#*****************************首页表单******************#}
+          			<form id="first_page" class="hidden" role="" method="post" action="{% url 'bms:read_city_detail' '1'  %}"> {% csrf_token %}
+		                <input type="hidden"   name="city_type"{% if get_data.city_type %} value="{{get_data.city_type}}"{% else %}value=""{% endif %}>
+		                <input type="hidden"   name="search_keyword"{% if get_data.search_keyword %} value="{{get_data.search_keyword}}"{% else %}value=""{% endif %}>
+		                <input type="submit" name="argsubmit" style="display:none"/>
+	            </form>  
+	          {#*****************************尾页表单******************#}
+	         		 <form id="last_page" class="hidden" role="" method="post" action="{% url 'bms:read_city_detail' paging.total_pages_count %}"> {% csrf_token %}
+	         		 			<input type="hidden"   name="city_type"{% if get_data.city_type %} value="{{get_data.city_type}}"{% else %}value=""{% endif %}>
+				               <input type="hidden"   name="search_keyword"{% if get_data.search_keyword %} value="{{get_data.search_keyword}}"{% else %}value=""{% endif %}>
+				                <input type="submit" name="argsubmit" style="display:none"/>
+			            </form> 
+			            
+			            
+			    {#*****************************上一页表单******************#}
+	         		 <form id="prevpage_{{paging.prev_page}}" class="" role="" method="post" action="{% url 'bms:read_city_detail' paging.prev_page %}"> {% csrf_token %}
+				                <input type="hidden"   name="search_keyword"{% if get_data.search_keyword %} value="{{get_data.search_keyword}}"{% else %}value=""{% endif %}>
+				                <input type="hidden"   name="city_type"{% if get_data.city_type %} value="{{get_data.city_type}}"{% else %}value=""{% endif %}>
+				                <input type="submit" name="argsubmit" style="display:none"/>
+			            </form> 
+			    {#*****************************下一页表单******************#}
+	         		<form id="nextpage_{{paging.next_page}}" class="" role="" method="post" action="{% url 'bms:read_city_detail' paging.next_page %}"> {% csrf_token %}
+				                <input type="hidden"   name="search_keyword"{% if get_data.search_keyword %} value="{{get_data.search_keyword}}"{% else %}value=""{% endif %}>
+				                <input type="hidden"   name="city_type"{% if get_data.city_type %} value="{{get_data.city_type}}"{% else %}value=""{% endif %}>
+				                <input type="submit" name="argsubmit" style="display:none"/>
+			            </form> 
+			         {#*****************************每一页表单******************#}    
+			      {% for page in paging.pages %}
+				            <form id="choosepage_{{page}}" class="" role="" method="post" action="{% url 'bms:read_city_detail' page%}"> {% csrf_token %}
+				                <input type="hidden"   name="search_keyword"{% if get_data.search_keyword %} value="{{get_data.search_keyword}}"{% else %}value=""{% endif %}>
+				                <input type="hidden"   name="city_type"{% if get_data.city_type %} value="{{get_data.city_type}}"{% else %}value=""{% endif %}>
+				                <input type="submit" name="argsubmit" style="display:none"/>
+				            </form>     
+                {% endfor %}
+                </p>
+            </ul>
+        {% endif %}
+        </div>
+
+    </div>
+    
+    
+    <div class="row">
+     <div class="col-sm-6"></div>
+	 <div class="col-sm-6">
+				<div class="form-group">
+					<div class="col-sm-3"></div>
+				    <div class="col-sm-3">
+		            		<a class="btn btn-primary pull-right"  href="{% url 'bms:cargoArea_sync' %}"><i class="fa fa-plus"></i> 众安地址同步</a>
+		        	</div>   
+		        	<div class="col-sm-6">
+		            		<a class="btn btn-primary pull-right"  href="{% url 'bms:cargoArea_json' %}"><i class="fa fa-plus"></i> 生成地址json文件</a>
+		        	</div> 
+				</div>
+        </div>
+    </div>
+
+			{% if message and message != '' %}
+			                            <div class="row">
+			                                <div class="col-sm-12">
+			                                    <div class="alert alert-warning">{{ message }}</div>
+			                                </div>
+			                            </div>
+			  {% endif %}
+		
+{% endblock %}
+
+{% block page_middle %}
+{#<div>request.POST====={{posted_data}}</div></br>#}
+{#<div>cargo_list====={{cargo_list}}</div>#}
+
+    <div class="row" style="margin-top: 10px">
+        <div class="col-sm-12">
+            <div class="list-group" id="notice_group">
+                <input type="hidden" id="page_index" name="page_index" value="{{ page_index }}"/>
+                    <div class="list-group-item">
+                        <div class="row" >
+                        <div class="col-sm-1">
+                                <p class="list-group-item-text text-center">序号</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">地区名称</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">地区编码</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">地区等级</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">上级编码</p>
+                            </div>
+                            <div class="col-sm-3">
+                                <p class="list-group-item-text text-center">创建时间</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% for city_detail  in city_detail_list %}
+                    <div class="list-group-item">
+                        <div class="row" >{#{{cargo.id}}#}
+                         <div class="col-sm-1">
+                                <p class="list-group-item-text text-center">{{forloop.counter}}</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">{{city_detail.name}}</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">{{city_detail.code}}</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">{{city_detail.level}}</p>
+                            </div>
+                            <div class="col-sm-2">
+                                <p class="list-group-item-text text-center">{{city_detail.parentcode}}</p>
+                            </div>
+                            <div class="col-sm-3">
+                                <p class="list-group-item-text text-center">{{city_detail.create_time}}</p>
+                            </div>
+							
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+       </div>
+    </div>
+{% endblock %}
+
+{% block page_bottom %}
+
+{% endblock %}
+
+
+{% block script_block %}
+    <script type="text/javascript">
+    function edit_cargo(cargo_id,cargo_type,cargo_number,cargo_name){
+    	//alert("cargo_id=="+cargo_id+"\ncargo_type=="+cargo_type+"\ncargo_number=="+cargo_number+"\n cargo_name=="+cargo_name );
+        $('#confirm_cargo_edit').modal('show');
+        var cargo_id_edit = document.getElementById("cargo_id_edit");
+        var cargo_type_edit = document.getElementById("id_cargo_type_edit");
+        var cargo_number_edit = document.getElementById("id_cargo_number_edit");
+        var cargo_describe_edit = document.getElementById("id_cargo_describe_edit");
+        cargo_id_edit.value = cargo_id;
+        cargo_type_edit.value = cargo_type;
+        cargo_number_edit.value = cargo_number;
+        cargo_describe_edit.value = cargo_name;
+    }
+
+    </script>
+{% endblock %}

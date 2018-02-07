@@ -1,0 +1,127 @@
+{% extends 'bms/base.html' %}
+{% load static %}
+{% block title %} 服务器设置 {% endblock %}
+{% block tab_settings %}class='active'{% endblock %}
+
+{% block content_block %}
+
+
+    <div class="row">
+
+        <div class="col-sm-2">
+            <div class="panel-group" id="settings" role="tablist" aria-multiselectable="true">
+    {#                level 1#}
+              <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="headingOne">
+                  <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#settings" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                      服务器设置
+                    </a>
+                  </h4>
+                </div>
+                <div id="collapseOne" class="panel-collapse collapse {% block level_1 %}{% endblock %}" role="tabpanel" aria-labelledby="headingOne">
+                    <div class="panel-body">
+                        <ul class="nav nav-pills nav-stacked narrow">
+                            <li {% block settings_base %}{% endblock %}><a href="{% url 'bms:settings_base' %}">基本设置</a></li>
+                            <li {% block settings_push %}{% endblock %} id="id_settings_push"><a href="{% url 'bms:settings_database' %}?type=push&debug=false">推送设置</a></li>
+                            <li {% block settings_sms %}{% endblock %} id="id_settings_sms"><a href="{% url 'bms:settings_database' %}?type=sms&debug=false">短信设置</a></li>
+                            <li {% block settings_pay %}{% endblock %} id="id_settings_pay"><a href="{% url 'bms:settings_database' %}?type=pay&debug=false">支付设置</a></li>
+                            <li {% block settings_email %}{% endblock %} id="id_settings_email"><a href="{% url 'bms:settings_database' %}?type=email&debug=false">邮件设置</a></li>
+                            <li {% block settings_other %}{% endblock %} id="id_settings_other"><a href="{% url 'bms:settings_database' %}?type=other&debug=false">其他设置</a></li>
+                        </ul>
+                    </div>
+                </div>
+              </div>
+    {#                level 2#}
+              <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="headingTwo">
+                  <h4 class="panel-title">
+                    <a class="collapsed" data-toggle="collapse" data-parent="#settings" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                       开发者选项
+                    </a>
+                  </h4>
+                </div>
+                <div id="collapseTwo" class="panel-collapse collapse {% block level_2 %}{% endblock %}" role="tabpanel" aria-labelledby="headingTwo">
+                  <div class="panel-body">
+                    <ul class="nav nav-pills nav-stacked narrow">
+                        <li {% block debug_base %}{% endblock %} id="id_debug_base"><a href="{% url 'bms:setting_debug_model' %}">调试模式</a></li>
+                        <li {% block debug_push %}{% endblock %} id="id_debug_push"><a href="{% url 'bms:settings_database' %}?type=push&debug=true">推送设置</a></li>
+                        <li {% block debug_sms %}{% endblock %} id="id_debug_sms"><a href="{% url 'bms:settings_database' %}?type=sms&debug=true">短信设置</a></li>
+                        <li {% block debug_pay %}{% endblock %} id="id_debug_pay"><a href="{% url 'bms:settings_database' %}?type=pay&debug=true">支付设置</a></li>
+                        <li {% block debug_email %}{% endblock %} id="id_debug_email"><a href="{% url 'bms:settings_database' %}?type=email&debug=true">邮件设置</a></li>
+                        <li {% block debug_other %}{% endblock %} id="id_debug_other"><a href="{% url 'bms:settings_database' %}?type=other&debug=true">其他设置</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+    {#                level 3#}
+              <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="headingThree">
+                  <h4 class="panel-title">
+                    <a class="collapsed" data-toggle="collapse" data-parent="#settings" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                       平台对接配置
+                    </a>
+                  </h4>
+                </div>
+                <div id="collapseThree" class="panel-collapse collapse {% block level_3 %}{% endblock %}" role="tabpanel" aria-labelledby="headingThree">
+                  <div class="panel-body">
+                    <ul class="nav nav-pills nav-stacked narrow">
+                       
+                        <li {% block settings_platform %}{% endblock %}><a href="{% url 'bms:settings_platform' %}">物流平台设置</a></li>
+                        <li {% block settings_insurance%}{% endblock %}><a href="{% url 'bms:insurance_platform' %}">保险平台设置</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+                  {#                level 4#}
+              <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="headingFour">
+                  <h4 class="panel-title">
+                    <a class="collapsed" data-toggle="collapse" data-parent="#settings" href="#collapseFour" aria-expanded="false" aria-controls="collapseThree">
+                      平台信息管理
+                    </a>
+                  </h4>
+                </div>
+                <div id="collapseFour" class="panel-collapse collapse {% block level_4%}{% endblock %}" role="tabpanel" aria-labelledby="headingFour">
+                  <div class="panel-body">
+                    <ul class="nav nav-pills nav-stacked narrow">
+                        <li {% block user_protocol %}{% endblock %} id="id_user_protocol"><a href="{% url 'bms:settings_user_protocol' %}">用户协议</a></li>
+                        <li {% block platform_product %}{% endblock %}><a href="{% url 'bms:platform_product_list' %}">保险产品管理</a></li>
+                        <li {% block insurance_product_list %}{% endblock %}><a href="{% url 'bms:read_city_detail' '1'   %}">地址管理</a></li>
+                        <li {% block cargo_list %}{% endblock %}><a href="{% url 'bms:cargo_intry' '1'   %}">货物类型管理</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+{#                level 5#}
+              <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="headingOne">
+                  <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#settings" href="#collapseFive" aria-expanded="true" aria-controls="collapseFive">
+                      广告管理
+                    </a>
+                  </h4>
+                </div>
+                <div id="collapseFive" class="panel-collapse collapse {% block level_5 %}{% endblock %}" role="tabpanel" aria-labelledby="headingFive">
+                    <div class="panel-body">
+                        <ul class="nav nav-pills nav-stacked narrow">
+                            <li {% block advertising_position %}{% endblock %} id="id_settings_push"><a href="{% url 'bms:advertising_position_list'  '1' %}?type=push&debug=false">广告位设置</a></li>
+                            <li {% block advertising  %}{% endblock %} id="id_settings_sms"><a href="{% url 'bms:advertising_list' '1' %}">广告设置</a></li>
+                        </ul>
+                    </div>
+                </div>
+              </div>
+
+          </div>
+        </div>
+
+        <div class="col-sm-10">
+            {% block page_top %}{% endblock %}
+            {% block page_middle %}{% endblock %}
+            {% block page_bottom %}{% endblock %}
+        </div>
+    </div>
+
+{% endblock %}
+
+
